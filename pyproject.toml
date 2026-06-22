@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "claim-harness"
+version = "0.1.0"
+description = "A lightweight Agent Harness for scientific claim-evidence auditing."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "pydantic>=2.0",
+  "pandas>=2.0",
+  "typer>=0.12",
+  "rich>=13.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+
+[project.scripts]
+claim-harness = "claim_harness.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["claim_harness*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
