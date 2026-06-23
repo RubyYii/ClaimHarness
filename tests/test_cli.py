@@ -18,9 +18,9 @@ def test_run_help_command():
     assert "--llm" in result.output
 
 
-def test_run_subcommand_executes():
+def test_run_subcommand_requires_inputs():
     runner = CliRunner()
     result = runner.invoke(app, ["run"])
 
-    assert result.exit_code == 0
-    assert "ClaimHarness skeleton is installed." in result.output
+    assert result.exit_code != 0
+    assert "--manuscript" in result.output

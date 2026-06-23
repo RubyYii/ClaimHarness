@@ -35,7 +35,7 @@ The manuscript is fully synthetic and describes a human-in-the-loop, explainable
 
 ## Current Status
 
-The repository currently contains the initial package skeleton and CLI entry point. The deterministic mock audit pipeline will be implemented in later tasks.
+The repository currently contains the initial deterministic mock audit pipeline. Mock mode runs without API keys.
 
 ## Development Commands
 
@@ -43,3 +43,22 @@ The repository currently contains the initial package skeleton and CLI entry poi
 python -m claim_harness run --help
 pytest
 ```
+
+## Mock Demo Command
+
+```bash
+python -m claim_harness run \
+  --manuscript examples/oocyte_demo/manuscript.md \
+  --tables examples/oocyte_demo/tables \
+  --references examples/oocyte_demo/references.md \
+  --out outputs/oocyte_demo_run \
+  --llm mock
+```
+
+The command writes:
+
+- `claim_table.csv`
+- `evidence_map.json`
+- `audit_report.md`
+- `revision_suggestions.md`
+- `agent_trace.jsonl`
