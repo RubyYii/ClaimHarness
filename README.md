@@ -4,6 +4,14 @@ ClaimHarness turns a scientific manuscript into an auditable claim-evidence pack
 
 This is not a prompt-only reviewer. It decomposes the task into task specification, context selection, claim extraction, evidence retrieval, verification, human-review routing, and trace logging.
 
+Run the bundled synthetic demo and generate the browser report in one command:
+
+```bash
+.venv\Scripts\python.exe -m claim_harness demo
+```
+
+The project is checked by GitHub Actions CI on push and pull request.
+
 ## Architecture
 
 ```mermaid
@@ -26,7 +34,7 @@ python -m venv .venv
 .venv\Scripts\python.exe -m pip install -e ".[dev]"
 ```
 
-Run the synthetic oocyte demo:
+Run the synthetic oocyte demo manually:
 
 ```bash
 .venv\Scripts\python.exe -m claim_harness run \
@@ -41,6 +49,12 @@ Run tests:
 
 ```bash
 .venv\Scripts\python.exe -m pytest
+```
+
+Or use the one-command demo path:
+
+```bash
+.venv\Scripts\python.exe -m claim_harness demo --out outputs/oocyte_demo_run
 ```
 
 ## Optional OpenAI-Compatible Provider
@@ -100,13 +114,13 @@ outputs/oocyte_demo_run/
 `claim_table.csv` contains one row per claim:
 
 ```text
-claim_id,status,claim_type,example
-C002,supported,performance_claim,The proposed harness improves segmentation Dice and IoU...
-C004,overclaimed,clinical_claim,Although the prototype is not clinically validated...
-C007,weakly_supported,novelty_claim,The first design goal is to make every guidance claim traceable...
+claim_id,source_line,status,claim_type,example
+C002,4,supported,performance_claim,The proposed harness improves segmentation Dice and IoU...
+C004,4,overclaimed,clinical_claim,Although the prototype is not clinically validated...
+C007,8,weakly_supported,novelty_claim,The first design goal is to make every guidance claim traceable...
 ```
 
-`evidence_map.json` links claim IDs to evidence IDs so reviewers can inspect why a claim was classified. `agent_trace.jsonl` records each pipeline step in order, including loading, extraction, retrieval, verification, and report generation.
+`source_line` points back to the approximate manuscript line. `evidence_map.json` links claim IDs to evidence IDs and includes a match reason for each link so reviewers can inspect why a claim was classified. `agent_trace.jsonl` records each pipeline step in order, including loading, extraction, retrieval, verification, and report generation.
 
 ## Why this is an Agent Harness
 
@@ -132,9 +146,11 @@ Implemented:
 - Markdown and CSV loaders
 - deterministic claim extraction
 - deterministic evidence retrieval
+- source_line and match reason traceability
 - conservative mock verification
 - optional OpenAI-compatible advisory review
 - static report viewer
+- GitHub Actions CI
 - CSV, JSON, Markdown, and JSONL outputs
 
 Planned or optional:

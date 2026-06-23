@@ -26,15 +26,15 @@ flowchart TD
 
 ## Modules
 
-`claim_harness.cli` orchestrates the run command. It validates `--llm mock` or `--llm openai-compatible`, loads inputs, calls the pipeline modules, writes outputs, and prints a concise summary.
+`claim_harness.cli` orchestrates the `run`, `view`, and `demo` commands. It validates `--llm mock` or `--llm openai-compatible`, loads inputs, calls the pipeline modules, writes outputs, and prints a concise summary.
 
 `claim_harness.loader` reads Markdown manuscript sections, CSV tables, and references.
 
 `claim_harness.context_manager` packages loaded inputs into an `AuditContext`.
 
-`claim_harness.claim_extractor` uses deterministic keyword rules to extract claim-like sentences and assign `C001`, `C002`, and later IDs.
+`claim_harness.claim_extractor` uses deterministic keyword rules to extract claim-like sentences, assign `C001`, `C002`, and later IDs, and preserve an approximate `source_line` for manuscript traceability.
 
-`claim_harness.evidence_retriever` converts table rows, Results text, Discussion limitations, and references into evidence items.
+`claim_harness.evidence_retriever` converts table rows, Results text, Discussion limitations, and references into evidence items. Each claim-evidence link records a match reason such as lexical overlap or source-token matching.
 
 `claim_harness.verifier` assigns support labels: `supported`, `weakly_supported`, `unsupported`, `overclaimed`, or `needs_human_review`.
 
@@ -57,6 +57,8 @@ The shared schemas are:
 - `AuditEvent`
 
 These objects make intermediate state explicit. That explicit state is the main difference between this harness and a prompt-only review.
+
+`Claim.source_line` helps reviewers navigate back to the manuscript. `EvidenceItem.claim_link_reasons` records why an evidence item was attached to each linked claim.
 
 ## Output Package
 

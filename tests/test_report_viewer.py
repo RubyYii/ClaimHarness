@@ -97,6 +97,10 @@ def test_render_report_viewer_writes_static_html(tmp_path):
     assert "E001" in html
     assert "Audit trace" in html
     assert "Advisory LLM review" in html
+    assert "data-filter=\"weak-or-worse\"" in html
+    assert "data-status=\"supported\"" in html
+    assert "data-risk=\"high\"" in html
+    assert "Match reason" in html
     assert "Escaped &lt;claim&gt;" in html
     assert "<claim>" not in html
 

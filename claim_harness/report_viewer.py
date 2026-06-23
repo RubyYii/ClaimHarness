@@ -113,6 +113,7 @@ def _render_html(payload: dict[str, Any], run_dir: Path) -> str:
             _render_llm_review(payload["llm_review"]),
             _render_trace(trace),
             "</main>",
+            f"<script>{_script()}</script>",
             "</body>",
             "</html>",
         ]
@@ -170,6 +171,17 @@ section {
 .metric span { display: block; color: var(--muted); font-size: 12px; }
 .metric strong { display: block; margin-top: 4px; font-size: 24px; }
 .status-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.filter-button {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 6px 10px;
+  font: inherit;
+}
+.filter-button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); font-weight: 700; }
 .status-pill {
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -205,6 +217,32 @@ pre {
   .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   section { padding: 12px; }
 }
+"""
+
+
+def _script() -> str:
+    return """
+const buttons = document.querySelectorAll('[data-filter]');
+const rows = document.querySelectorAll('[data-claim-row]');
+function visibleForFilter(row, filter) {
+  const status = row.dataset.status;
+  const risk = row.dataset.risk;
+  if (filter === 'all') return true;
+  if (filter === 'weak-or-worse') {
+    return ['weakly_supported', 'unsupported', 'overclaimed', 'needs_human_review'].includes(status);
+  }
+  if (filter === 'high-risk') return risk === 'high';
+  return status === filter;
+}
+buttons.forEach((button) => {
+  button.addEventListener('click', () => {
+    const filter = button.dataset.filter;
+    buttons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+    rows.forEach((row) => {
+      row.hidden = !visibleForFilter(row, filter);
+    });
+  });
+});
 """
 
 
@@ -244,24 +282,43 @@ def _render_claim_table(claims: list[dict[str, str]], evidence_links: list[dict[
         item.get("claim_id", ""): item.get("evidence_ids", [])
         for item in evidence_links
     }
+    reasons_by_claim = {
+        item.get("claim_id", ""): item.get("evidence_links", [])
+        for item in evidence_links
+    }
     rows = []
     for row in claims:
         claim_id = row.get("claim_id", "")
         evidence_ids = ", ".join(evidence_by_claim.get(claim_id, []))
+        match_reasons = "; ".join(
+            f'{link.get("evidence_id", "")}: {link.get("match_reason", "linked by retrieval rule")}'
+            for link in reasons_by_claim.get(claim_id, [])
+        )
+        if not match_reasons and evidence_ids:
+            match_reasons = "Linked by retrieval rule"
         rows.append(
-            "<tr>"
+            f'<tr data-claim-row data-status="{_e(row.get("status", ""))}" data-risk="{_e(row.get("risk_level", ""))}">'
             f'<td class="mono">{_e(claim_id)}</td>'
             f'<td><span class="{_status_class(row.get("status", ""))}">{_e(row.get("status", ""))}</span></td>'
             f'<td>{_e(row.get("risk_level", ""))}</td>'
             f'<td>{_e(row.get("claim_type", ""))}</td>'
+            f'<td class="mono">{_e(row.get("source_line", ""))}</td>'
             f'<td class="claim-text">{_e(row.get("text", ""))}</td>'
             f'<td class="mono">{_e(evidence_ids)}</td>'
+            f'<td>{_e(match_reasons)}</td>'
             f'<td>{_e(row.get("suggested_revision", ""))}</td>'
             "</tr>"
         )
     return (
-        '<section><h2>Claim table</h2><div class="table-wrap"><table>'
-        "<thead><tr><th>ID</th><th>Status</th><th>Risk</th><th>Type</th><th>Claim</th><th>Evidence</th><th>Suggested revision</th></tr></thead>"
+        '<section><h2>Claim table</h2>'
+        '<div class="filter-bar" aria-label="Claim filters">'
+        '<button class="filter-button" type="button" data-filter="all" aria-pressed="true">All</button>'
+        '<button class="filter-button" type="button" data-filter="weak-or-worse" aria-pressed="false">Weak or worse</button>'
+        '<button class="filter-button" type="button" data-filter="high-risk" aria-pressed="false">High risk</button>'
+        '<button class="filter-button" type="button" data-filter="supported" aria-pressed="false">Supported</button>'
+        '<button class="filter-button" type="button" data-filter="overclaimed" aria-pressed="false">Overclaimed</button>'
+        '</div><div class="table-wrap"><table>'
+        "<thead><tr><th>ID</th><th>Status</th><th>Risk</th><th>Type</th><th>Line</th><th>Claim</th><th>Evidence</th><th>Match reason</th><th>Suggested revision</th></tr></thead>"
         "<tbody>"
         + "".join(rows)
         + "</tbody></table></div></section>"
@@ -278,12 +335,13 @@ def _render_evidence_table(evidence: list[dict[str, Any]]) -> str:
             f'<td>{_e(item.get("source", ""))}</td>'
             f'<td>{_e(item.get("evidence_type", ""))}</td>'
             f'<td class="mono">{_e(linked)}</td>'
+            f'<td>{_e(json.dumps(item.get("claim_link_reasons", {}), ensure_ascii=False))}</td>'
             f'<td class="claim-text">{_e(item.get("text", ""))}</td>'
             "</tr>"
         )
     return (
         '<section><h2>Evidence map</h2><div class="table-wrap"><table>'
-        "<thead><tr><th>ID</th><th>Source</th><th>Type</th><th>Claims</th><th>Evidence text</th></tr></thead>"
+        "<thead><tr><th>ID</th><th>Source</th><th>Type</th><th>Claims</th><th>Match reason</th><th>Evidence text</th></tr></thead>"
         "<tbody>"
         + "".join(rows)
         + "</tbody></table></div></section>"

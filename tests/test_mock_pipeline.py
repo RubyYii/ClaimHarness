@@ -35,9 +35,12 @@ def test_deterministic_modules_produce_claims_evidence_and_statuses():
 
     assert len(claims) >= 10
     assert claims[0].claim_id == "C001"
+    assert claims[0].source_line is not None
+    assert claims[0].source_line > 0
     assert any(claim.claim_type == "performance_claim" for claim in claims)
     assert any(item.evidence_type == "quantitative_result" for item in evidence)
     assert any(item.linked_claim_ids for item in evidence)
+    assert any(item.claim_link_reasons for item in evidence)
     assert {"supported", "weakly_supported", "overclaimed"}.issubset(statuses)
 
 
@@ -71,12 +74,27 @@ def test_mock_cli_run_writes_required_outputs(tmp_path):
     statuses = {row["status"] for row in rows}
 
     assert len(rows) >= 10
+    assert "source_line" in rows[0]
+    assert rows[0]["source_line"]
     assert {"supported", "weakly_supported", "overclaimed"}.issubset(statuses)
 
     evidence_map = json.loads((output_dir / "evidence_map.json").read_text(encoding="utf-8"))
     trace_lines = (output_dir / "agent_trace.jsonl").read_text(encoding="utf-8").strip().splitlines()
 
     assert evidence_map["claims"]
+    assert any(item.get("claim_link_reasons") for item in evidence_map["evidence"])
     assert len(trace_lines) >= 5
     assert "claims" in result.output.lower()
     assert str(output_dir) in result.output
+
+
+def test_demo_cli_command_generates_audit_and_viewer(tmp_path):
+    output_dir = tmp_path / "demo_run"
+    runner = CliRunner()
+
+    result = runner.invoke(app, ["demo", "--out", str(output_dir)])
+
+    assert result.exit_code == 0, result.output
+    for filename in [*EXPECTED_OUTPUTS, "index.html"]:
+        assert (output_dir / filename).exists(), filename
+    assert "Demo audit complete" in result.output

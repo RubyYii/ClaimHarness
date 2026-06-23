@@ -10,6 +10,8 @@ ClaimHarness is a small engineering demo, not a scientific review authority.
 - Mock mode is deterministic and not semantically complete.
 - Keyword claim extraction can miss claims or over-detect explanatory sentences.
 - Evidence linking uses simple lexical overlap.
+- `source_line` values are approximate line references for navigation, not formal citation anchors.
+- Evidence match reasons explain retrieval heuristics; they are not proof that the evidence scientifically supports the claim.
 - The verifier is conservative but rule-based.
 - Optional LLM review output may be wrong and is advisory only.
 - PDF and figure understanding are future work.

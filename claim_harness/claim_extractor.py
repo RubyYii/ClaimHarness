@@ -24,7 +24,7 @@ CLAIM_KEYWORDS = {
 def extract_claims(sections: list[ManuscriptSection]) -> list[Claim]:
     claims: list[Claim] = []
     for section in sections:
-        for sentence in _sentences(section.text):
+        for sentence, source_line in _sentences_with_lines(section):
             lowered = sentence.lower()
             if not any(keyword in lowered for keyword in CLAIM_KEYWORDS):
                 continue
@@ -35,6 +35,7 @@ def extract_claims(sections: list[ManuscriptSection]) -> list[Claim]:
                     claim_id=claim_id,
                     text=sentence,
                     source_section=section.name,
+                    source_line=source_line,
                     claim_type=claim_type,
                     strength=_claim_strength(claim_type, lowered),
                     requires_evidence=_required_evidence(claim_type),
@@ -43,9 +44,35 @@ def extract_claims(sections: list[ManuscriptSection]) -> list[Claim]:
     return claims
 
 
-def _sentences(text: str) -> list[str]:
-    normalized = " ".join(text.split())
-    return [sentence.strip() for sentence in re.split(r"(?<=[.!?])\s+", normalized) if sentence.strip()]
+def _sentences_with_lines(section: ManuscriptSection) -> list[tuple[str, int | None]]:
+    sentences: list[tuple[str, int | None]] = []
+    buffer: list[str] = []
+    buffer_line: int | None = None
+    content_start = section.start_line + 1 if section.start_line is not None else None
+
+    for offset, line in enumerate(section.text.splitlines()):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if buffer_line is None and content_start is not None:
+            buffer_line = content_start + offset
+        buffer.append(stripped)
+        joined = " ".join(buffer)
+        parts = [part.strip() for part in re.split(r"(?<=[.!?])\s+", joined) if part.strip()]
+        if not parts:
+            continue
+        complete_parts = parts if joined.endswith((".", "!", "?")) else parts[:-1]
+        for sentence in complete_parts:
+            sentences.append((sentence, buffer_line))
+        if joined.endswith((".", "!", "?")):
+            buffer = []
+            buffer_line = None
+        else:
+            buffer = [parts[-1]]
+
+    if buffer:
+        sentences.append((" ".join(buffer).strip(), buffer_line))
+    return sentences
 
 
 def _claim_type(text: str) -> str:

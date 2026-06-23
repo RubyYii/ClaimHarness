@@ -26,6 +26,9 @@ claim-harness = "claim_harness.cli:main"
 [tool.setuptools.packages.find]
 include = ["claim_harness*"]
 
+[tool.setuptools.package-data]
+claim_harness = ["prompts/*.md"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--basetemp=.pytest_tmp"

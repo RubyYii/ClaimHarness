@@ -29,6 +29,7 @@ def _write_claim_table(path: Path, claims: list[Claim], results: list[Verificati
                 "claim_id",
                 "text",
                 "source_section",
+                "source_line",
                 "claim_type",
                 "strength",
                 "status",
@@ -45,6 +46,7 @@ def _write_claim_table(path: Path, claims: list[Claim], results: list[Verificati
                     "claim_id": claim.claim_id,
                     "text": claim.text,
                     "source_section": claim.source_section,
+                    "source_line": claim.source_line,
                     "claim_type": claim.claim_type,
                     "strength": claim.strength,
                     "status": result.status,
@@ -63,6 +65,14 @@ def _write_evidence_map(path: Path, claims: list[Claim], evidence: list[Evidence
                 "text": claim.text,
                 "evidence_ids": [
                     item.evidence_id for item in evidence if claim.claim_id in item.linked_claim_ids
+                ],
+                "evidence_links": [
+                    {
+                        "evidence_id": item.evidence_id,
+                        "match_reason": item.claim_link_reasons.get(claim.claim_id, "linked by retrieval rule"),
+                    }
+                    for item in evidence
+                    if claim.claim_id in item.linked_claim_ids
                 ],
             }
             for claim in claims
@@ -100,6 +110,7 @@ def _write_audit_report(
                 claim.text,
                 "",
                 f"- Source section: {claim.source_section}",
+                f"- Source line: {claim.source_line if claim.source_line is not None else 'unknown'}",
                 f"- Risk level: {result.risk_level}",
                 f"- Reason: {result.reason}",
                 "",

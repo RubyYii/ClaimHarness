@@ -1,5 +1,6 @@
 import re
 from pathlib import Path
+from importlib import resources
 
 
 TRACKED_TEXT_SUFFIXES = {".md", ".py", ".toml", ".csv", ".json", ".jsonl", ".txt"}
@@ -78,6 +79,10 @@ def test_readme_documents_runnable_demo_and_required_outputs():
         "claim_harness view",
         "index.html",
         "report viewer",
+        "claim_harness demo",
+        "source_line",
+        "match reason",
+        "GitHub Actions",
     ]
 
     for phrase in required:
@@ -96,3 +101,16 @@ def test_limitations_are_conservative():
 
     for phrase in required:
         assert phrase in text
+
+
+def test_ci_workflow_and_packaged_prompt_are_present():
+    workflow = Path(".github/workflows/ci.yml")
+
+    assert workflow.exists()
+    workflow_text = workflow.read_text(encoding="utf-8")
+    assert "pytest" in workflow_text
+    assert "python-version" in workflow_text
+
+    prompt = resources.files("claim_harness").joinpath("prompts/audit_summary.md")
+    assert prompt.is_file()
+    assert "ClaimHarness" in prompt.read_text(encoding="utf-8")

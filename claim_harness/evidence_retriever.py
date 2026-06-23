@@ -44,11 +44,12 @@ def retrieve_evidence(
     evidence.extend(_reference_evidence(references))
 
     for item in evidence:
-        item.linked_claim_ids = [
-            claim.claim_id
-            for claim in claims
-            if _has_overlap(claim.text, item.text) or _source_mentions_claim(item.source, claim.text)
-        ]
+        for claim in claims:
+            reason = _match_reason(claim.text, item.text, item.source)
+            if reason is None:
+                continue
+            item.linked_claim_ids.append(claim.claim_id)
+            item.claim_link_reasons[claim.claim_id] = reason
 
     return evidence
 
@@ -131,3 +132,19 @@ def _source_mentions_claim(source: str, claim_text: str) -> bool:
     source_tokens = _tokens(source)
     claim_tokens = _tokens(claim_text)
     return bool(source_tokens & claim_tokens)
+
+
+def _match_reason(claim_text: str, evidence_text: str, source: str) -> str | None:
+    claim_tokens = _tokens(claim_text)
+    evidence_tokens = _tokens(evidence_text)
+    overlap = sorted(claim_tokens & evidence_tokens)
+    if len(overlap) >= 2:
+        shown = ", ".join(overlap[:5])
+        return f"lexical overlap with claim tokens: {shown}"
+
+    source_overlap = sorted(_tokens(source) & claim_tokens)
+    if source_overlap:
+        shown = ", ".join(source_overlap[:3])
+        return f"evidence source matches claim token(s): {shown}"
+
+    return None

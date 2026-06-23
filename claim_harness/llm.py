@@ -1,6 +1,7 @@
 import json
 import os
 from dataclasses import dataclass
+from importlib import resources
 from pathlib import Path
 from typing import Any, Callable
 from urllib import request
@@ -87,13 +88,13 @@ def resolve_provider_config(provider: str) -> LLMProviderConfig:
 
 def load_prompt(name: str) -> str:
     prompt_name = f"{name}.md"
-    candidates = [
-        Path.cwd() / "prompts" / prompt_name,
-        Path(__file__).resolve().parents[1] / "prompts" / prompt_name,
-    ]
+    candidates = [Path.cwd() / "prompts" / prompt_name]
     for path in candidates:
         if path.exists():
             return path.read_text(encoding="utf-8")
+    package_prompt = resources.files("claim_harness").joinpath("prompts", prompt_name)
+    if package_prompt.is_file():
+        return package_prompt.read_text(encoding="utf-8")
     raise FileNotFoundError(f"Prompt not found: {prompt_name}")
 
 
@@ -169,12 +170,17 @@ def summarize_audit_with_llm(
     config: LLMProviderConfig,
     claims: list[Claim],
     results: list[VerificationResult],
+    evidence: list[Any] | None = None,
 ) -> dict[str, Any]:
     system_prompt = load_prompt("audit_summary")
     user_prompt = json.dumps(
         {
             "claims": [claim.model_dump() for claim in claims],
             "verification_results": [result.model_dump() for result in results],
+            "evidence": [
+                item.model_dump() if hasattr(item, "model_dump") else item
+                for item in (evidence or [])
+            ],
         },
         indent=2,
         ensure_ascii=False,

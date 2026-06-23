@@ -13,6 +13,7 @@ class Claim(BaseModel):
     claim_id: str
     text: str
     source_section: str
+    source_line: int | None = None
     claim_type: str
     strength: str
     requires_evidence: list[str]
@@ -24,6 +25,7 @@ class EvidenceItem(BaseModel):
     evidence_type: str
     text: str
     linked_claim_ids: list[str] = Field(default_factory=list)
+    claim_link_reasons: dict[str, str] = Field(default_factory=dict)
 
 
 class VerificationResult(BaseModel):
