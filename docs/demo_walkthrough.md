@@ -23,12 +23,20 @@ python -m venv .venv
 Expected summary:
 
 ```text
-ClaimHarness mock audit complete.
+ClaimHarness audit complete.
 claims=18
 supported=15
 weak_or_worse=3
 out=outputs\oocyte_demo_run
 ```
+
+## Generate Viewer
+
+```bash
+.venv\Scripts\python.exe -m claim_harness view --run outputs/oocyte_demo_run
+```
+
+This writes `outputs/oocyte_demo_run/index.html`, a static report viewer for the audit package. It does not run a server or change the audit outputs.
 
 ## Inspect Outputs
 
@@ -42,6 +50,8 @@ Open `revision_suggestions.md` to inspect the claims that need narrowing, suppor
 
 Open `agent_trace.jsonl` last. It records the run as a replayable sequence of steps.
 
+Open `index.html` when you want a browser-friendly overview with status counts, high-risk claims, evidence links, revision suggestions, and trace events.
+
 ## Presentation Order
 
 For a short demo, show:
@@ -49,10 +59,11 @@ For a short demo, show:
 1. README first screen.
 2. Architecture diagram.
 3. Run command.
-4. `claim_table.csv`.
-5. `audit_report.md`.
-6. `agent_trace.jsonl`.
-7. `docs/limitations.md`.
+4. `index.html`.
+5. `claim_table.csv`.
+6. `audit_report.md`.
+7. `agent_trace.jsonl`.
+8. `docs/limitations.md`.
 
 The key sentence to emphasize is:
 

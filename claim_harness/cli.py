@@ -19,6 +19,7 @@ from .llm import (
 )
 from .loader import load_manuscript, load_references, load_tables
 from .report_generator import write_outputs
+from .report_viewer import MissingAuditOutput, render_report_viewer
 from .verifier import verify_claims
 
 
@@ -120,6 +121,20 @@ def run(
     console.print(f"supported={counts.get('supported', 0)}")
     console.print(f"weak_or_worse={weak_or_worse}")
     console.print(f"out={out}")
+
+
+@app.command()
+def view(
+    run: Path = typer.Option(..., help="Audit output directory containing ClaimHarness files."),
+    out: Optional[Path] = typer.Option(None, help="HTML file to write. Defaults to <run>/index.html."),
+) -> None:
+    """Generate a static HTML viewer for an audit package."""
+    try:
+        html_path = render_report_viewer(run, out)
+    except MissingAuditOutput as exc:
+        raise typer.BadParameter(str(exc), param_hint="--run") from exc
+
+    console.print(f"[green]Report viewer written:[/green] {html_path}")
 
 
 def main() -> None:

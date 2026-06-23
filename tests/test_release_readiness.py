@@ -75,6 +75,9 @@ def test_readme_documents_runnable_demo_and_required_outputs():
         "OPENAI_API_KEY",
         "OPENAI_MODEL",
         "llm_review.json",
+        "claim_harness view",
+        "index.html",
+        "report viewer",
     ]
 
     for phrase in required:

@@ -60,6 +60,16 @@ $env:OPENAI_MODEL="gpt-5.4-mini"
 
 `OPENAI_BASE_URL` is optional and defaults to `https://api.openai.com/v1`. The provider writes `llm_review.json` as an advisory artifact; it does not replace deterministic verification or human review.
 
+## Static Report Viewer
+
+Generate a local HTML viewer for an existing audit package:
+
+```bash
+.venv\Scripts\python.exe -m claim_harness view --run outputs/oocyte_demo_run
+```
+
+This writes `outputs/oocyte_demo_run/index.html`, a static report viewer that can be opened directly in a browser. It does not run a server or change audit results.
+
 ## Demo Input Structure
 
 ```text
@@ -84,6 +94,7 @@ outputs/oocyte_demo_run/
   audit_report.md
   revision_suggestions.md
   agent_trace.jsonl
+  index.html
 ```
 
 `claim_table.csv` contains one row per claim:
@@ -123,12 +134,12 @@ Implemented:
 - deterministic evidence retrieval
 - conservative mock verification
 - optional OpenAI-compatible advisory review
+- static report viewer
 - CSV, JSON, Markdown, and JSONL outputs
 
 Planned or optional:
 
 - richer prompt templates
-- Streamlit demo UI
 - PDF and figure-aware evidence ingestion
 
 ## Limitations
