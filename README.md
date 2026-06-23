@@ -10,6 +10,21 @@ ClaimHarness is being built as a small, reproducible Python demo. It will take a
 - `tables/*.csv`
 - `references.md`
 
+## Demo Input Structure
+
+The first synthetic demo lives under `examples/oocyte_demo/`:
+
+```text
+examples/oocyte_demo/
+  manuscript.md
+  references.md
+  tables/
+    table1_metrics.csv
+    table2_ablation.csv
+```
+
+The manuscript is fully synthetic and describes a human-in-the-loop, explainable workflow for oocyte injection guidance. The tables are toy result tables designed to exercise future claim extraction, evidence retrieval, and verification logic.
+
 ## Expected Output
 
 - `claim_table.csv`

@@ -1,0 +1,5 @@
+setting,evidence_logging,human_review_gate,trace_replay,success_rate,notes
+vision_only,disabled,disabled,disabled,0.71,no claim trace and no explicit review routing
+logging_only,enabled,disabled,enabled,0.78,records intermediate evidence but does not pause risky cases
+review_gate_only,disabled,enabled,disabled,0.80,routes uncertain cases but cannot replay evidence chain
+full_harness,enabled,enabled,enabled,0.86,combines evidence logging human review and replayable trace

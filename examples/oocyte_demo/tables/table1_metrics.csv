@@ -1,0 +1,5 @@
+model,dice,iou,precision,recall,notes
+baseline_unet,0.81,0.69,0.84,0.78,synthetic benchmark baseline without review routing
+explainable_guidance_v1,0.88,0.78,0.90,0.86,adds saliency summary and operator-facing confidence notes
+explainable_guidance_v1_with_review,0.89,0.80,0.91,0.87,adds human review gate for low-confidence boundaries
+compact_detector,0.76,0.61,0.80,0.72,faster but less reliable around faint zona boundaries
