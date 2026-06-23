@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from typing import Optional
 from collections import Counter
@@ -9,7 +10,13 @@ from .audit_logger import AuditLogger
 from .claim_extractor import extract_claims
 from .context_manager import build_context
 from .evidence_retriever import retrieve_evidence
-from .llm import validate_provider
+from .llm import (
+    LLMProviderError,
+    MissingProviderConfig,
+    resolve_provider_config,
+    summarize_audit_with_llm,
+    validate_provider,
+)
 from .loader import load_manuscript, load_references, load_tables
 from .report_generator import write_outputs
 from .verifier import verify_claims
@@ -30,11 +37,17 @@ def run(
     tables: Optional[Path] = typer.Option(None, help="Path to a folder of CSV tables."),
     references: Optional[Path] = typer.Option(None, help="Path to references.md."),
     out: Path = typer.Option(Path("outputs/run"), help="Output directory."),
-    llm: str = typer.Option("mock", help="LLM provider to use. Currently only mock is supported."),
+    llm: str = typer.Option(
+        "mock",
+        help="LLM provider to use: mock or openai-compatible. mock is deterministic and local.",
+    ),
 ) -> None:
     """Run a ClaimHarness audit."""
     try:
         provider = validate_provider(llm)
+        provider_config = resolve_provider_config(provider)
+    except MissingProviderConfig as exc:
+        raise typer.BadParameter(str(exc), param_hint="--llm") from exc
     except ValueError as exc:
         raise typer.BadParameter(str(exc), param_hint="--llm") from exc
 
@@ -49,7 +62,7 @@ def run(
     ]
     if missing:
         raise typer.BadParameter(
-            f"mock run requires {', '.join(missing)}",
+            f"audit run requires {', '.join(missing)}",
             param_hint=", ".join(missing),
         )
 
@@ -85,11 +98,24 @@ def run(
     write_outputs(out, claims, evidence, results)
     logger.log("report_generator", "Wrote audit package", {"out": str(out)})
 
+    if provider == "openai-compatible":
+        try:
+            llm_review = summarize_audit_with_llm(provider_config, claims, results)
+        except LLMProviderError as exc:
+            logger.log("llm", "OpenAI-compatible review failed", {"error": str(exc)})
+            raise typer.ClickException(str(exc)) from exc
+
+        (out / "llm_review.json").write_text(
+            json.dumps(llm_review, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        logger.log("llm", "Wrote advisory LLM review", {"out": str(out / "llm_review.json")})
+
     weak_or_worse = sum(
         counts.get(status, 0)
         for status in ("weakly_supported", "unsupported", "overclaimed", "needs_human_review")
     )
-    console.print("[green]ClaimHarness mock audit complete.[/green]")
+    console.print("[green]ClaimHarness audit complete.[/green]")
     console.print(f"claims={len(claims)}")
     console.print(f"supported={counts.get('supported', 0)}")
     console.print(f"weak_or_worse={weak_or_worse}")

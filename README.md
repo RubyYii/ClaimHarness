@@ -43,6 +43,23 @@ Run tests:
 .venv\Scripts\python.exe -m pytest
 ```
 
+## Optional OpenAI-Compatible Provider
+
+The default demo uses `--llm mock` and never needs an API key. To request an additional advisory LLM review, set environment variables and choose `openai-compatible`:
+
+```powershell
+$env:OPENAI_API_KEY = Read-Host "OPENAI_API_KEY"
+$env:OPENAI_MODEL="gpt-5.4-mini"
+.venv\Scripts\python.exe -m claim_harness run `
+  --manuscript examples/oocyte_demo/manuscript.md `
+  --tables examples/oocyte_demo/tables `
+  --references examples/oocyte_demo/references.md `
+  --out outputs/oocyte_demo_openai `
+  --llm openai-compatible
+```
+
+`OPENAI_BASE_URL` is optional and defaults to `https://api.openai.com/v1`. The provider writes `llm_review.json` as an advisory artifact; it does not replace deterministic verification or human review.
+
 ## Demo Input Structure
 
 ```text
@@ -105,11 +122,11 @@ Implemented:
 - deterministic claim extraction
 - deterministic evidence retrieval
 - conservative mock verification
+- optional OpenAI-compatible advisory review
 - CSV, JSON, Markdown, and JSONL outputs
 
 Planned or optional:
 
-- OpenAI-compatible provider
 - richer prompt templates
 - Streamlit demo UI
 - PDF and figure-aware evidence ingestion

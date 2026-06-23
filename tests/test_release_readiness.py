@@ -71,6 +71,10 @@ def test_readme_documents_runnable_demo_and_required_outputs():
         "revision_suggestions.md",
         "agent_trace.jsonl",
         "does not guarantee factual correctness",
+        "openai-compatible",
+        "OPENAI_API_KEY",
+        "OPENAI_MODEL",
+        "llm_review.json",
     ]
 
     for phrase in required:

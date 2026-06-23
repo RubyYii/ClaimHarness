@@ -13,16 +13,19 @@ flowchart TD
     E --> F["Verifier"]
     F --> G["Report Generator"]
     G --> H["Audit Package"]
+    F --> J["Optional LLM Review"]
+    J --> H
     C --> I["Audit Logger"]
     D --> I
     E --> I
     F --> I
     G --> I
+    J --> I
 ```
 
 ## Modules
 
-`claim_harness.cli` orchestrates the run command. It validates `--llm mock`, loads inputs, calls the pipeline modules, writes outputs, and prints a concise summary.
+`claim_harness.cli` orchestrates the run command. It validates `--llm mock` or `--llm openai-compatible`, loads inputs, calls the pipeline modules, writes outputs, and prints a concise summary.
 
 `claim_harness.loader` reads Markdown manuscript sections, CSV tables, and references.
 
@@ -35,6 +38,8 @@ flowchart TD
 `claim_harness.verifier` assigns support labels: `supported`, `weakly_supported`, `unsupported`, `overclaimed`, or `needs_human_review`.
 
 `claim_harness.report_generator` writes the audit package.
+
+`claim_harness.llm` isolates provider configuration, prompt loading, structured JSON request construction, and optional OpenAI-compatible review calls. The optional provider runs after deterministic verification and does not change claim statuses.
 
 `claim_harness.audit_logger` records replayable JSONL trace events in `agent_trace.jsonl`.
 
@@ -59,3 +64,4 @@ The output package contains:
 - `audit_report.md`: human-readable audit summary.
 - `revision_suggestions.md`: rewrite suggestions for risky or weak claims.
 - `agent_trace.jsonl`: replayable step trace.
+- `llm_review.json`: optional advisory review when `--llm openai-compatible` is selected.
