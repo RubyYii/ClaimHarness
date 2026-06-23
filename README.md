@@ -1,18 +1,49 @@
-# ClaimHarness
+# ClaimHarness: A Lightweight Agent Harness for Scientific Claim-Evidence Auditing
 
-A lightweight Agent Harness for scientific claim-evidence auditing.
+ClaimHarness turns a scientific manuscript into an auditable claim-evidence package. Given a Markdown manuscript, CSV result tables, and references, it extracts scientific claims, retrieves possible evidence, verifies support levels, routes risky claims for human review, and writes a replayable audit trace.
 
-ClaimHarness is being built as a small, reproducible Python demo. It will take a Markdown manuscript, CSV result tables, and references, then produce an auditable claim-evidence package.
+This is not a prompt-only reviewer. It decomposes the task into task specification, context selection, claim extraction, evidence retrieval, verification, human-review routing, and trace logging.
 
-## Expected Input
+## Architecture
 
-- `manuscript.md`
-- `tables/*.csv`
-- `references.md`
+```mermaid
+flowchart LR
+    A["Task Spec"] --> B["Context Manager"]
+    B --> C["Claim Extractor"]
+    C --> D["Evidence Retriever"]
+    D --> E["Verifier"]
+    E --> F["Audit Package"]
+```
+
+The mock pipeline is deterministic and local-first. It does not require an API key.
+
+## Quickstart
+
+Create and install the development environment:
+
+```bash
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -e ".[dev]"
+```
+
+Run the synthetic oocyte demo:
+
+```bash
+.venv\Scripts\python.exe -m claim_harness run \
+  --manuscript examples/oocyte_demo/manuscript.md \
+  --tables examples/oocyte_demo/tables \
+  --references examples/oocyte_demo/references.md \
+  --out outputs/oocyte_demo_run \
+  --llm mock
+```
+
+Run tests:
+
+```bash
+.venv\Scripts\python.exe -m pytest
+```
 
 ## Demo Input Structure
-
-The first synthetic demo lives under `examples/oocyte_demo/`:
 
 ```text
 examples/oocyte_demo/
@@ -23,42 +54,72 @@ examples/oocyte_demo/
     table2_ablation.csv
 ```
 
-The manuscript is fully synthetic and describes a human-in-the-loop, explainable workflow for oocyte injection guidance. The tables are toy result tables designed to exercise future claim extraction, evidence retrieval, and verification logic.
+The manuscript is fully synthetic and describes a human-in-the-loop, explainable workflow for oocyte injection guidance. The tables are toy result tables designed to exercise claim extraction, evidence retrieval, and verification logic.
 
 ## Expected Output
 
-- `claim_table.csv`
-- `evidence_map.json`
-- `audit_report.md`
-- `revision_suggestions.md`
-- `agent_trace.jsonl`
+The mock demo writes five files:
+
+```text
+outputs/oocyte_demo_run/
+  claim_table.csv
+  evidence_map.json
+  audit_report.md
+  revision_suggestions.md
+  agent_trace.jsonl
+```
+
+`claim_table.csv` contains one row per claim:
+
+```text
+claim_id,status,claim_type,example
+C002,supported,performance_claim,The proposed harness improves segmentation Dice and IoU...
+C004,overclaimed,clinical_claim,Although the prototype is not clinically validated...
+C007,weakly_supported,novelty_claim,The first design goal is to make every guidance claim traceable...
+```
+
+`evidence_map.json` links claim IDs to evidence IDs so reviewers can inspect why a claim was classified. `agent_trace.jsonl` records each pipeline step in order, including loading, extraction, retrieval, verification, and report generation.
+
+## Why this is an Agent Harness
+
+ClaimHarness is designed as a small harness around an AI-assisted scientific review task, not as a monolithic agent. It exposes:
+
+- task specification
+- context selection
+- tool and data access
+- intermediate state tracking
+- verification
+- human-review routing
+- replayable audit log
+
+The goal is not to replace reviewers. The goal is to make scientific claims more traceable, reviewable, and evidence-aware before they enter higher-risk workflows.
 
 ## Current Status
 
-The repository currently contains the initial deterministic mock audit pipeline. Mock mode runs without API keys.
+Implemented:
 
-## Development Commands
+- CLI-first mock audit pipeline
+- synthetic oocyte demo inputs
+- Pydantic schemas
+- Markdown and CSV loaders
+- deterministic claim extraction
+- deterministic evidence retrieval
+- conservative mock verification
+- CSV, JSON, Markdown, and JSONL outputs
 
-```bash
-python -m claim_harness run --help
-pytest
-```
+Planned or optional:
 
-## Mock Demo Command
+- OpenAI-compatible provider
+- richer prompt templates
+- Streamlit demo UI
+- PDF and figure-aware evidence ingestion
 
-```bash
-python -m claim_harness run \
-  --manuscript examples/oocyte_demo/manuscript.md \
-  --tables examples/oocyte_demo/tables \
-  --references examples/oocyte_demo/references.md \
-  --out outputs/oocyte_demo_run \
-  --llm mock
-```
+## Limitations
 
-The command writes:
+- ClaimHarness does not guarantee factual correctness.
+- It only checks evidence available in the provided files.
+- Biomedical claims require human review.
+- Mock mode is deterministic and not semantically complete.
+- PDF and figure understanding are future work.
 
-- `claim_table.csv`
-- `evidence_map.json`
-- `audit_report.md`
-- `revision_suggestions.md`
-- `agent_trace.jsonl`
+See [docs/architecture.md](docs/architecture.md), [docs/demo_walkthrough.md](docs/demo_walkthrough.md), and [docs/limitations.md](docs/limitations.md) for more detail.
