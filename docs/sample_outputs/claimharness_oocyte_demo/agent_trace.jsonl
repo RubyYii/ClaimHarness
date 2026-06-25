@@ -1,0 +1,6 @@
+{"step": 1, "module": "cli", "message": "Started ClaimHarness run", "data": {"llm": "mock", "out": "docs\\sample_outputs\\claimharness_oocyte_demo"}}
+{"step": 2, "module": "loader", "message": "Loaded inputs", "data": {"sections": 7, "tables": ["table1_metrics", "table2_ablation"]}}
+{"step": 3, "module": "claim_extractor", "message": "Extracted claims", "data": {"claims": 18}}
+{"step": 4, "module": "evidence_retriever", "message": "Retrieved evidence", "data": {"evidence_items": 26}}
+{"step": 5, "module": "verifier", "message": "Verified claims", "data": {"status_counts": {"supported": 15, "overclaimed": 2, "weakly_supported": 1}}}
+{"step": 6, "module": "report_generator", "message": "Wrote audit package", "data": {"out": "docs\\sample_outputs\\claimharness_oocyte_demo"}}

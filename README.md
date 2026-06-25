@@ -8,6 +8,8 @@ This is not a prompt-only reviewer. It decomposes the task into task specificati
 
 ProblemBridge is the upstream sister module: a workflow discovery and problem alignment harness for interdisciplinary AI projects. It turns a domain problem brief into a Problem Alignment Package: workflow map, pain point matrix, concept alignment table, AI task spec, evidence contract, evaluation protocol, misalignment risk report, human-in-the-loop plan, implementation routes, and trace log.
 
+ProblemBridge aligns the problem before AI work begins; ClaimHarness audits the claims after AI or human work produces outputs.
+
 The relationship is:
 
 ```text

@@ -1,0 +1,9 @@
+claim_type:
+  educational_explanation:
+    required_evidence:
+      - curriculum_concept
+      - source_text_fragment
+      - uncertainty_or_scope_statement
+    forbidden_without:
+      - teacher_review
+      - source_grounding

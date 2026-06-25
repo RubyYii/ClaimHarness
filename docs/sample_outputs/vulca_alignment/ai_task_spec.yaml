@@ -1,0 +1,27 @@
+project_name: vlm_cultural_interpretation_alignment
+domain_goal: Evaluate whether VLM outputs align visible image details, commentary text, historical context, and culturally situated interpretation.
+not_allowed_goal: object-only captioning as cultural understanding
+ai_task_type:
+  - multimodal_cultural_reasoning_evaluation
+  - region_commentary_alignment
+  - evidence_grounded_explanation
+inputs:
+  - image_region
+  - commentary_segment
+  - modern_translation
+  - historical_context_note
+outputs:
+  - visual_element_identification
+  - cultural_reference_detection
+  - interpretive_alignment_score
+  - evidence_grounded_explanation
+evaluation:
+  - Object recognition accuracy
+  - Region-commentary alignment
+  - Cultural concept fidelity
+  - Hallucinated interpretation rate
+  - Expert review score
+human_review_required:
+  - Ambiguous symbolic claims
+  - Historical attribution
+  - Interpretations not grounded in visible detail and commentary

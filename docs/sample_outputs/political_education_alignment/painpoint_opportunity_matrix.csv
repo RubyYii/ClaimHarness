@@ -1,0 +1,3 @@
+workflow_step,pain_point,ai_opportunity,risk,human_role
+model response generation,Fluent answers may hide unsupported or misframed claims.,Classify unsupportedness and concept-framing risks.,high,review value-sensitive explanations
+teacher review and correction,Manual review is slow and hard to standardize.,Produce review checklists and evidence gaps.,medium,approve or revise final educational content

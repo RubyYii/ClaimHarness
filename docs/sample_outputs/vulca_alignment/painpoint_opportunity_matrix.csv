@@ -1,0 +1,3 @@
+workflow_step,pain_point,ai_opportunity,risk,human_role
+commentary reading,Commentary concepts are difficult to align with image regions.,Suggest candidate region-commentary links.,medium,validate interpretive links
+interpretive claim formation,Object descriptions can be mistaken for cultural interpretation.,Flag object-only explanations as weak.,high,review cultural meaning claims

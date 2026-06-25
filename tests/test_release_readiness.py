@@ -114,3 +114,47 @@ def test_ci_workflow_and_packaged_prompt_are_present():
     prompt = resources.files("claim_harness").joinpath("prompts/audit_summary.md")
     assert prompt.is_file()
     assert "ClaimHarness" in prompt.read_text(encoding="utf-8")
+
+
+def test_external_review_packaging_is_present():
+    required_files = [
+        Path("PORTFOLIO_BRIEF.md"),
+        Path("DEMO_SCRIPT_3MIN.md"),
+        Path("ROADMAP.md"),
+        Path("docs/problembridge_vs_storm.md"),
+    ]
+    for path in required_files:
+        assert path.is_file(), path
+
+    portfolio = Path("PORTFOLIO_BRIEF.md").read_text(encoding="utf-8")
+    assert "ProblemBridge" in portfolio
+    assert "ClaimHarness" in portfolio
+    assert "pre-model problem alignment" in portfolio
+    assert "post-output evidence auditing" in portfolio
+
+    problembridge_required = [
+        "problem_card.md",
+        "concept_alignment_table.csv",
+        "ai_task_spec.yaml",
+        "evidence_contract.yaml",
+        "evaluation_protocol.md",
+        "misalignment_risk_report.md",
+    ]
+    for sample_dir in (
+        Path("docs/sample_outputs/hsg_alignment"),
+        Path("docs/sample_outputs/vulca_alignment"),
+        Path("docs/sample_outputs/political_education_alignment"),
+    ):
+        for filename in problembridge_required:
+            assert (sample_dir / filename).is_file(), sample_dir / filename
+
+    claimharness_required = [
+        "claim_table.csv",
+        "audit_report.md",
+        "revision_suggestions.md",
+        "agent_trace.jsonl",
+        "index.html",
+    ]
+    sample_dir = Path("docs/sample_outputs/claimharness_oocyte_demo")
+    for filename in claimharness_required:
+        assert (sample_dir / filename).is_file(), sample_dir / filename

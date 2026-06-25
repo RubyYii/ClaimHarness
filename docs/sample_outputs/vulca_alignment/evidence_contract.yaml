@@ -1,0 +1,9 @@
+claim_type:
+  cultural_interpretation:
+    required_evidence:
+      - visible_image_detail
+      - textual_or_historical_context
+      - alternative_interpretation_check
+    forbidden_without:
+      - expert_review
+      - commentary_support

@@ -1,0 +1,4 @@
+{"step": "load_problem_brief", "profile": "chinese_painting", "project_name": "vlm_cultural_interpretation_alignment"}
+{"step": "detect_alignment_profile", "profile": "chinese_painting", "project_name": "vlm_cultural_interpretation_alignment"}
+{"step": "build_alignment_package", "profile": "chinese_painting", "project_name": "vlm_cultural_interpretation_alignment"}
+{"step": "write_outputs", "profile": "chinese_painting", "project_name": "vlm_cultural_interpretation_alignment"}

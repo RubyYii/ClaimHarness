@@ -1,0 +1,4 @@
+domain_concept,ai_representation,alignment_status,misalignment_risk
+hallucination,unsupported factual or doctrinal statement,partial,"unsupportedness may include concept framing, not just false facts"
+bias,classification of stance or sentiment,partial,ideological framing imbalance may not appear as sentiment bias
+understanding,answer fluency,misaligned,fluent answers can still misstate concept relations

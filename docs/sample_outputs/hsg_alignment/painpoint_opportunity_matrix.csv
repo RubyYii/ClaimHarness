@@ -1,0 +1,4 @@
+workflow_step,pain_point,ai_opportunity,risk,human_role
+image quality judgement,Visibility and contrast timing are inconsistently recorded.,Generate image-quality and visibility sidecars.,medium,confirm quality labels
+contrast passage observation,Repeated visual checking can be slow and subjective.,Highlight candidate regions and uncertainty.,medium,confirm or reject highlighted evidence
+report drafting,Wording may overstate what image evidence supports.,Draft conservative evidence-grounded report text.,high,edit and approve final wording

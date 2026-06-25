@@ -1,0 +1,1306 @@
+{
+  "claims": [
+    {
+      "claim_id": "C001",
+      "text": "This synthetic manuscript describes a human-in-the-loop and explainable workflow for oocyte injection guidance in a controlled microscopy benchmark.",
+      "evidence_ids": [
+        "E001",
+        "S001",
+        "S002",
+        "S004",
+        "S006",
+        "S009",
+        "R001",
+        "R002",
+        "R003",
+        "R005"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "E001",
+          "match_reason": "lexical overlap with claim tokens: benchmark, synthetic"
+        },
+        {
+          "evidence_id": "S001",
+          "match_reason": "lexical overlap with claim tokens: explainable, microscopy, synthetic"
+        },
+        {
+          "evidence_id": "S002",
+          "match_reason": "lexical overlap with claim tokens: human, injection"
+        },
+        {
+          "evidence_id": "S004",
+          "match_reason": "lexical overlap with claim tokens: benchmark, synthetic"
+        },
+        {
+          "evidence_id": "S006",
+          "match_reason": "lexical overlap with claim tokens: benchmark, controlled, human"
+        },
+        {
+          "evidence_id": "S009",
+          "match_reason": "lexical overlap with claim tokens: benchmark, synthetic"
+        },
+        {
+          "evidence_id": "R001",
+          "match_reason": "lexical overlap with claim tokens: explainable, guidance, synthetic"
+        },
+        {
+          "evidence_id": "R002",
+          "match_reason": "lexical overlap with claim tokens: human, loop"
+        },
+        {
+          "evidence_id": "R003",
+          "match_reason": "lexical overlap with claim tokens: controlled, oocyte"
+        },
+        {
+          "evidence_id": "R005",
+          "match_reason": "lexical overlap with claim tokens: guidance, injection, microscopy, synthetic"
+        }
+      ]
+    },
+    {
+      "claim_id": "C002",
+      "text": "The proposed harness improves segmentation Dice and IoU over a baseline visual model in the accompanying synthetic table.",
+      "evidence_ids": [
+        "E001",
+        "E002",
+        "E003",
+        "E004",
+        "S001",
+        "S005",
+        "S007",
+        "S009",
+        "R001"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "E001",
+          "match_reason": "lexical overlap with claim tokens: baseline, dice, model, synthetic"
+        },
+        {
+          "evidence_id": "E002",
+          "match_reason": "lexical overlap with claim tokens: dice, model"
+        },
+        {
+          "evidence_id": "E003",
+          "match_reason": "lexical overlap with claim tokens: dice, model"
+        },
+        {
+          "evidence_id": "E004",
+          "match_reason": "lexical overlap with claim tokens: dice, model"
+        },
+        {
+          "evidence_id": "S001",
+          "match_reason": "lexical overlap with claim tokens: segmentation, synthetic"
+        },
+        {
+          "evidence_id": "S005",
+          "match_reason": "lexical overlap with claim tokens: dice, model, synthetic, table"
+        },
+        {
+          "evidence_id": "S007",
+          "match_reason": "lexical overlap with claim tokens: harness, improves"
+        },
+        {
+          "evidence_id": "S009",
+          "match_reason": "lexical overlap with claim tokens: segmentation, synthetic, table"
+        },
+        {
+          "evidence_id": "R001",
+          "match_reason": "lexical overlap with claim tokens: synthetic, visual"
+        }
+      ]
+    },
+    {
+      "claim_id": "C003",
+      "text": "It enables auditable review by recording intermediate evidence, low-confidence regions, and replayable trace notes.",
+      "evidence_ids": [
+        "E001",
+        "E002",
+        "E003",
+        "E005",
+        "E006",
+        "E007",
+        "E008",
+        "S001",
+        "S002",
+        "S003",
+        "S007",
+        "R002",
+        "R004"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "E001",
+          "match_reason": "lexical overlap with claim tokens: notes, review"
+        },
+        {
+          "evidence_id": "E002",
+          "match_reason": "lexical overlap with claim tokens: confidence, notes"
+        },
+        {
+          "evidence_id": "E003",
+          "match_reason": "lexical overlap with claim tokens: confidence, notes, review"
+        },
+        {
+          "evidence_id": "E005",
+          "match_reason": "lexical overlap with claim tokens: notes, review, trace"
+        },
+        {
+          "evidence_id": "E006",
+          "match_reason": "lexical overlap with claim tokens: evidence, intermediate, notes"
+        },
+        {
+          "evidence_id": "E007",
+          "match_reason": "lexical overlap with claim tokens: evidence, notes"
+        },
+        {
+          "evidence_id": "E008",
+          "match_reason": "lexical overlap with claim tokens: evidence, notes, replayable, review, trace"
+        },
+        {
+          "evidence_id": "S001",
+          "match_reason": "lexical overlap with claim tokens: confidence, trace"
+        },
+        {
+          "evidence_id": "S002",
+          "match_reason": "lexical overlap with claim tokens: confidence, review"
+        },
+        {
+          "evidence_id": "S003",
+          "match_reason": "lexical overlap with claim tokens: enables, notes, trace"
+        },
+        {
+          "evidence_id": "S007",
+          "match_reason": "lexical overlap with claim tokens: evidence, review, trace"
+        },
+        {
+          "evidence_id": "R002",
+          "match_reason": "lexical overlap with claim tokens: auditable, review"
+        },
+        {
+          "evidence_id": "R004",
+          "match_reason": "lexical overlap with claim tokens: evidence, trace"
+        }
+      ]
+    },
+    {
+      "claim_id": "C004",
+      "text": "Although the prototype is not clinically validated, one intentionally overclaimed sentence says the workflow is clinically ready for deployment so the audit pipeline can flag it later.",
+      "evidence_ids": [
+        "S011"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "S011",
+          "match_reason": "lexical overlap with claim tokens: deployment, ready, says"
+        }
+      ]
+    },
+    {
+      "claim_id": "C005",
+      "text": "Micromanipulation guidance requires reliable visual boundaries around the oocyte membrane, zona pellucida, and injection region.",
+      "evidence_ids": [
+        "E004",
+        "S002",
+        "S008",
+        "R001",
+        "R003",
+        "R005"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "E004",
+          "match_reason": "lexical overlap with claim tokens: around, boundaries, reliable, zona"
+        },
+        {
+          "evidence_id": "S002",
+          "match_reason": "lexical overlap with claim tokens: injection, region"
+        },
+        {
+          "evidence_id": "S008",
+          "match_reason": "lexical overlap with claim tokens: around, boundaries, reliable, zona"
+        },
+        {
+          "evidence_id": "R001",
+          "match_reason": "lexical overlap with claim tokens: guidance, micromanipulation, visual"
+        },
+        {
+          "evidence_id": "R003",
+          "match_reason": "lexical overlap with claim tokens: oocyte, pellucida, zona"
+        },
+        {
+          "evidence_id": "R005",
+          "match_reason": "lexical overlap with claim tokens: guidance, injection"
+        }
+      ]
+    },
+    {
+      "claim_id": "C006",
+      "text": "A lightweight harness reduces the risk of opaque model output by separating the task specification, selected context, evidence table, and review decision.",
+      "evidence_ids": [
+        "E001",
+        "E003",
+        "E008",
+        "S002",
+        "S005",
+        "S007",
+        "S009",
+        "S012",
+        "R004"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "E001",
+          "match_reason": "lexical overlap with claim tokens: model, review"
+        },
+        {
+          "evidence_id": "E003",
+          "match_reason": "lexical overlap with claim tokens: model, review"
+        },
+        {
+          "evidence_id": "E008",
+          "match_reason": "lexical overlap with claim tokens: evidence, review"
+        },
+        {
+          "evidence_id": "S002",
+          "match_reason": "lexical overlap with claim tokens: model, review"
+        },
+        {
+          "evidence_id": "S005",
+          "match_reason": "lexical overlap with claim tokens: model, table"
+        },
+        {
+          "evidence_id": "S007",
+          "match_reason": "lexical overlap with claim tokens: evidence, harness, review"
+        },
+        {
+          "evidence_id": "S009",
+          "match_reason": "lexical overlap with claim tokens: evidence, table"
+        },
+        {
+          "evidence_id": "S012",
+          "match_reason": "lexical overlap with claim tokens: decision, evidence, harness"
+        },
+        {
+          "evidence_id": "R004",
+          "match_reason": "lexical overlap with claim tokens: decision, evidence"
+        }
+      ]
+    },
+    {
+      "claim_id": "C007",
+      "text": "The first design goal is to make every guidance claim traceable to a table row, a text passage, or a limitation statement.",
+      "evidence_ids": [
+        "S003"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "S003",
+          "match_reason": "lexical overlap with claim tokens: limitation, table"
+        }
+      ]
+    },
+    {
+      "claim_id": "C008",
+      "text": "The workflow uses an explainable segmentation summary, a confidence note, and a structured trace replay for each synthetic microscopy frame.",
+      "evidence_ids": [
+        "E002",
+        "S001",
+        "S003",
+        "S007",
+        "S009",
+        "R001",
+        "R004",
+        "R005"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "E002",
+          "match_reason": "lexical overlap with claim tokens: confidence, summary"
+        },
+        {
+          "evidence_id": "S001",
+          "match_reason": "lexical overlap with claim tokens: confidence, each, explainable, frame, microscopy"
+        },
+        {
+          "evidence_id": "S003",
+          "match_reason": "lexical overlap with claim tokens: replay, trace"
+        },
+        {
+          "evidence_id": "S007",
+          "match_reason": "lexical overlap with claim tokens: replay, trace"
+        },
+        {
+          "evidence_id": "S009",
+          "match_reason": "lexical overlap with claim tokens: segmentation, synthetic"
+        },
+        {
+          "evidence_id": "R001",
+          "match_reason": "lexical overlap with claim tokens: explainable, synthetic"
+        },
+        {
+          "evidence_id": "R004",
+          "match_reason": "lexical overlap with claim tokens: replay, trace"
+        },
+        {
+          "evidence_id": "R005",
+          "match_reason": "lexical overlap with claim tokens: microscopy, synthetic"
+        }
+      ]
+    },
+    {
+      "claim_id": "C009",
+      "text": "The human review gate supports manual inspection when boundary confidence is low or when the model highlights an ambiguous injection region.",
+      "evidence_ids": [
+        "E001",
+        "E002",
+        "E003",
+        "E008",
+        "S002",
+        "S006",
+        "S007",
+        "R002",
+        "R006"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "E001",
+          "match_reason": "lexical overlap with claim tokens: model, review"
+        },
+        {
+          "evidence_id": "E002",
+          "match_reason": "lexical overlap with claim tokens: confidence, model"
+        },
+        {
+          "evidence_id": "E003",
+          "match_reason": "lexical overlap with claim tokens: confidence, gate, human, model, review"
+        },
+        {
+          "evidence_id": "E008",
+          "match_reason": "lexical overlap with claim tokens: human, review"
+        },
+        {
+          "evidence_id": "S002",
+          "match_reason": "lexical overlap with claim tokens: ambiguous, boundary, confidence, gate, highlights"
+        },
+        {
+          "evidence_id": "S006",
+          "match_reason": "lexical overlap with claim tokens: gate, human, review"
+        },
+        {
+          "evidence_id": "S007",
+          "match_reason": "lexical overlap with claim tokens: human, review"
+        },
+        {
+          "evidence_id": "R002",
+          "match_reason": "lexical overlap with claim tokens: human, review"
+        },
+        {
+          "evidence_id": "R006",
+          "match_reason": "lexical overlap with claim tokens: human, review"
+        }
+      ]
+    },
+    {
+      "claim_id": "C010",
+      "text": "Trace replay enables reviewers to see which table metrics, ablation rows, and limitation notes were available before a claim was labeled.",
+      "evidence_ids": [
+        "E005",
+        "E007",
+        "E008",
+        "S001",
+        "S003",
+        "S007",
+        "S009",
+        "S010",
+        "R004"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "E005",
+          "match_reason": "lexical overlap with claim tokens: notes, trace"
+        },
+        {
+          "evidence_id": "E007",
+          "match_reason": "lexical overlap with claim tokens: notes, replay"
+        },
+        {
+          "evidence_id": "E008",
+          "match_reason": "lexical overlap with claim tokens: notes, trace"
+        },
+        {
+          "evidence_id": "S001",
+          "match_reason": "lexical overlap with claim tokens: replay, trace"
+        },
+        {
+          "evidence_id": "S003",
+          "match_reason": "lexical overlap with claim tokens: ablation, available, enables, labeled, limitation"
+        },
+        {
+          "evidence_id": "S007",
+          "match_reason": "lexical overlap with claim tokens: replay, trace"
+        },
+        {
+          "evidence_id": "S009",
+          "match_reason": "lexical overlap with claim tokens: ablation, metrics, table"
+        },
+        {
+          "evidence_id": "S010",
+          "match_reason": "lexical overlap with claim tokens: metrics, trace"
+        },
+        {
+          "evidence_id": "R004",
+          "match_reason": "lexical overlap with claim tokens: replay, trace"
+        }
+      ]
+    },
+    {
+      "claim_id": "C011",
+      "text": "The explainable_guidance_v1 model outperforms the baseline_unet model on Dice, IoU, precision, and recall in the synthetic metric table.",
+      "evidence_ids": [
+        "E001",
+        "E002",
+        "E003",
+        "E004",
+        "S005",
+        "S009"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "E001",
+          "match_reason": "lexical overlap with claim tokens: baseline_unet, dice, model, precision, recall"
+        },
+        {
+          "evidence_id": "E002",
+          "match_reason": "lexical overlap with claim tokens: dice, explainable_guidance_v1, model, precision, recall"
+        },
+        {
+          "evidence_id": "E003",
+          "match_reason": "lexical overlap with claim tokens: dice, model, precision, recall"
+        },
+        {
+          "evidence_id": "E004",
+          "match_reason": "lexical overlap with claim tokens: dice, model, precision, recall"
+        },
+        {
+          "evidence_id": "S005",
+          "match_reason": "lexical overlap with claim tokens: baseline_unet, dice, explainable_guidance_v1, metric, model"
+        },
+        {
+          "evidence_id": "S009",
+          "match_reason": "lexical overlap with claim tokens: synthetic, table"
+        }
+      ]
+    },
+    {
+      "claim_id": "C012",
+      "text": "Adding the human review gate increases Dice from 0.88 to 0.89 and IoU from 0.78 to 0.80 in the controlled benchmark.",
+      "evidence_ids": [
+        "E001",
+        "E003",
+        "E008",
+        "S002",
+        "S006",
+        "S007",
+        "R002",
+        "R006"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "E001",
+          "match_reason": "lexical overlap with claim tokens: benchmark, dice, review"
+        },
+        {
+          "evidence_id": "E003",
+          "match_reason": "lexical overlap with claim tokens: dice, gate, human, review"
+        },
+        {
+          "evidence_id": "E008",
+          "match_reason": "lexical overlap with claim tokens: human, review"
+        },
+        {
+          "evidence_id": "S002",
+          "match_reason": "lexical overlap with claim tokens: gate, human, review"
+        },
+        {
+          "evidence_id": "S006",
+          "match_reason": "lexical overlap with claim tokens: adding, benchmark, controlled, dice, gate"
+        },
+        {
+          "evidence_id": "S007",
+          "match_reason": "lexical overlap with claim tokens: human, review"
+        },
+        {
+          "evidence_id": "R002",
+          "match_reason": "lexical overlap with claim tokens: human, review"
+        },
+        {
+          "evidence_id": "R006",
+          "match_reason": "lexical overlap with claim tokens: human, review"
+        }
+      ]
+    },
+    {
+      "claim_id": "C013",
+      "text": "The full harness improves workflow success rate from 0.71 in the vision-only setting to 0.86 when evidence logging, human review, and trace replay are all enabled.",
+      "evidence_ids": [
+        "E003",
+        "E005",
+        "E006",
+        "E007",
+        "E008",
+        "S001",
+        "S002",
+        "S003",
+        "S006",
+        "S007",
+        "S010",
+        "S012",
+        "R002",
+        "R004",
+        "R006"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "E003",
+          "match_reason": "lexical overlap with claim tokens: human, review"
+        },
+        {
+          "evidence_id": "E005",
+          "match_reason": "lexical overlap with claim tokens: review, setting, trace"
+        },
+        {
+          "evidence_id": "E006",
+          "match_reason": "lexical overlap with claim tokens: enabled, evidence, setting"
+        },
+        {
+          "evidence_id": "E007",
+          "match_reason": "lexical overlap with claim tokens: enabled, evidence, replay, setting"
+        },
+        {
+          "evidence_id": "E008",
+          "match_reason": "lexical overlap with claim tokens: enabled, evidence, human, logging, review"
+        },
+        {
+          "evidence_id": "S001",
+          "match_reason": "lexical overlap with claim tokens: replay, trace"
+        },
+        {
+          "evidence_id": "S002",
+          "match_reason": "lexical overlap with claim tokens: human, review"
+        },
+        {
+          "evidence_id": "S003",
+          "match_reason": "lexical overlap with claim tokens: replay, trace"
+        },
+        {
+          "evidence_id": "S006",
+          "match_reason": "lexical overlap with claim tokens: human, review"
+        },
+        {
+          "evidence_id": "S007",
+          "match_reason": "lexical overlap with claim tokens: enabled, evidence, full, harness, human"
+        },
+        {
+          "evidence_id": "S010",
+          "match_reason": "lexical overlap with claim tokens: only, trace"
+        },
+        {
+          "evidence_id": "S012",
+          "match_reason": "lexical overlap with claim tokens: evidence, harness"
+        },
+        {
+          "evidence_id": "R002",
+          "match_reason": "lexical overlap with claim tokens: human, review"
+        },
+        {
+          "evidence_id": "R004",
+          "match_reason": "lexical overlap with claim tokens: evidence, logging, replay, trace"
+        },
+        {
+          "evidence_id": "R006",
+          "match_reason": "lexical overlap with claim tokens: human, review"
+        }
+      ]
+    },
+    {
+      "claim_id": "C014",
+      "text": "The compact detector is less reliable around faint zona boundaries despite being faster in informal synthetic checks.",
+      "evidence_ids": [
+        "E004",
+        "S008"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "E004",
+          "match_reason": "lexical overlap with claim tokens: around, boundaries, faint, faster, less"
+        },
+        {
+          "evidence_id": "S008",
+          "match_reason": "lexical overlap with claim tokens: around, boundaries, checks, compact, despite"
+        }
+      ]
+    },
+    {
+      "claim_id": "C015",
+      "text": "The table evidence supports claims about segmentation metrics and workflow ablation under the synthetic benchmark.",
+      "evidence_ids": [
+        "E001",
+        "S001",
+        "S003",
+        "S004",
+        "S005",
+        "S009",
+        "R003"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "E001",
+          "match_reason": "lexical overlap with claim tokens: benchmark, synthetic"
+        },
+        {
+          "evidence_id": "S001",
+          "match_reason": "lexical overlap with claim tokens: segmentation, synthetic"
+        },
+        {
+          "evidence_id": "S003",
+          "match_reason": "lexical overlap with claim tokens: ablation, metrics, table"
+        },
+        {
+          "evidence_id": "S004",
+          "match_reason": "lexical overlap with claim tokens: benchmark, synthetic"
+        },
+        {
+          "evidence_id": "S005",
+          "match_reason": "lexical overlap with claim tokens: synthetic, table"
+        },
+        {
+          "evidence_id": "S009",
+          "match_reason": "lexical overlap with claim tokens: ablation, benchmark, evidence, metrics, segmentation"
+        },
+        {
+          "evidence_id": "R003",
+          "match_reason": "lexical overlap with claim tokens: metrics, segmentation"
+        }
+      ]
+    },
+    {
+      "claim_id": "C016",
+      "text": "The workflow is robust to missing trace commentary only in the narrow sense that CSV metrics can still be inspected manually.",
+      "evidence_ids": [
+        "S003",
+        "S007",
+        "S010"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "S003",
+          "match_reason": "lexical overlap with claim tokens: metrics, trace"
+        },
+        {
+          "evidence_id": "S007",
+          "match_reason": "lexical overlap with claim tokens: only, trace"
+        },
+        {
+          "evidence_id": "S010",
+          "match_reason": "lexical overlap with claim tokens: commentary, inspected, manually, metrics, missing"
+        }
+      ]
+    },
+    {
+      "claim_id": "C017",
+      "text": "The manuscript overclaims if it says the system is ready for real-world clinical deployment because no external validation, operator study, or safety review is included.",
+      "evidence_ids": [
+        "S011"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "S011",
+          "match_reason": "lexical overlap with claim tokens: clinical, deployment, external, included, manuscript"
+        }
+      ]
+    },
+    {
+      "claim_id": "C018",
+      "text": "ClaimHarness enables a compact demonstration of claim extraction, evidence linking, conservative verification, human-review routing, and trace logging for scientific writing.",
+      "evidence_ids": [
+        "E001",
+        "E003",
+        "E005",
+        "E008",
+        "S002",
+        "S003",
+        "S006",
+        "S007",
+        "R002",
+        "R004",
+        "R006"
+      ],
+      "evidence_links": [
+        {
+          "evidence_id": "E001",
+          "match_reason": "lexical overlap with claim tokens: review, routing"
+        },
+        {
+          "evidence_id": "E003",
+          "match_reason": "lexical overlap with claim tokens: human, review"
+        },
+        {
+          "evidence_id": "E005",
+          "match_reason": "lexical overlap with claim tokens: review, routing, trace"
+        },
+        {
+          "evidence_id": "E008",
+          "match_reason": "lexical overlap with claim tokens: evidence, human, logging, review, trace"
+        },
+        {
+          "evidence_id": "S002",
+          "match_reason": "lexical overlap with claim tokens: human, review"
+        },
+        {
+          "evidence_id": "S003",
+          "match_reason": "lexical overlap with claim tokens: enables, trace"
+        },
+        {
+          "evidence_id": "S006",
+          "match_reason": "lexical overlap with claim tokens: human, review"
+        },
+        {
+          "evidence_id": "S007",
+          "match_reason": "lexical overlap with claim tokens: evidence, human, logging, review, trace"
+        },
+        {
+          "evidence_id": "R002",
+          "match_reason": "lexical overlap with claim tokens: human, review"
+        },
+        {
+          "evidence_id": "R004",
+          "match_reason": "lexical overlap with claim tokens: evidence, logging, trace"
+        },
+        {
+          "evidence_id": "R006",
+          "match_reason": "lexical overlap with claim tokens: conservative, human, review, routing, scientific"
+        }
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "E001",
+      "source": "table1_metrics",
+      "evidence_type": "quantitative_result",
+      "text": "model=baseline_unet; dice=0.81; iou=0.69; precision=0.84; recall=0.78; notes=synthetic benchmark baseline without review routing",
+      "linked_claim_ids": [
+        "C001",
+        "C002",
+        "C003",
+        "C006",
+        "C009",
+        "C011",
+        "C012",
+        "C015",
+        "C018"
+      ],
+      "claim_link_reasons": {
+        "C001": "lexical overlap with claim tokens: benchmark, synthetic",
+        "C002": "lexical overlap with claim tokens: baseline, dice, model, synthetic",
+        "C003": "lexical overlap with claim tokens: notes, review",
+        "C006": "lexical overlap with claim tokens: model, review",
+        "C009": "lexical overlap with claim tokens: model, review",
+        "C011": "lexical overlap with claim tokens: baseline_unet, dice, model, precision, recall",
+        "C012": "lexical overlap with claim tokens: benchmark, dice, review",
+        "C015": "lexical overlap with claim tokens: benchmark, synthetic",
+        "C018": "lexical overlap with claim tokens: review, routing"
+      }
+    },
+    {
+      "evidence_id": "E002",
+      "source": "table1_metrics",
+      "evidence_type": "quantitative_result",
+      "text": "model=explainable_guidance_v1; dice=0.88; iou=0.78; precision=0.9; recall=0.86; notes=adds saliency summary and operator-facing confidence notes",
+      "linked_claim_ids": [
+        "C002",
+        "C003",
+        "C008",
+        "C009",
+        "C011"
+      ],
+      "claim_link_reasons": {
+        "C002": "lexical overlap with claim tokens: dice, model",
+        "C003": "lexical overlap with claim tokens: confidence, notes",
+        "C008": "lexical overlap with claim tokens: confidence, summary",
+        "C009": "lexical overlap with claim tokens: confidence, model",
+        "C011": "lexical overlap with claim tokens: dice, explainable_guidance_v1, model, precision, recall"
+      }
+    },
+    {
+      "evidence_id": "E003",
+      "source": "table1_metrics",
+      "evidence_type": "quantitative_result",
+      "text": "model=explainable_guidance_v1_with_review; dice=0.89; iou=0.8; precision=0.91; recall=0.87; notes=adds human review gate for low-confidence boundaries",
+      "linked_claim_ids": [
+        "C002",
+        "C003",
+        "C006",
+        "C009",
+        "C011",
+        "C012",
+        "C013",
+        "C018"
+      ],
+      "claim_link_reasons": {
+        "C002": "lexical overlap with claim tokens: dice, model",
+        "C003": "lexical overlap with claim tokens: confidence, notes, review",
+        "C006": "lexical overlap with claim tokens: model, review",
+        "C009": "lexical overlap with claim tokens: confidence, gate, human, model, review",
+        "C011": "lexical overlap with claim tokens: dice, model, precision, recall",
+        "C012": "lexical overlap with claim tokens: dice, gate, human, review",
+        "C013": "lexical overlap with claim tokens: human, review",
+        "C018": "lexical overlap with claim tokens: human, review"
+      }
+    },
+    {
+      "evidence_id": "E004",
+      "source": "table1_metrics",
+      "evidence_type": "quantitative_result",
+      "text": "model=compact_detector; dice=0.76; iou=0.61; precision=0.8; recall=0.72; notes=faster but less reliable around faint zona boundaries",
+      "linked_claim_ids": [
+        "C002",
+        "C005",
+        "C011",
+        "C014"
+      ],
+      "claim_link_reasons": {
+        "C002": "lexical overlap with claim tokens: dice, model",
+        "C005": "lexical overlap with claim tokens: around, boundaries, reliable, zona",
+        "C011": "lexical overlap with claim tokens: dice, model, precision, recall",
+        "C014": "lexical overlap with claim tokens: around, boundaries, faint, faster, less"
+      }
+    },
+    {
+      "evidence_id": "E005",
+      "source": "table2_ablation",
+      "evidence_type": "ablation_result",
+      "text": "setting=vision_only; evidence_logging=disabled; human_review_gate=disabled; trace_replay=disabled; success_rate=0.71; notes=no claim trace and no explicit review routing",
+      "linked_claim_ids": [
+        "C003",
+        "C010",
+        "C013",
+        "C018"
+      ],
+      "claim_link_reasons": {
+        "C003": "lexical overlap with claim tokens: notes, review, trace",
+        "C010": "lexical overlap with claim tokens: notes, trace",
+        "C013": "lexical overlap with claim tokens: review, setting, trace",
+        "C018": "lexical overlap with claim tokens: review, routing, trace"
+      }
+    },
+    {
+      "evidence_id": "E006",
+      "source": "table2_ablation",
+      "evidence_type": "ablation_result",
+      "text": "setting=logging_only; evidence_logging=enabled; human_review_gate=disabled; trace_replay=enabled; success_rate=0.78; notes=records intermediate evidence but does not pause risky cases",
+      "linked_claim_ids": [
+        "C003",
+        "C013"
+      ],
+      "claim_link_reasons": {
+        "C003": "lexical overlap with claim tokens: evidence, intermediate, notes",
+        "C013": "lexical overlap with claim tokens: enabled, evidence, setting"
+      }
+    },
+    {
+      "evidence_id": "E007",
+      "source": "table2_ablation",
+      "evidence_type": "ablation_result",
+      "text": "setting=review_gate_only; evidence_logging=disabled; human_review_gate=enabled; trace_replay=disabled; success_rate=0.8; notes=routes uncertain cases but cannot replay evidence chain",
+      "linked_claim_ids": [
+        "C003",
+        "C010",
+        "C013"
+      ],
+      "claim_link_reasons": {
+        "C003": "lexical overlap with claim tokens: evidence, notes",
+        "C010": "lexical overlap with claim tokens: notes, replay",
+        "C013": "lexical overlap with claim tokens: enabled, evidence, replay, setting"
+      }
+    },
+    {
+      "evidence_id": "E008",
+      "source": "table2_ablation",
+      "evidence_type": "ablation_result",
+      "text": "setting=full_harness; evidence_logging=enabled; human_review_gate=enabled; trace_replay=enabled; success_rate=0.86; notes=combines evidence logging human review and replayable trace",
+      "linked_claim_ids": [
+        "C003",
+        "C006",
+        "C009",
+        "C010",
+        "C012",
+        "C013",
+        "C018"
+      ],
+      "claim_link_reasons": {
+        "C003": "lexical overlap with claim tokens: evidence, notes, replayable, review, trace",
+        "C006": "lexical overlap with claim tokens: evidence, review",
+        "C009": "lexical overlap with claim tokens: human, review",
+        "C010": "lexical overlap with claim tokens: notes, trace",
+        "C012": "lexical overlap with claim tokens: human, review",
+        "C013": "lexical overlap with claim tokens: enabled, evidence, human, logging, review",
+        "C018": "lexical overlap with claim tokens: evidence, human, logging, review, trace"
+      }
+    },
+    {
+      "evidence_id": "S001",
+      "source": "Methods",
+      "evidence_type": "workflow_trace",
+      "text": "The workflow uses an explainable segmentation summary, a confidence note, and a structured trace replay for each synthetic microscopy frame.",
+      "linked_claim_ids": [
+        "C001",
+        "C002",
+        "C003",
+        "C008",
+        "C010",
+        "C013",
+        "C015"
+      ],
+      "claim_link_reasons": {
+        "C001": "lexical overlap with claim tokens: explainable, microscopy, synthetic",
+        "C002": "lexical overlap with claim tokens: segmentation, synthetic",
+        "C003": "lexical overlap with claim tokens: confidence, trace",
+        "C008": "lexical overlap with claim tokens: confidence, each, explainable, frame, microscopy",
+        "C010": "lexical overlap with claim tokens: replay, trace",
+        "C013": "lexical overlap with claim tokens: replay, trace",
+        "C015": "lexical overlap with claim tokens: segmentation, synthetic"
+      }
+    },
+    {
+      "evidence_id": "S002",
+      "source": "Methods",
+      "evidence_type": "workflow_trace",
+      "text": "The human review gate supports manual inspection when boundary confidence is low or when the model highlights an ambiguous injection region.",
+      "linked_claim_ids": [
+        "C001",
+        "C003",
+        "C005",
+        "C006",
+        "C009",
+        "C012",
+        "C013",
+        "C018"
+      ],
+      "claim_link_reasons": {
+        "C001": "lexical overlap with claim tokens: human, injection",
+        "C003": "lexical overlap with claim tokens: confidence, review",
+        "C005": "lexical overlap with claim tokens: injection, region",
+        "C006": "lexical overlap with claim tokens: model, review",
+        "C009": "lexical overlap with claim tokens: ambiguous, boundary, confidence, gate, highlights",
+        "C012": "lexical overlap with claim tokens: gate, human, review",
+        "C013": "lexical overlap with claim tokens: human, review",
+        "C018": "lexical overlap with claim tokens: human, review"
+      }
+    },
+    {
+      "evidence_id": "S003",
+      "source": "Methods",
+      "evidence_type": "limitation_statement",
+      "text": "Trace replay enables reviewers to see which table metrics, ablation rows, and limitation notes were available before a claim was labeled.",
+      "linked_claim_ids": [
+        "C003",
+        "C007",
+        "C008",
+        "C010",
+        "C013",
+        "C015",
+        "C016",
+        "C018"
+      ],
+      "claim_link_reasons": {
+        "C003": "lexical overlap with claim tokens: enables, notes, trace",
+        "C007": "lexical overlap with claim tokens: limitation, table",
+        "C008": "lexical overlap with claim tokens: replay, trace",
+        "C010": "lexical overlap with claim tokens: ablation, available, enables, labeled, limitation",
+        "C013": "lexical overlap with claim tokens: replay, trace",
+        "C015": "lexical overlap with claim tokens: ablation, metrics, table",
+        "C016": "lexical overlap with claim tokens: metrics, trace",
+        "C018": "lexical overlap with claim tokens: enables, trace"
+      }
+    },
+    {
+      "evidence_id": "S004",
+      "source": "Methods",
+      "evidence_type": "limitation_statement",
+      "text": "The synthetic benchmark is intentionally small and does not measure live laboratory performance.",
+      "linked_claim_ids": [
+        "C001",
+        "C015"
+      ],
+      "claim_link_reasons": {
+        "C001": "lexical overlap with claim tokens: benchmark, synthetic",
+        "C015": "lexical overlap with claim tokens: benchmark, synthetic"
+      }
+    },
+    {
+      "evidence_id": "S005",
+      "source": "Results",
+      "evidence_type": "quantitative_result",
+      "text": "The explainable_guidance_v1 model outperforms the baseline_unet model on Dice, IoU, precision, and recall in the synthetic metric table.",
+      "linked_claim_ids": [
+        "C002",
+        "C006",
+        "C011",
+        "C015"
+      ],
+      "claim_link_reasons": {
+        "C002": "lexical overlap with claim tokens: dice, model, synthetic, table",
+        "C006": "lexical overlap with claim tokens: model, table",
+        "C011": "lexical overlap with claim tokens: baseline_unet, dice, explainable_guidance_v1, metric, model",
+        "C015": "lexical overlap with claim tokens: synthetic, table"
+      }
+    },
+    {
+      "evidence_id": "S006",
+      "source": "Results",
+      "evidence_type": "quantitative_result",
+      "text": "Adding the human review gate increases Dice from 0.88 to 0.89 and IoU from 0.78 to 0.80 in the controlled benchmark.",
+      "linked_claim_ids": [
+        "C001",
+        "C009",
+        "C012",
+        "C013",
+        "C018"
+      ],
+      "claim_link_reasons": {
+        "C001": "lexical overlap with claim tokens: benchmark, controlled, human",
+        "C009": "lexical overlap with claim tokens: gate, human, review",
+        "C012": "lexical overlap with claim tokens: adding, benchmark, controlled, dice, gate",
+        "C013": "lexical overlap with claim tokens: human, review",
+        "C018": "lexical overlap with claim tokens: human, review"
+      }
+    },
+    {
+      "evidence_id": "S007",
+      "source": "Results",
+      "evidence_type": "quantitative_result",
+      "text": "The full harness improves workflow success rate from 0.71 in the vision-only setting to 0.86 when evidence logging, human review, and trace replay are all enabled.",
+      "linked_claim_ids": [
+        "C002",
+        "C003",
+        "C006",
+        "C008",
+        "C009",
+        "C010",
+        "C012",
+        "C013",
+        "C016",
+        "C018"
+      ],
+      "claim_link_reasons": {
+        "C002": "lexical overlap with claim tokens: harness, improves",
+        "C003": "lexical overlap with claim tokens: evidence, review, trace",
+        "C006": "lexical overlap with claim tokens: evidence, harness, review",
+        "C008": "lexical overlap with claim tokens: replay, trace",
+        "C009": "lexical overlap with claim tokens: human, review",
+        "C010": "lexical overlap with claim tokens: replay, trace",
+        "C012": "lexical overlap with claim tokens: human, review",
+        "C013": "lexical overlap with claim tokens: enabled, evidence, full, harness, human",
+        "C016": "lexical overlap with claim tokens: only, trace",
+        "C018": "lexical overlap with claim tokens: evidence, human, logging, review, trace"
+      }
+    },
+    {
+      "evidence_id": "S008",
+      "source": "Results",
+      "evidence_type": "quantitative_result",
+      "text": "The compact detector is less reliable around faint zona boundaries despite being faster in informal synthetic checks.",
+      "linked_claim_ids": [
+        "C005",
+        "C014"
+      ],
+      "claim_link_reasons": {
+        "C005": "lexical overlap with claim tokens: around, boundaries, reliable, zona",
+        "C014": "lexical overlap with claim tokens: around, boundaries, checks, compact, despite"
+      }
+    },
+    {
+      "evidence_id": "S009",
+      "source": "Discussion",
+      "evidence_type": "workflow_trace",
+      "text": "The table evidence supports claims about segmentation metrics and workflow ablation under the synthetic benchmark.",
+      "linked_claim_ids": [
+        "C001",
+        "C002",
+        "C006",
+        "C008",
+        "C010",
+        "C011",
+        "C015"
+      ],
+      "claim_link_reasons": {
+        "C001": "lexical overlap with claim tokens: benchmark, synthetic",
+        "C002": "lexical overlap with claim tokens: segmentation, synthetic, table",
+        "C006": "lexical overlap with claim tokens: evidence, table",
+        "C008": "lexical overlap with claim tokens: segmentation, synthetic",
+        "C010": "lexical overlap with claim tokens: ablation, metrics, table",
+        "C011": "lexical overlap with claim tokens: synthetic, table",
+        "C015": "lexical overlap with claim tokens: ablation, benchmark, evidence, metrics, segmentation"
+      }
+    },
+    {
+      "evidence_id": "S010",
+      "source": "Discussion",
+      "evidence_type": "workflow_trace",
+      "text": "The workflow is robust to missing trace commentary only in the narrow sense that CSV metrics can still be inspected manually.",
+      "linked_claim_ids": [
+        "C010",
+        "C013",
+        "C016"
+      ],
+      "claim_link_reasons": {
+        "C010": "lexical overlap with claim tokens: metrics, trace",
+        "C013": "lexical overlap with claim tokens: only, trace",
+        "C016": "lexical overlap with claim tokens: commentary, inspected, manually, metrics, missing"
+      }
+    },
+    {
+      "evidence_id": "S011",
+      "source": "Discussion",
+      "evidence_type": "limitation_statement",
+      "text": "The manuscript overclaims if it says the system is ready for real-world clinical deployment because no external validation, operator study, or safety review is included.",
+      "linked_claim_ids": [
+        "C004",
+        "C017"
+      ],
+      "claim_link_reasons": {
+        "C004": "lexical overlap with claim tokens: deployment, ready, says",
+        "C017": "lexical overlap with claim tokens: clinical, deployment, external, included, manuscript"
+      }
+    },
+    {
+      "evidence_id": "S012",
+      "source": "Discussion",
+      "evidence_type": "limitation_statement",
+      "text": "The system should not be considered a decision-making device; it is a reproducible audit harness for studying claim-evidence traceability.",
+      "linked_claim_ids": [
+        "C006",
+        "C013"
+      ],
+      "claim_link_reasons": {
+        "C006": "lexical overlap with claim tokens: decision, evidence, harness",
+        "C013": "lexical overlap with claim tokens: evidence, harness"
+      }
+    },
+    {
+      "evidence_id": "R001",
+      "source": "references",
+      "evidence_type": "citation",
+      "text": "1. Alvarez, M. and Chen, Y. (2024). Explainable visual guidance for laboratory micromanipulation workflows. Journal of Synthetic Assisted Reproduction Methods.",
+      "linked_claim_ids": [
+        "C001",
+        "C002",
+        "C005",
+        "C008"
+      ],
+      "claim_link_reasons": {
+        "C001": "lexical overlap with claim tokens: explainable, guidance, synthetic",
+        "C002": "lexical overlap with claim tokens: synthetic, visual",
+        "C005": "lexical overlap with claim tokens: guidance, micromanipulation, visual",
+        "C008": "lexical overlap with claim tokens: explainable, synthetic"
+      }
+    },
+    {
+      "evidence_id": "R002",
+      "source": "references",
+      "evidence_type": "citation",
+      "text": "2. Banerjee, R. et al. (2023). Human-in-the-loop review gates for high-precision biomedical image analysis. Proceedings of the Workshop on Auditable AI Systems.",
+      "linked_claim_ids": [
+        "C001",
+        "C003",
+        "C009",
+        "C012",
+        "C013",
+        "C018"
+      ],
+      "claim_link_reasons": {
+        "C001": "lexical overlap with claim tokens: human, loop",
+        "C003": "lexical overlap with claim tokens: auditable, review",
+        "C009": "lexical overlap with claim tokens: human, review",
+        "C012": "lexical overlap with claim tokens: human, review",
+        "C013": "lexical overlap with claim tokens: human, review",
+        "C018": "lexical overlap with claim tokens: human, review"
+      }
+    },
+    {
+      "evidence_id": "R003",
+      "source": "references",
+      "evidence_type": "citation",
+      "text": "3. Ito, S. and Morgan, L. (2022). Segmentation metrics for oocyte and zona pellucida imaging under controlled laboratory conditions. Computational Embryology Reports.",
+      "linked_claim_ids": [
+        "C001",
+        "C005",
+        "C015"
+      ],
+      "claim_link_reasons": {
+        "C001": "lexical overlap with claim tokens: controlled, oocyte",
+        "C005": "lexical overlap with claim tokens: oocyte, pellucida, zona",
+        "C015": "lexical overlap with claim tokens: metrics, segmentation"
+      }
+    },
+    {
+      "evidence_id": "R004",
+      "source": "references",
+      "evidence_type": "citation",
+      "text": "4. Patel, N. et al. (2025). Trace replay and evidence logging in decision-support prototypes. Transactions on Reproducible Machine Learning.",
+      "linked_claim_ids": [
+        "C003",
+        "C006",
+        "C008",
+        "C010",
+        "C013",
+        "C018"
+      ],
+      "claim_link_reasons": {
+        "C003": "lexical overlap with claim tokens: evidence, trace",
+        "C006": "lexical overlap with claim tokens: decision, evidence",
+        "C008": "lexical overlap with claim tokens: replay, trace",
+        "C010": "lexical overlap with claim tokens: replay, trace",
+        "C013": "lexical overlap with claim tokens: evidence, logging, replay, trace",
+        "C018": "lexical overlap with claim tokens: evidence, logging, trace"
+      }
+    },
+    {
+      "evidence_id": "R005",
+      "source": "references",
+      "evidence_type": "citation",
+      "text": "5. Rivera, G. and Novak, P. (2024). Limits of automated injection guidance in synthetic microscopy benchmarks. AI Safety Notes for Biomedical Engineering.",
+      "linked_claim_ids": [
+        "C001",
+        "C005",
+        "C008"
+      ],
+      "claim_link_reasons": {
+        "C001": "lexical overlap with claim tokens: guidance, injection, microscopy, synthetic",
+        "C005": "lexical overlap with claim tokens: guidance, injection",
+        "C008": "lexical overlap with claim tokens: microscopy, synthetic"
+      }
+    },
+    {
+      "evidence_id": "R006",
+      "source": "references",
+      "evidence_type": "citation",
+      "text": "6. Singh, A. et al. (2023). Designing conservative human-review routing for assistive laboratory software. Journal of Human-Centered Scientific Computing.",
+      "linked_claim_ids": [
+        "C009",
+        "C012",
+        "C013",
+        "C018"
+      ],
+      "claim_link_reasons": {
+        "C009": "lexical overlap with claim tokens: human, review",
+        "C012": "lexical overlap with claim tokens: human, review",
+        "C013": "lexical overlap with claim tokens: human, review",
+        "C018": "lexical overlap with claim tokens: conservative, human, review, routing, scientific"
+      }
+    }
+  ]
+}

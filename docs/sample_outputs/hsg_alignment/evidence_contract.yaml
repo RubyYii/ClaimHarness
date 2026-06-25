@@ -1,0 +1,16 @@
+claim_type:
+  clinical_suggestion:
+    required_evidence:
+      - original_image_region
+      - uncertainty_statement
+      - human_review_flag
+    forbidden_without:
+      - clinician_confirmation
+      - image_quality_assessment
+  model_performance:
+    required_evidence:
+      - quantitative_table
+      - baseline_comparison
+      - error_analysis
+    forbidden_without:
+      []

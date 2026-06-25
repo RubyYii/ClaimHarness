@@ -1,0 +1,4 @@
+domain_concept,ai_representation,alignment_status,misalignment_risk
+tubal obstruction,classification label,partial,segmentation absence may mean poor visibility rather than obstruction
+tube visibility,segmentation confidence plus contrast quality,aligned,image quality and timing still need clinician interpretation
+clinical readiness,deployment status,high-risk,requires validation beyond model metrics

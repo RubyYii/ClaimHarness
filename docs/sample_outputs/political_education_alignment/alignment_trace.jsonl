@@ -1,0 +1,4 @@
+{"step": "load_problem_brief", "profile": "political_education", "project_name": "value_sensitive_llm_risk_evaluation"}
+{"step": "detect_alignment_profile", "profile": "political_education", "project_name": "value_sensitive_llm_risk_evaluation"}
+{"step": "build_alignment_package", "profile": "political_education", "project_name": "value_sensitive_llm_risk_evaluation"}
+{"step": "write_outputs", "profile": "political_education", "project_name": "value_sensitive_llm_risk_evaluation"}

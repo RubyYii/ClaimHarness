@@ -1,0 +1,29 @@
+project_name: evidence_ready_hsg_support
+domain_goal: Support reviewable HSG interpretation by preserving image quality, contrast passage, visibility, uncertainty, and clinician judgement.
+not_allowed_goal: autonomous diagnosis
+ai_task_type:
+  - image_quality_assessment
+  - anatomy_visibility_segmentation
+  - evidence_sidecar_generation
+  - conservative_report_drafting
+inputs:
+  - original_image
+  - segmentation_overlay
+  - confidence_score
+  - image_quality_label
+outputs:
+  - evidence_summary
+  - uncertainty_statement
+  - human_review_flag
+  - structured_draft_report
+evaluation:
+  - Segmentation quality for visible anatomy
+  - Evidence completeness for each report statement
+  - Uncertainty calibration
+  - Overclaim rate
+  - Clinician correction burden
+human_review_required:
+  - Any tubal abnormality suggestion
+  - Low-confidence segmentation
+  - Poor visibility or ambiguous contrast passage
+  - Any wording that implies diagnosis or deployment readiness

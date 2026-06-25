@@ -1,0 +1,4 @@
+domain_concept,ai_representation,alignment_status,misalignment_risk
+blank space,white pixels or empty region,misaligned,visual emptiness may carry compositional and cultural meaning
+brushwork,texture and line features,partial,requires art-historical vocabulary and expert interpretation
+scholar commentary,caption or text prompt,partial,"commentary is interpretive evidence, not a simple image label"

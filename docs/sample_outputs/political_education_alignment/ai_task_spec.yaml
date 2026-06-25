@@ -1,0 +1,27 @@
+project_name: value_sensitive_llm_risk_evaluation
+domain_goal: Evaluate whether model answers remain source-grounded, conceptually aligned, and appropriately bounded in value-sensitive educational settings.
+not_allowed_goal: fluent answer generation as educational safety
+ai_task_type:
+  - value_sensitive_response_audit
+  - source_grounding_check
+  - concept_framing_risk_detection
+inputs:
+  - curriculum_concept
+  - source_text_fragment
+  - student_question
+  - model_answer
+outputs:
+  - unsupported_claims
+  - concept_alignment_notes
+  - value_framing_risk
+  - teacher_review_flag
+evaluation:
+  - Factual correctness
+  - Concept relation consistency
+  - Source-groundedness
+  - Value framing stability
+  - Teacher correction burden
+human_review_required:
+  - Normative or value-sensitive explanation
+  - Unsupported claim about curriculum concepts
+  - Ambiguous framing or contested interpretation

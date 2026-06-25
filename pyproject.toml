@@ -32,4 +32,4 @@ claim_harness = ["prompts/*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-p no:cacheprovider"
+addopts = "-p no:cacheprovider --basetemp=.pytest_tmp_run"

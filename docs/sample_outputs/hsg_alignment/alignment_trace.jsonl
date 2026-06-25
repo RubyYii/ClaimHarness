@@ -1,0 +1,4 @@
+{"step": "load_problem_brief", "profile": "hsg", "project_name": "evidence_ready_hsg_support"}
+{"step": "detect_alignment_profile", "profile": "hsg", "project_name": "evidence_ready_hsg_support"}
+{"step": "build_alignment_package", "profile": "hsg", "project_name": "evidence_ready_hsg_support"}
+{"step": "write_outputs", "profile": "hsg", "project_name": "evidence_ready_hsg_support"}
