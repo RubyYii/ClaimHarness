@@ -1,13 +1,32 @@
-# ClaimHarness: A Lightweight Agent Harness for Scientific Claim-Evidence Auditing
+# ClaimHarness + ProblemBridge
+
+ClaimHarness: A Lightweight Agent Harness for Scientific Claim-Evidence Auditing
 
 ClaimHarness turns a scientific manuscript into an auditable claim-evidence package. Given a Markdown manuscript, CSV result tables, and references, it extracts scientific claims, retrieves possible evidence, verifies support levels, routes risky claims for human review, and writes a replayable audit trace.
 
 This is not a prompt-only reviewer. It decomposes the task into task specification, context selection, claim extraction, evidence retrieval, verification, human-review routing, and trace logging.
 
+ProblemBridge is the upstream sister module: a workflow discovery and problem alignment harness for interdisciplinary AI projects. It turns a domain problem brief into a Problem Alignment Package: workflow map, pain point matrix, concept alignment table, AI task spec, evidence contract, evaluation protocol, misalignment risk report, human-in-the-loop plan, implementation routes, and trace log.
+
+The relationship is:
+
+```text
+ProblemBridge: domain workflow -> aligned AI task specification
+ClaimHarness: scientific claim -> evidence audit
+```
+
+ProblemBridge is not STORM, RAG, or a writing assistant. STORM-like systems help explore what a topic should cover; ProblemBridge asks whether the proposed AI task remains faithful to the source-domain workflow, evidence standards, evaluation goals, and human decision boundaries.
+
 Run the bundled synthetic demo and generate the browser report in one command:
 
 ```bash
 .venv\Scripts\python.exe -m claim_harness demo
+```
+
+Run the bundled ProblemBridge HSG alignment demo:
+
+```bash
+.venv\Scripts\python.exe -m problem_bridge demo
 ```
 
 The project is checked by GitHub Actions CI on push and pull request.
@@ -56,6 +75,51 @@ Or use the one-command demo path:
 ```bash
 .venv\Scripts\python.exe -m claim_harness demo --out outputs/oocyte_demo_run
 ```
+
+## ProblemBridge Quickstart
+
+Run the synthetic HSG alignment demo:
+
+```bash
+.venv\Scripts\python.exe -m problem_bridge demo --out outputs/problem_bridge_hsg_demo
+```
+
+Run a specific problem brief:
+
+```bash
+.venv\Scripts\python.exe -m problem_bridge align `
+  --brief examples/problem_bridge/hsg/problem.md `
+  --out outputs/hsg_alignment `
+  --llm mock
+```
+
+The mock alignment package writes:
+
+```text
+outputs/hsg_alignment/
+  problem_card.md
+  workflow_map.md
+  painpoint_opportunity_matrix.csv
+  concept_alignment_table.csv
+  ai_task_spec.yaml
+  evidence_contract.yaml
+  evaluation_protocol.md
+  misalignment_risk_report.md
+  human_in_loop_plan.md
+  implementation_routes.md
+  alignment_trace.jsonl
+```
+
+Bundled synthetic ProblemBridge examples:
+
+```text
+examples/problem_bridge/
+  hsg/problem.md
+  chinese_painting/problem.md
+  political_education/problem.md
+```
+
+ProblemBridge should be used before model building, when the key question is whether a domain workflow has been turned into the right AI task. ClaimHarness should be used after claims or reports exist, when the key question is whether those claims are supported by evidence.
 
 ## Optional OpenAI-Compatible Provider
 

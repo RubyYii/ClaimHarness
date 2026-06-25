@@ -22,13 +22,14 @@ dev = [
 
 [project.scripts]
 claim-harness = "claim_harness.cli:main"
+problem-bridge = "problem_bridge.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["claim_harness*"]
+include = ["claim_harness*", "problem_bridge*"]
 
 [tool.setuptools.package-data]
 claim_harness = ["prompts/*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--basetemp=.pytest_tmp"
+addopts = "-p no:cacheprovider"

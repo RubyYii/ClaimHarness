@@ -24,7 +24,7 @@ from .verifier import verify_claims
 
 
 app = typer.Typer(help="ClaimHarness command-line interface.")
-console = Console()
+console = Console(width=1000)
 
 DEMO_MANUSCRIPT = Path("examples/oocyte_demo/manuscript.md")
 DEMO_TABLES = Path("examples/oocyte_demo/tables")
