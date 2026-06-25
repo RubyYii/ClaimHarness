@@ -19,6 +19,9 @@ dependencies = [
 dev = [
   "pytest>=8.0",
 ]
+ui = [
+  "streamlit>=1.35",
+]
 
 [project.scripts]
 claim-harness = "claim_harness.cli:main"

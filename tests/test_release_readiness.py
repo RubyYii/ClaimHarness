@@ -158,3 +158,13 @@ def test_external_review_packaging_is_present():
     sample_dir = Path("docs/sample_outputs/claimharness_oocyte_demo")
     for filename in claimharness_required:
         assert (sample_dir / filename).is_file(), sample_dir / filename
+
+
+def test_guided_ui_is_documented_for_non_ai_users():
+    readme = Path("README.md").read_text(encoding="utf-8")
+
+    assert Path("apps/problem_bridge_wizard.py").is_file()
+    assert '.[dev,ui]' in readme
+    assert "streamlit run apps/problem_bridge_wizard.py" in readme
+    assert "Guided UI for non-AI users" in readme
+    assert "Do not upload private patient data" in readme

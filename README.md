@@ -123,6 +123,33 @@ examples/problem_bridge/
 
 ProblemBridge should be used before model building, when the key question is whether a domain workflow has been turned into the right AI task. ClaimHarness should be used after claims or reports exist, when the key question is whether those claims are supported by evidence.
 
+## Guided UI for non-AI users
+
+ProblemBridge also includes an optional local guided UI for people who do not already know how to describe an AI task. It asks plain-language questions about workflow, painful steps, available materials, human-review boundaries, and useful assistant outputs. The UI then generates the same Problem Alignment Package used by the CLI.
+
+Install the optional UI dependencies:
+
+```powershell
+.venv\Scripts\python.exe -m pip install -e ".[dev,ui]"
+```
+
+Run the local Streamlit wizard:
+
+```powershell
+.venv\Scripts\python.exe -m streamlit run apps/problem_bridge_wizard.py
+```
+
+The wizard includes:
+
+- Explore examples
+- Domain practitioner wizard
+- AI practitioner wizard
+- Friendly output cards
+- Advanced technical file view
+- Downloadable alignment package
+
+Do not upload private patient data, confidential manuscripts, API keys, or sensitive unpublished materials.
+
 ## Optional OpenAI-Compatible Provider
 
 The default demo uses `--llm mock` and never needs an API key. To request an additional advisory LLM review, set environment variables and choose `openai-compatible`:
