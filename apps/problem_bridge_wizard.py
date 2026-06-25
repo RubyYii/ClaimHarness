@@ -56,8 +56,8 @@ def main() -> None:
 
 def _safety_banner() -> None:
     st.warning(
-        "Do not upload private patient data, confidential manuscripts, API keys, "
-        "or sensitive unpublished materials."
+        "Start with synthetic examples. Do not upload private patient data, "
+        "confidential manuscripts, API keys, or sensitive unpublished materials."
     )
 
 
@@ -158,6 +158,8 @@ def _run_problem_text(problem_text: str, prefix: str) -> Path:
 
 def _render_friendly_output(out: Path) -> None:
     summary = friendly_summary(out)
+    st.subheader("普通用户摘要")
+
     st.subheader("一句话结论")
     st.success(summary.one_sentence)
 
@@ -188,7 +190,7 @@ def _render_friendly_output(out: Path) -> None:
         mime="application/zip",
     )
 
-    with st.expander("给 AI 工程师 / 高级查看"):
+    with st.expander("技术交付包：给 AI 工程师 / 高级查看"):
         for item in discover_alignment_outputs(out):
             st.markdown(f"### {FRIENDLY_FILE_LABELS.get(item.filename, item.filename)}")
             st.caption(item.filename)

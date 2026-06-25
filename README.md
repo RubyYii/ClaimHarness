@@ -78,6 +78,33 @@ Or use the one-command demo path:
 .venv\Scripts\python.exe -m claim_harness demo --out outputs/oocyte_demo_run
 ```
 
+## For non-AI users
+
+If you mainly want to test whether ProblemBridge can help describe a workflow, start with the guided UI instead of the CLI.
+
+Clone the repository and enter the project folder:
+
+```powershell
+git clone https://github.com/RubyYii/ClaimHarness.git
+cd ClaimHarness
+```
+
+Run the Windows helper script:
+
+```powershell
+.\scripts\run_problembridge_ui_powershell.ps1
+```
+
+Or double-click:
+
+```text
+scripts/run_problembridge_ui_windows.bat
+```
+
+When the browser opens, start with `Explore examples`, generate one synthetic example, and read the friendly summary before opening the technical files. After that, try `Domain practitioner wizard` with a non-sensitive workflow description.
+
+Start with synthetic examples. Do not upload private patient data, confidential manuscripts, API keys, or sensitive unpublished materials.
+
 ## ProblemBridge Quickstart
 
 Run the synthetic HSG alignment demo:

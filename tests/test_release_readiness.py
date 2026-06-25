@@ -168,3 +168,56 @@ def test_guided_ui_is_documented_for_non_ai_users():
     assert "streamlit run apps/problem_bridge_wizard.py" in readme
     assert "Guided UI for non-AI users" in readme
     assert "Do not upload private patient data" in readme
+
+
+def test_v031_usability_validation_pack_is_present():
+    required_files = [
+        Path("NON_AI_USER_GUIDE.md"),
+        Path("USABILITY_TEST_PLAN.md"),
+        Path("scripts/run_problembridge_ui_windows.bat"),
+        Path("scripts/run_problembridge_ui_powershell.ps1"),
+        Path("feedback/external_review_log_template.csv"),
+    ]
+    for path in required_files:
+        assert path.is_file(), path
+
+    guide = Path("NON_AI_USER_GUIDE.md").read_text(encoding="utf-8")
+    for phrase in [
+        "who this is for",
+        "what it does",
+        "what it does not do",
+        "what to prepare",
+        "safety and privacy",
+        "run the guided UI",
+    ]:
+        assert phrase in guide
+
+    plan = Path("USABILITY_TEST_PLAN.md").read_text(encoding="utf-8")
+    for phrase in [
+        "Domain practitioners",
+        "AI practitioners",
+        "Scientific writing users",
+        "workflow map",
+        "ai_task_spec.yaml",
+        "ClaimHarness",
+    ]:
+        assert phrase in plan
+
+    readme = Path("README.md").read_text(encoding="utf-8")
+    for phrase in [
+        "For non-AI users",
+        "run_problembridge_ui_windows.bat",
+        "Explore examples",
+        "Domain practitioner wizard",
+    ]:
+        assert phrase in readme
+
+    ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
+    assert "Start with synthetic examples" in ui_text
+
+    feedback_header = Path("feedback/external_review_log_template.csv").read_text(encoding="utf-8").splitlines()[0]
+    assert feedback_header == (
+        "reviewer_type,domain,ai_background,task_used,installation_success,"
+        "ui_clarity,output_usefulness,most_useful_output,most_confusing_part,"
+        "suggested_change,would_use_again,notes"
+    )
