@@ -33,6 +33,22 @@ This page is only for viewing committed examples. It does not require Python if 
 
 The static showcase does not run the interactive wizard, does not generate new ProblemBridge packages, and does not run ClaimHarness.
 
+Static HTML is best for viewing examples only. Use the local web app package when reviewers need to fill the workflow wizard or generate new outputs.
+
+## if the Windows launcher does not load
+
+Check that Python 3.10 or newer is installed. If the launcher window closes too quickly, run it from a terminal:
+
+```powershell
+.\RUN_PROBLEMBRIDGE_WINDOWS.bat
+```
+
+If the browser does not open automatically, visit:
+
+```text
+http://127.0.0.1:8501
+```
+
 ## what requires Python
 
 Python is required for:

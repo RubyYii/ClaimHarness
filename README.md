@@ -130,6 +130,23 @@ After downloading:
 
 This is not an online service and not a standalone `.exe`. It runs locally through Python and Streamlit. Do not upload sensitive data, private patient data, confidential manuscripts, API keys, or unpublished project materials.
 
+If the Windows launcher does not load:
+
+1. Make sure Python 3.10 or newer is installed.
+2. Re-run from a terminal so the error remains visible:
+
+```powershell
+.\RUN_PROBLEMBRIDGE_WINDOWS.bat
+```
+
+3. If the browser does not open automatically, visit:
+
+```text
+http://127.0.0.1:8501
+```
+
+Static HTML is best for viewing examples only. It does not run the workflow wizard, generate new alignment packages, or run ClaimHarness.
+
 To build the package from a checked-out repository:
 
 ```powershell

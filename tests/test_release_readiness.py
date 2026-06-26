@@ -299,3 +299,27 @@ def test_release_packaging_support_is_present():
     readme = Path("README.md").read_text(encoding="utf-8")
     assert "Downloadable local web app package" in readme
     assert "RUN_PROBLEMBRIDGE_WINDOWS.bat" in readme
+
+
+def test_windows_launchers_are_robust_for_double_click_usage():
+    bat = Path("scripts/run_problembridge_ui_windows.bat").read_text(encoding="utf-8")
+    ps1 = Path("scripts/run_problembridge_ui_powershell.ps1").read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+
+    assert 'cd /d "%~dp0\\.."' in bat
+    assert "where py" in bat
+    assert "where python" in bat
+    assert ".venv\\Scripts\\python.exe" in bat
+    assert "http://127.0.0.1:8501" in bat
+    assert "--server.headless true" in bat
+    assert "pause" in bat.lower()
+
+    assert '$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path' in ps1
+    assert "Get-Command py" in ps1
+    assert "Get-Command python" in ps1
+    assert ".venv\\Scripts\\python.exe" in ps1
+    assert "http://127.0.0.1:8501" in ps1
+    assert "--server.headless" in ps1
+
+    assert "If the Windows launcher does not load" in readme
+    assert "Static HTML is best for viewing examples only" in readme
