@@ -243,3 +243,59 @@ def test_v032_workflow_first_onboarding_is_documented():
     assert "Describe your workflow, not an AI task" in ui_text
     assert "You do not need to know AI. Start by describing a repeated task in your work." in ui_text
     assert "Interview mode" in ui_text
+
+
+def test_release_packaging_support_is_present():
+    required_files = [
+        Path("RUN_PROBLEMBRIDGE_WINDOWS.bat"),
+        Path("scripts/build_release_zip_powershell.ps1"),
+        Path("scripts/test_release_zip_powershell.ps1"),
+        Path("RELEASE_PACKAGE_GUIDE.md"),
+        Path("docs/static_showcase/index.html"),
+    ]
+    for path in required_files:
+        assert path.is_file(), path
+
+    launcher = Path("RUN_PROBLEMBRIDGE_WINDOWS.bat").read_text(encoding="utf-8")
+    assert "scripts\\run_problembridge_ui_windows.bat" in launcher
+    assert "pause" in launcher.lower()
+
+    build_script = Path("scripts/build_release_zip_powershell.ps1").read_text(encoding="utf-8")
+    assert "ProblemBridge-ClaimHarness-v0.3.2-local-webapp.zip" in build_script
+    assert "git archive" in build_script
+    assert "dist" in build_script
+
+    test_script = Path("scripts/test_release_zip_powershell.ps1").read_text(encoding="utf-8")
+    for phrase in [
+        "RUN_PROBLEMBRIDGE_WINDOWS.bat",
+        "apps/problem_bridge_wizard.py",
+        "py_compile",
+    ]:
+        assert phrase in test_script
+    assert "streamlit run" not in test_script
+
+    guide = Path("RELEASE_PACKAGE_GUIDE.md").read_text(encoding="utf-8")
+    for phrase in [
+        "local web app package",
+        "static showcase package",
+        "requires Python",
+        "does not require Python",
+        ".venv",
+        ".git",
+        "API keys",
+        "private data",
+        "real patient data",
+        "confidential manuscripts",
+    ]:
+        assert phrase in guide
+
+    showcase = Path("docs/static_showcase/index.html").read_text(encoding="utf-8")
+    assert "This static showcase does not run the interactive wizard." in showcase
+    assert "HSG alignment sample" in showcase
+    assert "VULCA alignment sample" in showcase
+    assert "political education sample" in showcase
+    assert "ClaimHarness oocyte sample" in showcase
+
+    readme = Path("README.md").read_text(encoding="utf-8")
+    assert "Downloadable local web app package" in readme
+    assert "RUN_PROBLEMBRIDGE_WINDOWS.bat" in readme

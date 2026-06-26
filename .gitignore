@@ -6,5 +6,6 @@ __pycache__/
 .pytest_tmp*/
 *.egg-info/
 outputs/*/
+dist/
 .playwright-mcp/
 claimharness-filter-smoke.png

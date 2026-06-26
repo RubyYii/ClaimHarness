@@ -111,6 +111,49 @@ When the browser opens:
 
 Start with synthetic examples. Do not upload private patient data, confidential manuscripts, API keys, or sensitive unpublished materials.
 
+## Downloadable local web app package
+
+For external testing, the repository can be shared as a local web app package:
+
+```text
+ProblemBridge-ClaimHarness-v0.3.2-local-webapp.zip
+```
+
+After downloading:
+
+1. Unzip the package.
+2. Double-click `RUN_PROBLEMBRIDGE_WINDOWS.bat`.
+3. Wait while the first run creates `.venv` and installs dependencies.
+4. Use the browser UI that opens locally.
+5. Start with `Explore examples`.
+6. Then try `Domain practitioner wizard` with a non-sensitive workflow.
+
+This is not an online service and not a standalone `.exe`. It runs locally through Python and Streamlit. Do not upload sensitive data, private patient data, confidential manuscripts, API keys, or unpublished project materials.
+
+To build the package from a checked-out repository:
+
+```powershell
+.\scripts\build_release_zip_powershell.ps1
+```
+
+If PowerShell blocks local scripts, use:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\build_release_zip_powershell.ps1
+```
+
+To test the zip before sharing:
+
+```powershell
+.\scripts\test_release_zip_powershell.ps1
+```
+
+Or:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\test_release_zip_powershell.ps1
+```
+
 ## ProblemBridge Quickstart
 
 Run the synthetic HSG alignment demo:
