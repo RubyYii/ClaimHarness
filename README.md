@@ -101,7 +101,13 @@ Or double-click:
 scripts/run_problembridge_ui_windows.bat
 ```
 
-When the browser opens, start with `Explore examples`, generate one synthetic example, and read the friendly summary before opening the technical files. After that, try `Domain practitioner wizard` with a non-sensitive workflow description.
+When the browser opens:
+
+1. Start with `Explore examples`.
+2. Generate one synthetic example.
+3. Read the friendly summary before opening the technical files.
+4. Use `Domain practitioner wizard` to describe a repeated workflow, not an AI task.
+5. Download the package for an AI engineer only after checking that it contains no private material.
 
 Start with synthetic examples. Do not upload private patient data, confidential manuscripts, API keys, or sensitive unpublished materials.
 
@@ -152,7 +158,7 @@ ProblemBridge should be used before model building, when the key question is whe
 
 ## Guided UI for non-AI users
 
-ProblemBridge also includes an optional local guided UI for people who do not already know how to describe an AI task. It asks plain-language questions about workflow, painful steps, available materials, human-review boundaries, and useful assistant outputs. The UI then generates the same Problem Alignment Package used by the CLI.
+ProblemBridge also includes an optional local guided UI for people who do not already know how to describe an AI task. It starts from repeated work, workflow steps, judgement materials, pain points, human-review boundaries, and useful assistant outputs. The UI then generates the same Problem Alignment Package used by the CLI.
 
 Install the optional UI dependencies:
 

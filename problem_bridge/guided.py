@@ -7,14 +7,14 @@ from typing import Mapping
 
 FRIENDLY_FILE_LABELS = {
     "problem_card.md": "这个项目到底想解决什么",
-    "workflow_map.md": "你现在的工作流程",
-    "painpoint_opportunity_matrix.csv": "哪些地方最麻烦，AI 可能怎么帮",
-    "concept_alignment_table.csv": "哪些概念容易被 AI 理解错",
-    "ai_task_spec.yaml": "给 AI 工程师的需求说明",
-    "evidence_contract.yaml": "什么情况下才算“有证据”",
+    "workflow_map.md": "Your current workflow",
+    "painpoint_opportunity_matrix.csv": "Where AI may help",
+    "concept_alignment_table.csv": "Concepts AI may misunderstand",
+    "ai_task_spec.yaml": "For AI engineers: task specification",
+    "evidence_contract.yaml": "For AI engineers: evidence contract",
     "evaluation_protocol.md": "怎么判断这个 AI 真的有用",
     "misalignment_risk_report.md": "哪些地方可能做偏",
-    "human_in_loop_plan.md": "哪些地方必须人工确认",
+    "human_in_loop_plan.md": "Boundaries and human review",
     "implementation_routes.md": "下一步可以怎么做",
     "alignment_trace.jsonl": "生成过程记录",
 }
@@ -78,6 +78,73 @@ def build_domain_practitioner_problem(answers: Mapping[str, str]) -> str:
     )
 
 
+def build_workflow_first_problem(answers: Mapping[str, object]) -> str:
+    materials = _list_block(answers.get("materials"))
+    useful_support = _list_block(answers.get("useful_support"))
+    return _clean_markdown(
+        f"""
+        # Workflow-First Problem Brief
+
+        ## domain
+        {answers.get("domain", "")}
+
+        ## repeated_work
+        {answers.get("repeated_work", "")}
+
+        Current decision maker:
+        {answers.get("current_owner", "")}
+
+        Result produced:
+        {answers.get("result", "")}
+
+        ## workflow_steps
+        1. {answers.get("step_1", "")}
+        2. {answers.get("step_2", "")}
+        3. {answers.get("step_3", "")}
+        4. {answers.get("step_4", "")}
+
+        Additional notes:
+        {answers.get("additional_notes", "")}
+
+        ## pain_points
+        Most time-consuming step:
+        {answers.get("time_consuming_step", "")}
+
+        Most annoying step:
+        {answers.get("annoying_step", "")}
+
+        Most error-prone step:
+        {answers.get("error_prone_step", "")}
+
+        Most expert-dependent step:
+        {answers.get("expert_judgement_step", "")}
+
+        ## judgement_materials
+        Materials used:
+        {materials}
+
+        Most critical materials:
+        {answers.get("critical_materials", "")}
+
+        Materials that are missing, unclear, or hard to organize:
+        {answers.get("missing_materials", "")}
+
+        ## non_automatable_decisions
+        What should never be automated:
+        {answers.get("never_automated", "")}
+
+        What must be confirmed by a human:
+        {answers.get("human_confirmed", "")}
+
+        Serious mistakes:
+        {answers.get("serious_mistakes", "")}
+
+        ## useful_assistant_outputs
+        {useful_support}
+        """
+    )
+
+
 def build_ai_practitioner_problem(answers: Mapping[str, str]) -> str:
     return _clean_markdown(
         f"""
@@ -135,6 +202,17 @@ def friendly_summary(output_dir: Path) -> FriendlySummary:
 def _clean_markdown(text: str) -> str:
     lines = [line.strip() for line in text.strip().splitlines()]
     return "\n".join(lines).strip() + "\n"
+
+
+def _list_block(value: object) -> str:
+    if isinstance(value, str):
+        items = [value] if value else []
+    else:
+        try:
+            items = [str(item) for item in value if str(item)]
+        except TypeError:
+            items = []
+    return "\n".join(f"- {item}" for item in items)
 
 
 def _extract_domain_goal(path: Path) -> str:

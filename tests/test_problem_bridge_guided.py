@@ -4,6 +4,7 @@ from problem_bridge.guided import (
     FRIENDLY_FILE_LABELS,
     build_ai_practitioner_problem,
     build_domain_practitioner_problem,
+    build_workflow_first_problem,
     discover_alignment_outputs,
     friendly_summary,
 )
@@ -48,10 +49,61 @@ def test_ai_practitioner_answers_build_problem_markdown_with_alignment_checks():
     assert "treating object recognition as cultural understanding" in markdown
 
 
+def test_workflow_first_answers_build_problem_markdown_with_required_sections():
+    markdown = build_workflow_first_problem(
+        {
+            "domain": "embryology lab",
+            "repeated_work": "review microscope notes before injection planning",
+            "current_owner": "senior embryologist",
+            "result": "review note and escalation decision",
+            "step_1": "collect image notes",
+            "step_2": "compare against prior records",
+            "step_3": "flag uncertain regions",
+            "step_4": "write a short review note",
+            "additional_notes": "workflow varies by case urgency",
+            "time_consuming_step": "checking repeated image regions",
+            "annoying_step": "copying notes between sheets",
+            "error_prone_step": "missing unclear evidence",
+            "expert_judgement_step": "deciding whether evidence is reliable enough",
+            "materials": ["tables", "images", "reports", "expert judgement"],
+            "critical_materials": "microscope notes and prior records",
+            "missing_materials": "inconsistent evidence labels",
+            "never_automated": "final clinical or operational decision",
+            "human_confirmed": "any high-risk judgement",
+            "serious_mistakes": "overstating evidence quality",
+            "useful_support": ["evidence summaries", "risk flags", "questions for human review"],
+        }
+    )
+
+    required_sections = [
+        "## domain",
+        "## repeated_work",
+        "## workflow_steps",
+        "## pain_points",
+        "## judgement_materials",
+        "## non_automatable_decisions",
+        "## useful_assistant_outputs",
+    ]
+    for section in required_sections:
+        assert section in markdown
+
+    assert "review microscope notes before injection planning" in markdown
+    assert "senior embryologist" in markdown
+    assert "1. collect image notes" in markdown
+    assert "- tables" in markdown
+    assert "- evidence summaries" in markdown
+    assert "final clinical or operational decision" in markdown
+    assert "AI task spec" not in markdown
+
+
 def test_friendly_labels_hide_default_technical_file_names():
     assert FRIENDLY_FILE_LABELS["problem_card.md"] == "这个项目到底想解决什么"
-    assert FRIENDLY_FILE_LABELS["ai_task_spec.yaml"] == "给 AI 工程师的需求说明"
-    assert FRIENDLY_FILE_LABELS["misalignment_risk_report.md"] == "哪些地方可能做偏"
+    assert FRIENDLY_FILE_LABELS["workflow_map.md"] == "Your current workflow"
+    assert FRIENDLY_FILE_LABELS["painpoint_opportunity_matrix.csv"] == "Where AI may help"
+    assert FRIENDLY_FILE_LABELS["concept_alignment_table.csv"] == "Concepts AI may misunderstand"
+    assert FRIENDLY_FILE_LABELS["human_in_loop_plan.md"] == "Boundaries and human review"
+    assert FRIENDLY_FILE_LABELS["ai_task_spec.yaml"] == "For AI engineers: task specification"
+    assert FRIENDLY_FILE_LABELS["evidence_contract.yaml"] == "For AI engineers: evidence contract"
 
 
 def test_discover_alignment_outputs_returns_existing_expected_files(tmp_path):

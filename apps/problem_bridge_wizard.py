@@ -10,7 +10,7 @@ from problem_bridge.generator import build_alignment_package
 from problem_bridge.guided import (
     FRIENDLY_FILE_LABELS,
     build_ai_practitioner_problem,
-    build_domain_practitioner_problem,
+    build_workflow_first_problem,
     discover_alignment_outputs,
     friendly_summary,
 )
@@ -62,20 +62,20 @@ def _safety_banner() -> None:
 
 
 def _home() -> None:
-    st.header("帮你把真实工作流变成不跑偏的 AI 项目")
+    st.header("You do not need to know AI. Start by describing a repeated task in your work.")
     st.write(
-        "ProblemBridge helps domain practitioners clarify workflows and helps AI "
-        "practitioners avoid building the wrong AI task."
+        "Describe what you repeatedly do, what materials you check, which decisions "
+        "are difficult, and what should never be automated."
     )
     st.write(
-        "ClaimHarness audits claims after outputs are produced, checking whether "
-        "claims are supported by text, tables, or reference context."
+        "ProblemBridge turns that into a workflow map, AI-support opportunities, "
+        "human-review boundaries, and a technical package that AI practitioners can understand."
     )
 
-    st.subheader("普通用户先看这个")
+    st.subheader("Recommended first step")
     st.info(
-        "你不需要先定义 AI 任务。先说清楚你的工作流程、最麻烦的步骤、已有材料、"
-        "哪些地方不能自动决定，系统会生成给 AI 工程师看的项目包。"
+        "Start with Explore examples. Generate a synthetic example first, read the friendly "
+        "summary, then use Domain practitioner wizard for your own non-sensitive workflow."
     )
 
 
@@ -92,21 +92,99 @@ def _examples() -> None:
 
 
 def _domain_wizard() -> None:
-    st.header("帮我梳理一个可以被 AI 支持的工作流")
+    st.header("Describe your workflow, not an AI task.")
+    st.caption("先说你平时怎么工作，不用懂 AI。")
+
+    with st.expander("Interview mode"):
+        st.write("Use this mode when you are helping someone else describe their workflow.")
+        st.markdown(
+            """
+            - 不用想 AI。最近工作里有没有一件事，你总是要重复看、重复判断、重复整理？
+            - 这件事一般从哪里开始？
+            - 你判断的时候看什么？
+            - 哪一步最容易判断错？
+            - 如果助手只做提醒、不替你做决定，会不会有帮助？
+            - 什么结果你一定要自己确认？
+            """
+        )
+
     with st.form("domain_practitioner"):
+        st.subheader("Section A: What repeated work do you do?")
         answers = {
-            "field": st.text_input("你所在领域是什么？"),
-            "workflow": st.text_area("你每天/每周重复做的工作流程是什么？"),
-            "repetitive_step": st.text_area("哪一步最耗时或最重复？"),
-            "expert_step": st.text_area("哪一步最容易出错，或最依赖专家经验？"),
-            "materials": st.text_area("你现在有哪些材料？比如表格、图片、报告、记录、文本。"),
-            "not_automatic": st.text_area("哪些事情绝对不能让 AI 自动决定？"),
-            "useful_output": st.text_area("一个有用的 AI 辅助结果应该长什么样？"),
+            "domain": st.text_input("What field are you in? / 你所在领域是什么？"),
+            "repeated_work": st.text_area("What is one task you repeatedly do? / 你平时反复做的一件工作是什么？"),
+            "current_owner": st.text_input("Who currently does this task? / 这件工作通常由谁完成？"),
+            "result": st.text_input("What result does this task produce? / 这件工作最后会产生什么结果？"),
         }
+        st.caption("例如：整理实验结果、检查影像、写报告、审核学生作业、整理展览资料、判断图像内容、回复客户问题。")
+
+        st.subheader("Section B: What are the steps?")
+        answers.update(
+            {
+                "step_1": st.text_input("Step 1"),
+                "step_2": st.text_input("Step 2"),
+                "step_3": st.text_input("Step 3"),
+                "step_4": st.text_input("Step 4"),
+                "additional_notes": st.text_area("Additional notes / 可以很粗略，例如：先看图片 -> 再查记录 -> 再判断 -> 最后写报告"),
+            }
+        )
+
+        st.subheader("Section C: Where does it get difficult?")
+        answers.update(
+            {
+                "time_consuming_step": st.text_area("Which step is most time-consuming?"),
+                "annoying_step": st.text_area("Which step is most annoying?"),
+                "error_prone_step": st.text_area("Which step is most error-prone?"),
+                "expert_judgement_step": st.text_area("Which step depends most on expert judgement?"),
+            }
+        )
+
+        st.subheader("Section D: What materials do you use?")
+        answers.update(
+            {
+                "materials": st.multiselect(
+                    "What materials do you use?",
+                    [
+                        "tables",
+                        "images",
+                        "reports",
+                        "text records",
+                        "experiment logs",
+                        "historical cases",
+                        "expert judgement",
+                        "rules/guidelines",
+                        "other",
+                    ],
+                ),
+                "critical_materials": st.text_area("Which materials are most critical?"),
+                "missing_materials": st.text_area("Which materials are often missing, unclear, or hard to organize?"),
+            }
+        )
+
+        st.subheader("Section E: What should AI not decide?")
+        answers.update(
+            {
+                "never_automated": st.text_area("What should never be automated?"),
+                "human_confirmed": st.text_area("What must be confirmed by a human?"),
+                "serious_mistakes": st.text_area("What mistakes would be serious?"),
+                "useful_support": st.multiselect(
+                    "If AI only gave support, what would be useful?",
+                    [
+                        "整理好的摘要",
+                        "需要注意的风险提示",
+                        "证据清单",
+                        "初步草稿",
+                        "待人工确认的问题列表",
+                        "工作流改进建议",
+                        "给 AI 工程师看的项目说明",
+                    ],
+                ),
+            }
+        )
         submitted = st.form_submit_button("生成工作流对齐包")
 
     if submitted:
-        problem_text = build_domain_practitioner_problem(answers)
+        problem_text = build_workflow_first_problem(answers)
         out = _run_problem_text(problem_text, "domain_practitioner")
         st.success(f"已生成：{out}")
         st.download_button("下载 problem.md", problem_text, file_name="problem.md")

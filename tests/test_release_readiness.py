@@ -221,3 +221,25 @@ def test_v031_usability_validation_pack_is_present():
         "ui_clarity,output_usefulness,most_useful_output,most_confusing_part,"
         "suggested_change,would_use_again,notes"
     )
+
+
+def test_v032_workflow_first_onboarding_is_documented():
+    guide = Path("NON_AI_USER_GUIDE.md").read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+    ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
+
+    assert "You do not need to describe an AI task" in guide
+    for phrase in [
+        "What is one task you repeatedly do?",
+        "Which step is slow, annoying, error-prone, or expert-dependent?",
+        "Who currently makes the judgement?",
+        "What materials do you use?",
+        "What should AI never decide automatically?",
+        "What kind of assistant output would be useful?",
+    ]:
+        assert phrase in guide
+
+    assert readme.index("Explore examples") < readme.index("Domain practitioner wizard")
+    assert "Describe your workflow, not an AI task" in ui_text
+    assert "You do not need to know AI. Start by describing a repeated task in your work." in ui_text
+    assert "Interview mode" in ui_text

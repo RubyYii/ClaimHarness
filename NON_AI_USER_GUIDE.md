@@ -4,6 +4,23 @@ This guide is for people who have a real workflow, research problem, or domain p
 
 ProblemBridge does not ask you to define a model, prompt, RAG system, or benchmark first. It asks plain-language questions about your work, then produces a package that can help you talk to AI practitioners.
 
+## You do not need to describe an AI task
+
+Most domain practitioners do not start with an AI task. That is normal.
+
+Do not worry about terms such as classification, RAG, agent, benchmark, model, or prompt.
+
+Start with your real workflow:
+
+1. What is one task you repeatedly do?
+2. Which step is slow, annoying, error-prone, or expert-dependent?
+3. Who currently makes the judgement?
+4. What materials do you use?
+5. What should AI never decide automatically?
+6. What kind of assistant output would be useful?
+
+ProblemBridge will translate this workflow description into a more technical package for AI practitioners.
+
 ## who this is for
 
 Use ProblemBridge if:
@@ -86,4 +103,3 @@ When the browser opens:
 3. Read the friendly summary first.
 4. Try `Domain practitioner wizard` with a non-sensitive workflow description.
 5. Download the project package only after checking that it contains no private material.
-
