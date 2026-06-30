@@ -240,9 +240,18 @@ def test_v032_workflow_first_onboarding_is_documented():
         assert phrase in guide
 
     assert readme.index("Explore examples") < readme.index("Domain practitioner wizard")
+    assert "Guided Interview Engine" in readme
+    assert "local rule-based question routing" in readme
+    assert "理解状态" in Path("README.zh-CN.md").read_text(encoding="utf-8")
+    assert "引导式追问" in Path("README.zh-CN.md").read_text(encoding="utf-8")
     assert "Describe your workflow, not an AI task" in ui_text
     assert "You do not need to know AI. Start by describing a repeated task in your work." in ui_text
     assert "Interview mode" in ui_text
+    assert "Guided interview" in ui_text
+    assert "Understanding so far" in ui_text
+    assert "Next question" in ui_text
+    assert "Generate alignment package from interview" in ui_text
+    assert "completeness" in ui_text
 
 
 def test_release_packaging_support_is_present():

@@ -14,6 +14,13 @@ from problem_bridge.guided import (
     discover_alignment_outputs,
     friendly_summary,
 )
+from problem_bridge.interview import (
+    answer_question,
+    build_problem_from_interview,
+    is_ready_for_alignment,
+    start_interview,
+    summarize_understanding,
+)
 from problem_bridge.writer import write_alignment_package
 
 
@@ -108,6 +115,11 @@ def _domain_wizard() -> None:
             """
         )
 
+    _guided_interview()
+    st.divider()
+    st.subheader("Advanced: full workflow form")
+    st.caption("Use this manual form when you already know the workflow details.")
+
     with st.form("domain_practitioner"):
         st.subheader("Section A: What repeated work do you do?")
         answers = {
@@ -189,6 +201,74 @@ def _domain_wizard() -> None:
         st.success(f"已生成：{out}")
         st.download_button("下载 problem.md", problem_text, file_name="problem.md")
         _render_friendly_output(out)
+
+
+def _guided_interview() -> None:
+    st.subheader("Guided interview")
+    st.caption(
+        "ProblemBridge asks one question at a time, tracks what it understands, "
+        "and routes the next question based on missing information."
+    )
+
+    if "problem_bridge_interview_state" not in st.session_state:
+        st.session_state.problem_bridge_interview_state = start_interview()
+
+    state = st.session_state.problem_bridge_interview_state
+    summary = summarize_understanding(state)
+    question = summary.next_question
+
+    left, right = st.columns([1.35, 1])
+    with left:
+        st.markdown("### Next question")
+        st.write(question.prompt)
+        st.caption(question.helper)
+        if question.reframe:
+            st.info(question.reframe)
+
+        if question.key != "confirmation":
+            answer = st.text_area("Your answer", key=f"interview_answer_{question.key}")
+            if st.button("Save answer and continue", key="interview_save_answer"):
+                st.session_state.problem_bridge_interview_state = answer_question(state, question.key, answer)
+                st.rerun()
+        else:
+            st.success("The core workflow understanding is complete enough to generate an alignment package.")
+
+        reset_col, generate_col = st.columns(2)
+        with reset_col:
+            if st.button("Reset guided interview", key="interview_reset"):
+                st.session_state.problem_bridge_interview_state = start_interview()
+                st.rerun()
+        with generate_col:
+            ready = is_ready_for_alignment(state)
+            if st.button(
+                "Generate alignment package from interview",
+                key="interview_generate",
+                disabled=not ready,
+            ):
+                problem_text = build_problem_from_interview(state)
+                out = _run_problem_text(problem_text, "guided_interview")
+                st.success(f"已生成：{out}")
+                st.download_button("下载 guided_interview_problem.md", problem_text, file_name="problem.md")
+                _render_friendly_output(out)
+            if not ready:
+                st.caption("Answer the missing items before generating the package.")
+
+    with right:
+        st.markdown("### Understanding so far")
+        st.progress(summary.completeness, text=f"completeness: {int(summary.completeness * 100)}%")
+        if summary.known_items:
+            st.write("Known:")
+            for item in summary.known_items:
+                st.write(f"- {item}")
+        else:
+            st.write("No answers yet.")
+
+        if summary.missing_items:
+            st.write("Missing:")
+            for item in summary.missing_items:
+                st.write(f"- {item}")
+        else:
+            st.success("No core fields missing.")
 
 
 def _ai_wizard() -> None:

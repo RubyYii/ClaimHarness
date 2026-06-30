@@ -24,6 +24,12 @@ ProblemBridge + ClaimHarness is a local-first portfolio prototype for interdisci
 
 The default path is deterministic mock mode. It does not require an API key, does not call external services, and uses synthetic examples only.
 
+## Guided Interview Engine
+
+ProblemBridge is designed to ask better questions before it generates artifacts. The Guided Interview Engine uses local rule-based question routing to ask one question at a time, track what it understands, show missing information, and confirm whether the workflow is clear enough to generate an alignment package.
+
+This is the main difference from a generic chatbot. The goal is not to answer immediately; the goal is to reconstruct the user's real workflow, judgement materials, pain points, and human-review boundaries before translating anything into an AI task.
+
 ## Why This Exists
 
 Many interdisciplinary AI projects fail before modeling starts. The original domain problem is compressed into the wrong AI task, evaluated with the wrong metric, or deployed without clear evidence boundaries. This repository explores a lightweight harness around that risk: align the problem first, then audit the claims.
