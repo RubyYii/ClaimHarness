@@ -42,6 +42,60 @@ EXAMPLES = {
 
 RUN_ROOT = Path("outputs/ui_runs")
 
+PAGE_OPTIONS = [
+    "Home",
+    "Explore examples",
+    "Document intake",
+    "Question discovery",
+    "Domain practitioner wizard",
+    "AI practitioner wizard",
+    "View generated outputs",
+]
+
+WORKFLOW_STEPS = [
+    ("01", "Document intake", "Turn local files into auditable text and tables."),
+    ("02", "Question discovery", "Find what to ask and who should answer."),
+    ("03", "Guided interview", "Reconstruct work, materials, pain points, and boundaries."),
+    ("04", "ProblemBridge", "Generate task specs, evidence contracts, and evaluation plans."),
+    ("05", "ClaimHarness", "Audit claims after outputs or manuscripts exist."),
+]
+
+ACTIVE_WORKFLOW_BY_PAGE = {
+    "Document intake": "Document intake",
+    "Question discovery": "Question discovery",
+    "Domain practitioner wizard": "Guided interview",
+    "AI practitioner wizard": "ProblemBridge",
+    "Explore examples": "ProblemBridge",
+    "View generated outputs": "ProblemBridge",
+}
+
+MODULE_CARDS = [
+    {
+        "title": "Document intake",
+        "stage": "File preparation",
+        "start_if": "You have Word, text-based PDF, Markdown, TXT, or CSV files.",
+        "what_you_get": "extracted_text.md, extracted_tables, source_manifest.json, warnings.",
+    },
+    {
+        "title": "Question discovery",
+        "stage": "Before problem framing",
+        "start_if": "You know something is unclear, but do not know what to ask.",
+        "what_you_get": "question brief, stakeholder map, interview guide, unknowns list.",
+    },
+    {
+        "title": "Domain practitioner wizard",
+        "stage": "Workflow understanding",
+        "start_if": "You can describe daily work, materials, pain points, and review boundaries.",
+        "what_you_get": "workflow-first ProblemBridge alignment package.",
+    },
+    {
+        "title": "AI practitioner wizard",
+        "stage": "Task sanity check",
+        "start_if": "You already have a candidate AI task and need to check drift.",
+        "what_you_get": "misalignment risks, task spec, evidence contract, evaluation protocol.",
+    },
+]
+
 QUESTION_DISCOVERY_FILES = {
     "question_brief.md": "Question brief",
     "stakeholder_map.md": "Who to ask",
@@ -60,22 +114,25 @@ DOCUMENT_INTAKE_FILES = {
 
 
 def main() -> None:
-    st.set_page_config(page_title="ProblemBridge Guided Mode", layout="wide")
-    st.title("ProblemBridge Guided Mode")
+    st.set_page_config(page_title="ProblemBridge Workbench", layout="wide")
+    _inject_visual_theme()
+    _render_shell_header()
     _safety_banner()
 
+    st.sidebar.markdown("### Workspace")
     page = st.sidebar.radio(
-        "选择入口",
-        [
-            "Home",
-            "Explore examples",
-            "Question discovery",
-            "Document intake",
-            "Domain practitioner wizard",
-            "AI practitioner wizard",
-            "View generated outputs",
-        ],
+        "Choose an entry",
+        PAGE_OPTIONS,
     )
+    st.sidebar.markdown(
+        """
+        <div class="sidebar-note">
+        Local-first mode. Use synthetic or non-sensitive material for first testing.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    _render_workflow_strip(page)
 
     if page == "Home":
         _home()
@@ -93,6 +150,221 @@ def main() -> None:
         _view_outputs()
 
 
+def _inject_visual_theme() -> None:
+    st.markdown(
+        """
+        <style>
+        :root {
+          --pb-ink: #17202a;
+          --pb-muted: #5b6978;
+          --pb-line: #d9e2ea;
+          --pb-paper: #ffffff;
+          --pb-canvas: #f6f8fb;
+          --pb-teal: #0f766e;
+          --pb-blue: #1d4ed8;
+          --pb-coral: #b45309;
+          --pb-soft-teal: #eaf7f5;
+          --pb-soft-blue: #edf4ff;
+          --pb-soft-amber: #fff7ed;
+        }
+        .stApp { background: var(--pb-canvas); color: var(--pb-ink); }
+        [data-testid="stSidebar"] { background: #ffffff; border-right: 1px solid var(--pb-line); }
+        .block-container { padding-top: 1.6rem; max-width: 1180px; }
+        .visual-shell {
+          padding: 26px 28px;
+          border: 1px solid var(--pb-line);
+          border-radius: 8px;
+          background: var(--pb-paper);
+          box-shadow: 0 18px 45px rgba(23, 32, 42, .08);
+          margin-bottom: 18px;
+        }
+        .visual-eyebrow {
+          color: var(--pb-teal);
+          font-size: 12px;
+          line-height: 1;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: .08em;
+          margin-bottom: 10px;
+        }
+        .visual-title {
+          font-size: clamp(30px, 5vw, 54px);
+          line-height: 1.04;
+          font-weight: 850;
+          letter-spacing: 0;
+          margin: 0;
+        }
+        .visual-lead { max-width: 830px; color: var(--pb-muted); font-size: 18px; margin-top: 14px; }
+        .metric-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+        .metric-pill {
+          padding: 8px 11px;
+          border: 1px solid var(--pb-line);
+          border-radius: 8px;
+          background: #fbfdff;
+          color: var(--pb-ink);
+          font-weight: 750;
+          font-size: 13px;
+        }
+        .workflow-strip {
+          display: grid;
+          grid-template-columns: repeat(5, minmax(0, 1fr));
+          gap: 10px;
+          margin: 12px 0 22px;
+        }
+        .workflow-step {
+          min-height: 112px;
+          padding: 14px;
+          border: 1px solid var(--pb-line);
+          border-radius: 8px;
+          background: #ffffff;
+        }
+        .workflow-step.is-active {
+          border-color: var(--pb-teal);
+          background: linear-gradient(180deg, #ffffff 0%, var(--pb-soft-teal) 100%);
+          box-shadow: inset 0 0 0 1px rgba(15, 118, 110, .22);
+        }
+        .workflow-step strong { display: block; margin: 6px 0 4px; color: var(--pb-ink); }
+        .workflow-step p { margin: 0; color: var(--pb-muted); font-size: 13px; line-height: 1.45; }
+        .step-num {
+          display: inline-flex;
+          min-width: 34px;
+          height: 24px;
+          align-items: center;
+          justify-content: center;
+          border-radius: 8px;
+          background: var(--pb-soft-blue);
+          color: var(--pb-blue);
+          font-weight: 850;
+          font-size: 12px;
+        }
+        .page-intro, .module-card, .trust-card {
+          border: 1px solid var(--pb-line);
+          border-radius: 8px;
+          background: var(--pb-paper);
+          padding: 18px;
+          margin-bottom: 14px;
+        }
+        .module-card { min-height: 230px; }
+        .module-card h3 { margin: 4px 0 10px; font-size: 20px; }
+        .module-card p, .page-intro p, .trust-card p { color: var(--pb-muted); margin: 8px 0 0; }
+        .module-stage {
+          display: inline-flex;
+          padding: 4px 8px;
+          border-radius: 8px;
+          background: var(--pb-soft-teal);
+          color: var(--pb-teal);
+          font-size: 12px;
+          font-weight: 800;
+        }
+        .field-label { margin-top: 12px; font-weight: 850; color: var(--pb-ink); }
+        .trust-card { border-left: 5px solid var(--pb-coral); background: var(--pb-soft-amber); }
+        .sidebar-note {
+          margin-top: 14px;
+          padding: 12px;
+          border: 1px solid var(--pb-line);
+          border-radius: 8px;
+          color: var(--pb-muted);
+          background: #fbfdff;
+          font-size: 13px;
+          line-height: 1.45;
+        }
+        div.stButton > button, div.stDownloadButton > button {
+          border-radius: 8px;
+          border: 1px solid var(--pb-teal);
+          background: var(--pb-teal);
+          color: white;
+          font-weight: 800;
+        }
+        textarea, input { border-radius: 8px !important; }
+        @media (max-width: 900px) {
+          .workflow-strip { grid-template-columns: 1fr; }
+          .visual-shell { padding: 22px 18px; }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_shell_header() -> None:
+    st.markdown(
+        """
+        <section class="visual-shell">
+          <div class="visual-eyebrow">Local interdisciplinary AI harness</div>
+          <h1 class="visual-title">ProblemBridge Workbench</h1>
+          <p class="visual-lead">
+            A guided workspace for turning messy domain materials into questions,
+            workflow understanding, AI task specs, and later claim-evidence audits.
+          </p>
+          <div class="metric-row">
+            <span class="metric-pill">No API required by default</span>
+            <span class="metric-pill">Local file intake</span>
+            <span class="metric-pill">Question-first workflow</span>
+            <span class="metric-pill">Traceable outputs</span>
+          </div>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_workflow_strip(active_page: str) -> None:
+    active_step = ACTIVE_WORKFLOW_BY_PAGE.get(active_page)
+    st.markdown('<div class="workflow-strip"></div>', unsafe_allow_html=True)
+    columns = st.columns(len(WORKFLOW_STEPS))
+    for column, (number, title, description) in zip(columns, WORKFLOW_STEPS):
+        css_class = "workflow-step is-active" if title == active_step else "workflow-step"
+        with column:
+            st.markdown(
+                f"""
+                <article class="{css_class}">
+                  <span class="step-num">{number}</span>
+                  <strong>{title}</strong>
+                  <p>{description}</p>
+                </article>
+                """,
+                unsafe_allow_html=True,
+            )
+
+
+def _render_page_intro(title: str, body: str, trust: str, outputs: list[str]) -> None:
+    output_items = "".join(f"<li>{item}</li>" for item in outputs)
+    st.markdown(
+        f"""
+        <section class="page-intro">
+          <div class="visual-eyebrow">Workbench step</div>
+          <h2>{title}</h2>
+          <p>{body}</p>
+          <div class="field-label">What you get</div>
+          <ul>{output_items}</ul>
+        </section>
+        <section class="trust-card">
+          <strong>Trust boundary</strong>
+          <p>{trust}</p>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_module_cards() -> None:
+    columns = st.columns(2)
+    for index, card in enumerate(MODULE_CARDS):
+        with columns[index % 2]:
+            st.markdown(
+                f"""
+                <article class="module-card">
+                  <span class="module-stage">{card['stage']}</span>
+                  <h3>{card['title']}</h3>
+                  <div class="field-label">Start here if</div>
+                  <p>{card['start_if']}</p>
+                  <div class="field-label">What you get</div>
+                  <p>{card['what_you_get']}</p>
+                </article>
+                """,
+                unsafe_allow_html=True,
+            )
+
 def _safety_banner() -> None:
     st.warning(
         "Start with synthetic examples. Do not upload private patient data, "
@@ -101,41 +373,66 @@ def _safety_banner() -> None:
 
 
 def _home() -> None:
-    st.header("You do not need to know AI. Start by describing a repeated task in your work.")
-    st.write(
-        "Describe what you repeatedly do, what materials you check, which decisions "
-        "are difficult, and what should never be automated."
+    _render_page_intro(
+        "Choose the right starting point",
+        "You do not need to know AI. Start from the material or uncertainty you actually have, then move through the workflow one step at a time.",
+        "The workbench is a framing and audit aid. It does not replace domain experts, supervisors, clinicians, teachers, or reviewers.",
+        [
+            "A clear entry point for documents, vague questions, workflows, or candidate AI tasks.",
+            "A visible workflow from intake to question discovery, problem alignment, and claim audit.",
+            "Downloadable local packages that can be reviewed before sharing.",
+        ],
     )
-    st.write(
-        "ProblemBridge turns that into a workflow map, AI-support opportunities, "
-        "human-review boundaries, and a technical package that AI practitioners can understand."
-    )
+    _render_module_cards()
 
-    st.subheader("Recommended first step")
-    st.info(
-        "Start with Explore examples. Generate a synthetic example first, read the friendly "
-        "summary, then use Domain practitioner wizard for your own non-sensitive workflow."
-    )
-
+    st.subheader("Recommended routes")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown("""
+        <section class="page-intro">
+        <strong>Have files?</strong>
+        <p>Start with Document intake, inspect extracted text and warnings, then continue to Question discovery.</p>
+        </section>
+        """, unsafe_allow_html=True)
+    with col2:
+        st.markdown("""
+        <section class="page-intro">
+        <strong>Have a vague concern?</strong>
+        <p>Start with Question discovery to identify what to ask and which experts to involve.</p>
+        </section>
+        """, unsafe_allow_html=True)
+    with col3:
+        st.markdown("""
+        <section class="page-intro">
+        <strong>Know the workflow?</strong>
+        <p>Go to Domain practitioner wizard and generate a ProblemBridge alignment package.</p>
+        </section>
+        """, unsafe_allow_html=True)
 
 def _examples() -> None:
-    st.header("看示例")
-    choice = st.selectbox("选择一个 synthetic example", list(EXAMPLES))
+    _render_page_intro(
+        "Explore synthetic examples",
+        "Generate a complete sample package before testing your own material, so reviewers can see the expected outputs first.",
+        "Examples are synthetic and are for demonstration only. Do not infer deployment claims from them.",
+        ["Friendly summary", "ProblemBridge technical files", "Downloadable example package"],
+    )
+    choice = st.selectbox("Choose a synthetic example", list(EXAMPLES))
     problem_path = EXAMPLES[choice]
-    st.text_area("示例问题描述", problem_path.read_text(encoding="utf-8"), height=220)
+    st.text_area("Example problem brief", problem_path.read_text(encoding="utf-8"), height=220)
 
-    if st.button("生成这个示例的对齐包"):
+    if st.button("Generate this example package"):
         out = _run_problem_text(problem_path.read_text(encoding="utf-8"), f"example_{_slug(choice)}")
         st.success(f"已生成：{out}")
         _render_friendly_output(out)
 
 
 def _question_discovery() -> None:
-    st.header("Question discovery")
-    st.caption(
-        "Use this when you do not yet know what to ask, who to ask, or whether the issue is an AI task."
+    _render_page_intro(
+        "Question discovery",
+        "Use this when you do not yet know what to ask, who to ask, or whether the issue is an AI task.",
+        "Do not propose a solution yet. First discover what to ask and who to ask.",
+        ["question_brief.md", "stakeholder_map.md", "expert_interview_guide.md", "unknowns_to_validate.md", "discussion_plan.md"],
     )
-    st.info("Do not propose a solution yet. First discover what to ask and who to ask.")
 
     with st.form("question_discovery"):
         seed_text = st.text_area(
@@ -181,7 +478,7 @@ def _render_question_discovery_output(out: Path) -> None:
 
     archive = _make_archive(out)
     st.download_button(
-        "Download question discovery package",
+        "Download package: question discovery",
         archive.read_bytes(),
         file_name=f"{out.name}.zip",
         mime="application/zip",
@@ -196,9 +493,12 @@ def _render_question_discovery_output(out: Path) -> None:
                 st.code(path.read_text(encoding="utf-8"), language="markdown")
 
 def _document_intake() -> None:
-    st.header("Document intake")
-    st.caption("Upload Word, PDF, Markdown, TXT, or CSV files and convert them into local extraction outputs.")
-    st.info("Supports .docx, .md, .txt, .csv, and text-based PDF. Scanned PDF, OCR, images, and figure understanding are not supported.")
+    _render_page_intro(
+        "Document intake",
+        "Upload Word, PDF, Markdown, TXT, or CSV files and convert them into local extraction outputs.",
+        "Supports .docx, .md, .txt, .csv, and text-based PDF. Scanned PDF, OCR, images, and figure understanding are not supported.",
+        ["extracted_text.md", "extracted_tables/", "source_manifest.json", "extraction_warnings.md", "problem_seed.md"],
+    )
 
     uploaded_files = st.file_uploader(
         "Upload Word, PDF, Markdown, TXT, or CSV files",
@@ -230,7 +530,7 @@ def _render_document_intake_output(out: Path) -> None:
 
     archive = _make_archive(out)
     st.download_button(
-        "Download document intake package",
+        "Download package: document intake",
         archive.read_bytes(),
         file_name=f"{out.name}.zip",
         mime="application/zip",
@@ -249,20 +549,24 @@ def _render_document_intake_output(out: Path) -> None:
                 st.markdown(f"### Extracted table: {table_path.name}")
                 st.code(table_path.read_text(encoding="utf-8"), language="csv")
 
+
 def _domain_wizard() -> None:
-    st.header("Describe your workflow, not an AI task.")
-    st.caption("先说你平时怎么工作，不用懂 AI。")
+    _render_page_intro(
+        "Domain practitioner wizard",
+        "Describe your workflow, not an AI task. You do not need to know AI. Start by describing a repeated task in your work. The guided interview asks one question at a time; the advanced form is for users who already know the workflow details.",
+        "This page captures workflow understanding. It does not decide what should be automated or replace professional judgement.",
+        ["Guided interview state", "Workflow-first problem brief", "ProblemBridge alignment package", "Download package"],
+    )
 
     with st.expander("Interview mode"):
         st.write("Use this mode when you are helping someone else describe their workflow.")
         st.markdown(
             """
-            - 不用想 AI。最近工作里有没有一件事，你总是要重复看、重复判断、重复整理？
-            - 这件事一般从哪里开始？
-            - 你判断的时候看什么？
-            - 哪一步最容易判断错？
-            - 如果助手只做提醒、不替你做决定，会不会有帮助？
-            - 什么结果你一定要自己确认？
+            - Do not ask for an AI task first.
+            - Ask what people repeatedly inspect, decide, organize, or write.
+            - Ask what materials they use when making the judgement.
+            - Ask which step is slow, ambiguous, error-prone, or expert-dependent.
+            - Ask what must stay under human confirmation.
             """
         )
 
@@ -272,41 +576,41 @@ def _domain_wizard() -> None:
     st.caption("Use this manual form when you already know the workflow details.")
 
     with st.form("domain_practitioner"):
-        st.subheader("Section A: What repeated work do you do?")
+        st.subheader("Section A: repeated work")
         answers = {
-            "domain": st.text_input("What field are you in? / 你所在领域是什么？"),
-            "repeated_work": st.text_area("What is one task you repeatedly do? / 你平时反复做的一件工作是什么？"),
-            "current_owner": st.text_input("Who currently does this task? / 这件工作通常由谁完成？"),
-            "result": st.text_input("What result does this task produce? / 这件工作最后会产生什么结果？"),
+            "domain": st.text_input("What field or setting is this in?"),
+            "repeated_work": st.text_area("What is one task people repeatedly do?"),
+            "current_owner": st.text_input("Who currently does this task?"),
+            "result": st.text_input("What result does the task produce?"),
         }
-        st.caption("例如：整理实验结果、检查影像、写报告、审核学生作业、整理展览资料、判断图像内容、回复客户问题。")
+        st.caption("Examples: review images, organize lab notes, inspect reports, grade work, summarize cases, prepare expert questions.")
 
-        st.subheader("Section B: What are the steps?")
+        st.subheader("Section B: workflow steps")
         answers.update(
             {
                 "step_1": st.text_input("Step 1"),
                 "step_2": st.text_input("Step 2"),
                 "step_3": st.text_input("Step 3"),
                 "step_4": st.text_input("Step 4"),
-                "additional_notes": st.text_area("Additional notes / 可以很粗略，例如：先看图片 -> 再查记录 -> 再判断 -> 最后写报告"),
+                "additional_notes": st.text_area("Additional notes"),
             }
         )
 
-        st.subheader("Section C: Where does it get difficult?")
+        st.subheader("Section C: friction and judgement")
         answers.update(
             {
                 "time_consuming_step": st.text_area("Which step is most time-consuming?"),
-                "annoying_step": st.text_area("Which step is most annoying?"),
+                "annoying_step": st.text_area("Which step is most annoying or repetitive?"),
                 "error_prone_step": st.text_area("Which step is most error-prone?"),
                 "expert_judgement_step": st.text_area("Which step depends most on expert judgement?"),
             }
         )
 
-        st.subheader("Section D: What materials do you use?")
+        st.subheader("Section D: judgement materials")
         answers.update(
             {
                 "materials": st.multiselect(
-                    "What materials do you use?",
+                    "What materials do people use?",
                     [
                         "tables",
                         "images",
@@ -324,35 +628,34 @@ def _domain_wizard() -> None:
             }
         )
 
-        st.subheader("Section E: What should AI not decide?")
+        st.subheader("Section E: human boundaries")
         answers.update(
             {
-                "never_automated": st.text_area("What should never be automated?"),
+                "never_automated": st.text_area("What should AI never decide automatically?"),
                 "human_confirmed": st.text_area("What must be confirmed by a human?"),
                 "serious_mistakes": st.text_area("What mistakes would be serious?"),
                 "useful_support": st.multiselect(
-                    "If AI only gave support, what would be useful?",
+                    "If AI only supported the work, what output would be useful?",
                     [
-                        "整理好的摘要",
-                        "需要注意的风险提示",
-                        "证据清单",
-                        "初步草稿",
-                        "待人工确认的问题列表",
-                        "工作流改进建议",
-                        "给 AI 工程师看的项目说明",
+                        "organized summary",
+                        "risk flags",
+                        "evidence list",
+                        "draft notes",
+                        "questions for human review",
+                        "workflow improvement suggestions",
+                        "project brief for AI engineers",
                     ],
                 ),
             }
         )
-        submitted = st.form_submit_button("生成工作流对齐包")
+        submitted = st.form_submit_button("Generate workflow alignment package")
 
     if submitted:
         problem_text = build_workflow_first_problem(answers)
         out = _run_problem_text(problem_text, "domain_practitioner")
-        st.success(f"已生成：{out}")
-        st.download_button("下载 problem.md", problem_text, file_name="problem.md")
+        st.success(f"Generated: {out}")
+        st.download_button("Download problem.md", problem_text, file_name="problem.md")
         _render_friendly_output(out)
-
 
 def _guided_interview() -> None:
     st.subheader("Guided interview")
@@ -423,37 +726,45 @@ def _guided_interview() -> None:
 
 
 def _ai_wizard() -> None:
-    st.header("帮我理解这个领域问题，避免做偏")
+    _render_page_intro(
+        "AI practitioner wizard",
+        "Use this when an AI task already exists and you need to check whether it still matches the original domain problem.",
+        "This page is a misalignment check. It does not prove feasibility, safety, deployment readiness, or domain correctness.",
+        ["AI-task problem brief", "Misalignment risks", "Evidence contract", "Evaluation protocol"],
+    )
     with st.form("ai_practitioner"):
         answers = {
-            "domain_problem": st.text_area("你想解决的领域问题是什么？"),
-            "candidate_task": st.text_area("你目前打算把它做成什么 AI 任务？"),
-            "inputs": st.text_area("你的输入数据是什么？"),
-            "outputs": st.text_area("你希望模型输出什么？"),
-            "metric": st.text_area("你准备用什么指标评价？"),
-            "user": st.text_area("这个输出最后由谁使用？"),
-            "high_risk_mistakes": st.text_area("哪些错误会造成严重后果？"),
+            "domain_problem": st.text_area("What domain problem are you trying to solve?"),
+            "candidate_task": st.text_area("What AI task are you considering?"),
+            "inputs": st.text_area("What inputs will the system use?"),
+            "outputs": st.text_area("What outputs should the system produce?"),
+            "metric": st.text_area("How would you evaluate success?"),
+            "user": st.text_area("Who will use or review the output?"),
+            "high_risk_mistakes": st.text_area("Which mistakes would cause serious consequences?"),
         }
-        submitted = st.form_submit_button("检查这个项目会不会做偏")
+        submitted = st.form_submit_button("Check task alignment")
 
     if submitted:
         problem_text = build_ai_practitioner_problem(answers)
         out = _run_problem_text(problem_text, "ai_practitioner")
-        st.success(f"已生成：{out}")
-        st.download_button("下载 problem.md", problem_text, file_name="problem.md")
+        st.success(f"Generated: {out}")
+        st.download_button("Download problem.md", problem_text, file_name="problem.md")
         _render_friendly_output(out)
 
-
 def _view_outputs() -> None:
-    st.header("查看输出")
+    _render_page_intro(
+        "View generated outputs",
+        "Open previous local UI runs and inspect their friendly summary, technical files, and downloadable package.",
+        "Review outputs before sharing. Generated packages may include sensitive text if the user entered sensitive material.",
+        ["Friendly summary", "Technical delivery files", "Download package"],
+    )
     runs = sorted([path for path in RUN_ROOT.glob("*") if path.is_dir()], reverse=True)
     if not runs:
-        st.info("还没有 UI 生成的输出。请先运行示例或问卷。")
+        st.info("No UI-generated outputs yet. Run an example, document intake, question discovery, or wizard first.")
         return
 
-    selected = st.selectbox("选择一次生成结果", runs, format_func=lambda path: path.name)
+    selected = st.selectbox("Choose a generated run", runs, format_func=lambda path: path.name)
     _render_friendly_output(selected)
-
 
 def _run_document_intake(uploaded_files) -> Path:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -472,6 +783,8 @@ def _run_document_intake(uploaded_files) -> Path:
     (out / "problem_seed.md").write_text(build_problem_seed_from_intake(results), encoding="utf-8")
     return out
 
+
+
 def _run_question_discovery(package) -> Path:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     out = RUN_ROOT / f"{timestamp}_question_discovery"
@@ -479,6 +792,8 @@ def _run_question_discovery(package) -> Path:
     write_question_discovery_package(package, out)
     (out / "problem_seed.md").write_text(build_problem_from_discovery(package), encoding="utf-8")
     return out
+
+
 
 def _run_problem_text(problem_text: str, prefix: str) -> Path:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -492,44 +807,50 @@ def _run_problem_text(problem_text: str, prefix: str) -> Path:
 
 def _render_friendly_output(out: Path) -> None:
     summary = friendly_summary(out)
-    st.subheader("普通用户摘要")
+    st.subheader("User-facing summary")
 
-    st.subheader("一句话结论")
-    st.success(summary.one_sentence)
+    top_left, top_right = st.columns([1.2, 1])
+    with top_left:
+        st.markdown("### One-sentence conclusion")
+        st.success(summary.one_sentence)
+    with top_right:
+        st.markdown("### Output folder")
+        st.code(str(out), language="text")
 
-    st.subheader("可以优先尝试")
-    for item in summary.opportunities[:5]:
-        st.write(f"- {item}")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("### Priority opportunities")
+        for item in summary.opportunities[:5]:
+            st.write(f"- {item}")
+    with col2:
+        st.markdown("### Human review boundaries")
+        for item in summary.must_review[:5]:
+            st.write(f"- {item}")
 
-    st.subheader("需要人工确认 / 不建议自动化")
-    for item in summary.must_review[:5]:
-        st.write(f"- {item}")
-
-    st.subheader("当前工作流地图")
+    st.markdown("### Current workflow map")
     if summary.workflow_steps:
         for index, step in enumerate(summary.workflow_steps, start=1):
             st.write(f"{index}. {step}")
     else:
-        st.write("还没有识别出明确工作流步骤。")
+        st.write("No clear workflow steps were identified yet.")
 
-    st.subheader("下一步可以怎么做")
+    st.markdown("### Next steps")
     for item in summary.next_steps[:5]:
         st.write(f"- {item}")
 
     archive = _make_archive(out)
     st.download_button(
-        "下载给 AI 工程师的项目包",
+        "Download package: ProblemBridge alignment",
         archive.read_bytes(),
         file_name=f"{out.name}.zip",
         mime="application/zip",
     )
 
-    with st.expander("技术交付包：给 AI 工程师 / 高级查看"):
+    with st.expander("Technical delivery package"):
         for item in discover_alignment_outputs(out):
             st.markdown(f"### {FRIENDLY_FILE_LABELS.get(item.filename, item.filename)}")
             st.caption(item.filename)
             st.code(item.path.read_text(encoding="utf-8"), language=_language_for(item.filename))
-
 
 def _make_archive(out: Path) -> Path:
     archive_base = out / out.name

@@ -254,6 +254,22 @@ def test_v032_workflow_first_onboarding_is_documented():
     assert "completeness" in ui_text
 
 
+def test_guided_ui_has_visual_workbench_shell():
+    ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
+
+    for phrase in [
+        "ProblemBridge Workbench",
+        "visual-shell",
+        "workflow-strip",
+        "module-card",
+        "Trust boundary",
+        "Start here if",
+        "What you get",
+        "Download package",
+    ]:
+        assert phrase in ui_text
+
+
 def test_document_intake_layer_is_documented_and_in_ui():
     readme = Path("README.md").read_text(encoding="utf-8")
     readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
