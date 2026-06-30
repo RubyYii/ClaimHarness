@@ -1,69 +1,54 @@
 # ProblemBridge + ClaimHarness
 
 <p align="center">
-  <strong>中文：</strong>一个面向跨学科 AI 项目的双层 Harness：ProblemBridge 负责建模前的问题对齐，ClaimHarness 负责输出后的证据审计。<br>
-  <strong>English:</strong> A two-stage harness for interdisciplinary AI projects: ProblemBridge aligns the problem before AI work begins, and ClaimHarness audits evidence after AI or human outputs exist.
-</p>
-
-<p align="center">
-  <a href="#中文界面"><strong>中文界面</strong></a> ·
-  <a href="#english-interface"><strong>English interface</strong></a> ·
-  <a href="docs/static_showcase/index.html"><strong>按键切换展示页 / Button-switch showcase</strong></a> ·
-  <a href="#quickstart"><strong>Quickstart</strong></a>
+  <strong>Problem alignment before AI work. Evidence auditing after outputs exist.</strong><br>
+  A local-first prototype for interdisciplinary AI projects.
 </p>
 
 <p align="center">
   <img alt="Local first" src="https://img.shields.io/badge/local--first-yes-0f766e">
-  <img alt="Default API requirement" src="https://img.shields.io/badge/API-default%20mock%20mode-2563eb">
+  <img alt="Default API requirement" src="https://img.shields.io/badge/default-no%20API%20key-2563eb">
   <img alt="Problem alignment" src="https://img.shields.io/badge/ProblemBridge-problem%20alignment-c2410c">
   <img alt="Evidence audit" src="https://img.shields.io/badge/ClaimHarness-evidence%20audit-374151">
 </p>
 
-> GitHub README cannot run JavaScript, so the true button-switch bilingual interface lives in [docs/static_showcase/index.html](docs/static_showcase/index.html). The README uses GitHub-safe links and badges; open the static showcase for the clickable 中文 / English toggle.
+## 选择语言 / Choose language
 
-## 中文界面
+| 中文 | English |
+| --- | --- |
+| [中文说明](#中文说明) | [English Overview](#english-overview) |
+| [打开本地双语展示页](docs/static_showcase/index.html) | [Open the local bilingual showcase](docs/static_showcase/index.html) |
+| [给非 AI 背景用户](#for-non-ai-users) | [For non-AI users](#for-non-ai-users) |
 
-**一句话说明：**ProblemBridge 负责开始之前不跑偏；ClaimHarness 负责输出之后不越界。
+> GitHub README is static. For the real 中文 / English button switch, clone or download the repository and open [docs/static_showcase/index.html](docs/static_showcase/index.html) locally.
 
-这个项目不是普通写作工具，也不是 STORM / RAG / 报告生成器。它更像一个跨学科 AI 工作流检查框架：先帮助领域从业者把真实工作流、判断材料、痛点和人工复核边界讲清楚，再帮助 AI / 科研用户检查输出中的 claims 是否有证据支持。
+## 中文说明
 
-**适合谁测试：**
+**一句话：**ProblemBridge 负责开始之前不跑偏；ClaimHarness 负责输出之后不越界。
 
-- 非 AI 背景用户：从“我每天怎么判断、看什么材料、哪里卡住”开始，不需要先懂 prompt、模型或指标。
-- AI / 科研用户：把领域问题转成 AI task spec、evidence contract、evaluation protocol，再检查 claim-evidence alignment。
-- 外部测试者：先看合成样例，再用本地网页 App 输入一个非敏感工作流。
+这个项目是一个面向跨学科 AI 项目的本地原型。它不是普通写作工具，也不是 STORM / RAG / 报告生成器。它关注两件事：先把领域工作流、判断材料、痛点和人工复核边界对齐；再检查输出中的 claims 是否有证据支持。
 
-**推荐打开方式：**
-
-```powershell
-.\RUN_PROBLEMBRIDGE_WINDOWS.bat
-```
-
-如果只想看静态展示和样例，可以打开：[`docs/static_showcase/index.html`](docs/static_showcase/index.html)。这个页面有真正的中文 / English 按钮切换。
-
-**安全边界：**默认 mock mode 不需要 API key。不要输入真实患者数据、机密论文、未公开项目材料、API key 或任何敏感内容。
-
-## English Interface
-
-**One-sentence summary:** ProblemBridge keeps the problem aligned before AI work begins; ClaimHarness keeps the output evidence-aware after AI or human work produces claims.
-
-This is not a writing assistant, STORM clone, generic RAG demo, or report generator. It is a lightweight workflow harness for interdisciplinary AI projects: first align the domain workflow and AI task definition, then audit whether claims are supported by the available evidence.
-
-**Who should test it:**
-
-- Non-AI users: start from daily work, judgement materials, repeated pain points, and review boundaries instead of writing an AI task.
-- AI / research users: translate domain problems into task specs, evidence contracts, evaluation protocols, and evidence-audit packages.
-- External reviewers: inspect the synthetic examples first, then try the local web app with a non-sensitive workflow.
-
-**Recommended launch path:**
+**推荐测试方式：**先打开本地网页 App 或静态展示页，查看合成样例；再用一个非敏感工作流测试 ProblemBridge。默认 mock mode 不需要 API key。
 
 ```powershell
 .\RUN_PROBLEMBRIDGE_WINDOWS.bat
 ```
 
-For a static bilingual overview, open [`docs/static_showcase/index.html`](docs/static_showcase/index.html). That page contains the actual 中文 / English button switch.
+不要输入真实患者数据、机密论文、未公开项目材料、API key 或任何敏感内容。
 
-**Safety boundary:** the default mock mode does not require an API key. Do not enter real patient data, confidential manuscripts, unpublished project materials, API keys, or sensitive information.
+## English Overview
+
+**In one sentence:** ProblemBridge keeps the problem aligned before AI work begins; ClaimHarness keeps outputs evidence-aware after claims exist.
+
+This repository is a local-first prototype for interdisciplinary AI projects. It is not a writing assistant, STORM clone, generic RAG demo, or report generator. It focuses on two stages: aligning the domain workflow, judgement materials, pain points, and human-review boundaries before AI work begins; then auditing whether generated or written claims are supported by evidence.
+
+**Recommended test path:** open the local web app or the static showcase, inspect the synthetic examples, then try ProblemBridge with a non-sensitive workflow. The default mock mode does not require an API key.
+
+```powershell
+.\RUN_PROBLEMBRIDGE_WINDOWS.bat
+```
+
+Do not enter real patient data, confidential manuscripts, unpublished project materials, API keys, or sensitive information.
 
 ## Technical Overview
 
