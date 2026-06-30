@@ -254,6 +254,37 @@ def test_v032_workflow_first_onboarding_is_documented():
     assert "completeness" in ui_text
 
 
+def test_document_intake_layer_is_documented_and_in_ui():
+    readme = Path("README.md").read_text(encoding="utf-8")
+    readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
+    guide = Path("NON_AI_USER_GUIDE.md").read_text(encoding="utf-8")
+    ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
+
+    assert Path("problem_bridge/document_intake.py").is_file()
+    for phrase in [
+        "Document Intake Layer",
+        ".docx",
+        "text-based PDF",
+        "extracted_text.md",
+        "source_manifest.json",
+        "extraction_warnings.md",
+        "no OCR",
+    ]:
+        assert phrase in readme
+
+    assert "文档摄取层" in readme_zh
+    assert "文字版 PDF" in readme_zh
+    assert "Document intake" in guide
+
+    for phrase in [
+        "Document intake",
+        "Upload Word, PDF, Markdown, TXT, or CSV files",
+        "text-based PDF",
+        "extracted_text.md",
+        "source_manifest.json",
+        "Generate document intake package",
+    ]:
+        assert phrase in ui_text
 def test_question_discovery_layer_is_documented_and_in_ui():
     readme = Path("README.md").read_text(encoding="utf-8")
     readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
@@ -314,6 +345,8 @@ def test_release_packaging_support_is_present():
     for phrase in [
         "RUN_PROBLEMBRIDGE_WINDOWS.bat",
         "apps/problem_bridge_wizard.py",
+        "problem_bridge/document_intake.py",
+        "$intakePath",
         "README.zh-CN.md",
         "docs/static_showcase/en.html",
         "docs/static_showcase/zh-CN.html",

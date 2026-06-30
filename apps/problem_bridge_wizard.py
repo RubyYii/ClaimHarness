@@ -14,6 +14,11 @@ from problem_bridge.guided import (
     discover_alignment_outputs,
     friendly_summary,
 )
+from problem_bridge.document_intake import (
+    build_problem_seed_from_intake,
+    extract_document,
+    write_intake_package,
+)
 from problem_bridge.interview import (
     answer_question,
     build_problem_from_interview,
@@ -46,6 +51,13 @@ QUESTION_DISCOVERY_FILES = {
     "problem_seed.md": "ProblemBridge seed brief",
 }
 
+DOCUMENT_INTAKE_FILES = {
+    "extracted_text.md": "Extracted text",
+    "source_manifest.json": "Source manifest",
+    "extraction_warnings.md": "Extraction warnings",
+    "problem_seed.md": "ProblemBridge seed brief",
+}
+
 
 def main() -> None:
     st.set_page_config(page_title="ProblemBridge Guided Mode", layout="wide")
@@ -58,6 +70,7 @@ def main() -> None:
             "Home",
             "Explore examples",
             "Question discovery",
+            "Document intake",
             "Domain practitioner wizard",
             "AI practitioner wizard",
             "View generated outputs",
@@ -70,6 +83,8 @@ def main() -> None:
         _examples()
     elif page == "Question discovery":
         _question_discovery()
+    elif page == "Document intake":
+        _document_intake()
     elif page == "Domain practitioner wizard":
         _domain_wizard()
     elif page == "AI practitioner wizard":
@@ -179,6 +194,60 @@ def _render_question_discovery_output(out: Path) -> None:
                 st.markdown(f"### {label}")
                 st.caption(filename)
                 st.code(path.read_text(encoding="utf-8"), language="markdown")
+
+def _document_intake() -> None:
+    st.header("Document intake")
+    st.caption("Upload Word, PDF, Markdown, TXT, or CSV files and convert them into local extraction outputs.")
+    st.info("Supports .docx, .md, .txt, .csv, and text-based PDF. Scanned PDF, OCR, images, and figure understanding are not supported.")
+
+    uploaded_files = st.file_uploader(
+        "Upload Word, PDF, Markdown, TXT, or CSV files",
+        type=["docx", "pdf", "md", "txt", "csv"],
+        accept_multiple_files=True,
+    )
+
+    if st.button("Generate document intake package", disabled=not uploaded_files):
+        out = _run_document_intake(uploaded_files)
+        st.success(f"Generated: {out}")
+        _render_document_intake_output(out)
+
+
+def _render_document_intake_output(out: Path) -> None:
+    st.subheader("extracted_text.md")
+    extracted_text = out / "extracted_text.md"
+    if extracted_text.is_file():
+        st.markdown(extracted_text.read_text(encoding="utf-8"))
+
+    st.subheader("source_manifest.json")
+    manifest = out / "source_manifest.json"
+    if manifest.is_file():
+        st.code(manifest.read_text(encoding="utf-8"), language="json")
+
+    warnings_path = out / "extraction_warnings.md"
+    if warnings_path.is_file():
+        st.subheader("extraction_warnings.md")
+        st.markdown(warnings_path.read_text(encoding="utf-8"))
+
+    archive = _make_archive(out)
+    st.download_button(
+        "Download document intake package",
+        archive.read_bytes(),
+        file_name=f"{out.name}.zip",
+        mime="application/zip",
+    )
+
+    with st.expander("All intake files"):
+        for filename, label in DOCUMENT_INTAKE_FILES.items():
+            path = out / filename
+            if path.is_file():
+                st.markdown(f"### {label}")
+                st.caption(filename)
+                st.code(path.read_text(encoding="utf-8"), language=_language_for(filename))
+        table_dir = out / "extracted_tables"
+        if table_dir.is_dir():
+            for table_path in sorted(table_dir.glob("*.csv")):
+                st.markdown(f"### Extracted table: {table_path.name}")
+                st.code(table_path.read_text(encoding="utf-8"), language="csv")
 
 def _domain_wizard() -> None:
     st.header("Describe your workflow, not an AI task.")
@@ -385,6 +454,23 @@ def _view_outputs() -> None:
     selected = st.selectbox("选择一次生成结果", runs, format_func=lambda path: path.name)
     _render_friendly_output(selected)
 
+
+def _run_document_intake(uploaded_files) -> Path:
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    out = RUN_ROOT / f"{timestamp}_document_intake"
+    source_dir = out / "source_files"
+    source_dir.mkdir(parents=True, exist_ok=True)
+
+    results = []
+    for uploaded_file in uploaded_files:
+        safe_name = Path(uploaded_file.name).name
+        source_path = source_dir / safe_name
+        source_path.write_bytes(uploaded_file.getvalue())
+        results.append(extract_document(source_path))
+
+    write_intake_package(results, out)
+    (out / "problem_seed.md").write_text(build_problem_seed_from_intake(results), encoding="utf-8")
+    return out
 
 def _run_question_discovery(package) -> Path:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

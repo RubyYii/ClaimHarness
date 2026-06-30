@@ -4,6 +4,27 @@ This guide is for people who have a real workflow, research problem, or domain p
 
 ProblemBridge does not ask you to define a model, prompt, RAG system, or benchmark first. It asks plain-language questions about your work, then produces a package that can help you talk to AI practitioners.
 
+## Document intake
+
+Use `Document intake` when your starting point is a Word document, text-based PDF, Markdown file, TXT notes, or CSV table instead of a clean problem description.
+
+Supported files:
+
+- `.docx`
+- text-based `.pdf`
+- `.txt`
+- `.md`
+- `.csv`
+
+Document intake produces:
+
+- `extracted_text.md`
+- `extracted_tables/`
+- `source_manifest.json`
+- `extraction_warnings.md`
+- `problem_seed.md`
+
+Check `extraction_warnings.md` before using the result. There is no OCR, no scanned PDF support, no image understanding, and no figure interpretation. If extraction looks incomplete, rewrite the important parts in plain language before using `Question discovery` or `Domain practitioner wizard`.
 ## Start by discovering questions
 
 If you cannot describe the problem clearly yet, start with `Question discovery` instead of the full workflow form.
@@ -113,8 +134,9 @@ scripts/run_problembridge_ui_windows.bat
 When the browser opens:
 
 1. Start with `Explore examples`.
-2. Use `Question discovery` if you do not yet know what to ask or who to ask.
-3. Generate a synthetic example package.
-4. Read the friendly summary first.
-5. Try `Domain practitioner wizard` with a non-sensitive workflow description.
-6. Download the project package only after checking that it contains no private material.
+2. Use `Document intake` if your starting point is a Word, text-based PDF, TXT, Markdown, or CSV file.
+3. Use `Question discovery` if you do not yet know what to ask or who to ask.
+4. Generate a synthetic example package.
+5. Read the friendly summary first.
+6. Try `Domain practitioner wizard` with a non-sensitive workflow description.
+7. Download the project package only after checking that it contains no private material.

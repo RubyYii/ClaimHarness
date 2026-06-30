@@ -24,6 +24,27 @@ ProblemBridge + ClaimHarness is a local-first portfolio prototype for interdisci
 
 The default path is deterministic mock mode. It does not require an API key, does not call external services, and uses synthetic examples only.
 
+## Document Intake Layer
+
+The Document Intake Layer lets users bring local files into the workflow before problem discovery or claim auditing. It converts supported files into auditable extraction outputs without calling an external API.
+
+Supported input types:
+
+- `.docx` Word documents
+- `.pdf` text-based PDF files
+- `.txt`
+- `.md`
+- `.csv`
+
+It writes:
+
+- `extracted_text.md`
+- `extracted_tables/`
+- `source_manifest.json`
+- `extraction_warnings.md`
+- `problem_seed.md`
+
+The boundary is deliberate: text-based PDF only, no OCR, no scanned PDF understanding, no image understanding, and no figure interpretation. Document intake extracts text and tables; it does not validate professional claims or replace domain review.
 ## Question Discovery Layer
 
 ProblemBridge does not assume the user already knows the right problem. The Question Discovery Layer helps non-AI users discover what to ask, who to ask, and what unknowns must be validated before anyone proposes an AI solution.
@@ -370,6 +391,7 @@ The wizard includes:
 
 - Explore examples
 - Question discovery
+- Document intake
 - Domain practitioner wizard
 - AI practitioner wizard
 - Friendly output cards
@@ -510,7 +532,7 @@ Implemented:
 Planned or optional:
 
 - richer prompt templates
-- PDF and figure-aware evidence ingestion
+- scanned PDF OCR and figure-aware evidence ingestion
 
 ## Limitations
 
@@ -518,6 +540,6 @@ Planned or optional:
 - It only checks evidence available in the provided files.
 - Biomedical claims require human review.
 - Mock mode is deterministic and not semantically complete.
-- PDF and figure understanding are future work.
+- Scanned PDF OCR and figure understanding are future work.
 
 See [docs/architecture.md](docs/architecture.md), [docs/demo_walkthrough.md](docs/demo_walkthrough.md), and [docs/limitations.md](docs/limitations.md) for more detail.

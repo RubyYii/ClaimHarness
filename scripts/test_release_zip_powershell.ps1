@@ -28,6 +28,7 @@ try {
         "RUN_PROBLEMBRIDGE_WINDOWS.bat",
         "scripts/run_problembridge_ui_windows.bat",
         "apps/problem_bridge_wizard.py",
+        "problem_bridge/document_intake.py",
         "docs/static_showcase/index.html",
         "docs/static_showcase/en.html",
         "docs/static_showcase/zh-CN.html",
@@ -43,6 +44,9 @@ try {
 
     $uiPath = Join-Path $packageDir.FullName "apps\problem_bridge_wizard.py"
     & $python -m py_compile $uiPath
+
+    $intakePath = Join-Path $packageDir.FullName "problem_bridge\document_intake.py"
+    & $python -m py_compile $intakePath
 
     Write-Host "Release zip test passed: $zipFullPath"
 }
