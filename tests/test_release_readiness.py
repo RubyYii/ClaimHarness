@@ -291,12 +291,24 @@ def test_release_packaging_support_is_present():
 
     showcase = Path("docs/static_showcase/index.html").read_text(encoding="utf-8")
     assert "This static showcase does not run the interactive wizard." in showcase
+    assert 'data-lang-button="zh"' in showcase
+    assert 'data-lang-button="en"' in showcase
+    assert 'data-lang-panel="zh"' in showcase
+    assert 'data-lang-panel="en"' in showcase
+    assert "setLanguage" in showcase
+    assert "localStorage" in showcase
+    assert "给非 AI 背景用户" in showcase
+    assert "For non-AI users" in showcase
     assert "HSG alignment sample" in showcase
     assert "VULCA alignment sample" in showcase
     assert "political education sample" in showcase
     assert "ClaimHarness oocyte sample" in showcase
 
     readme = Path("README.md").read_text(encoding="utf-8")
+    assert "中文界面" in readme
+    assert "English interface" in readme
+    assert "docs/static_showcase/index.html" in readme
+    assert "GitHub README cannot run JavaScript" in readme
     assert "Downloadable local web app package" in readme
     assert "RUN_PROBLEMBRIDGE_WINDOWS.bat" in readme
 

@@ -3,74 +3,530 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ProblemBridge + ClaimHarness Static Showcase</title>
+  <title>ProblemBridge + ClaimHarness Bilingual Showcase</title>
   <style>
+    :root {
+      color-scheme: light;
+      --ink: #16202a;
+      --muted: #5f6f7c;
+      --line: #d8e0e7;
+      --paper: #ffffff;
+      --canvas: #f4f7f8;
+      --teal: #0f766e;
+      --blue: #2563eb;
+      --coral: #c2410c;
+      --soft-teal: #e7f5f3;
+      --soft-blue: #eaf1ff;
+      --soft-coral: #fff1e8;
+      --shadow: 0 18px 45px rgba(22, 32, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      line-height: 1.55;
       margin: 0;
-      color: #1f2933;
-      background: #f7f8fa;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      line-height: 1.6;
     }
-    main {
-      max-width: 880px;
-      margin: 0 auto;
-      padding: 40px 20px 56px;
-    }
-    h1 {
-      margin-bottom: 8px;
-      font-size: 32px;
-    }
-    .notice {
-      background: #fff7ed;
-      border: 1px solid #fed7aa;
-      padding: 12px 14px;
-      margin: 20px 0;
-    }
-    .sample {
-      background: #ffffff;
-      border: 1px solid #d9e2ec;
-      padding: 16px;
-      margin: 14px 0;
-    }
+
     a {
-      color: #0f5f8f;
-      font-weight: 600;
+      color: var(--blue);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .shell {
+      width: min(1120px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: #ffffff;
+      background: var(--teal);
+      font-size: 17px;
+      line-height: 1;
+    }
+
+    .language-switch {
+      display: inline-flex;
+      padding: 4px;
+      gap: 4px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      box-shadow: 0 6px 20px rgba(22, 32, 42, 0.06);
+    }
+
+    .language-switch button {
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 14px;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .language-switch button[aria-pressed="true"] {
+      color: #ffffff;
+      background: var(--ink);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+      gap: 20px;
+      align-items: stretch;
+      margin-bottom: 22px;
+    }
+
+    .hero-copy,
+    .side-panel,
+    .notice,
+    .sample-card,
+    .flow-step,
+    .audience-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-copy {
+      padding: 34px;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 780px;
+      font-size: clamp(34px, 6vw, 62px);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 720px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--soft-blue);
+      color: #174ea6;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .tag:nth-child(2n) {
+      background: var(--soft-teal);
+      color: #0f5f57;
+    }
+
+    .tag:nth-child(3n) {
+      background: var(--soft-coral);
+      color: #9a3412;
+    }
+
+    .side-panel {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .side-panel h2,
+    .section-title,
+    .sample-card h3,
+    .audience-card h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    .side-panel p,
+    .sample-card p,
+    .audience-card p {
+      margin: 8px 0 0;
+      color: var(--muted);
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 8px 13px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      background: #ffffff;
+      font-weight: 900;
+    }
+
+    .button.primary {
+      color: #ffffff;
+      background: var(--teal);
+      border-color: var(--teal);
+    }
+
+    .notice {
+      padding: 14px 16px;
+      margin: 22px 0;
+      border-left: 5px solid var(--coral);
+      box-shadow: none;
+    }
+
+    .notice strong {
+      color: var(--coral);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0 26px;
+    }
+
+    .flow-step {
+      padding: 16px;
+      box-shadow: none;
+    }
+
+    .flow-step .number {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      color: #ffffff;
+      background: var(--blue);
+      font-weight: 900;
+    }
+
+    .flow-step:nth-child(2) .number,
+    .flow-step:nth-child(3) .number {
+      background: var(--teal);
+    }
+
+    .flow-step:nth-child(4) .number {
+      background: var(--coral);
+    }
+
+    .audience-grid,
+    .sample-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 14px 0 24px;
+    }
+
+    .audience-card,
+    .sample-card {
+      padding: 18px;
+      box-shadow: none;
+    }
+
+    .sample-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 150px;
+    }
+
+    .sample-card a {
+      margin-top: auto;
+      padding-top: 16px;
+    }
+
+    [data-lang-panel][hidden] {
+      display: none !important;
+    }
+
+    footer {
+      margin-top: 30px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 6px;
+      background: #eef2f5;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.94em;
+    }
+
+    @media (max-width: 820px) {
+      .topbar,
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .flow,
+      .audience-grid,
+      .sample-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-copy {
+        padding: 26px 20px;
+      }
     }
   </style>
 </head>
 <body>
-  <main>
-    <h1>ProblemBridge + ClaimHarness Static Showcase</h1>
-    <p>
-      This page links to committed synthetic sample outputs for quick review.
-      This static showcase does not run the interactive wizard.
-    </p>
-
-    <div class="notice">
-      Do not use this showcase with private patient data, confidential manuscripts,
-      API keys, or sensitive unpublished materials.
+  <main class="shell">
+    <div class="topbar" aria-label="Showcase controls">
+      <div class="brand"><span class="mark">PB</span><span>ProblemBridge + ClaimHarness</span></div>
+      <div class="language-switch" aria-label="Language switch">
+        <button type="button" data-lang-button="zh" aria-pressed="false">中文</button>
+        <button type="button" data-lang-button="en" aria-pressed="true">English</button>
+      </div>
     </div>
 
-    <section class="sample">
-      <h2>HSG alignment sample</h2>
-      <p><a href="../sample_outputs/hsg_alignment/problem_card.md">Open problem card</a></p>
+    <section data-lang-panel="zh" hidden>
+      <div class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">跨学科 AI 工作流 Harness</p>
+          <h1>先把问题对齐，再审计输出证据。</h1>
+          <p class="subtitle">
+            ProblemBridge 帮助非 AI 背景用户从日常工作、判断材料和痛点开始描述问题；ClaimHarness 在输出之后检查 claim-evidence alignment、overclaim 和人工复核边界。
+          </p>
+          <div class="tags" aria-label="Project qualities">
+            <span class="tag">本地优先</span>
+            <span class="tag">默认不需要 API</span>
+            <span class="tag">面向非 AI 用户</span>
+            <span class="tag">合成样例</span>
+          </div>
+        </div>
+        <aside class="side-panel">
+          <div>
+            <h2>给非 AI 背景用户</h2>
+            <p>不要描述“AI 任务”。只描述你每天怎么判断、看什么材料、哪里反复卡住、哪些决定必须由人确认。</p>
+          </div>
+          <div class="cta-row">
+            <a class="button primary" href="../sample_outputs/hsg_alignment/problem_card.md">查看 HSG 样例</a>
+            <a class="button" href="../sample_outputs/claimharness_oocyte_demo/index.html">查看审计报告</a>
+          </div>
+        </aside>
+      </div>
+
+      <div class="notice">
+        <strong>安全边界：</strong>这个静态页面只展示已提交的 synthetic sample outputs。This static showcase does not run the interactive wizard. 不要输入真实患者数据、机密论文、API key 或未公开项目材料。
+      </div>
+
+      <h2 class="section-title">两阶段流程</h2>
+      <div class="flow" aria-label="Two-stage workflow">
+        <div class="flow-step"><div class="number">1</div><strong>领域工作流</strong><p>从真实工作、材料、判断和痛点开始。</p></div>
+        <div class="flow-step"><div class="number">2</div><strong>ProblemBridge</strong><p>生成 workflow map、AI task spec、evidence contract 和 evaluation protocol。</p></div>
+        <div class="flow-step"><div class="number">3</div><strong>AI / 团队工作</strong><p>在更清楚的任务边界内建模、写作或设计系统。</p></div>
+        <div class="flow-step"><div class="number">4</div><strong>ClaimHarness</strong><p>审计 claims 是否有证据支撑，标记 overclaim 和人工复核需求。</p></div>
+      </div>
+
+      <h2 class="section-title">谁适合测试</h2>
+      <div class="audience-grid">
+        <article class="audience-card">
+          <h3>领域从业者</h3>
+          <p>适合医生、教育者、文化研究者、政策研究者等，用它把工作流讲清楚，而不是直接写 AI prompt。</p>
+        </article>
+        <article class="audience-card">
+          <h3>AI / 科研用户</h3>
+          <p>适合需要把领域问题转成任务规格、评价协议和证据边界的人。</p>
+        </article>
+      </div>
+
+      <h2 class="section-title">已提交样例</h2>
+      <div class="sample-grid">
+        <article class="sample-card">
+          <h3>HSG alignment sample</h3>
+          <p>医学影像支持场景，强调 visual output 不等于 clinical conclusion。</p>
+          <a href="../sample_outputs/hsg_alignment/problem_card.md">打开 problem card</a>
+        </article>
+        <article class="sample-card">
+          <h3>VULCA alignment sample</h3>
+          <p>中国绘画 / VULCA 文化解释场景，强调 object recognition 不等于 cultural interpretation。</p>
+          <a href="../sample_outputs/vulca_alignment/problem_card.md">打开 problem card</a>
+        </article>
+        <article class="sample-card">
+          <h3>political education sample</h3>
+          <p>思政教育风险评估场景，强调 fluent answer 不等于 value-sensitive educational alignment。</p>
+          <a href="../sample_outputs/political_education_alignment/problem_card.md">打开 problem card</a>
+        </article>
+        <article class="sample-card">
+          <h3>ClaimHarness oocyte sample</h3>
+          <p>科研 claim-evidence 审计样例，展示 claim table、audit report 和 trace。</p>
+          <a href="../sample_outputs/claimharness_oocyte_demo/index.html">打开 static report viewer</a>
+        </article>
+      </div>
     </section>
 
-    <section class="sample">
-      <h2>VULCA alignment sample</h2>
-      <p><a href="../sample_outputs/vulca_alignment/problem_card.md">Open problem card</a></p>
+    <section data-lang-panel="en">
+      <div class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Interdisciplinary AI workflow harness</p>
+          <h1>Align the problem first. Audit the evidence after.</h1>
+          <p class="subtitle">
+            ProblemBridge helps non-AI users start from daily work, judgement materials, pain points, and review boundaries. ClaimHarness then audits claim-evidence alignment, overclaims, and human-review needs after outputs exist.
+          </p>
+          <div class="tags" aria-label="Project qualities">
+            <span class="tag">Local-first</span>
+            <span class="tag">No API required by default</span>
+            <span class="tag">Built for non-AI users</span>
+            <span class="tag">Synthetic examples</span>
+          </div>
+        </div>
+        <aside class="side-panel">
+          <div>
+            <h2>For non-AI users</h2>
+            <p>Do not describe an “AI task”. Describe what you repeatedly do, what materials you inspect, where decisions get stuck, and where a human must stay in the loop.</p>
+          </div>
+          <div class="cta-row">
+            <a class="button primary" href="../sample_outputs/hsg_alignment/problem_card.md">View HSG sample</a>
+            <a class="button" href="../sample_outputs/claimharness_oocyte_demo/index.html">View audit report</a>
+          </div>
+        </aside>
+      </div>
+
+      <div class="notice">
+        <strong>Safety boundary:</strong> this page only links to committed synthetic sample outputs. This static showcase does not run the interactive wizard. Do not enter real patient data, confidential manuscripts, API keys, or unpublished project materials.
+      </div>
+
+      <h2 class="section-title">Two-stage workflow</h2>
+      <div class="flow" aria-label="Two-stage workflow">
+        <div class="flow-step"><div class="number">1</div><strong>Domain workflow</strong><p>Start from real work, materials, judgement, and pain points.</p></div>
+        <div class="flow-step"><div class="number">2</div><strong>ProblemBridge</strong><p>Generate a workflow map, AI task spec, evidence contract, and evaluation protocol.</p></div>
+        <div class="flow-step"><div class="number">3</div><strong>AI / team work</strong><p>Build, write, or design within clearer task boundaries.</p></div>
+        <div class="flow-step"><div class="number">4</div><strong>ClaimHarness</strong><p>Audit whether claims are supported, overclaimed, or need human review.</p></div>
+      </div>
+
+      <h2 class="section-title">Who should test it</h2>
+      <div class="audience-grid">
+        <article class="audience-card">
+          <h3>Domain practitioners</h3>
+          <p>Useful for clinicians, educators, cultural researchers, and policy researchers who need to explain a workflow before writing an AI prompt.</p>
+        </article>
+        <article class="audience-card">
+          <h3>AI / research users</h3>
+          <p>Useful for people translating domain problems into task specs, evaluation protocols, and evidence boundaries.</p>
+        </article>
+      </div>
+
+      <h2 class="section-title">Committed samples</h2>
+      <div class="sample-grid">
+        <article class="sample-card">
+          <h3>HSG alignment sample</h3>
+          <p>A medical-imaging support scenario where visual output is not the same as a clinical conclusion.</p>
+          <a href="../sample_outputs/hsg_alignment/problem_card.md">Open problem card</a>
+        </article>
+        <article class="sample-card">
+          <h3>VULCA alignment sample</h3>
+          <p>A Chinese painting / VULCA interpretation scenario where object recognition is not cultural interpretation.</p>
+          <a href="../sample_outputs/vulca_alignment/problem_card.md">Open problem card</a>
+        </article>
+        <article class="sample-card">
+          <h3>political education sample</h3>
+          <p>A political-education risk scenario where fluent answers are not value-sensitive educational alignment.</p>
+          <a href="../sample_outputs/political_education_alignment/problem_card.md">Open problem card</a>
+        </article>
+        <article class="sample-card">
+          <h3>ClaimHarness oocyte sample</h3>
+          <p>A scientific claim-evidence audit example showing claim tables, audit reports, and traces.</p>
+          <a href="../sample_outputs/claimharness_oocyte_demo/index.html">Open static report viewer</a>
+        </article>
+      </div>
     </section>
 
-    <section class="sample">
-      <h2>political education sample</h2>
-      <p><a href="../sample_outputs/political_education_alignment/problem_card.md">Open problem card</a></p>
-    </section>
-
-    <section class="sample">
-      <h2>ClaimHarness oocyte sample</h2>
-      <p><a href="../sample_outputs/claimharness_oocyte_demo/index.html">Open static report viewer</a></p>
-    </section>
+    <footer>
+      Open this file directly for a static bilingual overview, or run <code>RUN_PROBLEMBRIDGE_WINDOWS.bat</code> for the local guided app.
+    </footer>
   </main>
+
+  <script>
+    const panels = Array.from(document.querySelectorAll('[data-lang-panel]'));
+    const buttons = Array.from(document.querySelectorAll('[data-lang-button]'));
+
+    function setLanguage(language) {
+      const nextLanguage = language === 'zh' ? 'zh' : 'en';
+      document.documentElement.lang = nextLanguage === 'zh' ? 'zh-CN' : 'en';
+      panels.forEach((panel) => {
+        panel.hidden = panel.dataset.langPanel !== nextLanguage;
+      });
+      buttons.forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.langButton === nextLanguage));
+      });
+      localStorage.setItem('problembridge-showcase-language', nextLanguage);
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => setLanguage(button.dataset.langButton));
+    });
+
+    setLanguage(localStorage.getItem('problembridge-showcase-language') || 'en');
+  </script>
 </body>
 </html>
