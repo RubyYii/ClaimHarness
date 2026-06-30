@@ -114,6 +114,16 @@ PROVIDER_PRESETS: dict[str, ProviderPreset] = {
         json_mode="json_object",
         requires_api_key=False,
     ),
+    "qwen": ProviderPreset(
+        provider="qwen",
+        api_style="openai-chat",
+        api_key_env="DASHSCOPE_API_KEY",
+        base_url_env="QWEN_BASE_URL",
+        model_env="QWEN_MODEL",
+        default_base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+        default_model="qwen-plus",
+        json_mode="json_object",
+    ),
     "gemini": ProviderPreset(
         provider="gemini",
         api_style="gemini",

@@ -30,6 +30,7 @@ Use these values with:
 | `mock` | local deterministic | none | none | none | none |
 | `openai` | OpenAI chat completions | `OPENAI_API_KEY` | `OPENAI_BASE_URL`, `OPENAI_MODEL` | `https://api.openai.com/v1` | `gpt-5.4-mini` |
 | `openai-compatible` | OpenAI-compatible chat completions | `OPENAI_API_KEY` | `OPENAI_BASE_URL`, `OPENAI_MODEL` | `https://api.openai.com/v1` | `gpt-5.4-mini` |
+| `qwen` | DashScope Qwen OpenAI-compatible chat completions | `DASHSCOPE_API_KEY` | `QWEN_BASE_URL`, `QWEN_MODEL` | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `qwen-plus` |
 | `deepseek` | OpenAI-compatible chat completions | `DEEPSEEK_API_KEY` | `DEEPSEEK_BASE_URL`, `DEEPSEEK_MODEL` | `https://api.deepseek.com` | `deepseek-v4-flash` |
 | `groq` | OpenAI-compatible chat completions | `GROQ_API_KEY` | `GROQ_BASE_URL`, `GROQ_MODEL` | `https://api.groq.com/openai/v1` | `llama-3.3-70b-versatile` |
 | `mistral` | OpenAI-compatible chat completions | `MISTRAL_API_KEY` | `MISTRAL_BASE_URL`, `MISTRAL_MODEL` | `https://api.mistral.ai/v1` | `mistral-large-latest` |
@@ -39,6 +40,33 @@ Use these values with:
 | `gemini` | Gemini native generateContent | `GEMINI_API_KEY` | `GEMINI_BASE_URL`, `GEMINI_MODEL` | `https://generativelanguage.googleapis.com/v1beta` | `gemini-3.5-flash` |
 | `anthropic` | Anthropic Messages API | `ANTHROPIC_API_KEY` | `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL` | `https://api.anthropic.com/v1` | `claude-sonnet-4-5` |
 
+## Qwen / DashScope example
+
+```powershell
+$env:DASHSCOPE_API_KEY = Read-Host "DASHSCOPE_API_KEY"
+$env:QWEN_MODEL="qwen-plus"
+
+.venv\Scripts\python.exe -m claim_harness run `
+  --manuscript examples/oocyte_demo/manuscript.md `
+  --tables examples/oocyte_demo/tables `
+  --references examples/oocyte_demo/references.md `
+  --out outputs/oocyte_demo_qwen `
+  --llm qwen
+```
+
+`QWEN_BASE_URL` is optional and defaults to `https://dashscope.aliyuncs.com/compatible-mode/v1`. If your DashScope workspace uses a regional endpoint, set `QWEN_BASE_URL` before running.
+
+## Local UI memory
+
+The Streamlit workbench includes `Workspace Memory` and `API Settings` in the sidebar. `Save current workspace` writes non-sensitive settings and drafts to `outputs/ui_memory/workbench_memory.json`:
+
+- provider name
+- base URL
+- model name
+- recent output path
+- Question discovery, Domain wizard, and AI wizard draft fields
+
+API keys are session-only. The password field can set the selected provider key for the current Streamlit process, but `workbench_memory.json` filters `api_key`, `token`, `secret`, and `password` fields before saving.
 ## DeepSeek example
 
 ```powershell
@@ -101,4 +129,5 @@ $env:OLLAMA_MODEL="llama3.2"
 - Use `mock` for first-time testing and non-AI user workflow validation.
 - Use remote providers only when you are comfortable sending the current inputs to that provider.
 - Provider model names change. Override the default model with the provider-specific `*_MODEL` environment variable when needed.
+- The local UI can remember provider/base URL/model, but API keys are session-only and are not written to `workbench_memory.json`.
 - The remote review is advisory only and should be read as an additional reviewer note.

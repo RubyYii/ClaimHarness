@@ -270,6 +270,24 @@ def test_guided_ui_has_visual_workbench_shell():
         assert phrase in ui_text
 
 
+def test_guided_ui_has_local_memory_and_api_settings():
+    ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
+    provider_guide = Path("MODEL_PROVIDER_GUIDE.md").read_text(encoding="utf-8")
+
+    for phrase in [
+        "Workspace Memory",
+        "API Settings",
+        "Save current workspace",
+        "Clear memory",
+        "API key is session-only",
+        "workbench_memory.json",
+        "qwen",
+    ]:
+        assert phrase in ui_text
+
+    assert "DASHSCOPE_API_KEY" in provider_guide
+    assert "QWEN_MODEL" in provider_guide
+
 def test_document_intake_layer_is_documented_and_in_ui():
     readme = Path("README.md").read_text(encoding="utf-8")
     readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")

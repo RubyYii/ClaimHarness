@@ -179,9 +179,15 @@ RUN_PROBLEMBRIDGE_WINDOWS.bat
 
 ## API 和模型
 
-默认使用 `mock`，不需要 API key。远程模型提供商是可选的，只用于 advisory review。当前 ClaimHarness 已准备常见接口，包括 OpenAI-compatible、DeepSeek、Groq、Mistral、OpenRouter、xAI、Ollama、Gemini 和 Anthropic。
+默认使用 `mock`，不需要 API key。远程模型提供商是可选的，只用于 advisory review。当前 ClaimHarness 已准备常见接口，包括 OpenAI-compatible、Qwen / DashScope、DeepSeek、Groq、Mistral、OpenRouter、xAI、Ollama、Gemini 和 Anthropic。
 
 使用远程模型前要确认：你输入的内容会发送给外部服务。不要上传真实患者数据、机密论文、未公开项目材料、API key 或任何敏感信息。
+
+本地网页 UI 的侧边栏现在包含 `Workspace Memory` 和 `API Settings`。你可以保存 provider、base URL、model、最近输出目录，以及 Question discovery、Domain wizard、AI wizard 的草稿字段。保存文件位于 `outputs/ui_memory/workbench_memory.json`。
+
+API key 不会默认保存。网页里的 API key 输入框是 session-only，只在当前 Streamlit 进程中临时使用；保存记忆时会过滤 `api_key`、`token`、`secret`、`password` 等敏感字段。
+
+Qwen / DashScope 可以使用 `qwen` provider：设置 `DASHSCOPE_API_KEY`，可选设置 `QWEN_BASE_URL` 和 `QWEN_MODEL`。
 
 ## 安全边界
 

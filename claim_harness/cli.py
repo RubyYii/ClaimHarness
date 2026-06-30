@@ -45,7 +45,7 @@ def run(
     llm: str = typer.Option(
         "mock",
         help=(
-            "LLM provider: mock, openai, openai-compatible, deepseek, groq, "
+            "LLM provider: mock, openai, openai-compatible, qwen, deepseek, groq, "
             "mistral, openrouter, xai, ollama, gemini, or anthropic. "
             "mock is deterministic and local."
         ),

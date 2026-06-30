@@ -26,6 +26,7 @@ def test_validate_provider_accepts_common_provider_presets():
     assert validate_provider("openrouter") == "openrouter"
     assert validate_provider("xai") == "xai"
     assert validate_provider("ollama") == "ollama"
+    assert validate_provider("Qwen") == "qwen"
     assert validate_provider("gemini") == "gemini"
     assert validate_provider("anthropic") == "anthropic"
 
@@ -60,6 +61,21 @@ def test_resolve_provider_config_uses_deepseek_preset(monkeypatch):
     assert config.api_key == "deepseek-key"
     assert config.base_url == "https://api.deepseek.com"
     assert config.model == "deepseek-v4-flash"
+    assert config.json_mode == "json_object"
+
+
+def test_resolve_provider_config_uses_qwen_preset(monkeypatch):
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "qwen-key")
+    monkeypatch.delenv("QWEN_BASE_URL", raising=False)
+    monkeypatch.delenv("QWEN_MODEL", raising=False)
+
+    config = resolve_provider_config("qwen")
+
+    assert config.provider == "qwen"
+    assert config.api_style == "openai-chat"
+    assert config.api_key == "qwen-key"
+    assert config.base_url == "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    assert config.model == "qwen-plus"
     assert config.json_mode == "json_object"
 
 
@@ -116,6 +132,13 @@ def test_resolve_provider_config_requires_provider_specific_key(monkeypatch):
 
     with pytest.raises(MissingProviderConfig, match="DEEPSEEK_API_KEY"):
         resolve_provider_config("deepseek")
+
+
+def test_resolve_provider_config_requires_dashscope_key_for_qwen(monkeypatch):
+    monkeypatch.delenv("DASHSCOPE_API_KEY", raising=False)
+
+    with pytest.raises(MissingProviderConfig, match="DASHSCOPE_API_KEY"):
+        resolve_provider_config("qwen")
 
 
 def test_load_prompt_reads_packaged_prompt():

@@ -408,6 +408,7 @@ The default demo uses `--llm mock` and never needs an API key. Remote providers 
 mock
 openai
 openai-compatible
+qwen
 deepseek
 groq
 mistral
@@ -435,6 +436,21 @@ $env:OPENAI_MODEL="gpt-5.4-mini"
 
 `OPENAI_BASE_URL` is optional and defaults to `https://api.openai.com/v1`. The provider writes `llm_review.json` as an advisory artifact; it does not replace deterministic verification or human review.
 
+Qwen / DashScope has its own preset:
+
+```powershell
+$env:DASHSCOPE_API_KEY = Read-Host "DASHSCOPE_API_KEY"
+$env:QWEN_MODEL="qwen-plus"
+.venv\Scripts\python.exe -m claim_harness run `
+  --manuscript examples/oocyte_demo/manuscript.md `
+  --tables examples/oocyte_demo/tables `
+  --references examples/oocyte_demo/references.md `
+  --out outputs/oocyte_demo_qwen `
+  --llm qwen
+```
+
+In the local Streamlit UI, the sidebar `Workspace Memory` and `API Settings` can remember provider, base URL, model, recent output path, and draft form fields in `outputs/ui_memory/workbench_memory.json`. API keys are session-only: the password field can apply the key to the current Streamlit process, but it is not saved to memory.
+
 DeepSeek can use its own preset:
 
 ```powershell
@@ -448,7 +464,7 @@ $env:DEEPSEEK_MODEL="deepseek-v4-flash"
   --llm deepseek
 ```
 
-See [MODEL_PROVIDER_GUIDE.md](MODEL_PROVIDER_GUIDE.md) for `openai`, `deepseek`, `groq`, `mistral`, `openrouter`, `xai`, `ollama`, `gemini`, and `anthropic` setup.
+See [MODEL_PROVIDER_GUIDE.md](MODEL_PROVIDER_GUIDE.md) for `openai`, `qwen`, `deepseek`, `groq`, `mistral`, `openrouter`, `xai`, `ollama`, `gemini`, and `anthropic` setup.
 
 ## Static Report Viewer
 

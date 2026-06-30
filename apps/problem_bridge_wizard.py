@@ -6,6 +6,7 @@ from pathlib import Path
 
 import streamlit as st
 
+from claim_harness.llm import PROVIDER_PRESETS
 from problem_bridge.generator import build_alignment_package
 from problem_bridge.guided import (
     FRIENDLY_FILE_LABELS,
@@ -31,6 +32,12 @@ from problem_bridge.question_discovery import (
     discover_questions,
     write_question_discovery_package,
 )
+from problem_bridge.ui_memory import (
+    DEFAULT_MEMORY_PATH,
+    clear_workbench_memory,
+    load_workbench_memory,
+    save_workbench_memory,
+)
 from problem_bridge.writer import write_alignment_package
 
 
@@ -41,6 +48,7 @@ EXAMPLES = {
 }
 
 RUN_ROOT = Path("outputs/ui_runs")
+MEMORY_PATH = DEFAULT_MEMORY_PATH
 
 PAGE_OPTIONS = [
     "Home",
@@ -112,6 +120,60 @@ DOCUMENT_INTAKE_FILES = {
     "problem_seed.md": "ProblemBridge seed brief",
 }
 
+API_PROVIDER_OPTIONS = [
+    "mock",
+    "qwen",
+    "deepseek",
+    "openai",
+    "openai-compatible",
+    "openrouter",
+    "groq",
+    "mistral",
+    "xai",
+    "gemini",
+    "anthropic",
+    "ollama",
+]
+
+DRAFT_KEY_GROUPS = {
+    "question_discovery": [
+        "question_seed_text",
+        "question_uncertainty",
+        "question_desired_change",
+    ],
+    "domain": [
+        "domain_draft_domain",
+        "domain_draft_repeated_work",
+        "domain_draft_current_owner",
+        "domain_draft_result",
+        "domain_draft_step_1",
+        "domain_draft_step_2",
+        "domain_draft_step_3",
+        "domain_draft_step_4",
+        "domain_draft_additional_notes",
+        "domain_draft_time_consuming_step",
+        "domain_draft_annoying_step",
+        "domain_draft_error_prone_step",
+        "domain_draft_expert_judgement_step",
+        "domain_draft_materials",
+        "domain_draft_critical_materials",
+        "domain_draft_missing_materials",
+        "domain_draft_never_automated",
+        "domain_draft_human_confirmed",
+        "domain_draft_serious_mistakes",
+        "domain_draft_useful_support",
+    ],
+    "ai": [
+        "ai_draft_domain_problem",
+        "ai_draft_candidate_task",
+        "ai_draft_inputs",
+        "ai_draft_outputs",
+        "ai_draft_metric",
+        "ai_draft_user",
+        "ai_draft_high_risk_mistakes",
+    ],
+}
+
 
 def main() -> None:
     st.set_page_config(page_title="ProblemBridge Workbench", layout="wide")
@@ -132,6 +194,7 @@ def main() -> None:
         """,
         unsafe_allow_html=True,
     )
+    _render_memory_sidebar()
     _render_workflow_strip(page)
 
     if page == "Home":
@@ -149,6 +212,143 @@ def main() -> None:
     else:
         _view_outputs()
 
+
+def _render_memory_sidebar() -> None:
+    _ensure_memory_state()
+
+    st.sidebar.divider()
+    st.sidebar.markdown("### Workspace Memory")
+    st.sidebar.caption(
+        f"Saved locally to `{MEMORY_PATH}` / `workbench_memory.json`. "
+        "API key is session-only and is never written to memory."
+    )
+
+    last_output = st.session_state.get("last_output_dir")
+    if last_output:
+        st.sidebar.caption(f"Last output: `{last_output}`")
+
+    st.sidebar.markdown("### API Settings")
+    st.sidebar.selectbox("Provider", API_PROVIDER_OPTIONS, key="api_provider")
+    provider = st.session_state.get("api_provider", "mock")
+    preset = PROVIDER_PRESETS.get(provider)
+
+    st.sidebar.text_input("Base URL", key="api_base_url")
+    st.sidebar.text_input("Model", key="api_model")
+    api_key = st.sidebar.text_input("API key is session-only", type="password", key="api_key_session")
+
+    if preset and preset.api_key_env:
+        st.sidebar.caption(
+            f"Key env for this provider: `{preset.api_key_env}`. "
+            "Provider, base URL, and model can be remembered; the key is not saved."
+        )
+    else:
+        st.sidebar.caption("This provider does not require an API key for local testing.")
+
+    if st.sidebar.button("Use API key this session", disabled=not bool(api_key) or not preset or not preset.api_key_env):
+        os.environ[preset.api_key_env] = api_key
+        st.sidebar.success(f"Applied `{preset.api_key_env}` for this session only.")
+
+    col1, col2 = st.sidebar.columns(2)
+    with col1:
+        if st.button("Load saved memory", key="memory_load"):
+            st.session_state.pending_workbench_memory = load_workbench_memory(MEMORY_PATH)
+            st.session_state.pending_workbench_memory_clear = True
+            st.rerun()
+        if st.button("Save current workspace", key="memory_save"):
+            payload = _current_workbench_memory()
+            save_workbench_memory(payload, MEMORY_PATH)
+            st.session_state.workbench_memory = payload
+            st.sidebar.success("Workspace memory saved locally.")
+    with col2:
+        if st.button("Clear memory", key="memory_clear"):
+            clear_workbench_memory(MEMORY_PATH)
+            st.session_state.pending_workbench_memory = {}
+            st.session_state.pending_workbench_memory_clear = True
+            st.rerun()
+
+
+def _ensure_memory_state() -> None:
+    if "pending_workbench_memory" in st.session_state:
+        memory = st.session_state.pop("pending_workbench_memory")
+        clear_existing = bool(st.session_state.pop("pending_workbench_memory_clear", False))
+        _apply_memory_to_session(memory, clear_existing=clear_existing)
+        st.session_state.workbench_memory = memory
+        return
+
+    if "workbench_memory" not in st.session_state:
+        memory = load_workbench_memory(MEMORY_PATH)
+        _apply_memory_to_session(memory, clear_existing=False)
+        st.session_state.workbench_memory = memory
+
+
+def _apply_memory_to_session(memory: dict, clear_existing: bool) -> None:
+    keys = ["api_provider", "api_base_url", "api_model", "api_key_session", "last_output_dir"]
+    for field_keys in DRAFT_KEY_GROUPS.values():
+        keys.extend(field_keys)
+
+    if clear_existing:
+        for key in keys:
+            st.session_state.pop(key, None)
+
+    api_settings = memory.get("api_settings", {}) if isinstance(memory, dict) else {}
+    provider = api_settings.get("provider") or "mock"
+    if provider not in API_PROVIDER_OPTIONS:
+        provider = "mock"
+
+    defaults = _provider_defaults(provider)
+    st.session_state.setdefault("api_provider", provider)
+    st.session_state.setdefault("api_base_url", api_settings.get("base_url") or defaults["base_url"])
+    st.session_state.setdefault("api_model", api_settings.get("model") or defaults["model"])
+
+    drafts = memory.get("drafts", {}) if isinstance(memory, dict) else {}
+    if isinstance(drafts, dict):
+        for group, field_keys in DRAFT_KEY_GROUPS.items():
+            group_values = drafts.get(group, {})
+            if not isinstance(group_values, dict):
+                continue
+            for key in field_keys:
+                if key in group_values:
+                    st.session_state.setdefault(key, group_values[key])
+
+    if isinstance(memory, dict) and memory.get("last_output_dir"):
+        st.session_state.setdefault("last_output_dir", memory["last_output_dir"])
+
+
+def _current_workbench_memory() -> dict:
+    provider = st.session_state.get("api_provider", "mock")
+    return {
+        "schema_version": 1,
+        "api_settings": {
+            "provider": provider,
+            "base_url": st.session_state.get("api_base_url", ""),
+            "model": st.session_state.get("api_model", ""),
+        },
+        "drafts": _drafts_from_session(),
+        "last_output_dir": st.session_state.get("last_output_dir", ""),
+    }
+
+
+def _drafts_from_session() -> dict:
+    drafts = {}
+    for group, field_keys in DRAFT_KEY_GROUPS.items():
+        values = {}
+        for key in field_keys:
+            value = st.session_state.get(key)
+            if value not in (None, "", []):
+                values[key] = value
+        if values:
+            drafts[group] = values
+    return drafts
+
+
+def _provider_defaults(provider: str) -> dict[str, str]:
+    preset = PROVIDER_PRESETS.get(provider)
+    if not preset:
+        return {"base_url": "", "model": ""}
+    return {
+        "base_url": preset.default_base_url or "",
+        "model": preset.default_model or "",
+    }
 
 def _inject_visual_theme() -> None:
     st.markdown(
@@ -439,16 +639,19 @@ def _question_discovery() -> None:
             "What are you trying to understand?",
             placeholder="Example: Our review process is slow, but I do not know which part is the real problem.",
             height=120,
+            key="question_seed_text",
         )
         uncertainty = st.text_area(
             "What feels unclear right now?",
             placeholder="Example: I do not know whether to ask the practitioner, supervisor, data owner, or AI engineer first.",
             height=90,
+            key="question_uncertainty",
         )
         desired_change = st.text_area(
             "What would a useful first conversation achieve?",
             placeholder="Example: Leave with better questions, a short list of experts to interview, and unknowns to validate.",
             height=90,
+            key="question_desired_change",
         )
         submitted = st.form_submit_button("Generate question discovery package")
 
@@ -578,31 +781,31 @@ def _domain_wizard() -> None:
     with st.form("domain_practitioner"):
         st.subheader("Section A: repeated work")
         answers = {
-            "domain": st.text_input("What field or setting is this in?"),
-            "repeated_work": st.text_area("What is one task people repeatedly do?"),
-            "current_owner": st.text_input("Who currently does this task?"),
-            "result": st.text_input("What result does the task produce?"),
+            "domain": st.text_input("What field or setting is this in?", key="domain_draft_domain"),
+            "repeated_work": st.text_area("What is one task people repeatedly do?", key="domain_draft_repeated_work"),
+            "current_owner": st.text_input("Who currently does this task?", key="domain_draft_current_owner"),
+            "result": st.text_input("What result does the task produce?", key="domain_draft_result"),
         }
         st.caption("Examples: review images, organize lab notes, inspect reports, grade work, summarize cases, prepare expert questions.")
 
         st.subheader("Section B: workflow steps")
         answers.update(
             {
-                "step_1": st.text_input("Step 1"),
-                "step_2": st.text_input("Step 2"),
-                "step_3": st.text_input("Step 3"),
-                "step_4": st.text_input("Step 4"),
-                "additional_notes": st.text_area("Additional notes"),
+                "step_1": st.text_input("Step 1", key="domain_draft_step_1"),
+                "step_2": st.text_input("Step 2", key="domain_draft_step_2"),
+                "step_3": st.text_input("Step 3", key="domain_draft_step_3"),
+                "step_4": st.text_input("Step 4", key="domain_draft_step_4"),
+                "additional_notes": st.text_area("Additional notes", key="domain_draft_additional_notes"),
             }
         )
 
         st.subheader("Section C: friction and judgement")
         answers.update(
             {
-                "time_consuming_step": st.text_area("Which step is most time-consuming?"),
-                "annoying_step": st.text_area("Which step is most annoying or repetitive?"),
-                "error_prone_step": st.text_area("Which step is most error-prone?"),
-                "expert_judgement_step": st.text_area("Which step depends most on expert judgement?"),
+                "time_consuming_step": st.text_area("Which step is most time-consuming?", key="domain_draft_time_consuming_step"),
+                "annoying_step": st.text_area("Which step is most annoying or repetitive?", key="domain_draft_annoying_step"),
+                "error_prone_step": st.text_area("Which step is most error-prone?", key="domain_draft_error_prone_step"),
+                "expert_judgement_step": st.text_area("Which step depends most on expert judgement?", key="domain_draft_expert_judgement_step"),
             }
         )
 
@@ -622,18 +825,19 @@ def _domain_wizard() -> None:
                         "rules/guidelines",
                         "other",
                     ],
+                    key="domain_draft_materials",
                 ),
-                "critical_materials": st.text_area("Which materials are most critical?"),
-                "missing_materials": st.text_area("Which materials are often missing, unclear, or hard to organize?"),
+                "critical_materials": st.text_area("Which materials are most critical?", key="domain_draft_critical_materials"),
+                "missing_materials": st.text_area("Which materials are often missing, unclear, or hard to organize?", key="domain_draft_missing_materials"),
             }
         )
 
         st.subheader("Section E: human boundaries")
         answers.update(
             {
-                "never_automated": st.text_area("What should AI never decide automatically?"),
-                "human_confirmed": st.text_area("What must be confirmed by a human?"),
-                "serious_mistakes": st.text_area("What mistakes would be serious?"),
+                "never_automated": st.text_area("What should AI never decide automatically?", key="domain_draft_never_automated"),
+                "human_confirmed": st.text_area("What must be confirmed by a human?", key="domain_draft_human_confirmed"),
+                "serious_mistakes": st.text_area("What mistakes would be serious?", key="domain_draft_serious_mistakes"),
                 "useful_support": st.multiselect(
                     "If AI only supported the work, what output would be useful?",
                     [
@@ -645,6 +849,7 @@ def _domain_wizard() -> None:
                         "workflow improvement suggestions",
                         "project brief for AI engineers",
                     ],
+                    key="domain_draft_useful_support",
                 ),
             }
         )
@@ -734,13 +939,13 @@ def _ai_wizard() -> None:
     )
     with st.form("ai_practitioner"):
         answers = {
-            "domain_problem": st.text_area("What domain problem are you trying to solve?"),
-            "candidate_task": st.text_area("What AI task are you considering?"),
-            "inputs": st.text_area("What inputs will the system use?"),
-            "outputs": st.text_area("What outputs should the system produce?"),
-            "metric": st.text_area("How would you evaluate success?"),
-            "user": st.text_area("Who will use or review the output?"),
-            "high_risk_mistakes": st.text_area("Which mistakes would cause serious consequences?"),
+            "domain_problem": st.text_area("What domain problem are you trying to solve?", key="ai_draft_domain_problem"),
+            "candidate_task": st.text_area("What AI task are you considering?", key="ai_draft_candidate_task"),
+            "inputs": st.text_area("What inputs will the system use?", key="ai_draft_inputs"),
+            "outputs": st.text_area("What outputs should the system produce?", key="ai_draft_outputs"),
+            "metric": st.text_area("How would you evaluate success?", key="ai_draft_metric"),
+            "user": st.text_area("Who will use or review the output?", key="ai_draft_user"),
+            "high_risk_mistakes": st.text_area("Which mistakes would cause serious consequences?", key="ai_draft_high_risk_mistakes"),
         }
         submitted = st.form_submit_button("Check task alignment")
 
@@ -781,6 +986,7 @@ def _run_document_intake(uploaded_files) -> Path:
 
     write_intake_package(results, out)
     (out / "problem_seed.md").write_text(build_problem_seed_from_intake(results), encoding="utf-8")
+    st.session_state.last_output_dir = str(out)
     return out
 
 
@@ -791,6 +997,7 @@ def _run_question_discovery(package) -> Path:
     out.mkdir(parents=True, exist_ok=True)
     write_question_discovery_package(package, out)
     (out / "problem_seed.md").write_text(build_problem_from_discovery(package), encoding="utf-8")
+    st.session_state.last_output_dir = str(out)
     return out
 
 
@@ -802,6 +1009,7 @@ def _run_problem_text(problem_text: str, prefix: str) -> Path:
     (out / "problem.md").write_text(problem_text, encoding="utf-8")
     package = build_alignment_package(problem_text)
     write_alignment_package(package, out)
+    st.session_state.last_output_dir = str(out)
     return out
 
 
