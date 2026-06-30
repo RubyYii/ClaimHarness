@@ -25,11 +25,15 @@ The local web app package requires Python because it creates `.venv`, installs `
 A static showcase package can include:
 
 ```text
+README.md
+README.zh-CN.md
 docs/static_showcase/index.html
+docs/static_showcase/en.html
+docs/static_showcase/zh-CN.html
 docs/sample_outputs/
 ```
 
-This page is only for viewing committed examples. It does not require Python if the viewer only opens `index.html` and reads the linked sample outputs.
+The static showcase has a language landing page plus two standalone interfaces. Open `docs/static_showcase/en.html` for the English interface or `docs/static_showcase/zh-CN.html` for the Chinese interface. It does not require Python if the viewer only opens the static HTML pages and reads the linked sample outputs.
 
 The static showcase does not run the interactive wizard, does not generate new ProblemBridge packages, and does not run ClaimHarness.
 
@@ -64,7 +68,7 @@ Python is required for:
 Python is not required for:
 
 - Reading README files and guides.
-- Opening `docs/static_showcase/index.html`.
+- Opening `docs/static_showcase/index.html`, `docs/static_showcase/en.html`, or `docs/static_showcase/zh-CN.html`.
 - Reviewing committed sample outputs under `docs/sample_outputs/`.
 
 ## build the local web app package

@@ -251,7 +251,10 @@ def test_release_packaging_support_is_present():
         Path("scripts/build_release_zip_powershell.ps1"),
         Path("scripts/test_release_zip_powershell.ps1"),
         Path("RELEASE_PACKAGE_GUIDE.md"),
+        Path("README.zh-CN.md"),
         Path("docs/static_showcase/index.html"),
+        Path("docs/static_showcase/en.html"),
+        Path("docs/static_showcase/zh-CN.html"),
     ]
     for path in required_files:
         assert path.is_file(), path
@@ -269,6 +272,9 @@ def test_release_packaging_support_is_present():
     for phrase in [
         "RUN_PROBLEMBRIDGE_WINDOWS.bat",
         "apps/problem_bridge_wizard.py",
+        "README.zh-CN.md",
+        "docs/static_showcase/en.html",
+        "docs/static_showcase/zh-CN.html",
         "py_compile",
     ]:
         assert phrase in test_script
@@ -278,6 +284,9 @@ def test_release_packaging_support_is_present():
     for phrase in [
         "local web app package",
         "static showcase package",
+        "docs/static_showcase/en.html",
+        "docs/static_showcase/zh-CN.html",
+        "README.zh-CN.md",
         "requires Python",
         "does not require Python",
         ".venv",
@@ -289,32 +298,68 @@ def test_release_packaging_support_is_present():
     ]:
         assert phrase in guide
 
-    showcase = Path("docs/static_showcase/index.html").read_text(encoding="utf-8")
-    assert "This static showcase does not run the interactive wizard." in showcase
-    assert 'data-lang-button="zh"' in showcase
-    assert 'data-lang-button="en"' in showcase
-    assert 'data-lang-panel="zh"' in showcase
-    assert 'data-lang-panel="en"' in showcase
-    assert "setLanguage" in showcase
-    assert "localStorage" in showcase
-    assert "中文导览" in showcase
-    assert "English guide" in showcase
-    assert "给领域用户" in showcase
-    assert "For non-AI users" in showcase
-    assert "HSG 问题对齐样例" in showcase
-    assert "VULCA 文化解释样例" in showcase
-    assert "Political education sample" in showcase
-    assert "ClaimHarness oocyte sample" in showcase
+    showcase_index = Path("docs/static_showcase/index.html").read_text(encoding="utf-8")
+    assert "Choose your interface" in showcase_index
+    assert "English interface" in showcase_index
+    assert "中文界面" in showcase_index
+    assert "en.html" in showcase_index
+    assert "zh-CN.html" in showcase_index
+    assert "data-lang-panel" not in showcase_index
+    assert "setLanguage" not in showcase_index
+
+    showcase_en = Path("docs/static_showcase/en.html").read_text(encoding="utf-8")
+    for phrase in [
+        "ProblemBridge + ClaimHarness",
+        "Problem alignment before AI work",
+        "For non-AI users",
+        "Workflow",
+        "Features",
+        "Run locally",
+        "Synthetic examples",
+        "Safety boundary",
+        "ClaimHarness oocyte sample",
+        "zh-CN.html",
+    ]:
+        assert phrase in showcase_en
+
+    showcase_zh = Path("docs/static_showcase/zh-CN.html").read_text(encoding="utf-8")
+    for phrase in [
+        "ProblemBridge + ClaimHarness",
+        "建模前的问题对齐",
+        "给非 AI 背景用户",
+        "工作流",
+        "功能",
+        "本地运行",
+        "合成样例",
+        "安全边界",
+        "卵母细胞审计样例",
+        "en.html",
+    ]:
+        assert phrase in showcase_zh
 
     readme = Path("README.md").read_text(encoding="utf-8")
-    assert "选择语言" in readme
-    assert "Choose language" in readme
-    assert "中文说明" in readme
-    assert "English Overview" in readme
-    assert "docs/static_showcase/index.html" in readme
-    assert "GitHub README is static" in readme
+    assert "[English](README.md)" in readme
+    assert "[简体中文](README.zh-CN.md)" in readme
+    assert "README.zh-CN.md" in readme
+    assert "docs/static_showcase/en.html" in readme
+    assert "中文说明" not in readme
+    assert "English Overview" not in readme
     assert "Downloadable local web app package" in readme
     assert "RUN_PROBLEMBRIDGE_WINDOWS.bat" in readme
+
+    readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
+    for phrase in [
+        "[English](README.md)",
+        "[简体中文](README.zh-CN.md)",
+        "跨学科 AI 项目",
+        "ProblemBridge 负责建模前的问题对齐",
+        "ClaimHarness 负责输出后的证据审计",
+        "本地运行",
+        "RUN_PROBLEMBRIDGE_WINDOWS.bat",
+        "不要输入真实患者数据",
+        "docs/static_showcase/zh-CN.html",
+    ]:
+        assert phrase in readme_zh
 
 
 def test_model_provider_guide_is_present():

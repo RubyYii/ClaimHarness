@@ -1,55 +1,116 @@
 # ProblemBridge + ClaimHarness
 
 <p align="center">
-  <strong>Problem alignment before AI work. Evidence auditing after outputs exist.</strong><br>
-  A local-first prototype for interdisciplinary AI projects.
+  <strong>A two-stage harness for interdisciplinary AI projects.</strong><br>
+  ProblemBridge aligns domain problems before AI work begins. ClaimHarness audits evidence after claims exist.
 </p>
 
 <p align="center">
   <img alt="Local first" src="https://img.shields.io/badge/local--first-yes-0f766e">
   <img alt="Default API requirement" src="https://img.shields.io/badge/default-no%20API%20key-2563eb">
-  <img alt="Problem alignment" src="https://img.shields.io/badge/ProblemBridge-problem%20alignment-c2410c">
-  <img alt="Evidence audit" src="https://img.shields.io/badge/ClaimHarness-evidence%20audit-374151">
+  <img alt="ProblemBridge" src="https://img.shields.io/badge/ProblemBridge-problem%20alignment-c2410c">
+  <img alt="ClaimHarness" src="https://img.shields.io/badge/ClaimHarness-evidence%20audit-374151">
 </p>
 
-## 选择语言 / Choose language
+**Language:** [English](README.md) | [简体中文](README.zh-CN.md)
+**Showcase:** [English static showcase](docs/static_showcase/en.html) | [中文静态展示](docs/static_showcase/zh-CN.html)
 
-| 中文 | English |
-| --- | --- |
-| [中文说明](#中文说明) | [English Overview](#english-overview) |
-| [打开本地双语展示页](docs/static_showcase/index.html) | [Open the local bilingual showcase](docs/static_showcase/index.html) |
-| [给非 AI 背景用户](#for-non-ai-users) | [For non-AI users](#for-non-ai-users) |
+## Overview
 
-> GitHub README is static. For the real 中文 / English button switch, clone or download the repository and open [docs/static_showcase/index.html](docs/static_showcase/index.html) locally.
+ProblemBridge + ClaimHarness is a local-first portfolio prototype for interdisciplinary AI projects. It is not a writing assistant, STORM clone, generic RAG demo, or report generator. It focuses on a practical alignment workflow:
 
-## 中文说明
+1. **Before AI work begins:** ProblemBridge helps teams turn a domain workflow into an aligned AI task specification, evidence contract, evaluation protocol, and human-review plan.
+2. **After outputs exist:** ClaimHarness audits whether written or generated scientific claims are supported by the available manuscript, tables, and reference context.
 
-**一句话：**ProblemBridge 负责开始之前不跑偏；ClaimHarness 负责输出之后不越界。
+The default path is deterministic mock mode. It does not require an API key, does not call external services, and uses synthetic examples only.
 
-这个项目是一个面向跨学科 AI 项目的本地原型。它不是普通写作工具，也不是 STORM / RAG / 报告生成器。它关注两件事：先把领域工作流、判断材料、痛点和人工复核边界对齐；再检查输出中的 claims 是否有证据支持。
+## Why This Exists
 
-**推荐测试方式：**先打开本地网页 App 或静态展示页，查看合成样例；再用一个非敏感工作流测试 ProblemBridge。默认 mock mode 不需要 API key。
+Many interdisciplinary AI projects fail before modeling starts. The original domain problem is compressed into the wrong AI task, evaluated with the wrong metric, or deployed without clear evidence boundaries. This repository explores a lightweight harness around that risk: align the problem first, then audit the claims.
+
+```mermaid
+flowchart LR
+    A["Domain workflow"] --> B["ProblemBridge"]
+    B --> C["AI / researcher / team work"]
+    C --> D["ClaimHarness"]
+    B --> E["Task spec + evidence contract + evaluation protocol"]
+    D --> F["Claim table + audit report + trace log"]
+```
+
+## Who It Is For
+
+- **Domain practitioners** who can describe daily work, judgement materials, pain points, and review boundaries but do not want to write an AI task from scratch.
+- **AI and research users** who need to translate domain problems into task specifications, evidence standards, evaluation protocols, and review routes.
+- **External testers** who want a local prototype they can run without API keys, private data, or online deployment.
+
+## What It Produces
+
+ProblemBridge writes a Problem Alignment Package:
+
+- workflow map
+- pain point and opportunity matrix
+- concept alignment table
+- AI task specification
+- evidence contract
+- evaluation protocol
+- misalignment risk report
+- human-in-the-loop plan
+- implementation routes
+- alignment trace
+
+ClaimHarness writes an audit package:
+
+- `claim_table.csv`
+- `evidence_map.json`
+- `audit_report.md`
+- `revision_suggestions.md`
+- `agent_trace.jsonl`
+- optional static `index.html` report viewer
+
+## Run Locally
+
+For non-AI users, start with the local guided app:
 
 ```powershell
 .\RUN_PROBLEMBRIDGE_WINDOWS.bat
 ```
 
-不要输入真实患者数据、机密论文、未公开项目材料、API key 或任何敏感内容。
-
-## English Overview
-
-**In one sentence:** ProblemBridge keeps the problem aligned before AI work begins; ClaimHarness keeps outputs evidence-aware after claims exist.
-
-This repository is a local-first prototype for interdisciplinary AI projects. It is not a writing assistant, STORM clone, generic RAG demo, or report generator. It focuses on two stages: aligning the domain workflow, judgement materials, pain points, and human-review boundaries before AI work begins; then auditing whether generated or written claims are supported by evidence.
-
-**Recommended test path:** open the local web app or the static showcase, inspect the synthetic examples, then try ProblemBridge with a non-sensitive workflow. The default mock mode does not require an API key.
+If you are cloning from GitHub manually:
 
 ```powershell
-.\RUN_PROBLEMBRIDGE_WINDOWS.bat
+git clone https://github.com/RubyYii/ClaimHarness.git
+cd ClaimHarness
+.\scripts\run_problembridge_ui_powershell.ps1
 ```
 
-Do not enter real patient data, confidential manuscripts, unpublished project materials, API keys, or sensitive information.
+For CLI users:
 
+```powershell
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -e ".[dev,ui]"
+.venv\Scripts\python.exe -m problem_bridge demo
+.venv\Scripts\python.exe -m claim_harness demo
+```
+
+## Safety Boundary
+
+Do not enter real patient data, confidential manuscripts, API keys, unpublished project materials, or sensitive personal information. Remote model providers are optional and advisory only. Use the default mock mode for first-round testing.
+
+## Downloadable Local Web App Package
+
+For external testing, share the generated local package:
+
+```text
+ProblemBridge-ClaimHarness-v0.3.2-local-webapp.zip
+```
+
+After downloading, unzip it and double-click:
+
+```text
+RUN_PROBLEMBRIDGE_WINDOWS.bat
+```
+
+The first run creates `.venv`, installs dependencies, and opens a local browser UI. This is not an online service and not a standalone `.exe`.
 ## Technical Overview
 
 ClaimHarness: A Lightweight Agent Harness for Scientific Claim-Evidence Auditing

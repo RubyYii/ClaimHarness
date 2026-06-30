@@ -23,10 +23,14 @@ try {
 
     $requiredFiles = @(
         "README.md",
+        "README.zh-CN.md",
         "NON_AI_USER_GUIDE.md",
         "RUN_PROBLEMBRIDGE_WINDOWS.bat",
         "scripts/run_problembridge_ui_windows.bat",
         "apps/problem_bridge_wizard.py",
+        "docs/static_showcase/index.html",
+        "docs/static_showcase/en.html",
+        "docs/static_showcase/zh-CN.html",
         "pyproject.toml"
     )
 
