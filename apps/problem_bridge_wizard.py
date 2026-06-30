@@ -21,6 +21,11 @@ from problem_bridge.interview import (
     start_interview,
     summarize_understanding,
 )
+from problem_bridge.question_discovery import (
+    build_problem_from_discovery,
+    discover_questions,
+    write_question_discovery_package,
+)
 from problem_bridge.writer import write_alignment_package
 
 
@@ -31,6 +36,15 @@ EXAMPLES = {
 }
 
 RUN_ROOT = Path("outputs/ui_runs")
+
+QUESTION_DISCOVERY_FILES = {
+    "question_brief.md": "Question brief",
+    "stakeholder_map.md": "Who to ask",
+    "expert_interview_guide.md": "Expert interview guide",
+    "unknowns_to_validate.md": "Unknowns to validate",
+    "discussion_plan.md": "Discussion plan",
+    "problem_seed.md": "ProblemBridge seed brief",
+}
 
 
 def main() -> None:
@@ -43,6 +57,7 @@ def main() -> None:
         [
             "Home",
             "Explore examples",
+            "Question discovery",
             "Domain practitioner wizard",
             "AI practitioner wizard",
             "View generated outputs",
@@ -53,6 +68,8 @@ def main() -> None:
         _home()
     elif page == "Explore examples":
         _examples()
+    elif page == "Question discovery":
+        _question_discovery()
     elif page == "Domain practitioner wizard":
         _domain_wizard()
     elif page == "AI practitioner wizard":
@@ -97,6 +114,71 @@ def _examples() -> None:
         st.success(f"已生成：{out}")
         _render_friendly_output(out)
 
+
+def _question_discovery() -> None:
+    st.header("Question discovery")
+    st.caption(
+        "Use this when you do not yet know what to ask, who to ask, or whether the issue is an AI task."
+    )
+    st.info("Do not propose a solution yet. First discover what to ask and who to ask.")
+
+    with st.form("question_discovery"):
+        seed_text = st.text_area(
+            "What are you trying to understand?",
+            placeholder="Example: Our review process is slow, but I do not know which part is the real problem.",
+            height=120,
+        )
+        uncertainty = st.text_area(
+            "What feels unclear right now?",
+            placeholder="Example: I do not know whether to ask the practitioner, supervisor, data owner, or AI engineer first.",
+            height=90,
+        )
+        desired_change = st.text_area(
+            "What would a useful first conversation achieve?",
+            placeholder="Example: Leave with better questions, a short list of experts to interview, and unknowns to validate.",
+            height=90,
+        )
+        submitted = st.form_submit_button("Generate question discovery package")
+
+    if submitted:
+        package = discover_questions(seed_text, uncertainty, desired_change)
+        out = _run_question_discovery(package)
+        st.success(f"Generated: {out}")
+        _render_question_discovery_output(out)
+
+
+def _render_question_discovery_output(out: Path) -> None:
+    st.subheader("Questions to validate")
+    brief_path = out / "question_brief.md"
+    if brief_path.is_file():
+        st.markdown(brief_path.read_text(encoding="utf-8"))
+
+    st.subheader("Who to ask")
+    stakeholder_path = out / "stakeholder_map.md"
+    if stakeholder_path.is_file():
+        st.markdown(stakeholder_path.read_text(encoding="utf-8"))
+
+    st.subheader("Next step")
+    st.write(
+        "Take this package to domain experts first. After the questions are validated, "
+        "use Domain practitioner wizard to generate a ProblemBridge alignment package."
+    )
+
+    archive = _make_archive(out)
+    st.download_button(
+        "Download question discovery package",
+        archive.read_bytes(),
+        file_name=f"{out.name}.zip",
+        mime="application/zip",
+    )
+
+    with st.expander("All discovery files"):
+        for filename, label in QUESTION_DISCOVERY_FILES.items():
+            path = out / filename
+            if path.is_file():
+                st.markdown(f"### {label}")
+                st.caption(filename)
+                st.code(path.read_text(encoding="utf-8"), language="markdown")
 
 def _domain_wizard() -> None:
     st.header("Describe your workflow, not an AI task.")
@@ -303,6 +385,14 @@ def _view_outputs() -> None:
     selected = st.selectbox("选择一次生成结果", runs, format_func=lambda path: path.name)
     _render_friendly_output(selected)
 
+
+def _run_question_discovery(package) -> Path:
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    out = RUN_ROOT / f"{timestamp}_question_discovery"
+    out.mkdir(parents=True, exist_ok=True)
+    write_question_discovery_package(package, out)
+    (out / "problem_seed.md").write_text(build_problem_from_discovery(package), encoding="utf-8")
+    return out
 
 def _run_problem_text(problem_text: str, prefix: str) -> Path:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

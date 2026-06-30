@@ -254,6 +254,39 @@ def test_v032_workflow_first_onboarding_is_documented():
     assert "completeness" in ui_text
 
 
+def test_question_discovery_layer_is_documented_and_in_ui():
+    readme = Path("README.md").read_text(encoding="utf-8")
+    readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
+    guide = Path("NON_AI_USER_GUIDE.md").read_text(encoding="utf-8")
+    ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
+    showcase_en = Path("docs/static_showcase/en.html").read_text(encoding="utf-8")
+
+    assert Path("problem_bridge/question_discovery.py").is_file()
+    for phrase in [
+        "Question Discovery Layer",
+        "discover what to ask",
+        "who to ask",
+        "Do not propose a solution yet",
+    ]:
+        assert phrase in readme
+
+    assert "先提出问题" in readme_zh
+    assert "识别该问谁" in readme_zh
+    assert "question_brief.md" in guide
+    assert "stakeholder_map.md" in guide
+
+    for phrase in [
+        "Question discovery",
+        "Who to ask",
+        "Questions to validate",
+        "Do not propose a solution yet",
+        "Generate question discovery package",
+    ]:
+        assert phrase in ui_text
+
+    assert "Question Discovery Layer" in showcase_en
+    assert "question brief" in showcase_en
+
 def test_release_packaging_support_is_present():
     required_files = [
         Path("RUN_PROBLEMBRIDGE_WINDOWS.bat"),

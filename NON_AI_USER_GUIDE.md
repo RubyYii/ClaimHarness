@@ -4,6 +4,20 @@ This guide is for people who have a real workflow, research problem, or domain p
 
 ProblemBridge does not ask you to define a model, prompt, RAG system, or benchmark first. It asks plain-language questions about your work, then produces a package that can help you talk to AI practitioners.
 
+## Start by discovering questions
+
+If you cannot describe the problem clearly yet, start with `Question discovery` instead of the full workflow form.
+
+This mode helps you produce:
+
+- `question_brief.md`: what you are trying to understand and the questions to validate.
+- `stakeholder_map.md`: who to ask and why each person matters.
+- `expert_interview_guide.md`: a first conversation guide for domain experts.
+- `unknowns_to_validate.md`: what must be checked before solution design.
+- `discussion_plan.md`: a safe order for the first discussion.
+
+Use this package to talk with professional domain people first. Do not propose a solution yet. After the questions are clearer, return to `Domain practitioner wizard` and generate the ProblemBridge alignment package.
+
 ## You do not need to describe an AI task
 
 Most domain practitioners do not start with an AI task. That is normal.
@@ -99,7 +113,8 @@ scripts/run_problembridge_ui_windows.bat
 When the browser opens:
 
 1. Start with `Explore examples`.
-2. Generate a synthetic example package.
-3. Read the friendly summary first.
-4. Try `Domain practitioner wizard` with a non-sensitive workflow description.
-5. Download the project package only after checking that it contains no private material.
+2. Use `Question discovery` if you do not yet know what to ask or who to ask.
+3. Generate a synthetic example package.
+4. Read the friendly summary first.
+5. Try `Domain practitioner wizard` with a non-sensitive workflow description.
+6. Download the project package only after checking that it contains no private material.

@@ -24,6 +24,20 @@ ProblemBridge + ClaimHarness is a local-first portfolio prototype for interdisci
 
 The default path is deterministic mock mode. It does not require an API key, does not call external services, and uses synthetic examples only.
 
+## Question Discovery Layer
+
+ProblemBridge does not assume the user already knows the right problem. The Question Discovery Layer helps non-AI users discover what to ask, who to ask, and what unknowns must be validated before anyone proposes an AI solution.
+
+Use it when the user only has a vague concern such as "this workflow is slow" or "we may need AI, but I do not know what to ask yet." It writes a small expert-handoff package:
+
+- `question_brief.md`
+- `stakeholder_map.md`
+- `expert_interview_guide.md`
+- `unknowns_to_validate.md`
+- `discussion_plan.md`
+
+The boundary is intentional: **Do not propose a solution yet.** First identify the right questions and the people who can answer them. After that, use the guided interview or alignment generator to turn validated answers into a ProblemBridge package.
+
 ## Guided Interview Engine
 
 ProblemBridge is designed to ask better questions before it generates artifacts. The Guided Interview Engine uses local rule-based question routing to ask one question at a time, track what it understands, show missing information, and confirm whether the workflow is clear enough to generate an alignment package.
@@ -223,10 +237,11 @@ scripts/run_problembridge_ui_windows.bat
 When the browser opens:
 
 1. Start with `Explore examples`.
-2. Generate one synthetic example.
-3. Read the friendly summary before opening the technical files.
-4. Use `Domain practitioner wizard` to describe a repeated workflow, not an AI task.
-5. Download the package for an AI engineer only after checking that it contains no private material.
+2. Use `Question discovery` if you do not yet know what to ask or who to ask.
+3. Generate one synthetic example.
+4. Read the friendly summary before opening the technical files.
+5. Use `Domain practitioner wizard` to describe a repeated workflow, not an AI task.
+6. Download the package for an AI engineer only after checking that it contains no private material.
 
 Start with synthetic examples. Do not upload private patient data, confidential manuscripts, API keys, or sensitive unpublished materials.
 
@@ -354,6 +369,7 @@ Run the local Streamlit wizard:
 The wizard includes:
 
 - Explore examples
+- Question discovery
 - Domain practitioner wizard
 - AI practitioner wizard
 - Friendly output cards
