@@ -44,7 +44,11 @@ def run(
     out: Path = typer.Option(Path("outputs/run"), help="Output directory."),
     llm: str = typer.Option(
         "mock",
-        help="LLM provider to use: mock or openai-compatible. mock is deterministic and local.",
+        help=(
+            "LLM provider: mock, openai, openai-compatible, deepseek, groq, "
+            "mistral, openrouter, xai, ollama, gemini, or anthropic. "
+            "mock is deterministic and local."
+        ),
     ),
 ) -> None:
     """Run a ClaimHarness audit."""
@@ -127,18 +131,22 @@ def _run_audit(
     write_outputs(out, claims, evidence, results)
     logger.log("report_generator", "Wrote audit package", {"out": str(out)})
 
-    if provider == "openai-compatible":
+    if provider_config.api_style != "mock":
         try:
             llm_review = summarize_audit_with_llm(provider_config, claims, results, evidence)
         except LLMProviderError as exc:
-            logger.log("llm", "OpenAI-compatible review failed", {"error": str(exc)})
+            logger.log("llm", "Advisory LLM review failed", {"provider": provider, "error": str(exc)})
             raise typer.ClickException(str(exc)) from exc
 
         (out / "llm_review.json").write_text(
             json.dumps(llm_review, indent=2, ensure_ascii=False),
             encoding="utf-8",
         )
-        logger.log("llm", "Wrote advisory LLM review", {"out": str(out / "llm_review.json")})
+        logger.log(
+            "llm",
+            "Wrote advisory LLM review",
+            {"provider": provider, "out": str(out / "llm_review.json")},
+        )
 
     weak_or_worse = sum(
         counts.get(status, 0)

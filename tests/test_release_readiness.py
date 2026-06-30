@@ -301,6 +301,41 @@ def test_release_packaging_support_is_present():
     assert "RUN_PROBLEMBRIDGE_WINDOWS.bat" in readme
 
 
+def test_model_provider_guide_is_present():
+    guide_path = Path("MODEL_PROVIDER_GUIDE.md")
+    assert guide_path.is_file()
+    guide = guide_path.read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+
+    for provider in [
+        "mock",
+        "openai",
+        "openai-compatible",
+        "deepseek",
+        "groq",
+        "mistral",
+        "openrouter",
+        "xai",
+        "ollama",
+        "gemini",
+        "anthropic",
+    ]:
+        assert provider in guide
+        assert provider in readme
+
+    for env_name in [
+        "DEEPSEEK_API_KEY",
+        "GEMINI_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "OPENROUTER_API_KEY",
+        "OLLAMA_MODEL",
+    ]:
+        assert env_name in guide
+
+    assert "advisory only" in guide
+    assert "Do not send private patient data" in guide
+
+
 def test_windows_launchers_are_robust_for_double_click_usage():
     bat = Path("scripts/run_problembridge_ui_windows.bat").read_text(encoding="utf-8")
     ps1 = Path("scripts/run_problembridge_ui_powershell.ps1").read_text(encoding="utf-8")

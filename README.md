@@ -245,7 +245,25 @@ Do not upload private patient data, confidential manuscripts, API keys, or sensi
 
 ## Optional OpenAI-Compatible Provider
 
-The default demo uses `--llm mock` and never needs an API key. To request an additional advisory LLM review, set environment variables and choose `openai-compatible`:
+The default demo uses `--llm mock` and never needs an API key. Remote providers are optional and advisory only. Supported provider names include:
+
+```text
+mock
+openai
+openai-compatible
+deepseek
+groq
+mistral
+openrouter
+xai
+ollama
+gemini
+anthropic
+```
+
+Use `mock` for first-round usability testing. Use remote providers only when you are comfortable sending the current inputs to that external service.
+
+For OpenAI or a generic OpenAI-compatible endpoint, set environment variables and choose `openai-compatible`:
 
 ```powershell
 $env:OPENAI_API_KEY = Read-Host "OPENAI_API_KEY"
@@ -259,6 +277,21 @@ $env:OPENAI_MODEL="gpt-5.4-mini"
 ```
 
 `OPENAI_BASE_URL` is optional and defaults to `https://api.openai.com/v1`. The provider writes `llm_review.json` as an advisory artifact; it does not replace deterministic verification or human review.
+
+DeepSeek can use its own preset:
+
+```powershell
+$env:DEEPSEEK_API_KEY = Read-Host "DEEPSEEK_API_KEY"
+$env:DEEPSEEK_MODEL="deepseek-v4-flash"
+.venv\Scripts\python.exe -m claim_harness run `
+  --manuscript examples/oocyte_demo/manuscript.md `
+  --tables examples/oocyte_demo/tables `
+  --references examples/oocyte_demo/references.md `
+  --out outputs/oocyte_demo_deepseek `
+  --llm deepseek
+```
+
+See [MODEL_PROVIDER_GUIDE.md](MODEL_PROVIDER_GUIDE.md) for `openai`, `deepseek`, `groq`, `mistral`, `openrouter`, `xai`, `ollama`, `gemini`, and `anthropic` setup.
 
 ## Static Report Viewer
 

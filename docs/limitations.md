@@ -24,4 +24,4 @@ The demo shows how to turn a manuscript review task into an auditable episode pa
 
 The demo should not be presented as a medical device, clinical review tool, diagnostic system, or publication-quality scientific reviewer. Any biomedical or clinical claim should be routed to human review unless supported by strong external evidence.
 
-If `--llm openai-compatible` is used, `llm_review.json` should be treated as an extra reviewer note. It does not override deterministic claim statuses, evidence links, or the need for human scientific review.
+If a remote `--llm` provider is used, `llm_review.json` should be treated as an extra reviewer note. It does not override deterministic claim statuses, evidence links, or the need for human scientific review. Remote provider calls may send the current audit inputs to the selected third-party service, so they should not be used with private or confidential material.
