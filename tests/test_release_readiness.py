@@ -266,6 +266,7 @@ def test_guided_ui_has_visual_workbench_shell():
         "Start here if",
         "What you get",
         "Download package",
+        "stAppDeployButton",
     ]:
         assert phrase in ui_text
 
@@ -277,7 +278,7 @@ def test_guided_ui_has_bilingual_interface_mode():
 
     for phrase in [
         "LANGUAGE_OPTIONS",
-        "Interface language / 界面语言",
+        "_text(\"Interface language\", \"界面语言\")",
         "def _text",
         "def _page_label",
         "中文界面",
@@ -286,10 +287,17 @@ def test_guided_ui_has_bilingual_interface_mode():
         "领域工作流向导",
         "工作台记忆",
         "API 设置",
+        "ProblemBridge 工作台",
+        "模型服务",
+        "服务地址",
+        "使用服务商默认配置",
+        "声明-证据审计",
         "下载结果包",
     ]:
         assert phrase in ui_text
 
+    assert "Language / 语言" not in ui_text
+    assert "Interface language / 界面语言" not in ui_text
     assert "bilingual" in readme.lower()
     assert "中英双语" in readme_zh
 

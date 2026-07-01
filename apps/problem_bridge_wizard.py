@@ -50,6 +50,7 @@ EXAMPLES = {
 
 RUN_ROOT = Path("outputs/ui_runs")
 MEMORY_PATH = DEFAULT_MEMORY_PATH
+MEMORY_FILE_LABEL = "workbench_memory.json"
 
 PAGE_OPTIONS = [
     "Home",
@@ -97,25 +98,25 @@ MODULE_CARDS_ZH = [
         "title": "文档摄取",
         "stage": "文件准备",
         "start_if": "你有 Word、文字版 PDF、Markdown、TXT 或 CSV 文件。",
-        "what_you_get": "extracted_text.md、extracted_tables、source_manifest.json、warnings。",
+        "what_you_get": "extracted_text.md、extracted_tables、source_manifest.json、提取警告文件。",
     },
     {
         "title": "问题发现",
         "stage": "问题建模之前",
         "start_if": "你知道哪里不清楚，但还不知道该问什么。",
-        "what_you_get": "问题 brief、stakeholder map、访谈问题、待验证未知项。",
+        "what_you_get": "问题简报、相关人员图、访谈问题、待验证未知项。",
     },
     {
         "title": "领域工作流向导",
         "stage": "理解真实工作流",
         "start_if": "你能描述日常工作、材料、痛点和人工复核边界。",
-        "what_you_get": "workflow-first ProblemBridge 对齐包。",
+        "what_you_get": "工作流优先的 ProblemBridge 对齐包。",
     },
     {
         "title": "AI 任务对齐向导",
         "stage": "任务不跑偏检查",
         "start_if": "你已经有候选 AI 任务，需要检查它是否偏离领域问题。",
-        "what_you_get": "misalignment risks、task spec、evidence contract、evaluation protocol。",
+        "what_you_get": "错位风险、任务规格、证据契约、评价协议。",
     },
 ]
 
@@ -362,9 +363,9 @@ def main() -> None:
     st.set_page_config(page_title="ProblemBridge Workbench", layout="wide")
     _inject_visual_theme()
 
-    st.sidebar.markdown("### Language / 语言")
+    st.sidebar.markdown(f"### {_text('Language', '语言')}")
     st.sidebar.radio(
-        "Interface language / 界面语言",
+        _text("Interface language", "界面语言"),
         LANGUAGE_OPTIONS,
         key="ui_language",
         horizontal=True,
@@ -414,14 +415,14 @@ def _render_memory_sidebar() -> None:
     st.sidebar.markdown(f"### {_text('Workspace Memory', '工作台记忆')}")
     st.sidebar.caption(
         _text(
-            f"Saved locally to `{MEMORY_PATH}` / `workbench_memory.json`. API key is session-only and is never written to memory.",
-            f"本地保存到 `{MEMORY_PATH}` / `workbench_memory.json`。API key 只在当前会话使用，不会写入记忆文件。",
+            f"Saved locally to `{MEMORY_PATH}` (`{MEMORY_FILE_LABEL}`). API keys are session-only and are never written to memory.",
+            f"本地保存位置：`{MEMORY_PATH}`（`{MEMORY_FILE_LABEL}`）。API 密钥只在当前会话使用，不会写入记忆文件。",
         )
     )
     st.sidebar.warning(
         _text(
             "Privacy check before sharing: Clear local memory before sharing the folder or zip if your drafts include sensitive workflow details.",
-            "分享前隐私检查：如果草稿包含敏感工作流信息，请先清除本地记忆，再分享文件夹或 zip。",
+            "分享前隐私检查：如果草稿包含敏感工作流信息，请先清除本地记忆，再分享文件夹或压缩包。",
         )
     )
 
@@ -430,28 +431,28 @@ def _render_memory_sidebar() -> None:
         st.sidebar.caption(_text(f"Last output: `{last_output}`", f"最近输出：`{last_output}`"))
 
     st.sidebar.markdown(f"### {_text('API Settings', 'API 设置')}")
-    st.sidebar.selectbox("Provider", API_PROVIDER_OPTIONS, key="api_provider", on_change=_sync_provider_defaults)
+    st.sidebar.selectbox(_text("Provider", "模型服务"), API_PROVIDER_OPTIONS, key="api_provider", on_change=_sync_provider_defaults)
     provider = st.session_state.get("api_provider", "mock")
     preset = PROVIDER_PRESETS.get(provider)
 
-    st.sidebar.text_input("Base URL", key="api_base_url")
-    st.sidebar.text_input("Model", key="api_model")
-    if st.sidebar.button(_text("Use provider defaults", "使用 provider 默认值"), key="api_use_provider_defaults"):
+    st.sidebar.text_input(_text("Base URL", "服务地址"), key="api_base_url")
+    st.sidebar.text_input(_text("Model", "模型名称"), key="api_model")
+    if st.sidebar.button(_text("Use provider defaults", "使用服务商默认配置"), key="api_use_provider_defaults"):
         _sync_provider_defaults()
         st.rerun()
-    api_key = st.sidebar.text_input(_text("API key is session-only", "API key 仅当前会话使用"), type="password", key="api_key_session")
+    api_key = st.sidebar.text_input(_text("API key is session-only", "API 密钥仅当前会话使用"), type="password", key="api_key_session")
 
     if preset and preset.api_key_env:
         st.sidebar.caption(
             _text(
                 f"Key env for this provider: `{preset.api_key_env}`. Provider, base URL, and model can be remembered; the key is not saved.",
-                f"这个 provider 使用的环境变量：`{preset.api_key_env}`。可以记住 provider、base URL 和 model，但不会保存 key。",
+                f"这个模型服务使用的环境变量：`{preset.api_key_env}`。可以记住服务商、服务地址和模型名称，但不会保存密钥。",
             )
         )
     else:
-        st.sidebar.caption(_text("This provider does not require an API key for local testing.", "这个 provider 本地测试不需要 API key。"))
+        st.sidebar.caption(_text("This provider does not require an API key for local testing.", "这个模型服务用于本地测试时不需要 API 密钥。"))
 
-    if st.sidebar.button(_text("Use API key this session", "本次会话使用 API key"), disabled=not bool(api_key) or not preset or not preset.api_key_env):
+    if st.sidebar.button(_text("Use API key this session", "本次会话使用 API 密钥"), disabled=not bool(api_key) or not preset or not preset.api_key_env):
         os.environ[preset.api_key_env] = api_key
         st.sidebar.success(_text(f"Applied `{preset.api_key_env}` for this session only.", f"已在本次会话应用 `{preset.api_key_env}`。"))
 
@@ -581,6 +582,8 @@ def _inject_visual_theme() -> None:
           --pb-soft-amber: #fff7ed;
         }
         .stApp { background: var(--pb-canvas); color: var(--pb-ink); }
+        [data-testid="stDeployButton"] { display: none !important; }
+        [data-testid="stAppDeployButton"] { display: none !important; }
         [data-testid="stSidebar"] { background: #ffffff; border-right: 1px solid var(--pb-line); }
         .block-container { padding-top: 1.6rem; max-width: 1180px; }
         .visual-shell {
@@ -596,8 +599,7 @@ def _inject_visual_theme() -> None:
           font-size: 12px;
           line-height: 1;
           font-weight: 800;
-          text-transform: uppercase;
-          letter-spacing: .08em;
+          letter-spacing: 0;
           margin-bottom: 10px;
         }
         .visual-title {
@@ -700,10 +702,11 @@ def _inject_visual_theme() -> None:
 
 
 def _render_shell_header() -> None:
-    eyebrow = _text("Local interdisciplinary AI harness", "本地优先的跨学科 AI Harness")
+    eyebrow = _text("Local interdisciplinary AI harness", "本地优先的跨学科 AI 工作流工具")
+    title = _text("ProblemBridge Workbench", "ProblemBridge 工作台")
     lead = _text(
         "A guided workspace for turning messy domain materials into questions, workflow understanding, AI task specs, and later claim-evidence audits.",
-        "一个引导式工作台：把模糊的领域材料转成问题、工作流理解、AI 任务规格，并在输出后进行 claim-evidence 审计。",
+        "一个引导式工作台：把模糊的领域材料转成问题、工作流理解、AI 任务规格，并在输出后进行声明-证据审计。",
     )
     metrics = [
         _text("No API required by default", "默认不需要 API"),
@@ -716,7 +719,7 @@ def _render_shell_header() -> None:
         f"""
         <section class="visual-shell">
           <div class="visual-eyebrow">{eyebrow}</div>
-          <h1 class="visual-title">ProblemBridge Workbench</h1>
+          <h1 class="visual-title">{title}</h1>
           <p class="visual-lead">{lead}</p>
           <div class="metric-row">{metric_html}</div>
         </section>
@@ -807,7 +810,7 @@ def _home() -> None:
         ),
         [
             _text("A clear entry point for documents, vague questions, workflows, or candidate AI tasks.", "根据文档、模糊问题、工作流或候选 AI 任务选择入口。"),
-            _text("A visible workflow from intake to question discovery, problem alignment, and claim audit.", "看见从摄取、提问、问题对齐到 claim 审计的完整流程。"),
+            _text("A visible workflow from intake to question discovery, problem alignment, and claim audit.", "看见从摄取、提问、问题对齐到声明审计的完整流程。"),
             _text("Downloadable local packages that can be reviewed before sharing.", "生成可下载的本地结果包，分享前可先检查。"),
         ],
     )
@@ -815,7 +818,7 @@ def _home() -> None:
 
     st.subheader(_text("Recommended routes", "推荐路径"))
     route_cards = [
-        (_text("Have files?", "已有文件？"), _text("Start with Document intake, inspect extracted text and warnings, then continue to Question discovery.", "先用文档摄取，检查提取文本和 warning，再进入问题发现。")),
+        (_text("Have files?", "已有文件？"), _text("Start with Document intake, inspect extracted text and warnings, then continue to Question discovery.", "先用文档摄取，检查提取文本和警告，再进入问题发现。")),
         (_text("Have a vague concern?", "只有模糊困惑？"), _text("Start with Question discovery to identify what to ask and which experts to involve.", "先用问题发现，明确该问什么、该找哪些专家。")),
         (_text("Know the workflow?", "已经知道工作流？"), _text("Go to Domain practitioner wizard and generate a ProblemBridge alignment package.", "进入领域工作流向导，生成 ProblemBridge 对齐包。")),
     ]
