@@ -64,6 +64,8 @@ PAGE_OPTIONS = [
 
 LANGUAGE_OPTIONS = ["English", "中文"]
 LANGUAGE_CODES = {"English": "en", "中文": "zh"}
+LANGUAGE_QUERY_CODES = LANGUAGE_CODES
+LANGUAGE_BY_QUERY_CODE = {code: choice for choice, code in LANGUAGE_QUERY_CODES.items()}
 LANGUAGE_BADGE = {"en": "English interface", "zh": "中文界面"}
 
 PAGE_LABELS = {
@@ -320,6 +322,40 @@ def _language_code() -> str:
     return LANGUAGE_CODES.get(choice, "en")
 
 
+def _normalize_language_choice(value: object) -> str:
+    if isinstance(value, (list, tuple)):
+        value = value[0] if value else ""
+    text = str(value or "").strip()
+    if text in LANGUAGE_OPTIONS:
+        return text
+    return LANGUAGE_BY_QUERY_CODE.get(text.lower(), "English")
+
+
+def _language_query_code(choice: object) -> str:
+    return LANGUAGE_QUERY_CODES.get(_normalize_language_choice(choice), "en")
+
+
+def _query_language_value() -> object:
+    try:
+        return st.query_params.get("lang")
+    except Exception:
+        return None
+
+
+def _sync_language_from_query_params() -> None:
+    query_value = _query_language_value()
+    if query_value:
+        st.session_state.ui_language = _normalize_language_choice(query_value)
+        return
+    st.session_state.setdefault("ui_language", "English")
+
+
+def _set_language_choice(choice: object) -> None:
+    selected = _normalize_language_choice(choice)
+    st.session_state.ui_language = selected
+    st.query_params["lang"] = _language_query_code(selected)
+
+
 def _text(en: str, zh: str) -> str:
     return zh if _language_code() == "zh" else en
 
@@ -361,17 +397,10 @@ def _display_missing_item(item: str) -> str:
 
 def main() -> None:
     st.set_page_config(page_title="ProblemBridge Workbench", layout="wide")
+    _sync_language_from_query_params()
     _inject_visual_theme()
 
-    st.sidebar.markdown(f"### {_text('Language', '语言')}")
-    st.sidebar.radio(
-        _text("Interface language", "界面语言"),
-        LANGUAGE_OPTIONS,
-        key="ui_language",
-        horizontal=True,
-    )
-    st.sidebar.caption(LANGUAGE_BADGE[_language_code()])
-
+    _render_language_switcher()
     _render_shell_header()
     _safety_banner()
 
@@ -586,6 +615,20 @@ def _inject_visual_theme() -> None:
         [data-testid="stAppDeployButton"] { display: none !important; }
         [data-testid="stSidebar"] { background: #ffffff; border-right: 1px solid var(--pb-line); }
         .block-container { padding-top: 1.6rem; max-width: 1180px; }
+        .language-switcher {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 10px 12px;
+          margin-bottom: 12px;
+          border: 1px solid var(--pb-line);
+          border-radius: 8px;
+          background: #ffffff;
+          color: var(--pb-muted);
+          font-size: 13px;
+        }
+        .language-switcher strong { color: var(--pb-ink); }
         .visual-shell {
           padding: 26px 28px;
           border: 1px solid var(--pb-line);
@@ -699,6 +742,28 @@ def _inject_visual_theme() -> None:
         """,
         unsafe_allow_html=True,
     )
+
+
+def _render_language_switcher() -> None:
+    current_code = _language_code()
+    st.markdown(
+        f"""
+        <section class="language-switcher">
+          <span>{_text("Interface language", "界面语言")}</span>
+          <strong>{LANGUAGE_BADGE[current_code]}</strong>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+    zh_col, en_col, _ = st.columns([1, 1, 6])
+    with zh_col:
+        if st.button("中文", key="language_select_zh", disabled=current_code == "zh"):
+            _set_language_choice("中文")
+            st.rerun()
+    with en_col:
+        if st.button("English", key="language_select_en", disabled=current_code == "en"):
+            _set_language_choice("English")
+            st.rerun()
 
 
 def _render_shell_header() -> None:

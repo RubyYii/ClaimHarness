@@ -301,6 +301,29 @@ def test_guided_ui_has_bilingual_interface_mode():
     assert "bilingual" in readme.lower()
     assert "中英双语" in readme_zh
 
+
+def test_guided_ui_language_selection_is_visible_and_shareable():
+    ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
+
+    for phrase in [
+        "def _render_language_switcher",
+        "language-switcher",
+        "st.query_params",
+        "def _sync_language_from_query_params",
+        "def _set_language_choice",
+        "LANGUAGE_QUERY_CODES",
+    ]:
+        assert phrase in ui_text
+
+    import apps.problem_bridge_wizard as ui
+
+    assert ui._normalize_language_choice("zh") == "中文"
+    assert ui._normalize_language_choice("en") == "English"
+    assert ui._normalize_language_choice(["zh"]) == "中文"
+    assert ui._normalize_language_choice("中文") == "中文"
+    assert ui._language_query_code("中文") == "zh"
+    assert ui._language_query_code("English") == "en"
+
 def test_guided_ui_has_local_memory_and_api_settings():
     ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
     provider_guide = Path("MODEL_PROVIDER_GUIDE.md").read_text(encoding="utf-8")

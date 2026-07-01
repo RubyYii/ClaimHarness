@@ -116,7 +116,7 @@ For non-AI users, start with the local guided app:
 .\RUN_PROBLEMBRIDGE_WINDOWS.bat
 ```
 
-The Streamlit workbench includes a bilingual English/Chinese interface switch in the sidebar. Choose `English` or `中文` before starting the guided workflow.
+The Streamlit workbench includes a bilingual English/Chinese interface switch at the top of the page. The selected language is reflected in the URL, so `?lang=zh` opens the Chinese interface and `?lang=en` opens the English interface.
 
 If you are cloning from GitHub manually:
 
