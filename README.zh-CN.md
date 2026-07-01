@@ -125,6 +125,8 @@ ClaimHarness 用在文本或系统输出之后，输出一个 evidence audit pac
 .\RUN_PROBLEMBRIDGE_WINDOWS.bat
 ```
 
+本地网页 UI 支持中英双语界面。打开后可以在侧边栏选择 `English` 或 `中文`，再进入引导式工作流。
+
 如果你是从 GitHub clone：
 
 ```powershell

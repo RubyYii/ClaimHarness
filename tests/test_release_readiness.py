@@ -270,6 +270,29 @@ def test_guided_ui_has_visual_workbench_shell():
         assert phrase in ui_text
 
 
+def test_guided_ui_has_bilingual_interface_mode():
+    ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+    readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
+
+    for phrase in [
+        "LANGUAGE_OPTIONS",
+        "Interface language / 界面语言",
+        "def _text",
+        "def _page_label",
+        "中文界面",
+        "选择入口",
+        "问题发现",
+        "领域工作流向导",
+        "工作台记忆",
+        "API 设置",
+        "下载结果包",
+    ]:
+        assert phrase in ui_text
+
+    assert "bilingual" in readme.lower()
+    assert "中英双语" in readme_zh
+
 def test_guided_ui_has_local_memory_and_api_settings():
     ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
     provider_guide = Path("MODEL_PROVIDER_GUIDE.md").read_text(encoding="utf-8")

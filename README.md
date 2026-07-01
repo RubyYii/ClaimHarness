@@ -116,6 +116,8 @@ For non-AI users, start with the local guided app:
 .\RUN_PROBLEMBRIDGE_WINDOWS.bat
 ```
 
+The Streamlit workbench includes a bilingual English/Chinese interface switch in the sidebar. Choose `English` or `中文` before starting the guided workflow.
+
 If you are cloning from GitHub manually:
 
 ```powershell
