@@ -222,18 +222,25 @@ def _render_memory_sidebar() -> None:
         f"Saved locally to `{MEMORY_PATH}` / `workbench_memory.json`. "
         "API key is session-only and is never written to memory."
     )
+    st.sidebar.warning(
+        "Privacy check before sharing: Clear local memory before sharing the folder or zip "
+        "if your drafts include sensitive workflow details."
+    )
 
     last_output = st.session_state.get("last_output_dir")
     if last_output:
         st.sidebar.caption(f"Last output: `{last_output}`")
 
     st.sidebar.markdown("### API Settings")
-    st.sidebar.selectbox("Provider", API_PROVIDER_OPTIONS, key="api_provider")
+    st.sidebar.selectbox("Provider", API_PROVIDER_OPTIONS, key="api_provider", on_change=_sync_provider_defaults)
     provider = st.session_state.get("api_provider", "mock")
     preset = PROVIDER_PRESETS.get(provider)
 
     st.sidebar.text_input("Base URL", key="api_base_url")
     st.sidebar.text_input("Model", key="api_model")
+    if st.sidebar.button("Use provider defaults", key="api_use_provider_defaults"):
+        _sync_provider_defaults()
+        st.rerun()
     api_key = st.sidebar.text_input("API key is session-only", type="password", key="api_key_session")
 
     if preset and preset.api_key_env:
@@ -266,6 +273,12 @@ def _render_memory_sidebar() -> None:
             st.session_state.pending_workbench_memory_clear = True
             st.rerun()
 
+
+def _sync_provider_defaults() -> None:
+    provider = st.session_state.get("api_provider", "mock")
+    defaults = _provider_defaults(provider)
+    st.session_state.api_base_url = defaults["base_url"]
+    st.session_state.api_model = defaults["model"]
 
 def _ensure_memory_state() -> None:
     if "pending_workbench_memory" in st.session_state:

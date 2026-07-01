@@ -185,7 +185,7 @@ RUN_PROBLEMBRIDGE_WINDOWS.bat
 
 本地网页 UI 的侧边栏现在包含 `Workspace Memory` 和 `API Settings`。你可以保存 provider、base URL、model、最近输出目录，以及 Question discovery、Domain wizard、AI wizard 的草稿字段。保存文件位于 `outputs/ui_memory/workbench_memory.json`。
 
-API key 不会默认保存。网页里的 API key 输入框是 session-only，只在当前 Streamlit 进程中临时使用；保存记忆时会过滤 `api_key`、`token`、`secret`、`password` 等敏感字段。
+切换 provider 时，网页会自动填入对应的默认 base URL 和 model；如果你手动改过，也可以点击 `Use provider defaults` 恢复。API key 不会默认保存。网页里的 API key 输入框是 session-only，只在当前 Streamlit 进程中临时使用；保存记忆时会过滤 `api_key`、`token`、`secret`、`password` 等敏感字段。分享文件夹或 zip 前，如果草稿里有敏感工作流信息，请先清除本地记忆。
 
 Qwen / DashScope 可以使用 `qwen` provider：设置 `DASHSCOPE_API_KEY`，可选设置 `QWEN_BASE_URL` 和 `QWEN_MODEL`。
 

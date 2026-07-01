@@ -66,7 +66,7 @@ The Streamlit workbench includes `Workspace Memory` and `API Settings` in the si
 - recent output path
 - Question discovery, Domain wizard, and AI wizard draft fields
 
-API keys are session-only. The password field can set the selected provider key for the current Streamlit process, but `workbench_memory.json` filters `api_key`, `token`, `secret`, and `password` fields before saving.
+Changing the provider in the local UI auto-fills its default base URL and model. Use `Use provider defaults` to restore those values after editing them. API keys are session-only. The password field can set the selected provider key for the current Streamlit process, but `workbench_memory.json` filters `api_key`, `token`, `secret`, and `password` fields before saving. Clear local memory before sharing the folder or zip if the drafts include sensitive workflow details.
 ## DeepSeek example
 
 ```powershell

@@ -282,11 +282,18 @@ def test_guided_ui_has_local_memory_and_api_settings():
         "API key is session-only",
         "workbench_memory.json",
         "qwen",
+        "Privacy check before sharing",
+        "Clear local memory before sharing",
+        "Use provider defaults",
+        "on_change=_sync_provider_defaults",
+        "def _sync_provider_defaults",
     ]:
         assert phrase in ui_text
 
     assert "DASHSCOPE_API_KEY" in provider_guide
     assert "QWEN_MODEL" in provider_guide
+    assert "Use provider defaults" in Path("README.md").read_text(encoding="utf-8")
+    assert "Clear local memory before sharing" in Path("README.md").read_text(encoding="utf-8")
 
 def test_document_intake_layer_is_documented_and_in_ui():
     readme = Path("README.md").read_text(encoding="utf-8")
