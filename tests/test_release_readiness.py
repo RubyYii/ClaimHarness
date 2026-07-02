@@ -329,8 +329,8 @@ def test_guided_ui_has_local_memory_and_api_settings():
     provider_guide = Path("MODEL_PROVIDER_GUIDE.md").read_text(encoding="utf-8")
 
     for phrase in [
-        "Workspace Memory",
-        "API Settings",
+        "Show workspace memory",
+        "Show API settings",
         "Save current workspace",
         "Clear memory",
         "API key is session-only",
@@ -348,6 +348,22 @@ def test_guided_ui_has_local_memory_and_api_settings():
     assert "QWEN_MODEL" in provider_guide
     assert "Use provider defaults" in Path("README.md").read_text(encoding="utf-8")
     assert "Clear local memory before sharing" in Path("README.md").read_text(encoding="utf-8")
+
+
+def test_guided_ui_keeps_sidebar_advanced_settings_collapsed():
+    ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
+
+    for phrase in [
+        "st.sidebar.checkbox(_text(\"Show workspace memory\", \"显示工作台记忆\"), value=False",
+        "st.sidebar.checkbox(_text(\"Show API settings\", \"显示 API 设置\"), value=False",
+        "Local-first. Use synthetic or non-sensitive material first.",
+        "本地优先。首次测试请使用合成或非敏感材料。",
+    ]:
+        assert phrase in ui_text
+
+    assert "<div class=\"sidebar-note\">" not in ui_text
+    assert "st.sidebar.expander" not in ui_text
+
 
 def test_document_intake_layer_is_documented_and_in_ui():
     readme = Path("README.md").read_text(encoding="utf-8")

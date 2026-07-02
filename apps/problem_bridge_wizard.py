@@ -410,14 +410,10 @@ def main() -> None:
         PAGE_OPTIONS,
         format_func=_page_label,
     )
-    st.sidebar.markdown(
-        f"""
-        <div class="sidebar-note">
-        {_text('Local-first mode. Use synthetic or non-sensitive material for first testing.', '本地优先模式。首次测试请使用合成样例或非敏感材料。')}
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    st.sidebar.caption(_text(
+        "Local-first. Use synthetic or non-sensitive material first.",
+        "本地优先。首次测试请使用合成或非敏感材料。",
+    ))
     _render_memory_sidebar()
     _render_workflow_strip(page)
 
@@ -441,67 +437,69 @@ def _render_memory_sidebar() -> None:
     _ensure_memory_state()
 
     st.sidebar.divider()
-    st.sidebar.markdown(f"### {_text('Workspace Memory', '工作台记忆')}")
-    st.sidebar.caption(
-        _text(
-            f"Saved locally to `{MEMORY_PATH}` (`{MEMORY_FILE_LABEL}`). API keys are session-only and are never written to memory.",
-            f"本地保存位置：`{MEMORY_PATH}`（`{MEMORY_FILE_LABEL}`）。API 密钥只在当前会话使用，不会写入记忆文件。",
-        )
-    )
-    st.sidebar.warning(
-        _text(
-            "Privacy check before sharing: Clear local memory before sharing the folder or zip if your drafts include sensitive workflow details.",
-            "分享前隐私检查：如果草稿包含敏感工作流信息，请先清除本地记忆，再分享文件夹或压缩包。",
-        )
-    )
-
-    last_output = st.session_state.get("last_output_dir")
-    if last_output:
-        st.sidebar.caption(_text(f"Last output: `{last_output}`", f"最近输出：`{last_output}`"))
-
-    st.sidebar.markdown(f"### {_text('API Settings', 'API 设置')}")
-    st.sidebar.selectbox(_text("Provider", "模型服务"), API_PROVIDER_OPTIONS, key="api_provider", on_change=_sync_provider_defaults)
-    provider = st.session_state.get("api_provider", "mock")
-    preset = PROVIDER_PRESETS.get(provider)
-
-    st.sidebar.text_input(_text("Base URL", "服务地址"), key="api_base_url")
-    st.sidebar.text_input(_text("Model", "模型名称"), key="api_model")
-    if st.sidebar.button(_text("Use provider defaults", "使用服务商默认配置"), key="api_use_provider_defaults"):
-        _sync_provider_defaults()
-        st.rerun()
-    api_key = st.sidebar.text_input(_text("API key is session-only", "API 密钥仅当前会话使用"), type="password", key="api_key_session")
-
-    if preset and preset.api_key_env:
+    show_memory = st.sidebar.checkbox(_text("Show workspace memory", "显示工作台记忆"), value=False, key="show_workspace_memory")
+    if show_memory:
         st.sidebar.caption(
             _text(
-                f"Key env for this provider: `{preset.api_key_env}`. Provider, base URL, and model can be remembered; the key is not saved.",
-                f"这个模型服务使用的环境变量：`{preset.api_key_env}`。可以记住服务商、服务地址和模型名称，但不会保存密钥。",
+                f"Saved locally to `{MEMORY_PATH}` (`{MEMORY_FILE_LABEL}`). API keys are session-only and are never written to memory.",
+                f"本地保存位置：`{MEMORY_PATH}`（`{MEMORY_FILE_LABEL}`）。API 密钥只在当前会话使用，不会写入记忆文件。",
             )
         )
-    else:
-        st.sidebar.caption(_text("This provider does not require an API key for local testing.", "这个模型服务用于本地测试时不需要 API 密钥。"))
+        st.sidebar.warning(
+            _text(
+                "Privacy check before sharing: Clear local memory before sharing the folder or zip if your drafts include sensitive workflow details.",
+                "分享前隐私检查：如果草稿包含敏感工作流信息，请先清除本地记忆，再分享文件夹或压缩包。",
+            )
+        )
 
-    if st.sidebar.button(_text("Use API key this session", "本次会话使用 API 密钥"), disabled=not bool(api_key) or not preset or not preset.api_key_env):
-        os.environ[preset.api_key_env] = api_key
-        st.sidebar.success(_text(f"Applied `{preset.api_key_env}` for this session only.", f"已在本次会话应用 `{preset.api_key_env}`。"))
+        last_output = st.session_state.get("last_output_dir")
+        if last_output:
+            st.sidebar.caption(_text(f"Last output: `{last_output}`", f"最近输出：`{last_output}`"))
 
-    col1, col2 = st.sidebar.columns(2)
-    with col1:
-        if st.button(_text("Load saved memory", "加载记忆"), key="memory_load"):
-            st.session_state.pending_workbench_memory = load_workbench_memory(MEMORY_PATH)
-            st.session_state.pending_workbench_memory_clear = True
+        col1, col2 = st.sidebar.columns(2)
+        with col1:
+            if st.button(_text("Load saved memory", "加载记忆"), key="memory_load"):
+                st.session_state.pending_workbench_memory = load_workbench_memory(MEMORY_PATH)
+                st.session_state.pending_workbench_memory_clear = True
+                st.rerun()
+            if st.button(_text("Save current workspace", "保存当前工作台"), key="memory_save"):
+                payload = _current_workbench_memory()
+                save_workbench_memory(payload, MEMORY_PATH)
+                st.session_state.workbench_memory = payload
+                st.sidebar.success(_text("Workspace memory saved locally.", "工作台记忆已保存到本地。"))
+        with col2:
+            if st.button(_text("Clear memory", "清除记忆"), key="memory_clear"):
+                clear_workbench_memory(MEMORY_PATH)
+                st.session_state.pending_workbench_memory = {}
+                st.session_state.pending_workbench_memory_clear = True
+                st.rerun()
+
+    show_api_settings = st.sidebar.checkbox(_text("Show API settings", "显示 API 设置"), value=False, key="show_api_settings")
+    if show_api_settings:
+        st.sidebar.selectbox(_text("Provider", "模型服务"), API_PROVIDER_OPTIONS, key="api_provider", on_change=_sync_provider_defaults)
+        provider = st.session_state.get("api_provider", "mock")
+        preset = PROVIDER_PRESETS.get(provider)
+
+        st.sidebar.text_input(_text("Base URL", "服务地址"), key="api_base_url")
+        st.sidebar.text_input(_text("Model", "模型名称"), key="api_model")
+        if st.sidebar.button(_text("Use provider defaults", "使用服务商默认配置"), key="api_use_provider_defaults"):
+            _sync_provider_defaults()
             st.rerun()
-        if st.button(_text("Save current workspace", "保存当前工作台"), key="memory_save"):
-            payload = _current_workbench_memory()
-            save_workbench_memory(payload, MEMORY_PATH)
-            st.session_state.workbench_memory = payload
-            st.sidebar.success(_text("Workspace memory saved locally.", "工作台记忆已保存到本地。"))
-    with col2:
-        if st.button(_text("Clear memory", "清除记忆"), key="memory_clear"):
-            clear_workbench_memory(MEMORY_PATH)
-            st.session_state.pending_workbench_memory = {}
-            st.session_state.pending_workbench_memory_clear = True
-            st.rerun()
+        api_key = st.sidebar.text_input(_text("API key is session-only", "API 密钥仅当前会话使用"), type="password", key="api_key_session")
+
+        if preset and preset.api_key_env:
+            st.sidebar.caption(
+                _text(
+                    f"Key env for this provider: `{preset.api_key_env}`. Provider, base URL, and model can be remembered; the key is not saved.",
+                    f"这个模型服务使用的环境变量：`{preset.api_key_env}`。可以记住服务商、服务地址和模型名称，但不会保存密钥。",
+                )
+            )
+        else:
+            st.sidebar.caption(_text("This provider does not require an API key for local testing.", "这个模型服务用于本地测试时不需要 API 密钥。"))
+
+        if st.sidebar.button(_text("Use API key this session", "本次会话使用 API 密钥"), disabled=not bool(api_key) or not preset or not preset.api_key_env):
+            os.environ[preset.api_key_env] = api_key
+            st.sidebar.success(_text(f"Applied `{preset.api_key_env}` for this session only.", f"已在本次会话应用 `{preset.api_key_env}`。"))
 
 
 def _sync_provider_defaults() -> None:
