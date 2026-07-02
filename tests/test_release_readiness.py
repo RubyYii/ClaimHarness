@@ -454,6 +454,26 @@ def test_document_intake_layer_is_documented_and_in_ui():
         assert phrase in ui_text
 
 
+def test_guided_ui_recovers_from_stale_document_intake_module_cache():
+    import importlib
+    import sys
+
+    import problem_bridge.document_intake as document_intake
+
+    original_extract_url = document_intake.extract_url
+    try:
+        delattr(document_intake, "extract_url")
+        sys.modules.pop("apps.problem_bridge_wizard", None)
+
+        ui = importlib.import_module("apps.problem_bridge_wizard")
+
+        assert callable(ui.extract_url)
+        assert hasattr(document_intake, "extract_url")
+    finally:
+        document_intake.extract_url = original_extract_url
+        sys.modules.pop("apps.problem_bridge_wizard", None)
+
+
 def test_ocr_setup_guide_has_visual_install_instructions():
     readme = Path("README.md").read_text(encoding="utf-8")
     guide_path = Path("OCR_SETUP.md")

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import shutil
+from importlib import reload
 from datetime import datetime
 from pathlib import Path
 
@@ -17,12 +18,7 @@ from problem_bridge.guided import (
     discover_alignment_outputs,
     friendly_summary,
 )
-from problem_bridge.document_intake import (
-    build_problem_seed_from_intake,
-    extract_document,
-    extract_url,
-    write_intake_package,
-)
+from problem_bridge import document_intake as document_intake_module
 from problem_bridge.interview import (
     answer_question,
     build_problem_from_interview,
@@ -42,6 +38,14 @@ from problem_bridge.ui_memory import (
     save_workbench_memory,
 )
 from problem_bridge.writer import write_alignment_package
+
+if not hasattr(document_intake_module, "extract_url"):
+    document_intake_module = reload(document_intake_module)
+
+build_problem_seed_from_intake = document_intake_module.build_problem_seed_from_intake
+extract_document = document_intake_module.extract_document
+extract_url = document_intake_module.extract_url
+write_intake_package = document_intake_module.write_intake_package
 
 
 EXAMPLES = {
