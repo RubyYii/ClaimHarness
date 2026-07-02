@@ -1,0 +1,4 @@
+{"step": "load_problem_brief", "profile": "quality_inspection", "project_name": "quality_inspection_review_alignment"}
+{"step": "detect_alignment_profile", "profile": "quality_inspection", "project_name": "quality_inspection_review_alignment"}
+{"step": "build_alignment_package", "profile": "quality_inspection", "project_name": "quality_inspection_review_alignment"}
+{"step": "write_outputs", "profile": "quality_inspection", "project_name": "quality_inspection_review_alignment"}

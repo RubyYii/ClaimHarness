@@ -26,9 +26,9 @@ from .verifier import verify_claims
 app = typer.Typer(help="ClaimHarness command-line interface.")
 console = Console(width=1000)
 
-DEMO_MANUSCRIPT = Path("examples/oocyte_demo/manuscript.md")
-DEMO_TABLES = Path("examples/oocyte_demo/tables")
-DEMO_REFERENCES = Path("examples/oocyte_demo/references.md")
+DEMO_MANUSCRIPT = Path("examples/lab_report_audit_demo/manuscript.md")
+DEMO_TABLES = Path("examples/lab_report_audit_demo/tables")
+DEMO_REFERENCES = Path("examples/lab_report_audit_demo/references.md")
 
 
 @app.callback()
@@ -176,10 +176,10 @@ def view(
 
 @app.command()
 def demo(
-    out: Path = typer.Option(Path("outputs/oocyte_demo_run"), help="Demo output directory."),
+    out: Path = typer.Option(Path("outputs/lab_report_audit_demo_run"), help="Demo output directory."),
     viewer: bool = typer.Option(True, help="Generate static HTML viewer after the audit."),
 ) -> None:
-    """Run the bundled synthetic oocyte demo."""
+    """Run the bundled synthetic lab-report audit demo."""
     provider = validate_provider("mock")
     provider_config = resolve_provider_config(provider)
     _validate_input_paths(DEMO_MANUSCRIPT, DEMO_TABLES, DEMO_REFERENCES)

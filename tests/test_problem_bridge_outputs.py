@@ -8,7 +8,7 @@ from problem_bridge.writer import write_alignment_package
 
 def test_concept_alignment_table_has_alignment_columns(tmp_path):
     package = build_alignment_package(
-        "I want to evaluate whether VLMs understand Chinese painting commentary."
+        "I want to evaluate whether AI can support cultural archive interpretation from catalog notes."
     )
     write_alignment_package(package, tmp_path)
 
@@ -27,7 +27,7 @@ def test_concept_alignment_table_has_alignment_columns(tmp_path):
 
 def test_alignment_trace_records_ordered_steps(tmp_path):
     package = build_alignment_package(
-        "I want to evaluate LLM hallucination and value risk in political theory education."
+        "I want to evaluate LLM hallucination and scope drift in training policy support."
     )
     write_alignment_package(package, tmp_path)
 
@@ -44,9 +44,9 @@ def test_alignment_trace_records_ordered_steps(tmp_path):
 
 def test_all_bundled_examples_generate_named_profiles(tmp_path):
     examples = {
-        "hsg": "hsg",
-        "chinese_painting": "chinese_painting",
-        "political_education": "political_education",
+        "quality_inspection": "quality_inspection",
+        "cultural_archive": "cultural_archive",
+        "training_policy": "training_policy",
     }
 
     for folder, expected_profile in examples.items():

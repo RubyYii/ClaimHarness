@@ -21,20 +21,20 @@ def test_interview_starts_from_repeated_work_not_ai_task():
 
 def test_interview_routes_questions_based_on_missing_understanding():
     state = start_interview()
-    state = answer_question(state, "repeated_work", "I repeatedly review microscope notes before injection guidance.")
+    state = answer_question(state, "repeated_work", "I repeatedly review lab report notes before evidence summary drafting.")
 
     question = next_question(state)
     assert question.key == "materials"
 
-    state = answer_question(state, "materials", "microscope images, notes, prior case records")
+    state = answer_question(state, "materials", "report tables, notes, prior case records")
     question = next_question(state)
     assert question.key == "pain_points"
 
 
 def test_understanding_summary_tracks_known_and_missing_slots():
     state = start_interview()
-    state = answer_question(state, "repeated_work", "I review student answers for political education risks.")
-    state = answer_question(state, "materials", "student answers, rubric, teacher notes")
+    state = answer_question(state, "repeated_work", "I review staff answers for training policy risks.")
+    state = answer_question(state, "materials", "staff answers, rubric, reviewer notes")
 
     summary = summarize_understanding(state)
 
@@ -48,10 +48,10 @@ def test_understanding_summary_tracks_known_and_missing_slots():
 def test_interview_ready_after_core_slots_are_answered():
     state = start_interview()
     for key, value in {
-        "repeated_work": "I compare painting commentary with image details.",
-        "materials": "painting images, commentary, catalog metadata",
-        "pain_points": "commentary concepts are hard to align with image regions",
-        "human_boundaries": "humans must confirm cultural interpretations",
+        "repeated_work": "I compare archive notes with item details.",
+        "materials": "archive item images, catalog notes, metadata",
+        "pain_points": "catalog concepts are hard to align with item regions",
+        "human_boundaries": "humans must confirm expert interpretations",
         "useful_support": "evidence summaries and questions for human review",
     }.items():
         state = answer_question(state, key, value)
@@ -67,10 +67,10 @@ def test_interview_builds_problembridge_brief():
     state = start_interview()
     for key, value in {
         "domain": "cultural heritage",
-        "repeated_work": "I compare painting commentary with image details.",
-        "materials": "painting images, commentary, catalog metadata",
+        "repeated_work": "I compare archive notes with item details.",
+        "materials": "archive item images, catalog notes, metadata",
         "pain_points": "object descriptions can be mistaken for interpretation",
-        "human_boundaries": "humans must confirm cultural meaning and attribution",
+        "human_boundaries": "humans must confirm interpretation and attribution",
         "useful_support": "evidence summaries, risk flags, and review questions",
     }.items():
         state = answer_question(state, key, value)
@@ -79,8 +79,8 @@ def test_interview_builds_problembridge_brief():
 
     assert "# Guided Interview Problem Brief" in brief
     assert "## repeated_work" in brief
-    assert "painting commentary" in brief
+    assert "archive notes" in brief
     assert "## judgement_materials" in brief
-    assert "catalog metadata" in brief
+    assert "catalog notes" in brief
     assert "## non_automatable_decisions" in brief
-    assert "humans must confirm cultural meaning" in brief
+    assert "humans must confirm interpretation" in brief

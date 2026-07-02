@@ -1,0 +1,3 @@
+workflow_step,pain_point,ai_opportunity,risk,human_role
+model response generation,"Fluent answers may hide unsupported, misframed, or out-of-scope claims.","Classify unsupportedness, scope drift, and framing risks.",high,review policy-sensitive explanations
+reviewer correction and approval,Manual review is slow and hard to standardize.,Produce review checklists and evidence gaps.,medium,approve or revise final training content

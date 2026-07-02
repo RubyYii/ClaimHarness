@@ -2,10 +2,10 @@ import csv
 from pathlib import Path
 
 
-DEMO_ROOT = Path("examples/oocyte_demo")
+DEMO_ROOT = Path("examples/lab_report_audit_demo")
 
 
-def test_oocyte_demo_files_exist():
+def test_lab_report_audit_demo_files_exist():
     expected_paths = [
         DEMO_ROOT / "manuscript.md",
         DEMO_ROOT / "references.md",
@@ -18,10 +18,10 @@ def test_oocyte_demo_files_exist():
         assert path.read_text(encoding="utf-8").strip()
 
 
-def test_oocyte_manuscript_has_required_sections_and_claims():
+def test_lab_report_audit_manuscript_has_required_sections_and_claims():
     text = (DEMO_ROOT / "manuscript.md").read_text(encoding="utf-8")
     required_headings = [
-        "# Human-in-the-loop and Explainable Workflow for Oocyte Injection Guidance",
+        "# Human-in-the-loop Evidence Review for Synthetic Lab Reports",
         "## Abstract",
         "## Introduction",
         "## Methods",
@@ -34,7 +34,7 @@ def test_oocyte_manuscript_has_required_sections_and_claims():
         "outperforms",
         "robust",
         "reliable",
-        "clinically",
+        "deployment",
         "ready",
         "novel",
         "first",
@@ -59,18 +59,18 @@ def test_oocyte_manuscript_has_required_sections_and_claims():
     assert "patient" not in text.lower()
 
 
-def test_oocyte_demo_metric_table_columns():
+def test_lab_report_audit_demo_metric_table_columns():
     path = DEMO_ROOT / "tables" / "table1_metrics.csv"
     with path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
-        assert reader.fieldnames == ["model", "dice", "iou", "precision", "recall", "notes"]
+        assert reader.fieldnames == ["model", "macro_f1", "precision", "recall", "notes"]
         rows = list(reader)
 
     assert len(rows) >= 3
-    assert any(row["model"] == "explainable_guidance_v1" for row in rows)
+    assert any(row["model"] == "evidence_guided_reviewer_v1" for row in rows)
 
 
-def test_oocyte_demo_ablation_table_columns():
+def test_lab_report_audit_demo_ablation_table_columns():
     path = DEMO_ROOT / "tables" / "table2_ablation.csv"
     with path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)

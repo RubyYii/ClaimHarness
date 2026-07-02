@@ -141,9 +141,9 @@ def test_external_review_packaging_is_present():
         "misalignment_risk_report.md",
     ]
     for sample_dir in (
-        Path("docs/sample_outputs/hsg_alignment"),
-        Path("docs/sample_outputs/vulca_alignment"),
-        Path("docs/sample_outputs/political_education_alignment"),
+        Path("docs/sample_outputs/quality_inspection_alignment"),
+        Path("docs/sample_outputs/cultural_archive_alignment"),
+        Path("docs/sample_outputs/training_policy_alignment"),
     ):
         for filename in problembridge_required:
             assert (sample_dir / filename).is_file(), sample_dir / filename
@@ -155,7 +155,7 @@ def test_external_review_packaging_is_present():
         "agent_trace.jsonl",
         "index.html",
     ]
-    sample_dir = Path("docs/sample_outputs/claimharness_oocyte_demo")
+    sample_dir = Path("docs/sample_outputs/claimharness_lab_report_audit_demo")
     for filename in claimharness_required:
         assert (sample_dir / filename).is_file(), sample_dir / filename
 
@@ -400,6 +400,7 @@ def test_document_intake_layer_is_documented_and_in_ui():
     assert Path("problem_bridge/document_intake.py").is_file()
     for phrase in [
         "Document Intake Layer",
+        ".doc",
         ".docx",
         "text-based PDF",
         "extracted_text.md",
@@ -416,6 +417,7 @@ def test_document_intake_layer_is_documented_and_in_ui():
     for phrase in [
         "Document intake",
         "Upload Word, PDF, Markdown, TXT, or CSV files",
+        "Legacy .doc",
         "text-based PDF",
         "extracted_text.md",
         "source_manifest.json",
@@ -550,7 +552,7 @@ def test_release_packaging_support_is_present():
         "Run locally",
         "Synthetic examples",
         "Safety boundary",
-        "ClaimHarness oocyte sample",
+        "ClaimHarness lab report sample",
         "zh-CN.html",
     ]:
         assert phrase in showcase_en
@@ -565,7 +567,7 @@ def test_release_packaging_support_is_present():
         "本地运行",
         "合成样例",
         "安全边界",
-        "卵母细胞审计样例",
+        "实验报告审计样例",
         "en.html",
     ]:
         assert phrase in showcase_zh

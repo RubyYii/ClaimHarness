@@ -18,10 +18,10 @@ Use these values with:
 
 ```powershell
 .venv\Scripts\python.exe -m claim_harness run `
-  --manuscript examples/oocyte_demo/manuscript.md `
-  --tables examples/oocyte_demo/tables `
-  --references examples/oocyte_demo/references.md `
-  --out outputs/oocyte_demo_remote `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --out outputs/lab_report_audit_demo_remote `
   --llm PROVIDER_NAME
 ```
 
@@ -47,10 +47,10 @@ $env:DASHSCOPE_API_KEY = Read-Host "DASHSCOPE_API_KEY"
 $env:QWEN_MODEL="qwen-plus"
 
 .venv\Scripts\python.exe -m claim_harness run `
-  --manuscript examples/oocyte_demo/manuscript.md `
-  --tables examples/oocyte_demo/tables `
-  --references examples/oocyte_demo/references.md `
-  --out outputs/oocyte_demo_qwen `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --out outputs/lab_report_audit_demo_qwen `
   --llm qwen
 ```
 
@@ -74,10 +74,10 @@ $env:DEEPSEEK_API_KEY = Read-Host "DEEPSEEK_API_KEY"
 $env:DEEPSEEK_MODEL="deepseek-v4-flash"
 
 .venv\Scripts\python.exe -m claim_harness run `
-  --manuscript examples/oocyte_demo/manuscript.md `
-  --tables examples/oocyte_demo/tables `
-  --references examples/oocyte_demo/references.md `
-  --out outputs/oocyte_demo_deepseek `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --out outputs/lab_report_audit_demo_deepseek `
   --llm deepseek
 ```
 
@@ -88,10 +88,10 @@ $env:GEMINI_API_KEY = Read-Host "GEMINI_API_KEY"
 $env:GEMINI_MODEL="gemini-3.5-flash"
 
 .venv\Scripts\python.exe -m claim_harness run `
-  --manuscript examples/oocyte_demo/manuscript.md `
-  --tables examples/oocyte_demo/tables `
-  --references examples/oocyte_demo/references.md `
-  --out outputs/oocyte_demo_gemini `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --out outputs/lab_report_audit_demo_gemini `
   --llm gemini
 ```
 
@@ -102,10 +102,10 @@ $env:ANTHROPIC_API_KEY = Read-Host "ANTHROPIC_API_KEY"
 $env:ANTHROPIC_MODEL="claude-sonnet-4-5"
 
 .venv\Scripts\python.exe -m claim_harness run `
-  --manuscript examples/oocyte_demo/manuscript.md `
-  --tables examples/oocyte_demo/tables `
-  --references examples/oocyte_demo/references.md `
-  --out outputs/oocyte_demo_anthropic `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --out outputs/lab_report_audit_demo_anthropic `
   --llm anthropic
 ```
 
@@ -117,10 +117,10 @@ Start Ollama locally and pull a model first, then run:
 $env:OLLAMA_MODEL="llama3.2"
 
 .venv\Scripts\python.exe -m claim_harness run `
-  --manuscript examples/oocyte_demo/manuscript.md `
-  --tables examples/oocyte_demo/tables `
-  --references examples/oocyte_demo/references.md `
-  --out outputs/oocyte_demo_ollama `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --out outputs/lab_report_audit_demo_ollama `
   --llm ollama
 ```
 

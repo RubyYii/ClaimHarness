@@ -14,8 +14,8 @@ def test_domain_practitioner_answers_build_plain_language_problem_markdown():
     markdown = build_domain_practitioner_problem(
         {
             "field": "embryology lab",
-            "workflow": "review microscope notes and prepare injection guidance",
-            "repetitive_step": "checking image regions repeatedly",
+            "workflow": "review lab report notes and prepare evidence summaries",
+            "repetitive_step": "checking report claims repeatedly",
             "expert_step": "deciding whether the evidence is reliable enough",
             "materials": "images, CSV notes, short reports",
             "not_automatic": "final clinical or operational decision",
@@ -33,40 +33,40 @@ def test_domain_practitioner_answers_build_plain_language_problem_markdown():
 def test_ai_practitioner_answers_build_problem_markdown_with_alignment_checks():
     markdown = build_ai_practitioner_problem(
         {
-            "domain_problem": "help art historians evaluate Chinese painting commentary",
+            "domain_problem": "help archivists evaluate cultural archive interpretation",
             "candidate_task": "image captioning",
-            "inputs": "painting images and commentary",
-            "outputs": "caption and cultural explanation",
+            "inputs": "archive item images and catalog notes",
+            "outputs": "caption and interpretation candidate",
             "metric": "caption similarity",
-            "user": "art historian",
-            "high_risk_mistakes": "treating object recognition as cultural understanding",
+            "user": "archive specialist",
+            "high_risk_mistakes": "treating object recognition as expert interpretation",
         }
     )
 
     assert "# AI Practitioner Problem Brief" in markdown
     assert "image captioning" in markdown
     assert "caption similarity" in markdown
-    assert "treating object recognition as cultural understanding" in markdown
+    assert "treating object recognition as expert interpretation" in markdown
 
 
 def test_workflow_first_answers_build_problem_markdown_with_required_sections():
     markdown = build_workflow_first_problem(
         {
-            "domain": "embryology lab",
-            "repeated_work": "review microscope notes before injection planning",
-            "current_owner": "senior embryologist",
+            "domain": "technical report review",
+            "repeated_work": "review lab report notes before evidence summary drafting",
+            "current_owner": "senior reviewer",
             "result": "review note and escalation decision",
             "step_1": "collect image notes",
             "step_2": "compare against prior records",
             "step_3": "flag uncertain regions",
             "step_4": "write a short review note",
             "additional_notes": "workflow varies by case urgency",
-            "time_consuming_step": "checking repeated image regions",
+            "time_consuming_step": "checking repeated report claims",
             "annoying_step": "copying notes between sheets",
             "error_prone_step": "missing unclear evidence",
             "expert_judgement_step": "deciding whether evidence is reliable enough",
             "materials": ["tables", "images", "reports", "expert judgement"],
-            "critical_materials": "microscope notes and prior records",
+            "critical_materials": "report notes and prior records",
             "missing_materials": "inconsistent evidence labels",
             "never_automated": "final clinical or operational decision",
             "human_confirmed": "any high-risk judgement",
@@ -87,8 +87,8 @@ def test_workflow_first_answers_build_problem_markdown_with_required_sections():
     for section in required_sections:
         assert section in markdown
 
-    assert "review microscope notes before injection planning" in markdown
-    assert "senior embryologist" in markdown
+    assert "review lab report notes before evidence summary drafting" in markdown
+    assert "senior reviewer" in markdown
     assert "1. collect image notes" in markdown
     assert "- tables" in markdown
     assert "- evidence summaries" in markdown
@@ -121,15 +121,15 @@ def test_discover_alignment_outputs_returns_existing_expected_files(tmp_path):
     assert discovered[0].friendly_label == "这个项目到底想解决什么"
 
 
-def test_friendly_summary_extracts_cards_from_hsg_package(tmp_path):
-    out = tmp_path / "hsg_alignment"
+def test_friendly_summary_extracts_cards_from_quality_inspection_package(tmp_path):
+    out = tmp_path / "quality_inspection_alignment"
     out.mkdir()
     (out / "problem_card.md").write_text(
-        "# Problem Card\n\n## Domain Goal\n\nSupport reviewable HSG interpretation.\n",
+        "# Problem Card\n\n## Domain Goal\n\nSupport reviewable quality inspection.\n",
         encoding="utf-8",
     )
     (out / "workflow_map.md").write_text(
-        "# Domain Workflow Map\n\n1. Image acquisition\n2. Clinician interpretation\n",
+        "# Domain Workflow Map\n\n1. Source capture\n2. Reviewer interpretation\n",
         encoding="utf-8",
     )
     (out / "painpoint_opportunity_matrix.csv").write_text(
@@ -138,7 +138,7 @@ def test_friendly_summary_extracts_cards_from_hsg_package(tmp_path):
         encoding="utf-8",
     )
     (out / "misalignment_risk_report.md").write_text(
-        "# Misalignment Risk Report\n\n- Do not automate diagnosis.\n",
+        "# Misalignment Risk Report\n\n- Do not automate final pass/fail decisions.\n",
         encoding="utf-8",
     )
     (out / "implementation_routes.md").write_text(
@@ -148,8 +148,8 @@ def test_friendly_summary_extracts_cards_from_hsg_package(tmp_path):
 
     summary = friendly_summary(out)
 
-    assert summary.one_sentence == "Support reviewable HSG interpretation."
-    assert summary.workflow_steps == ["Image acquisition", "Clinician interpretation"]
+    assert summary.one_sentence == "Support reviewable quality inspection."
+    assert summary.workflow_steps == ["Source capture", "Reviewer interpretation"]
     assert summary.opportunities[0] == "conservative draft"
-    assert summary.must_review[0] == "Do not automate diagnosis."
+    assert summary.must_review[0] == "Do not automate final pass/fail decisions."
     assert summary.next_steps[0] == "Start with evidence sidecar prototype."

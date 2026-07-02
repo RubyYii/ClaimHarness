@@ -1,0 +1,3 @@
+workflow_step,pain_point,ai_opportunity,risk,human_role
+catalog note reading,Catalog concepts are difficult to align with visible details.,Suggest candidate region-note links.,medium,validate interpretive links
+interpretive claim formation,Object descriptions can be mistaken for cultural interpretation.,Flag object-only explanations as weak.,high,review cultural meaning claims

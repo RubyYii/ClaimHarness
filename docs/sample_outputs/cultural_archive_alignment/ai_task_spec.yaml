@@ -1,0 +1,27 @@
+project_name: cultural_archive_interpretation_alignment
+domain_goal: Evaluate whether AI outputs align visible archive details, catalog notes, source context, and expert interpretation boundaries.
+not_allowed_goal: object-only captioning as expert interpretation
+ai_task_type:
+  - multimodal_archive_reasoning_evaluation
+  - region_note_alignment
+  - evidence_grounded_explanation
+inputs:
+  - image_region
+  - catalog_note_segment
+  - metadata_field
+  - context_note
+outputs:
+  - visual_element_identification
+  - context_reference_detection
+  - interpretive_alignment_score
+  - evidence_grounded_explanation
+evaluation:
+  - Object recognition accuracy
+  - Region-note alignment
+  - Domain concept fidelity
+  - Hallucinated interpretation rate
+  - Expert review score
+human_review_required:
+  - Ambiguous interpretive claims
+  - Provenance or attribution claims
+  - Interpretations not grounded in visible detail and catalog/context notes

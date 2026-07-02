@@ -10,7 +10,7 @@ from .writer import write_alignment_package
 app = typer.Typer(help="ProblemBridge command-line interface.")
 console = Console(width=1000)
 
-DEMO_BRIEF = Path("examples/problem_bridge/hsg/problem.md")
+DEMO_BRIEF = Path("examples/problem_bridge/quality_inspection/problem.md")
 
 
 @app.callback()
@@ -41,9 +41,9 @@ def align(
 
 @app.command()
 def demo(
-    out: Path = typer.Option(Path("outputs/problem_bridge_hsg_demo"), help="Demo output directory."),
+    out: Path = typer.Option(Path("outputs/problem_bridge_quality_inspection_demo"), help="Demo output directory."),
 ) -> None:
-    """Run the bundled HSG ProblemBridge demo."""
+    """Run the bundled quality-inspection ProblemBridge demo."""
     if not DEMO_BRIEF.is_file():
         raise typer.BadParameter(f"demo brief not found: {DEMO_BRIEF}", param_hint="--brief")
 

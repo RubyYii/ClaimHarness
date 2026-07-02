@@ -46,7 +46,7 @@ claim-harness/
     audit_logger.py
     llm.py
   examples/
-    oocyte_demo/
+    lab_report_audit_demo/
       manuscript.md
       references.md
       tables/
@@ -74,7 +74,7 @@ A task is complete only if:
 1. The command below runs successfully:
 
    ```bash
-   python -m claim_harness run --manuscript examples/oocyte_demo/manuscript.md --tables examples/oocyte_demo/tables --references examples/oocyte_demo/references.md --out outputs/oocyte_demo_run --llm mock
+   python -m claim_harness run --manuscript examples/lab_report_audit_demo/manuscript.md --tables examples/lab_report_audit_demo/tables --references examples/lab_report_audit_demo/references.md --out outputs/lab_report_audit_demo_run --llm mock
    ```
 
 2. The output folder contains:

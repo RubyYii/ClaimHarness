@@ -5,8 +5,26 @@ from .schemas import Claim, EvidenceItem, VerificationResult
 
 STRONG_EVIDENCE_TYPES = {"quantitative_result", "ablation_result"}
 WEAK_EVIDENCE_TYPES = {"workflow_trace", "citation", "limitation_statement"}
-HIGH_RISK_TERMS = {"clinical", "clinically", "deployment", "diagnosis", "oocyte", "biomedical"}
-OVERCLAIM_TERMS = {"clinically ready", "clinical deployment", "diagnosis", "real-world clinical deployment"}
+HIGH_RISK_TERMS = {
+    "clinical",
+    "clinically",
+    "deployment",
+    "diagnosis",
+    "biomedical",
+    "operational readiness",
+    "operational deployment",
+    "safety-critical",
+}
+OVERCLAIM_TERMS = {
+    "clinically ready",
+    "clinical deployment",
+    "diagnosis",
+    "real-world clinical deployment",
+    "ready for real-world deployment",
+    "real-world operational deployment",
+    "deployment-ready",
+    "operationally ready",
+}
 
 
 def verify_claims(claims: list[Claim], evidence: list[EvidenceItem]) -> list[VerificationResult]:
@@ -28,7 +46,7 @@ def _verify_claim(claim: Claim, evidence_items: list[EvidenceItem]) -> Verificat
         return VerificationResult(
             claim_id=claim.claim_id,
             status="overclaimed",
-            reason="Clinical deployment language appears without external validation or safety evidence.",
+            reason="Deployment or readiness language appears without external validation or safety evidence.",
             risk_level="high",
             suggested_revision="Reframe as a synthetic benchmark observation and route to human review.",
         )

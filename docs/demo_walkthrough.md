@@ -1,6 +1,6 @@
 # Demo Walkthrough
 
-This walkthrough uses the synthetic oocyte demo. The inputs are intentionally toy data, not private manuscript material.
+This walkthrough uses the synthetic lab-report audit demo. The inputs are intentionally toy data, not private manuscript material.
 
 ## Install
 
@@ -14,7 +14,7 @@ python -m venv .venv
 Fast path:
 
 ```bash
-.venv\Scripts\python.exe -m claim_harness demo --out outputs/oocyte_demo_run
+.venv\Scripts\python.exe -m claim_harness demo --out outputs/lab_report_audit_demo_run
 ```
 
 This runs the mock audit and writes the static `index.html` report viewer.
@@ -23,10 +23,10 @@ Manual path:
 
 ```bash
 .venv\Scripts\python.exe -m claim_harness run \
-  --manuscript examples/oocyte_demo/manuscript.md \
-  --tables examples/oocyte_demo/tables \
-  --references examples/oocyte_demo/references.md \
-  --out outputs/oocyte_demo_run \
+  --manuscript examples/lab_report_audit_demo/manuscript.md \
+  --tables examples/lab_report_audit_demo/tables \
+  --references examples/lab_report_audit_demo/references.md \
+  --out outputs/lab_report_audit_demo_run \
   --llm mock
 ```
 
@@ -37,16 +37,16 @@ ClaimHarness audit complete.
 claims=18
 supported=15
 weak_or_worse=3
-out=outputs\oocyte_demo_run
+out=outputs\lab_report_audit_demo_run
 ```
 
 ## Generate Viewer
 
 ```bash
-.venv\Scripts\python.exe -m claim_harness view --run outputs/oocyte_demo_run
+.venv\Scripts\python.exe -m claim_harness view --run outputs/lab_report_audit_demo_run
 ```
 
-This writes `outputs/oocyte_demo_run/index.html`, a static report viewer for the audit package. It does not run a server or change the audit outputs.
+This writes `outputs/lab_report_audit_demo_run/index.html`, a static report viewer for the audit package. It does not run a server or change the audit outputs.
 
 ## Inspect Outputs
 

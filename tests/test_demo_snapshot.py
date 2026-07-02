@@ -6,9 +6,9 @@ from claim_harness.loader import load_manuscript, load_references, load_tables
 from claim_harness.verifier import verify_claims
 
 
-DEMO_MANUSCRIPT = Path("examples/oocyte_demo/manuscript.md")
-DEMO_TABLES = Path("examples/oocyte_demo/tables")
-DEMO_REFERENCES = Path("examples/oocyte_demo/references.md")
+DEMO_MANUSCRIPT = Path("examples/lab_report_audit_demo/manuscript.md")
+DEMO_TABLES = Path("examples/lab_report_audit_demo/tables")
+DEMO_REFERENCES = Path("examples/lab_report_audit_demo/references.md")
 
 
 def test_demo_status_distribution_snapshot():
@@ -26,10 +26,10 @@ def test_demo_status_distribution_snapshot():
         if result.status in status_counts:
             status_counts[result.status] += 1
 
-    assert len(claims) == 18
+    assert len(claims) == 17
     assert len(evidence) == 26
     assert status_counts == {
-        "supported": 15,
+        "supported": 14,
         "weakly_supported": 1,
         "overclaimed": 2,
     }

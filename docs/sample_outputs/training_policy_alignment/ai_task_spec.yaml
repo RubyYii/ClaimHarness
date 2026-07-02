@@ -1,0 +1,27 @@
+project_name: training_policy_response_alignment
+domain_goal: Evaluate whether generated training or policy-support answers remain source-grounded, conceptually aligned, and appropriately bounded for review.
+not_allowed_goal: fluent answer generation as policy compliance
+ai_task_type:
+  - policy_sensitive_response_audit
+  - source_grounding_check
+  - scope_and_framing_risk_detection
+inputs:
+  - training_objective
+  - policy_source_fragment
+  - learner_or_staff_question
+  - model_answer
+outputs:
+  - unsupported_claims
+  - concept_alignment_notes
+  - scope_or_framing_risk
+  - reviewer_flag
+evaluation:
+  - Factual correctness
+  - Concept relation consistency
+  - Source-groundedness
+  - Scope and framing stability
+  - Reviewer correction burden
+human_review_required:
+  - Policy-sensitive or procedural explanation
+  - Unsupported claim about source guidance
+  - Ambiguous framing or contested interpretation

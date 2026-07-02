@@ -37,7 +37,7 @@ def test_align_help_documents_problem_alignment_cli():
 
 def test_align_rejects_unknown_provider(tmp_path):
     brief = tmp_path / "problem.md"
-    brief.write_text("I want to build an AI model for HSG support.", encoding="utf-8")
+    brief.write_text("I want to build an AI model for quality inspection support.", encoding="utf-8")
     runner = CliRunner()
 
     result = runner.invoke(
@@ -60,16 +60,16 @@ def test_demo_writes_problem_alignment_package(tmp_path):
     assert EXPECTED_FILES == {path.name for path in out.iterdir()}
 
 
-def test_align_writes_deterministic_hsg_package(tmp_path):
+def test_align_writes_deterministic_quality_inspection_package(tmp_path):
     runner = CliRunner()
-    out = tmp_path / "hsg_alignment"
+    out = tmp_path / "quality_inspection_alignment"
 
     result = runner.invoke(
         app,
         [
             "align",
             "--brief",
-            "examples/problem_bridge/hsg/problem.md",
+            "examples/problem_bridge/quality_inspection/problem.md",
             "--out",
             str(out),
             "--llm",
@@ -81,6 +81,6 @@ def test_align_writes_deterministic_hsg_package(tmp_path):
     task_spec = (out / "ai_task_spec.yaml").read_text(encoding="utf-8")
     risk_report = (out / "misalignment_risk_report.md").read_text(encoding="utf-8")
 
-    assert "evidence_ready_hsg_support" in task_spec
-    assert "not_allowed_goal: autonomous diagnosis" in task_spec
-    assert "segmentation absence" in risk_report
+    assert "quality_inspection_review_alignment" in task_spec
+    assert "not_allowed_goal: autonomous pass/fail decision" in task_spec
+    assert "pass/fail decision" in risk_report

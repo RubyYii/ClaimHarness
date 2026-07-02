@@ -14,7 +14,7 @@ def write_sample_audit_package(path: Path, include_llm_review: bool = False) -> 
             [
                 "claim_id,text,source_section,claim_type,strength,status,risk_level,reason,suggested_revision",
                 "C001,Escaped <claim>,Results,performance_claim,strong,supported,low,Table evidence,No revision needed",
-                "C002,Clinically ready claim,Discussion,clinical_claim,high,overclaimed,high,No validation,Narrow the claim",
+                "C002,Deployment-ready claim,Discussion,deployment_claim,high,overclaimed,high,No validation,Narrow the claim",
             ]
         ),
         encoding="utf-8",
@@ -24,7 +24,7 @@ def write_sample_audit_package(path: Path, include_llm_review: bool = False) -> 
             {
                 "claims": [
                     {"claim_id": "C001", "text": "Escaped <claim>", "evidence_ids": ["E001"]},
-                    {"claim_id": "C002", "text": "Clinically ready claim", "evidence_ids": []},
+                    {"claim_id": "C002", "text": "Deployment-ready claim", "evidence_ids": []},
                 ],
                 "evidence": [
                     {

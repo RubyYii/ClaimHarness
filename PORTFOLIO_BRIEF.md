@@ -38,10 +38,10 @@ The system helps:
 
 ## Current Synthetic Examples
 
-- HSG evidence-ready support
-- Chinese painting / VULCA cultural interpretation alignment
-- Political education risk evaluation
-- Oocyte ClaimHarness claim-evidence audit
+- Quality inspection review alignment
+- Cultural archive interpretation alignment
+- Training policy response alignment
+- ClaimHarness lab-report audit demo
 
 ## Limitations
 

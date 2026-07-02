@@ -31,6 +31,7 @@ ProblemBridge + ClaimHarness 是一个本地优先的跨学科 AI 原型。它�
 当前支持：
 
 - `.docx` Word 文档
+- `.doc` 旧版 Word 文件会给出本地转换提示
 - `.pdf` 文字版 PDF
 - `.txt`
 - `.md`
@@ -174,10 +175,10 @@ RUN_PROBLEMBRIDGE_WINDOWS.bat
 
 当前仓库包含几个合成样例：
 
-- HSG evidence-ready support：医学影像支持场景，强调可视化输出不等于临床结论。
-- Chinese painting / VULCA：文化解释场景，强调识别物体不等于文化解释。
-- Political education risk evaluation：教育风险场景，强调流畅回答不等于价值敏感的教育对齐。
-- ClaimHarness oocyte demo：科研 claim-evidence 审计样例。
+- Quality inspection review alignment：质检审核场景，强调视觉检测不等于最终通过/不通过判断。
+- Cultural archive interpretation alignment：文化档案场景，强调识别物体不等于专家解释。
+- Training policy response alignment：培训政策场景，强调流畅回答不等于有来源依据的政策对齐。
+- ClaimHarness lab report audit demo：通用实验报告 claim-evidence 审计样例。
 
 可以打开中文静态展示页查看：[`docs/static_showcase/zh-CN.html`](docs/static_showcase/zh-CN.html)。
 

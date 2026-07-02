@@ -1,0 +1,16 @@
+claim_type:
+  inspection_suggestion:
+    required_evidence:
+      - source_region_or_record
+      - uncertainty_statement
+      - human_review_flag
+    forbidden_without:
+      - reviewer_confirmation
+      - input_quality_assessment
+  model_performance:
+    required_evidence:
+      - quantitative_table
+      - baseline_comparison
+      - error_analysis
+    forbidden_without:
+      []

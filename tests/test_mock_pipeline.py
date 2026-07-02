@@ -8,12 +8,13 @@ from claim_harness.claim_extractor import extract_claims
 from claim_harness.cli import app
 from claim_harness.evidence_retriever import retrieve_evidence
 from claim_harness.loader import load_manuscript, load_references, load_tables
+from claim_harness.schemas import Claim
 from claim_harness.verifier import verify_claims
 
 
-DEMO_MANUSCRIPT = Path("examples/oocyte_demo/manuscript.md")
-DEMO_TABLES = Path("examples/oocyte_demo/tables")
-DEMO_REFERENCES = Path("examples/oocyte_demo/references.md")
+DEMO_MANUSCRIPT = Path("examples/lab_report_audit_demo/manuscript.md")
+DEMO_TABLES = Path("examples/lab_report_audit_demo/tables")
+DEMO_REFERENCES = Path("examples/lab_report_audit_demo/references.md")
 EXPECTED_OUTPUTS = [
     "claim_table.csv",
     "evidence_map.json",
@@ -45,7 +46,7 @@ def test_deterministic_modules_produce_claims_evidence_and_statuses():
 
 
 def test_mock_cli_run_writes_required_outputs(tmp_path):
-    output_dir = tmp_path / "oocyte_demo_run"
+    output_dir = tmp_path / "lab_report_audit_demo_run"
     runner = CliRunner()
 
     result = runner.invoke(
@@ -98,3 +99,28 @@ def test_demo_cli_command_generates_audit_and_viewer(tmp_path):
     for filename in [*EXPECTED_OUTPUTS, "index.html"]:
         assert (output_dir / filename).exists(), filename
     assert "Demo audit complete" in result.output
+
+
+def test_verifier_flags_generic_deployment_overclaims():
+    claim = Claim(
+        claim_id="C999",
+        text="The workflow is ready for real-world operational deployment.",
+        source_section="Discussion",
+        claim_type="deployment_claim",
+        strength="high",
+        requires_evidence=["external validation"],
+    )
+
+    result = verify_claims([claim], [])[0]
+
+    assert result.status == "overclaimed"
+    assert result.risk_level == "high"
+    assert "deployment" in result.reason.lower()
+
+
+def test_claim_extractor_uses_generic_deployment_claim_type():
+    sections = load_manuscript(DEMO_MANUSCRIPT)
+    claims = extract_claims(sections)
+
+    assert any(claim.claim_type == "deployment_claim" for claim in claims)
+    assert all(claim.claim_type != "clinical_claim" for claim in claims)

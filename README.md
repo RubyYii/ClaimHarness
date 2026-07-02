@@ -31,6 +31,7 @@ The Document Intake Layer lets users bring local files into the workflow before 
 Supported input types:
 
 - `.docx` Word documents
+- legacy `.doc` Word files, with a local conversion warning instead of silent failure
 - `.pdf` text-based PDF files
 - `.txt`
 - `.md`
@@ -181,7 +182,7 @@ Run the bundled synthetic demo and generate the browser report in one command:
 .venv\Scripts\python.exe -m claim_harness demo
 ```
 
-Run the bundled ProblemBridge HSG alignment demo:
+Run the bundled ProblemBridge quality-inspection alignment demo:
 
 ```bash
 .venv\Scripts\python.exe -m problem_bridge demo
@@ -211,14 +212,14 @@ python -m venv .venv
 .venv\Scripts\python.exe -m pip install -e ".[dev]"
 ```
 
-Run the synthetic oocyte demo manually:
+Run the synthetic lab-report audit demo manually:
 
 ```bash
 .venv\Scripts\python.exe -m claim_harness run \
-  --manuscript examples/oocyte_demo/manuscript.md \
-  --tables examples/oocyte_demo/tables \
-  --references examples/oocyte_demo/references.md \
-  --out outputs/oocyte_demo_run \
+  --manuscript examples/lab_report_audit_demo/manuscript.md \
+  --tables examples/lab_report_audit_demo/tables \
+  --references examples/lab_report_audit_demo/references.md \
+  --out outputs/lab_report_audit_demo_run \
   --llm mock
 ```
 
@@ -231,7 +232,7 @@ Run tests:
 Or use the one-command demo path:
 
 ```bash
-.venv\Scripts\python.exe -m claim_harness demo --out outputs/oocyte_demo_run
+.venv\Scripts\python.exe -m claim_harness demo --out outputs/lab_report_audit_demo_run
 ```
 
 ## For non-AI users
@@ -330,25 +331,25 @@ powershell -ExecutionPolicy Bypass -File scripts\test_release_zip_powershell.ps1
 
 ## ProblemBridge Quickstart
 
-Run the synthetic HSG alignment demo:
+Run the synthetic quality-inspection alignment demo:
 
 ```bash
-.venv\Scripts\python.exe -m problem_bridge demo --out outputs/problem_bridge_hsg_demo
+.venv\Scripts\python.exe -m problem_bridge demo --out outputs/problem_bridge_quality_inspection_demo
 ```
 
 Run a specific problem brief:
 
 ```bash
 .venv\Scripts\python.exe -m problem_bridge align `
-  --brief examples/problem_bridge/hsg/problem.md `
-  --out outputs/hsg_alignment `
+  --brief examples/problem_bridge/quality_inspection/problem.md `
+  --out outputs/quality_inspection_alignment `
   --llm mock
 ```
 
 The mock alignment package writes:
 
 ```text
-outputs/hsg_alignment/
+outputs/quality_inspection_alignment/
   problem_card.md
   workflow_map.md
   painpoint_opportunity_matrix.csv
@@ -366,9 +367,9 @@ Bundled synthetic ProblemBridge examples:
 
 ```text
 examples/problem_bridge/
-  hsg/problem.md
-  chinese_painting/problem.md
-  political_education/problem.md
+  quality_inspection/problem.md
+  cultural_archive/problem.md
+  training_policy/problem.md
 ```
 
 ProblemBridge should be used before model building, when the key question is whether a domain workflow has been turned into the right AI task. ClaimHarness should be used after claims or reports exist, when the key question is whether those claims are supported by evidence.
@@ -429,10 +430,10 @@ For OpenAI or a generic OpenAI-compatible endpoint, set environment variables an
 $env:OPENAI_API_KEY = Read-Host "OPENAI_API_KEY"
 $env:OPENAI_MODEL="gpt-5.4-mini"
 .venv\Scripts\python.exe -m claim_harness run `
-  --manuscript examples/oocyte_demo/manuscript.md `
-  --tables examples/oocyte_demo/tables `
-  --references examples/oocyte_demo/references.md `
-  --out outputs/oocyte_demo_openai `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --out outputs/lab_report_audit_demo_openai `
   --llm openai-compatible
 ```
 
@@ -444,10 +445,10 @@ Qwen / DashScope has its own preset:
 $env:DASHSCOPE_API_KEY = Read-Host "DASHSCOPE_API_KEY"
 $env:QWEN_MODEL="qwen-plus"
 .venv\Scripts\python.exe -m claim_harness run `
-  --manuscript examples/oocyte_demo/manuscript.md `
-  --tables examples/oocyte_demo/tables `
-  --references examples/oocyte_demo/references.md `
-  --out outputs/oocyte_demo_qwen `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --out outputs/lab_report_audit_demo_qwen `
   --llm qwen
 ```
 
@@ -459,10 +460,10 @@ DeepSeek can use its own preset:
 $env:DEEPSEEK_API_KEY = Read-Host "DEEPSEEK_API_KEY"
 $env:DEEPSEEK_MODEL="deepseek-v4-flash"
 .venv\Scripts\python.exe -m claim_harness run `
-  --manuscript examples/oocyte_demo/manuscript.md `
-  --tables examples/oocyte_demo/tables `
-  --references examples/oocyte_demo/references.md `
-  --out outputs/oocyte_demo_deepseek `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --out outputs/lab_report_audit_demo_deepseek `
   --llm deepseek
 ```
 
@@ -473,10 +474,10 @@ See [MODEL_PROVIDER_GUIDE.md](MODEL_PROVIDER_GUIDE.md) for `openai`, `qwen`, `de
 Generate a local HTML viewer for an existing audit package:
 
 ```bash
-.venv\Scripts\python.exe -m claim_harness view --run outputs/oocyte_demo_run
+.venv\Scripts\python.exe -m claim_harness view --run outputs/lab_report_audit_demo_run
 ```
 
-This writes `outputs/oocyte_demo_run/index.html`, a static report viewer that can be opened directly in a browser. It does not run a server or change audit results.
+This writes `outputs/lab_report_audit_demo_run/index.html`, a static report viewer that can be opened directly in a browser. It does not run a server or change audit results.
 
 ## Word and PDF Export
 
@@ -485,7 +486,7 @@ The local Streamlit workbench can export any generated output folder as `export_
 ## Demo Input Structure
 
 ```text
-examples/oocyte_demo/
+examples/lab_report_audit_demo/
   manuscript.md
   references.md
   tables/
@@ -493,14 +494,14 @@ examples/oocyte_demo/
     table2_ablation.csv
 ```
 
-The manuscript is fully synthetic and describes a human-in-the-loop, explainable workflow for oocyte injection guidance. The tables are toy result tables designed to exercise claim extraction, evidence retrieval, and verification logic.
+The manuscript is fully synthetic and describes a human-in-the-loop workflow for auditing measurement claims in lab-style reports. The tables are toy result tables designed to exercise claim extraction, evidence retrieval, and verification logic.
 
 ## Expected Output
 
 The mock demo writes five files:
 
 ```text
-outputs/oocyte_demo_run/
+outputs/lab_report_audit_demo_run/
   claim_table.csv
   evidence_map.json
   audit_report.md
@@ -513,9 +514,9 @@ outputs/oocyte_demo_run/
 
 ```text
 claim_id,source_line,status,claim_type,example
-C002,4,supported,performance_claim,The proposed harness improves segmentation Dice and IoU...
-C004,4,overclaimed,clinical_claim,Although the prototype is not clinically validated...
-C007,8,weakly_supported,novelty_claim,The first design goal is to make every guidance claim traceable...
+C002,4,supported,performance_claim,The proposed harness improves macro F1 and recall...
+C004,4,overclaimed,deployment_claim,The workflow is ready for real-world operational deployment...
+C007,8,weakly_supported,workflow_claim,The first design goal is to make every report claim traceable...
 ```
 
 `source_line` points back to the approximate manuscript line. `evidence_map.json` links claim IDs to evidence IDs and includes a match reason for each link so reviewers can inspect why a claim was classified. `agent_trace.jsonl` records each pipeline step in order, including loading, extraction, retrieval, verification, and report generation.
@@ -539,7 +540,7 @@ The goal is not to replace reviewers. The goal is to make scientific claims more
 Implemented:
 
 - CLI-first mock audit pipeline
-- synthetic oocyte demo inputs
+- synthetic lab-report audit demo inputs
 - Pydantic schemas
 - Markdown and CSV loaders
 - deterministic claim extraction

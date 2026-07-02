@@ -1,54 +1,54 @@
 from .schemas import AlignmentPackage, ConceptAlignment, PainpointOpportunity
 
 
-def hsg_profile(source_problem: str) -> AlignmentPackage:
+def quality_inspection_profile(source_problem: str) -> AlignmentPackage:
     return AlignmentPackage(
-        profile="hsg",
-        project_name="evidence_ready_hsg_support",
-        title="HSG Evidence-Ready Second-Reader Support",
+        profile="quality_inspection",
+        project_name="quality_inspection_review_alignment",
+        title="Quality Inspection Review Alignment",
         source_problem=source_problem,
         domain_goal=(
-            "Support reviewable HSG interpretation by preserving image quality, "
-            "contrast passage, visibility, uncertainty, and clinician judgement."
+            "Support reviewable inspection by preserving material quality, defect visibility, "
+            "uncertainty, reviewer notes, and final human judgement."
         ),
-        not_allowed_goal="autonomous diagnosis",
+        not_allowed_goal="autonomous pass/fail decision",
         meaningful_outputs=[
-            "Evidence sidecar for clinician review",
-            "Conservative structured report draft",
-            "Human review flag for low-confidence or high-risk findings",
+            "Evidence sidecar for reviewer inspection",
+            "Conservative inspection summary draft",
+            "Human review flag for low-confidence or high-impact findings",
         ],
         non_meaningful_outputs=[
-            "A standalone obstruction diagnosis from mask absence",
-            "A deployment-ready clinical conclusion without validation",
+            "A standalone pass/fail decision from a visual mark",
+            "A deployment-ready quality gate without validation",
         ],
         workflow_steps=[
-            "Patient preparation",
-            "Image acquisition",
-            "Image quality judgement",
-            "Contrast passage observation",
-            "Tubal visibility judgement",
-            "Clinician interpretation",
-            "Report drafting",
+            "Item intake",
+            "Image or record capture",
+            "Input quality judgement",
+            "Defect candidate review",
+            "Severity and uncertainty judgement",
+            "Reviewer interpretation",
+            "Inspection summary drafting",
             "Review and correction",
         ],
         painpoints=[
             PainpointOpportunity(
-                workflow_step="image quality judgement",
-                pain_point="Visibility and contrast timing are inconsistently recorded.",
-                ai_opportunity="Generate image-quality and visibility sidecars.",
+                workflow_step="input quality judgement",
+                pain_point="Visibility, lighting, or sampling quality are inconsistently recorded.",
+                ai_opportunity="Generate input-quality and visibility sidecars.",
                 risk="medium",
-                human_role="confirm quality labels",
+                human_role="confirm quality and visibility labels",
             ),
             PainpointOpportunity(
-                workflow_step="contrast passage observation",
-                pain_point="Repeated visual checking can be slow and subjective.",
+                workflow_step="defect candidate review",
+                pain_point="Repeated visual checking can be slow and inconsistent.",
                 ai_opportunity="Highlight candidate regions and uncertainty.",
                 risk="medium",
                 human_role="confirm or reject highlighted evidence",
             ),
             PainpointOpportunity(
-                workflow_step="report drafting",
-                pain_point="Wording may overstate what image evidence supports.",
+                workflow_step="inspection summary drafting",
+                pain_point="Wording may overstate what the available evidence supports.",
                 ai_opportunity="Draft conservative evidence-grounded report text.",
                 risk="high",
                 human_role="edit and approve final wording",
@@ -56,45 +56,45 @@ def hsg_profile(source_problem: str) -> AlignmentPackage:
         ],
         concepts=[
             ConceptAlignment(
-                domain_concept="tubal obstruction",
+                domain_concept="quality failure",
                 ai_representation="classification label",
                 alignment_status="partial",
-                misalignment_risk="segmentation absence may mean poor visibility rather than obstruction",
+                misalignment_risk="a visual anomaly may reflect capture quality, context, or acceptable variation rather than failure",
             ),
             ConceptAlignment(
-                domain_concept="tube visibility",
-                ai_representation="segmentation confidence plus contrast quality",
+                domain_concept="defect visibility",
+                ai_representation="detection confidence plus input quality",
                 alignment_status="aligned",
-                misalignment_risk="image quality and timing still need clinician interpretation",
+                misalignment_risk="input quality and acceptance criteria still need reviewer interpretation",
             ),
             ConceptAlignment(
-                domain_concept="clinical readiness",
+                domain_concept="operational readiness",
                 ai_representation="deployment status",
                 alignment_status="high-risk",
-                misalignment_risk="requires validation beyond model metrics",
+                misalignment_risk="requires validation beyond model metrics and sample screenshots",
             ),
         ],
         ai_task_type=[
-            "image_quality_assessment",
-            "anatomy_visibility_segmentation",
+            "input_quality_assessment",
+            "defect_candidate_detection",
             "evidence_sidecar_generation",
-            "conservative_report_drafting",
+            "conservative_inspection_summary_drafting",
         ],
         inputs=[
-            "original_image",
-            "segmentation_overlay",
+            "inspection_image_or_record",
+            "candidate_region_overlay",
             "confidence_score",
-            "image_quality_label",
+            "input_quality_label",
         ],
         outputs=[
             "evidence_summary",
             "uncertainty_statement",
             "human_review_flag",
-            "structured_draft_report",
+            "structured_draft_summary",
         ],
         required_evidence={
-            "clinical_suggestion": [
-                "original_image_region",
+            "inspection_suggestion": [
+                "source_region_or_record",
                 "uncertainty_statement",
                 "human_review_flag",
             ],
@@ -105,73 +105,73 @@ def hsg_profile(source_problem: str) -> AlignmentPackage:
             ],
         },
         forbidden_without={
-            "clinical_suggestion": [
-                "clinician_confirmation",
-                "image_quality_assessment",
+            "inspection_suggestion": [
+                "reviewer_confirmation",
+                "input_quality_assessment",
             ],
         },
         evaluation_protocol=[
-            "Segmentation quality for visible anatomy",
-            "Evidence completeness for each report statement",
+            "Candidate detection quality for visible issues",
+            "Evidence completeness for each inspection statement",
             "Uncertainty calibration",
             "Overclaim rate",
-            "Clinician correction burden",
+            "Reviewer correction burden",
         ],
         insufficient_metrics=[
-            "Dice / IoU alone is insufficient because segmentation quality does not equal diagnostic reliability.",
+            "Detection accuracy alone is insufficient because a visible candidate does not equal final quality failure.",
         ],
         misalignment_risks=[
-            "The task may treat segmentation absence as tubal obstruction.",
-            "The report may turn a visibility limitation into a definitive clinical claim.",
-            "A model metric may be mistaken for clinical readiness.",
+            "The task may treat a visual candidate as a final pass/fail decision.",
+            "The report may turn a visibility limitation into a definitive quality claim.",
+            "A model metric may be mistaken for operational readiness.",
         ],
         human_review_required=[
-            "Any tubal abnormality suggestion",
-            "Low-confidence segmentation",
-            "Poor visibility or ambiguous contrast passage",
-            "Any wording that implies diagnosis or deployment readiness",
+            "Any final pass/fail suggestion",
+            "Low-confidence candidate detection",
+            "Poor visibility or ambiguous source material",
+            "Any wording that implies deployment readiness",
         ],
         implementation_routes=[
             "Dataset/benchmark paper for evidence completeness and overclaim rate",
-            "Human-in-the-loop workflow demo for conservative report drafting",
-            "ClaimHarness audit layer for report claim-evidence checking",
+            "Human-in-the-loop workflow demo for conservative summary drafting",
+            "ClaimHarness audit layer for inspection claim-evidence checking",
         ],
     )
 
 
-def chinese_painting_profile(source_problem: str) -> AlignmentPackage:
+def cultural_archive_profile(source_problem: str) -> AlignmentPackage:
     return AlignmentPackage(
-        profile="chinese_painting",
-        project_name="vlm_cultural_interpretation_alignment",
-        title="VLM Cultural Interpretation Alignment for Chinese Painting",
+        profile="cultural_archive",
+        project_name="cultural_archive_interpretation_alignment",
+        title="Cultural Archive Interpretation Alignment",
         source_problem=source_problem,
         domain_goal=(
-            "Evaluate whether VLM outputs align visible image details, commentary text, "
-            "historical context, and culturally situated interpretation."
+            "Evaluate whether AI outputs align visible archive details, catalog notes, "
+            "source context, and expert interpretation boundaries."
         ),
-        not_allowed_goal="object-only captioning as cultural understanding",
+        not_allowed_goal="object-only captioning as expert interpretation",
         meaningful_outputs=[
-            "Region-commentary alignment evidence",
-            "Cultural concept fidelity notes",
+            "Region-note alignment evidence",
+            "Interpretation fidelity notes",
             "Uncertainty-aware interpretation candidates",
         ],
         non_meaningful_outputs=[
             "Generic object captioning",
-            "Universal symbolic claims without textual or historical support",
+            "Authoritative interpretive claims without source or expert support",
         ],
         workflow_steps=[
-            "Image inspection",
-            "Detail and inscription identification",
-            "Commentary reading",
-            "Historical and aesthetic context lookup",
+            "Archive item inspection",
+            "Detail and metadata identification",
+            "Catalog note reading",
+            "Context and provenance lookup",
             "Interpretive claim formation",
             "Expert review",
         ],
         painpoints=[
             PainpointOpportunity(
-                workflow_step="commentary reading",
-                pain_point="Commentary concepts are difficult to align with image regions.",
-                ai_opportunity="Suggest candidate region-commentary links.",
+                workflow_step="catalog note reading",
+                pain_point="Catalog concepts are difficult to align with visible details.",
+                ai_opportunity="Suggest candidate region-note links.",
                 risk="medium",
                 human_role="validate interpretive links",
             ),
@@ -185,173 +185,173 @@ def chinese_painting_profile(source_problem: str) -> AlignmentPackage:
         ],
         concepts=[
             ConceptAlignment(
-                domain_concept="blank space",
-                ai_representation="white pixels or empty region",
+                domain_concept="contextual absence",
+                ai_representation="empty region or missing metadata",
                 alignment_status="misaligned",
-                misalignment_risk="visual emptiness may carry compositional and cultural meaning",
+                misalignment_risk="absence may be meaningful, unknown, or simply undocumented",
             ),
             ConceptAlignment(
-                domain_concept="brushwork",
-                ai_representation="texture and line features",
+                domain_concept="material or stylistic feature",
+                ai_representation="texture, line, or visual feature",
                 alignment_status="partial",
-                misalignment_risk="requires art-historical vocabulary and expert interpretation",
+                misalignment_risk="requires domain vocabulary and expert interpretation",
             ),
             ConceptAlignment(
-                domain_concept="scholar commentary",
+                domain_concept="catalog note",
                 ai_representation="caption or text prompt",
                 alignment_status="partial",
-                misalignment_risk="commentary is interpretive evidence, not a simple image label",
+                misalignment_risk="notes are interpretive evidence, not simple image labels",
             ),
         ],
         ai_task_type=[
-            "multimodal_cultural_reasoning_evaluation",
-            "region_commentary_alignment",
+            "multimodal_archive_reasoning_evaluation",
+            "region_note_alignment",
             "evidence_grounded_explanation",
         ],
         inputs=[
             "image_region",
-            "commentary_segment",
-            "modern_translation",
-            "historical_context_note",
+            "catalog_note_segment",
+            "metadata_field",
+            "context_note",
         ],
         outputs=[
             "visual_element_identification",
-            "cultural_reference_detection",
+            "context_reference_detection",
             "interpretive_alignment_score",
             "evidence_grounded_explanation",
         ],
         required_evidence={
-            "cultural_interpretation": [
+            "archive_interpretation": [
                 "visible_image_detail",
-                "textual_or_historical_context",
+                "catalog_or_context_note",
                 "alternative_interpretation_check",
             ]
         },
         forbidden_without={
-            "cultural_interpretation": [
+            "archive_interpretation": [
                 "expert_review",
-                "commentary_support",
+                "catalog_or_context_support",
             ]
         },
         evaluation_protocol=[
             "Object recognition accuracy",
-            "Region-commentary alignment",
-            "Cultural concept fidelity",
+            "Region-note alignment",
+            "Domain concept fidelity",
             "Hallucinated interpretation rate",
             "Expert review score",
         ],
         insufficient_metrics=[
-            "Caption similarity is insufficient because object-level description does not equal cultural interpretation.",
+            "Caption similarity is insufficient because object-level description does not equal domain interpretation.",
         ],
         misalignment_risks=[
-            "The task may reduce cultural interpretation to image captioning.",
-            "The model may hallucinate art-historical context.",
-            "The evaluation may reward fluent style imitation instead of evidence-grounded understanding.",
+            "The task may reduce archive interpretation to image captioning.",
+            "The model may hallucinate provenance or contextual meaning.",
+            "The evaluation may reward fluent style imitation instead of evidence-grounded interpretation.",
         ],
         human_review_required=[
-            "Ambiguous symbolic claims",
-            "Historical attribution",
-            "Interpretations not grounded in visible detail and commentary",
+            "Ambiguous interpretive claims",
+            "Provenance or attribution claims",
+            "Interpretations not grounded in visible detail and catalog/context notes",
         ],
         implementation_routes=[
-            "Benchmark paper for region-commentary alignment",
-            "Expert annotation protocol for cultural concept fidelity",
+            "Benchmark paper for region-note alignment",
+            "Expert annotation protocol for domain concept fidelity",
             "ClaimHarness audit of interpretation claims and evidence links",
         ],
     )
 
 
-def political_education_profile(source_problem: str) -> AlignmentPackage:
+def training_policy_profile(source_problem: str) -> AlignmentPackage:
     return AlignmentPackage(
-        profile="political_education",
-        project_name="value_sensitive_llm_risk_evaluation",
-        title="LLM Risk Evaluation for Value-Sensitive Political Theory Education",
+        profile="training_policy",
+        project_name="training_policy_response_alignment",
+        title="Training Policy Response Alignment",
         source_problem=source_problem,
         domain_goal=(
-            "Evaluate whether model answers remain source-grounded, conceptually aligned, "
-            "and appropriately bounded in value-sensitive educational settings."
+            "Evaluate whether generated training or policy-support answers remain source-grounded, "
+            "conceptually aligned, and appropriately bounded for review."
         ),
-        not_allowed_goal="fluent answer generation as educational safety",
+        not_allowed_goal="fluent answer generation as policy compliance",
         meaningful_outputs=[
             "Source-grounded answer audit",
             "Concept framing consistency checks",
-            "Teacher review burden estimate",
+            "Reviewer correction burden estimate",
         ],
         non_meaningful_outputs=[
             "Fluency-only answer scores",
-            "Generic factual QA accuracy without value-sensitive framing review",
+            "Generic factual QA accuracy without policy or training-context review",
         ],
         workflow_steps=[
-            "Curriculum concept selection",
-            "Source text selection",
+            "Training objective selection",
+            "Policy or guidance source selection",
             "Question or scenario design",
             "Model response generation",
             "Concept and source-grounding audit",
-            "Teacher review and correction",
+            "Reviewer correction and approval",
         ],
         painpoints=[
             PainpointOpportunity(
                 workflow_step="model response generation",
-                pain_point="Fluent answers may hide unsupported or misframed claims.",
-                ai_opportunity="Classify unsupportedness and concept-framing risks.",
+                pain_point="Fluent answers may hide unsupported, misframed, or out-of-scope claims.",
+                ai_opportunity="Classify unsupportedness, scope drift, and framing risks.",
                 risk="high",
-                human_role="review value-sensitive explanations",
+                human_role="review policy-sensitive explanations",
             ),
             PainpointOpportunity(
-                workflow_step="teacher review and correction",
+                workflow_step="reviewer correction and approval",
                 pain_point="Manual review is slow and hard to standardize.",
                 ai_opportunity="Produce review checklists and evidence gaps.",
                 risk="medium",
-                human_role="approve or revise final educational content",
+                human_role="approve or revise final training content",
             ),
         ],
         concepts=[
             ConceptAlignment(
                 domain_concept="hallucination",
-                ai_representation="unsupported factual or doctrinal statement",
+                ai_representation="unsupported factual or policy statement",
                 alignment_status="partial",
-                misalignment_risk="unsupportedness may include concept framing, not just false facts",
+                misalignment_risk="unsupportedness may include scope or framing drift, not just false facts",
             ),
             ConceptAlignment(
-                domain_concept="bias",
-                ai_representation="classification of stance or sentiment",
+                domain_concept="policy scope",
+                ai_representation="topic or intent classification",
                 alignment_status="partial",
-                misalignment_risk="ideological framing imbalance may not appear as sentiment bias",
+                misalignment_risk="scope drift may not appear as factual error",
             ),
             ConceptAlignment(
                 domain_concept="understanding",
                 ai_representation="answer fluency",
                 alignment_status="misaligned",
-                misalignment_risk="fluent answers can still misstate concept relations",
+                misalignment_risk="fluent answers can still misstate source boundaries or procedures",
             ),
         ],
         ai_task_type=[
-            "value_sensitive_response_audit",
+            "policy_sensitive_response_audit",
             "source_grounding_check",
-            "concept_framing_risk_detection",
+            "scope_and_framing_risk_detection",
         ],
         inputs=[
-            "curriculum_concept",
-            "source_text_fragment",
-            "student_question",
+            "training_objective",
+            "policy_source_fragment",
+            "learner_or_staff_question",
             "model_answer",
         ],
         outputs=[
             "unsupported_claims",
             "concept_alignment_notes",
-            "value_framing_risk",
-            "teacher_review_flag",
+            "scope_or_framing_risk",
+            "reviewer_flag",
         ],
         required_evidence={
-            "educational_explanation": [
-                "curriculum_concept",
-                "source_text_fragment",
+            "training_explanation": [
+                "training_objective",
+                "policy_source_fragment",
                 "uncertainty_or_scope_statement",
             ]
         },
         forbidden_without={
-            "educational_explanation": [
-                "teacher_review",
+            "training_explanation": [
+                "reviewer_approval",
                 "source_grounding",
             ]
         },
@@ -359,25 +359,25 @@ def political_education_profile(source_problem: str) -> AlignmentPackage:
             "Factual correctness",
             "Concept relation consistency",
             "Source-groundedness",
-            "Value framing stability",
-            "Teacher correction burden",
+            "Scope and framing stability",
+            "Reviewer correction burden",
         ],
         insufficient_metrics=[
-            "Answer fluency is insufficient because the key risk lies in concept framing and source grounding.",
+            "Answer fluency is insufficient because the key risk lies in scope, framing, and source grounding.",
         ],
         misalignment_risks=[
-            "The task may reduce value-sensitive education to factual QA.",
-            "The model may produce fluent but unsupported conceptual claims.",
+            "The task may reduce training or policy support to factual QA.",
+            "The model may produce fluent but unsupported procedural claims.",
             "The evaluation may miss framing instability across equivalent questions.",
         ],
         human_review_required=[
-            "Normative or value-sensitive explanation",
-            "Unsupported claim about curriculum concepts",
+            "Policy-sensitive or procedural explanation",
+            "Unsupported claim about source guidance",
             "Ambiguous framing or contested interpretation",
         ],
         implementation_routes=[
-            "Annotation schema for hallucination, framing risk, and source grounding",
-            "Teacher-in-the-loop review workflow",
+            "Annotation schema for unsupportedness, scope drift, and source grounding",
+            "Reviewer-in-the-loop training workflow",
             "ClaimHarness audit of response claims against source fragments",
         ],
     )

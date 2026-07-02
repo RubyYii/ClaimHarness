@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import csv
 import json
+import re
+import zlib
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,7 +12,7 @@ from xml.etree import ElementTree
 
 
 WORD_NS = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
-SUPPORTED_EXTENSIONS = {".docx", ".pdf", ".txt", ".md", ".csv"}
+SUPPORTED_EXTENSIONS = {".doc", ".docx", ".pdf", ".txt", ".md", ".csv"}
 
 
 @dataclass(frozen=True)
@@ -31,6 +33,8 @@ class DocumentExtraction:
 def extract_document(path: str | Path) -> DocumentExtraction:
     source = Path(path)
     suffix = source.suffix.lower()
+    if suffix == ".doc":
+        return _extract_legacy_doc(source)
     if suffix == ".docx":
         return _extract_docx(source)
     if suffix == ".pdf":
@@ -88,6 +92,18 @@ def build_problem_seed_from_intake(results: Iterable[DocumentExtraction]) -> str
     )
 
 
+def _extract_legacy_doc(path: Path) -> DocumentExtraction:
+    return DocumentExtraction(
+        source_name=path.name,
+        file_type="doc",
+        text="",
+        tables=[],
+        warnings=[
+            "Legacy .doc files cannot be parsed locally. Save or export the file as .docx, .txt, or PDF, then upload it again."
+        ],
+    )
+
+
 def _extract_docx(path: Path) -> DocumentExtraction:
     warnings: list[str] = []
     try:
@@ -136,20 +152,15 @@ def _extract_pdf(path: Path) -> DocumentExtraction:
     try:
         from pypdf import PdfReader  # type: ignore[import-not-found]
     except ImportError:
-        return DocumentExtraction(
-            source_name=path.name,
-            file_type="pdf",
-            text="",
-            tables=[],
-            warnings=[
-                "PDF text extraction requires pypdf. Text-based PDF support is available after installing project dependencies."
-            ],
-        )
+        return _extract_pdf_fallback(path, pypdf_missing=True)
 
     try:
         reader = PdfReader(str(path))
         pages = [page.extract_text() or "" for page in reader.pages]
     except Exception as exc:  # pragma: no cover - parser-specific failures vary
+        fallback = _extract_pdf_fallback(path, pypdf_missing=False)
+        if fallback.text.strip():
+            return fallback
         return DocumentExtraction(
             source_name=path.name,
             file_type="pdf",
@@ -169,6 +180,120 @@ def _extract_pdf(path: Path) -> DocumentExtraction:
         tables=[],
         warnings=warnings,
     )
+
+
+def _extract_pdf_fallback(path: Path, *, pypdf_missing: bool) -> DocumentExtraction:
+    try:
+        raw = path.read_bytes()
+    except OSError as exc:
+        return DocumentExtraction(
+            source_name=path.name,
+            file_type="pdf",
+            text="",
+            tables=[],
+            warnings=[f"PDF file could not be read: {exc}"],
+        )
+
+    text_fragments: list[str] = []
+    for stream in _pdf_streams(raw):
+        text_fragments.extend(_pdf_text_fragments(stream))
+
+    text = "\n".join(fragment for fragment in text_fragments if fragment.strip()).strip()
+    warnings = []
+    if not text:
+        if pypdf_missing:
+            warnings.append(
+                "No PDF text was extracted. Install pypdf for broader text-based PDF support; scanned PDFs still require OCR."
+            )
+        else:
+            warnings.append("No text was extracted. Scanned PDFs and image-only PDFs require OCR, which is not supported.")
+    return DocumentExtraction(
+        source_name=path.name,
+        file_type="pdf",
+        text=text,
+        tables=[],
+        warnings=warnings,
+    )
+
+
+def _pdf_streams(raw: bytes) -> list[bytes]:
+    streams: list[bytes] = []
+    for match in re.finditer(rb"stream\r?\n(.*?)\r?\nendstream", raw, flags=re.DOTALL):
+        stream = match.group(1)
+        header = raw[max(0, match.start() - 300) : match.start()]
+        if b"/FlateDecode" in header:
+            try:
+                stream = zlib.decompress(stream)
+            except zlib.error:
+                continue
+        streams.append(stream)
+    return streams
+
+
+def _pdf_text_fragments(stream: bytes) -> list[str]:
+    fragments: list[str] = []
+    for literal in re.findall(rb"\((?:\\.|[^\\()])*\)", stream):
+        text = _decode_pdf_literal(literal[1:-1])
+        if text:
+            fragments.append(text)
+    for hex_string in re.findall(rb"<([0-9A-Fa-f\s]+)>", stream):
+        text = _decode_pdf_hex(hex_string)
+        if text:
+            fragments.append(text)
+    return fragments
+
+
+def _decode_pdf_literal(raw: bytes) -> str:
+    output = bytearray()
+    index = 0
+    escapes = {
+        ord("n"): b"\n",
+        ord("r"): b"\r",
+        ord("t"): b"\t",
+        ord("b"): b"\b",
+        ord("f"): b"\f",
+        ord("("): b"(",
+        ord(")"): b")",
+        ord("\\"): b"\\",
+    }
+    while index < len(raw):
+        byte = raw[index]
+        if byte != ord("\\"):
+            output.append(byte)
+            index += 1
+            continue
+        index += 1
+        if index >= len(raw):
+            break
+        escaped = raw[index]
+        if escaped in escapes:
+            output.extend(escapes[escaped])
+            index += 1
+            continue
+        if ord("0") <= escaped <= ord("7"):
+            digits = bytes([escaped])
+            index += 1
+            while index < len(raw) and len(digits) < 3 and ord("0") <= raw[index] <= ord("7"):
+                digits += bytes([raw[index]])
+                index += 1
+            output.append(int(digits, 8))
+            continue
+        output.append(escaped)
+        index += 1
+    return output.decode("utf-8", errors="replace").strip()
+
+
+def _decode_pdf_hex(raw: bytes) -> str:
+    cleaned = re.sub(rb"\s+", b"", raw)
+    if len(cleaned) % 2:
+        cleaned += b"0"
+    try:
+        data = bytes.fromhex(cleaned.decode("ascii"))
+    except ValueError:
+        return ""
+    if data.startswith(b"\xfe\xff"):
+        return data[2:].decode("utf-16-be", errors="replace").strip()
+    return data.decode("utf-8", errors="replace").strip()
 
 
 def _extract_csv(path: Path) -> DocumentExtraction:

@@ -1,0 +1,29 @@
+project_name: quality_inspection_review_alignment
+domain_goal: Support reviewable inspection by preserving material quality, defect visibility, uncertainty, reviewer notes, and final human judgement.
+not_allowed_goal: autonomous pass/fail decision
+ai_task_type:
+  - input_quality_assessment
+  - defect_candidate_detection
+  - evidence_sidecar_generation
+  - conservative_inspection_summary_drafting
+inputs:
+  - inspection_image_or_record
+  - candidate_region_overlay
+  - confidence_score
+  - input_quality_label
+outputs:
+  - evidence_summary
+  - uncertainty_statement
+  - human_review_flag
+  - structured_draft_summary
+evaluation:
+  - Candidate detection quality for visible issues
+  - Evidence completeness for each inspection statement
+  - Uncertainty calibration
+  - Overclaim rate
+  - Reviewer correction burden
+human_review_required:
+  - Any final pass/fail suggestion
+  - Low-confidence candidate detection
+  - Poor visibility or ambiguous source material
+  - Any wording that implies deployment readiness

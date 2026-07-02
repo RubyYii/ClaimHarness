@@ -202,7 +202,7 @@ def _stakeholders_for(source_context: str) -> list[StakeholderTarget]:
             ],
         ),
     ]
-    if _contains_any(source_context, ("clinical", "patient", "medical", "diagnosis", "hsg")):
+    if _contains_any(source_context, ("clinical", "patient", "medical", "diagnosis")):
         roles.insert(
             2,
             StakeholderTarget(

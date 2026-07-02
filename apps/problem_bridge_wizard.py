@@ -44,9 +44,9 @@ from problem_bridge.writer import write_alignment_package
 
 
 EXAMPLES = {
-    "HSG": Path("examples/problem_bridge/hsg/problem.md"),
-    "Chinese painting / VULCA": Path("examples/problem_bridge/chinese_painting/problem.md"),
-    "Political education risk": Path("examples/problem_bridge/political_education/problem.md"),
+    "Quality inspection": Path("examples/problem_bridge/quality_inspection/problem.md"),
+    "Cultural archive": Path("examples/problem_bridge/cultural_archive/problem.md"),
+    "Training policy": Path("examples/problem_bridge/training_policy/problem.md"),
 }
 
 RUN_ROOT = Path("outputs/ui_runs")
@@ -1130,15 +1130,15 @@ def _document_intake() -> None:
             "上传 Word、PDF、Markdown、TXT 或 CSV 文件，并转成本地可检查的提取结果。",
         ),
         _text(
-            "Supports .docx, .md, .txt, .csv, and text-based PDF. Scanned PDF, OCR, images, and figure understanding are not supported.",
-            "支持 .docx、.md、.txt、.csv 和文字版 PDF。不支持扫描 PDF、OCR、图片理解或 figure 解释。",
+            "Supports .docx, .md, .txt, .csv, and text-based PDF. Legacy .doc uploads are accepted only to return conversion guidance. Scanned PDF, OCR, images, and figure understanding are not supported.",
+            "支持 .docx、.md、.txt、.csv 和文字版 PDF。.doc 旧版 Word 上传后只会返回转换提示。不支持扫描 PDF、OCR、图片理解或 figure 解释。",
         ),
         ["extracted_text.md", "extracted_tables/", "source_manifest.json", "extraction_warnings.md", "problem_seed.md"],
     )
 
     uploaded_files = st.file_uploader(
         _text("Upload Word, PDF, Markdown, TXT, or CSV files", "上传 Word、PDF、Markdown、TXT 或 CSV 文件"),
-        type=["docx", "pdf", "md", "txt", "csv"],
+        type=["doc", "docx", "pdf", "md", "txt", "csv"],
         accept_multiple_files=True,
     )
 

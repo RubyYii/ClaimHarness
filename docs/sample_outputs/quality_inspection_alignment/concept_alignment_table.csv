@@ -1,0 +1,4 @@
+domain_concept,ai_representation,alignment_status,misalignment_risk
+quality failure,classification label,partial,"a visual anomaly may reflect capture quality, context, or acceptable variation rather than failure"
+defect visibility,detection confidence plus input quality,aligned,input quality and acceptance criteria still need reviewer interpretation
+operational readiness,deployment status,high-risk,requires validation beyond model metrics and sample screenshots

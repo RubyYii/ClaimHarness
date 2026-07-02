@@ -2,7 +2,7 @@
 
 ## 0:00-0:30 Problem
 
-Interdisciplinary AI projects often fail because the original domain problem is compressed into the wrong AI task. A medical workflow becomes a segmentation task, a cultural interpretation problem becomes captioning, or an educational risk problem becomes factual QA.
+Interdisciplinary AI projects often fail because the original domain problem is compressed into the wrong AI task. A quality-review workflow becomes a detector, an archive interpretation problem becomes captioning, or a training-policy support problem becomes factual QA.
 
 ## 0:30-1:20 ProblemBridge
 

@@ -46,8 +46,8 @@ ProblemBridge does not try to write a general report about a topic. It tries to 
 
 Examples:
 
-- HSG: segmentation quality is not the same as diagnostic reliability.
-- Chinese painting: object recognition is not the same as cultural interpretation.
-- Political education: fluent answers are not the same as value-sensitive conceptual alignment.
+- Quality inspection: visual detection is not the same as a final pass/fail decision.
+- Cultural archive: object recognition is not the same as expert interpretation.
+- Training policy: fluent answers are not the same as source-grounded policy alignment.
 
 The purpose is not to make AI sound knowledgeable about a domain. The purpose is to make the AI task safer, clearer, and more faithful to the domain problem before implementation begins.

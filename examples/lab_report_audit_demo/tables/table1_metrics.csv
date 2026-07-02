@@ -1,0 +1,5 @@
+model,macro_f1,precision,recall,notes
+baseline_rules,0.79,0.84,0.74,synthetic benchmark baseline without review routing
+evidence_guided_reviewer_v1,0.86,0.90,0.83,adds evidence summary and reviewer-facing confidence notes
+evidence_guided_reviewer_v1_with_review,0.88,0.91,0.85,adds human review gate for low-confidence claims
+compact_reviewer,0.75,0.80,0.71,faster but less reliable around ambiguous limitation statements

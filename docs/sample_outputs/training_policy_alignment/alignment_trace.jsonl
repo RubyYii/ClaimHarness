@@ -1,0 +1,4 @@
+{"step": "load_problem_brief", "profile": "training_policy", "project_name": "training_policy_response_alignment"}
+{"step": "detect_alignment_profile", "profile": "training_policy", "project_name": "training_policy_response_alignment"}
+{"step": "build_alignment_package", "profile": "training_policy", "project_name": "training_policy_response_alignment"}
+{"step": "write_outputs", "profile": "training_policy", "project_name": "training_policy_response_alignment"}

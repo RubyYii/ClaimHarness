@@ -2,11 +2,11 @@
 
 ## v0.1 ClaimHarness
 
-Scientific claim-evidence audit demo with deterministic mock mode, synthetic oocyte example, structured outputs, static viewer, and trace logging.
+Scientific claim-evidence audit demo with deterministic mock mode, synthetic lab-report example, structured outputs, static viewer, and trace logging.
 
 ## v0.2 ProblemBridge MVP
 
-Problem alignment package for interdisciplinary AI projects. Current examples cover HSG evidence-ready support, Chinese painting / VULCA cultural interpretation alignment, and political education risk evaluation.
+Problem alignment package for interdisciplinary AI projects. Current examples cover quality inspection review alignment, cultural archive interpretation alignment, and training policy response alignment.
 
 ## v0.3 Evidence Contract Integration
 

@@ -76,8 +76,10 @@ def _sentences_with_lines(section: ManuscriptSection) -> list[tuple[str, int | N
 
 
 def _claim_type(text: str) -> str:
-    if any(term in text for term in ("clinically", "clinical", "diagnosis", "deployment")):
+    if any(term in text for term in ("clinically", "clinical", "diagnosis")):
         return "clinical_claim"
+    if any(term in text for term in ("deployment", "operational", "ready", "readiness")):
+        return "deployment_claim"
     if any(term in text for term in ("outperforms", "improves", "increases", "dice", "iou", "precision", "recall")):
         return "performance_claim"
     if any(term in text for term in ("novel", "first")):
@@ -90,7 +92,7 @@ def _claim_type(text: str) -> str:
 
 
 def _claim_strength(claim_type: str, text: str) -> str:
-    if claim_type == "clinical_claim":
+    if claim_type in {"clinical_claim", "deployment_claim"}:
         return "high"
     if any(term in text for term in ("outperforms", "improves", "increases")):
         return "strong"
@@ -102,7 +104,7 @@ def _claim_strength(claim_type: str, text: str) -> str:
 def _required_evidence(claim_type: str) -> list[str]:
     if claim_type == "performance_claim":
         return ["table", "result_text"]
-    if claim_type == "clinical_claim":
+    if claim_type in {"clinical_claim", "deployment_claim"}:
         return ["external_validation", "human_review"]
     if claim_type == "workflow_claim":
         return ["ablation", "trace"]

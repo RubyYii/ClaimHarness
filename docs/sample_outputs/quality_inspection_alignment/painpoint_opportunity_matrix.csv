@@ -1,0 +1,4 @@
+workflow_step,pain_point,ai_opportunity,risk,human_role
+input quality judgement,"Visibility, lighting, or sampling quality are inconsistently recorded.",Generate input-quality and visibility sidecars.,medium,confirm quality and visibility labels
+defect candidate review,Repeated visual checking can be slow and inconsistent.,Highlight candidate regions and uncertainty.,medium,confirm or reject highlighted evidence
+inspection summary drafting,Wording may overstate what the available evidence supports.,Draft conservative evidence-grounded report text.,high,edit and approve final wording

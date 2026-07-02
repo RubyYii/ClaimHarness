@@ -1,0 +1,4 @@
+{"step": "load_problem_brief", "profile": "cultural_archive", "project_name": "cultural_archive_interpretation_alignment"}
+{"step": "detect_alignment_profile", "profile": "cultural_archive", "project_name": "cultural_archive_interpretation_alignment"}
+{"step": "build_alignment_package", "profile": "cultural_archive", "project_name": "cultural_archive_interpretation_alignment"}
+{"step": "write_outputs", "profile": "cultural_archive", "project_name": "cultural_archive_interpretation_alignment"}

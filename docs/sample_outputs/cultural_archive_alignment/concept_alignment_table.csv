@@ -1,0 +1,4 @@
+domain_concept,ai_representation,alignment_status,misalignment_risk
+contextual absence,empty region or missing metadata,misaligned,"absence may be meaningful, unknown, or simply undocumented"
+material or stylistic feature,"texture, line, or visual feature",partial,requires domain vocabulary and expert interpretation
+catalog note,caption or text prompt,partial,"notes are interpretive evidence, not simple image labels"
