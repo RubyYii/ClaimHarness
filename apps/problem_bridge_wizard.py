@@ -1166,6 +1166,20 @@ def _document_intake() -> None:
         type=["doc", "docx", "pdf", "html", "htm", "md", "txt", "csv", "png", "jpg", "jpeg", "tif", "tiff", "bmp"],
         accept_multiple_files=True,
     )
+    pasted_text = st.text_area(
+        _text("Paste text here if upload does not work", "如果上传按钮无法使用，可以把文本粘贴到这里"),
+        placeholder=_text(
+            "Optional fallback: paste copied document or webpage text here.",
+            "备用输入：可以粘贴复制出来的文档或网页正文。",
+        ),
+        key="manual_upload_fallback_text",
+    )
+    st.caption(
+        _text(
+            "Fallback pasted text is saved as manual_upload_fallback.md in the generated package.",
+            "粘贴文本会保存为生成包里的 manual_upload_fallback.md。",
+        )
+    )
     urls_text = st.text_area(
         _text("Public static webpage URLs, one per line", "公开静态网页 URL，每行一个"),
         placeholder="https://example.org/workflow-guide",
@@ -1180,9 +1194,10 @@ def _document_intake() -> None:
         ),
     )
     urls = [line.strip() for line in urls_text.splitlines() if line.strip()]
+    pasted_text = pasted_text.strip()
 
-    if st.button(_text("Generate document intake package", "生成文档摄取包"), disabled=not uploaded_files and not urls):
-        out = _run_document_intake(uploaded_files or [], urls=urls, enable_ocr=enable_ocr)
+    if st.button(_text("Generate document intake package", "生成文档摄取包"), disabled=not uploaded_files and not urls and not pasted_text):
+        out = _run_document_intake(uploaded_files or [], urls=urls, enable_ocr=enable_ocr, pasted_text=pasted_text)
         st.success(_generated_message(out))
         _render_document_intake_output(out)
 
@@ -1499,7 +1514,13 @@ def _view_outputs() -> None:
     selected = st.selectbox(_text("Choose a generated run", "选择一个生成结果"), runs, format_func=lambda path: path.name)
     _render_friendly_output(selected)
 
-def _run_document_intake(uploaded_files, *, urls: list[str] | None = None, enable_ocr: bool = False) -> Path:
+def _run_document_intake(
+    uploaded_files,
+    *,
+    urls: list[str] | None = None,
+    enable_ocr: bool = False,
+    pasted_text: str = "",
+) -> Path:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     out = RUN_ROOT / f"{timestamp}_document_intake"
     source_dir = out / "source_files"
@@ -1511,6 +1532,10 @@ def _run_document_intake(uploaded_files, *, urls: list[str] | None = None, enabl
         source_path = source_dir / safe_name
         source_path.write_bytes(uploaded_file.getvalue())
         results.append(extract_document(source_path, enable_ocr=enable_ocr))
+    if pasted_text.strip():
+        fallback_path = source_dir / "manual_upload_fallback.md"
+        fallback_path.write_text(pasted_text.strip() + "\n", encoding="utf-8")
+        results.append(extract_document(fallback_path))
     for url in urls or []:
         results.append(extract_url(url))
 

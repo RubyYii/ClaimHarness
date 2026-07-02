@@ -435,6 +435,8 @@ def test_document_intake_layer_is_documented_and_in_ui():
     for phrase in [
         "Document intake",
         "Upload Word, PDF, HTML, Markdown, TXT, CSV, or image files",
+        "Paste text here if upload does not work",
+        "manual_upload_fallback.md",
         "Public static webpage URLs, one per line",
         "Enable optional OCR for images and image-only PDFs",
         "Legacy .doc",
@@ -472,6 +474,16 @@ def test_guided_ui_recovers_from_stale_document_intake_module_cache():
     finally:
         document_intake.extract_url = original_extract_url
         sys.modules.pop("apps.problem_bridge_wizard", None)
+
+
+def test_document_intake_accepts_manual_upload_fallback_text():
+    import apps.problem_bridge_wizard as ui
+
+    out = ui._run_document_intake([], pasted_text="Manual fallback workflow text")
+
+    assert (out / "source_files" / "manual_upload_fallback.md").is_file()
+    assert "Manual fallback workflow text" in (out / "extracted_text.md").read_text(encoding="utf-8")
+    assert "Manual fallback workflow text" in (out / "problem_seed.md").read_text(encoding="utf-8")
 
 
 def test_ocr_setup_guide_has_visual_install_instructions():
