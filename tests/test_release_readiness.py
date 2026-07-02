@@ -365,6 +365,23 @@ def test_guided_ui_keeps_sidebar_advanced_settings_collapsed():
     assert "st.sidebar.expander" not in ui_text
 
 
+def test_guided_ui_sidebar_has_readable_theme():
+    ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
+
+    for phrase in [
+        '[data-testid="stSidebar"] {',
+        "color: var(--pb-ink);",
+        '[data-testid="stSidebar"] [data-testid="stMarkdownContainer"]',
+        '[data-testid="stSidebar"] [data-testid="stWidgetLabel"]',
+        '[data-testid="stSidebar"] [role="radiogroup"] label',
+        '[data-testid="stSidebar"] [data-testid="stCheckbox"] label',
+        '[data-testid="stAlert"]',
+        "color: var(--pb-ink) !important;",
+        "color: var(--pb-muted) !important;",
+    ]:
+        assert phrase in ui_text
+
+
 def test_document_intake_layer_is_documented_and_in_ui():
     readme = Path("README.md").read_text(encoding="utf-8")
     readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")

@@ -611,7 +611,45 @@ def _inject_visual_theme() -> None:
         .stApp { background: var(--pb-canvas); color: var(--pb-ink); }
         [data-testid="stDeployButton"] { display: none !important; }
         [data-testid="stAppDeployButton"] { display: none !important; }
-        [data-testid="stSidebar"] { background: #ffffff; border-right: 1px solid var(--pb-line); }
+        [data-testid="stSidebar"] {
+          background: #ffffff;
+          border-right: 1px solid var(--pb-line);
+          color: var(--pb-ink);
+        }
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] *,
+        [data-testid="stSidebar"] [data-testid="stWidgetLabel"],
+        [data-testid="stSidebar"] [data-testid="stWidgetLabel"] *,
+        [data-testid="stSidebar"] label,
+        [data-testid="stSidebar"] label * {
+          color: var(--pb-ink) !important;
+        }
+        [data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+        [data-testid="stSidebar"] [data-testid="stCaptionContainer"] * {
+          color: var(--pb-muted) !important;
+          opacity: 1 !important;
+        }
+        [data-testid="stSidebar"] [role="radiogroup"],
+        [data-testid="stSidebar"] [data-testid="stRadio"] {
+          width: 100%;
+        }
+        [data-testid="stSidebar"] [role="radiogroup"] label {
+          width: 100%;
+          min-height: 30px;
+          padding: 5px 8px 5px 2px;
+          border-radius: 8px;
+        }
+        [data-testid="stSidebar"] [role="radiogroup"] label:hover {
+          background: var(--pb-soft-teal);
+        }
+        [data-testid="stSidebar"] [data-testid="stCheckbox"] label {
+          width: 100%;
+          min-height: 34px;
+          padding: 6px 8px;
+          border: 1px solid var(--pb-line);
+          border-radius: 8px;
+          background: #fbfdff;
+        }
         .block-container { padding-top: 1.6rem; max-width: 1180px; }
         .language-switcher {
           display: flex;
@@ -714,6 +752,10 @@ def _inject_visual_theme() -> None:
         }
         .field-label { margin-top: 12px; font-weight: 850; color: var(--pb-ink); }
         .trust-card { border-left: 5px solid var(--pb-coral); background: var(--pb-soft-amber); }
+        [data-testid="stAlert"],
+        [data-testid="stAlert"] * {
+          color: var(--pb-ink) !important;
+        }
         .sidebar-note {
           margin-top: 14px;
           padding: 12px;
