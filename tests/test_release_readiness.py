@@ -342,9 +342,27 @@ def test_guided_ui_has_local_memory_and_api_settings():
         "Clear local memory before sharing",
         "Use provider defaults",
         "on_change=_sync_provider_defaults",
+        "on_click=_sync_provider_defaults",
         "def _sync_provider_defaults",
+        "api_model_mode",
+        "model_mode",
+        "MODEL_OPTIONS_BY_PROVIDER",
+        "Model selection mode",
+        "Use common model list",
+        "Manual input",
+        "Common model",
+        "Custom model name",
     ]:
         assert phrase in ui_text
+
+    import apps.problem_bridge_wizard as ui
+
+    assert ui._model_options_for_provider("qwen")[0] == "qwen-plus"
+    assert "qwen-max" in ui._model_options_for_provider("qwen")
+    assert ui._model_options_for_provider("deepseek")[0] == "deepseek-v4-flash"
+    assert "deepseek-chat" in ui._model_options_for_provider("deepseek")
+    assert ui._model_mode_label(ui.MODEL_MODE_COMMON) == "Use common model list"
+    assert ui._model_mode_label(ui.MODEL_MODE_MANUAL) == "Manual input"
 
     assert "DASHSCOPE_API_KEY" in provider_guide
     assert "QWEN_MODEL" in provider_guide

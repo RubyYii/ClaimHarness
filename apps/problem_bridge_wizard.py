@@ -287,6 +287,23 @@ API_PROVIDER_OPTIONS = [
     "ollama",
 ]
 
+MODEL_MODE_COMMON = "common"
+MODEL_MODE_MANUAL = "manual"
+MODEL_OPTIONS_BY_PROVIDER = {
+    "openai": ["gpt-5.4-mini", "gpt-5.4", "gpt-5.4-nano", "gpt-4.1", "gpt-4.1-mini"],
+    "openai-compatible": ["gpt-5.4-mini", "gpt-4.1-mini", "llama-3.3-70b-versatile", "qwen-plus"],
+    "qwen": ["qwen-plus", "qwen-max", "qwen-turbo", "qwen-vl-plus", "qwen-vl-max"],
+    "deepseek": ["deepseek-v4-flash", "deepseek-chat", "deepseek-reasoner"],
+    "openrouter": ["openai/gpt-5.4-mini", "anthropic/claude-sonnet-4.5", "google/gemini-3.5-flash"],
+    "groq": ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"],
+    "mistral": ["mistral-large-latest", "mistral-small-latest", "open-mistral-nemo"],
+    "xai": ["grok-4.3", "grok-4", "grok-3-mini"],
+    "gemini": ["gemini-3.5-flash", "gemini-3.5-pro", "gemini-2.5-flash", "gemini-2.5-pro"],
+    "anthropic": ["claude-sonnet-4-5", "claude-opus-4-1", "claude-3-5-haiku-latest"],
+    "ollama": ["llama3.2", "llama3.1", "qwen2.5", "mistral"],
+    "mock": ["mock"],
+}
+
 DRAFT_KEY_GROUPS = {
     "question_discovery": [
         "question_seed_text",
@@ -491,10 +508,37 @@ def _render_memory_sidebar() -> None:
         preset = PROVIDER_PRESETS.get(provider)
 
         st.sidebar.text_input(_text("Base URL", "服务地址"), key="api_base_url")
-        st.sidebar.text_input(_text("Model", "模型名称"), key="api_model")
-        if st.sidebar.button(_text("Use provider defaults", "使用服务商默认配置"), key="api_use_provider_defaults"):
-            _sync_provider_defaults()
-            st.rerun()
+        model_mode = st.sidebar.radio(
+            _text("Model selection mode", "模型选择方式"),
+            [MODEL_MODE_COMMON, MODEL_MODE_MANUAL],
+            key="api_model_mode",
+            format_func=_model_mode_label,
+            horizontal=True,
+        )
+        if model_mode == MODEL_MODE_COMMON:
+            model_options = _model_options_for_provider(provider)
+            current_model = st.session_state.get("api_model") or _provider_defaults(provider)["model"]
+            if current_model and current_model not in model_options:
+                model_options = [current_model, *model_options]
+            selected_model = st.sidebar.selectbox(
+                _text("Common model", "常用模型"),
+                model_options,
+                index=model_options.index(current_model) if current_model in model_options else 0,
+            )
+            st.session_state.api_model = selected_model
+            st.sidebar.caption(
+                _text(
+                    "Choose from common models, or switch to manual input for a custom deployment or newer model.",
+                    "可以从常用模型中选择；如果是自定义部署或新模型，请切换到手动输入。",
+                )
+            )
+        else:
+            st.sidebar.text_input(_text("Custom model name", "自定义模型名称"), key="api_model")
+        st.sidebar.button(
+            _text("Use provider defaults", "使用服务商默认配置"),
+            key="api_use_provider_defaults",
+            on_click=_sync_provider_defaults,
+        )
         api_key = st.sidebar.text_input(_text("API key is session-only", "API 密钥仅当前会话使用"), type="password", key="api_key_session")
 
         if preset and preset.api_key_env:
@@ -517,6 +561,7 @@ def _sync_provider_defaults() -> None:
     defaults = _provider_defaults(provider)
     st.session_state.api_base_url = defaults["base_url"]
     st.session_state.api_model = defaults["model"]
+    st.session_state.api_model_mode = MODEL_MODE_COMMON
 
 def _ensure_memory_state() -> None:
     if "pending_workbench_memory" in st.session_state:
@@ -533,7 +578,7 @@ def _ensure_memory_state() -> None:
 
 
 def _apply_memory_to_session(memory: dict, clear_existing: bool) -> None:
-    keys = ["api_provider", "api_base_url", "api_model", "api_key_session", "last_output_dir"]
+    keys = ["api_provider", "api_base_url", "api_model", "api_model_mode", "api_key_session", "last_output_dir"]
     for field_keys in DRAFT_KEY_GROUPS.values():
         keys.extend(field_keys)
 
@@ -547,9 +592,13 @@ def _apply_memory_to_session(memory: dict, clear_existing: bool) -> None:
         provider = "mock"
 
     defaults = _provider_defaults(provider)
+    model_mode = api_settings.get("model_mode") or MODEL_MODE_COMMON
+    if model_mode not in {MODEL_MODE_COMMON, MODEL_MODE_MANUAL}:
+        model_mode = MODEL_MODE_COMMON
     st.session_state.setdefault("api_provider", provider)
     st.session_state.setdefault("api_base_url", api_settings.get("base_url") or defaults["base_url"])
     st.session_state.setdefault("api_model", api_settings.get("model") or defaults["model"])
+    st.session_state.setdefault("api_model_mode", model_mode)
 
     drafts = memory.get("drafts", {}) if isinstance(memory, dict) else {}
     if isinstance(drafts, dict):
@@ -573,6 +622,7 @@ def _current_workbench_memory() -> dict:
             "provider": provider,
             "base_url": st.session_state.get("api_base_url", ""),
             "model": st.session_state.get("api_model", ""),
+            "model_mode": st.session_state.get("api_model_mode", MODEL_MODE_COMMON),
         },
         "drafts": _drafts_from_session(),
         "last_output_dir": st.session_state.get("last_output_dir", ""),
@@ -600,6 +650,19 @@ def _provider_defaults(provider: str) -> dict[str, str]:
         "base_url": preset.default_base_url or "",
         "model": preset.default_model or "",
     }
+
+
+def _model_options_for_provider(provider: str) -> list[str]:
+    defaults = _provider_defaults(provider)
+    options = [defaults["model"], *MODEL_OPTIONS_BY_PROVIDER.get(provider, [])]
+    return [option for index, option in enumerate(options) if option and option not in options[:index]]
+
+
+def _model_mode_label(mode: str) -> str:
+    if mode == MODEL_MODE_MANUAL:
+        return _text("Manual input", "手动输入")
+    return _text("Use common model list", "使用常用模型列表")
+
 
 def _inject_visual_theme() -> None:
     st.markdown(

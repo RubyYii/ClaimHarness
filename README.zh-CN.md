@@ -199,9 +199,9 @@ RUN_PROBLEMBRIDGE_WINDOWS.bat
 
 使用远程模型前要确认：你输入的内容会发送给外部服务。不要上传真实患者数据、机密论文、未公开项目材料、API key 或任何敏感信息。
 
-本地网页 UI 的侧边栏默认只保留导航，高级设置放在 `显示工作台记忆` 和 `显示 API 设置` 两个折叠开关后面。你可以保存 provider、base URL、model、最近输出目录，以及 Question discovery、Domain wizard、AI wizard 的草稿字段。保存文件位于 `outputs/ui_memory/workbench_memory.json`。
+本地网页 UI 的侧边栏默认只保留导航，高级设置放在 `显示工作台记忆` 和 `显示 API 设置` 两个折叠开关后面。你可以保存 provider、base URL、model、模型选择方式、最近输出目录，以及 Question discovery、Domain wizard、AI wizard 的草稿字段。保存文件位于 `outputs/ui_memory/workbench_memory.json`。
 
-切换 provider 时，网页会自动填入对应的默认 base URL 和 model；如果你手动改过，也可以点击 `Use provider defaults` 恢复。API key 不会默认保存。网页里的 API key 输入框是 session-only，只在当前 Streamlit 进程中临时使用；保存记忆时会过滤 `api_key`、`token`、`secret`、`password` 等敏感字段。分享文件夹或 zip 前，如果草稿里有敏感工作流信息，请先清除本地记忆。
+切换 provider 时，网页会自动填入对应的默认 base URL 和 model；如果你手动改过，也可以点击 `Use provider defaults` 恢复。模型名称支持“常用模型下拉列表”和“手动输入”两种方式：普通测试者可以直接选常见模型，私有部署或新模型可以手动填写。API key 不会默认保存。网页里的 API key 输入框是 session-only，只在当前 Streamlit 进程中临时使用；保存记忆时会过滤 `api_key`、`token`、`secret`、`password` 等敏感字段。分享文件夹或 zip 前，如果草稿里有敏感工作流信息，请先清除本地记忆。
 
 Qwen / DashScope 可以使用 `qwen` provider：设置 `DASHSCOPE_API_KEY`，可选设置 `QWEN_BASE_URL` 和 `QWEN_MODEL`。
 

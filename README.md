@@ -463,7 +463,7 @@ $env:QWEN_MODEL="qwen-plus"
   --llm qwen
 ```
 
-In the local Streamlit UI, the sidebar keeps navigation visible and places advanced controls behind `Show workspace memory` and `Show API settings`. These controls can remember provider, base URL, model, recent output path, and draft form fields in `outputs/ui_memory/workbench_memory.json`. Changing the provider auto-fills its default base URL and model; use `Use provider defaults` to restore those values after editing them. API keys are session-only: the password field can apply the key to the current Streamlit process, but it is not saved to memory. Clear local memory before sharing the folder or zip if the drafts include sensitive workflow details.
+In the local Streamlit UI, the sidebar keeps navigation visible and places advanced controls behind `Show workspace memory` and `Show API settings`. These controls can remember provider, base URL, model, model selection mode, recent output path, and draft form fields in `outputs/ui_memory/workbench_memory.json`. Changing the provider auto-fills its default base URL and model; use `Use provider defaults` to restore those values after editing them. The model field supports both a common-model dropdown and manual input for custom deployments or newer provider model names. API keys are session-only: the password field can apply the key to the current Streamlit process, but it is not saved to memory. Clear local memory before sharing the folder or zip if the drafts include sensitive workflow details.
 
 DeepSeek can use its own preset:
 
