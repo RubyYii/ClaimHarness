@@ -504,6 +504,39 @@ def test_document_intake_accepts_manual_upload_fallback_text():
     assert "Manual fallback workflow text" in (out / "problem_seed.md").read_text(encoding="utf-8")
 
 
+def test_document_intake_can_continue_into_question_discovery():
+    import apps.problem_bridge_wizard as ui
+
+    out = ui._run_document_intake([], pasted_text="A repeated review workflow with unclear expert judgement.")
+    seed = ui._question_discovery_seed_from_intake(out)
+    ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
+
+    assert "A repeated review workflow" in seed["question_seed_text"]
+    assert "what to ask" in seed["question_desired_change"]
+    assert "Continue to Question discovery" in ui_text
+    assert "_continue_to_question_discovery_from_intake" in ui_text
+    assert "workspace_page" in ui_text
+
+
+def test_question_discovery_can_continue_into_domain_wizard():
+    import apps.problem_bridge_wizard as ui
+    from problem_bridge.question_discovery import discover_questions
+
+    package = discover_questions(
+        "A review workflow has unclear expert judgement.",
+        uncertainty="We do not know which expert to ask first.",
+        desired_change="Prepare better questions before system design.",
+    )
+    out = ui._run_question_discovery(package)
+    seed = ui._domain_wizard_seed_from_discovery(out)
+    ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
+
+    assert "review workflow" in seed["domain_draft_additional_notes"]
+    assert "question discovery" in seed["domain_draft_repeated_work"]
+    assert "Continue to Domain practitioner wizard" in ui_text
+    assert "_continue_to_domain_wizard_from_discovery" in ui_text
+
+
 def test_ocr_setup_guide_has_visual_install_instructions():
     readme = Path("README.md").read_text(encoding="utf-8")
     guide_path = Path("OCR_SETUP.md")

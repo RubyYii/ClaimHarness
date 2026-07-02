@@ -52,6 +52,8 @@ It writes:
 - `extraction_warnings.md`
 - `problem_seed.md`
 
+In the local web workbench, completing Document intake now keeps the latest extraction result visible and adds a `Continue to Question discovery` button. That button carries `problem_seed.md` into the Question discovery form so the next step starts from the extracted material instead of a blank prompt.
+
 Word comments, PDF annotations, highlights, and font colors are treated as user attention signals. The tool preserves them for later questioning; it does not infer that a color automatically means "high risk" or "approved."
 
 The boundary is deliberate: OCR is optional and local-only, not a default dependency; URL intake only reads public static pages; no login pages, JavaScript execution, crawling, image understanding, figure interpretation, handwritten markup recognition, or professional judgement is performed. Document intake extracts text, simple tables, links, and basic annotation signals; it does not validate professional claims or replace domain review.
@@ -70,6 +72,8 @@ Use it when the user only has a vague concern such as "this workflow is slow" or
 - `discussion_plan.md`
 
 The boundary is intentional: **Do not propose a solution yet.** First identify the right questions and the people who can answer them. After that, use the guided interview or alignment generator to turn validated answers into a ProblemBridge package.
+
+In the local web workbench, completing Question discovery adds a continue button into the workflow wizard. It carries the question-discovery seed into the workflow form as context, so users can move from "what should we ask?" to "what workflow should we reconstruct?" without copying files by hand.
 
 ## Guided Interview Engine
 

@@ -436,6 +436,7 @@ def main() -> None:
         _text("Choose an entry", "选择入口"),
         PAGE_OPTIONS,
         format_func=_page_label,
+        key="workspace_page",
     )
     st.sidebar.caption(_text(
         "Local-first. Use synthetic or non-sensitive material first.",
@@ -578,7 +579,16 @@ def _ensure_memory_state() -> None:
 
 
 def _apply_memory_to_session(memory: dict, clear_existing: bool) -> None:
-    keys = ["api_provider", "api_base_url", "api_model", "api_model_mode", "api_key_session", "last_output_dir"]
+    keys = [
+        "api_provider",
+        "api_base_url",
+        "api_model",
+        "api_model_mode",
+        "api_key_session",
+        "last_output_dir",
+        "last_document_intake_dir",
+        "last_question_discovery_dir",
+    ]
     for field_keys in DRAFT_KEY_GROUPS.values():
         keys.extend(field_keys)
 
@@ -1156,6 +1166,16 @@ def _question_discovery() -> None:
         out = _run_question_discovery(package)
         st.success(_generated_message(out))
         _render_question_discovery_output(out)
+    else:
+        previous_out = _last_output_path("last_question_discovery_dir")
+        if previous_out:
+            st.info(
+                _text(
+                    "Most recent question discovery package is still available below.",
+                    "最近一次问题发现结果仍可在下方继续使用。",
+                )
+            )
+            _render_question_discovery_output(previous_out)
 
 
 def _render_question_discovery_output(out: Path) -> None:
@@ -1175,6 +1195,12 @@ def _render_question_discovery_output(out: Path) -> None:
             "Take this package to domain experts first. After the questions are validated, use Domain practitioner wizard to generate a ProblemBridge alignment package.",
             "先把这个包带给领域专家确认。问题被验证后，再使用领域工作流向导生成 ProblemBridge 对齐包。",
         )
+    )
+    st.button(
+        _text("Continue to Domain practitioner wizard", "继续到领域工作流向导"),
+        key=f"continue_to_domain_wizard_{out.name}",
+        on_click=_continue_to_domain_wizard_from_discovery,
+        args=(out,),
     )
 
     archive = _make_archive(out)
@@ -1259,10 +1285,23 @@ def _document_intake() -> None:
     urls = [line.strip() for line in urls_text.splitlines() if line.strip()]
     pasted_text = pasted_text.strip()
 
+    generated_out = None
     if st.button(_text("Generate document intake package", "生成文档摄取包"), disabled=not uploaded_files and not urls and not pasted_text):
         out = _run_document_intake(uploaded_files or [], urls=urls, enable_ocr=enable_ocr, pasted_text=pasted_text)
         st.success(_generated_message(out))
         _render_document_intake_output(out)
+        generated_out = out
+
+    if generated_out is None:
+        previous_out = _last_output_path("last_document_intake_dir")
+        if previous_out:
+            st.info(
+                _text(
+                    "Most recent document intake package is still available below.",
+                    "最近一次文档摄取结果仍可在下方继续使用。",
+                )
+            )
+            _render_document_intake_output(previous_out)
 
 
 def _render_document_intake_output(out: Path) -> None:
@@ -1295,6 +1334,25 @@ def _render_document_intake_output(out: Path) -> None:
     if warnings_path.is_file():
         st.subheader("extraction_warnings.md")
         st.markdown(warnings_path.read_text(encoding="utf-8"))
+
+    problem_seed = out / "problem_seed.md"
+    if problem_seed.is_file():
+        st.subheader("problem_seed.md")
+        st.markdown(problem_seed.read_text(encoding="utf-8"))
+
+    st.subheader(_text("Next step", "下一步"))
+    st.write(
+        _text(
+            "Use the extracted problem seed as the starting point for Question discovery. Review and edit it there before generating questions.",
+            "把提取出的 problem seed 带入问题发现。进入下一步后，请先检查和修改，再生成问题。",
+        )
+    )
+    st.button(
+        _text("Continue to Question discovery", "继续到问题发现"),
+        key=f"continue_to_question_discovery_{out.name}",
+        on_click=_continue_to_question_discovery_from_intake,
+        args=(out,),
+    )
 
     archive = _make_archive(out)
     st.download_button(
@@ -1577,6 +1635,59 @@ def _view_outputs() -> None:
     selected = st.selectbox(_text("Choose a generated run", "选择一个生成结果"), runs, format_func=lambda path: path.name)
     _render_friendly_output(selected)
 
+
+def _last_output_path(session_key: str) -> Path | None:
+    value = st.session_state.get(session_key)
+    if not value:
+        return None
+    path = Path(value)
+    return path if path.is_dir() else None
+
+
+def _read_output_text(out: Path, filename: str) -> str:
+    path = Path(out) / filename
+    return path.read_text(encoding="utf-8") if path.is_file() else ""
+
+
+def _question_discovery_seed_from_intake(out: Path) -> dict[str, str]:
+    seed_text = _read_output_text(out, "problem_seed.md") or _read_output_text(out, "extracted_text.md")
+    warnings = _read_output_text(out, "extraction_warnings.md").strip()
+    uncertainty_parts = [
+        "Review the extracted text, tables, annotations, and warnings to decide what needs expert validation.",
+    ]
+    if warnings:
+        uncertainty_parts.append(warnings)
+    return {
+        "question_seed_text": seed_text,
+        "question_uncertainty": "\n\n".join(uncertainty_parts),
+        "question_desired_change": "Identify what to ask, who to ask, and which unknowns must be validated before proposing an AI solution.",
+    }
+
+
+def _continue_to_question_discovery_from_intake(out: Path) -> None:
+    seed = _question_discovery_seed_from_intake(out)
+    for key, value in seed.items():
+        st.session_state[key] = value
+    st.session_state.last_document_intake_dir = str(out)
+    st.session_state.workspace_page = "Question discovery"
+
+
+def _domain_wizard_seed_from_discovery(out: Path) -> dict[str, str]:
+    seed_text = _read_output_text(out, "problem_seed.md") or _read_output_text(out, "question_brief.md")
+    return {
+        "domain_draft_repeated_work": "Use this question discovery package to interview domain practitioners and reconstruct the repeated workflow.",
+        "domain_draft_additional_notes": seed_text,
+    }
+
+
+def _continue_to_domain_wizard_from_discovery(out: Path) -> None:
+    seed = _domain_wizard_seed_from_discovery(out)
+    for key, value in seed.items():
+        st.session_state[key] = value
+    st.session_state.last_question_discovery_dir = str(out)
+    st.session_state.workspace_page = "Domain practitioner wizard"
+
+
 def _run_document_intake(
     uploaded_files,
     *,
@@ -1604,6 +1715,7 @@ def _run_document_intake(
 
     write_intake_package(results, out)
     (out / "problem_seed.md").write_text(build_problem_seed_from_intake(results), encoding="utf-8")
+    st.session_state.last_document_intake_dir = str(out)
     st.session_state.last_output_dir = str(out)
     return out
 
@@ -1615,6 +1727,7 @@ def _run_question_discovery(package) -> Path:
     out.mkdir(parents=True, exist_ok=True)
     write_question_discovery_package(package, out)
     (out / "problem_seed.md").write_text(build_problem_from_discovery(package), encoding="utf-8")
+    st.session_state.last_question_discovery_dir = str(out)
     st.session_state.last_output_dir = str(out)
     return out
 
