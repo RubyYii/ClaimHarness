@@ -55,6 +55,8 @@ It writes:
 Word comments, PDF annotations, highlights, and font colors are treated as user attention signals. The tool preserves them for later questioning; it does not infer that a color automatically means "high risk" or "approved."
 
 The boundary is deliberate: OCR is optional and local-only, not a default dependency; URL intake only reads public static pages; no login pages, JavaScript execution, crawling, image understanding, figure interpretation, handwritten markup recognition, or professional judgement is performed. Document intake extracts text, simple tables, links, and basic annotation signals; it does not validate professional claims or replace domain review.
+
+For a visual OCR installation guide, see [OCR_SETUP.md](OCR_SETUP.md) or open the local webpage [docs/ocr_setup.html](docs/ocr_setup.html).
 ## Question Discovery Layer
 
 ProblemBridge does not assume the user already knows the right problem. The Question Discovery Layer helps non-AI users discover what to ask, who to ask, and what unknowns must be validated before anyone proposes an AI solution.

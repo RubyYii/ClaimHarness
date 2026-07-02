@@ -454,6 +454,44 @@ def test_document_intake_layer_is_documented_and_in_ui():
         assert phrase in ui_text
 
 
+def test_ocr_setup_guide_has_visual_install_instructions():
+    readme = Path("README.md").read_text(encoding="utf-8")
+    guide_path = Path("OCR_SETUP.md")
+    html_path = Path("docs/ocr_setup.html")
+    figures = [
+        Path("docs/figures/ocr-setup-flow.svg"),
+        Path("docs/figures/ocr-install-stack.svg"),
+        Path("docs/figures/ocr-check-result.svg"),
+    ]
+
+    assert guide_path.is_file()
+    assert html_path.is_file()
+    for figure in figures:
+        assert figure.is_file(), figure
+        assert figure.read_text(encoding="utf-8").lstrip().startswith("<svg")
+
+    guide = guide_path.read_text(encoding="utf-8")
+    html = html_path.read_text(encoding="utf-8")
+    for phrase in [
+        "pip install -e \".[ui,ocr]\"",
+        "UB-Mannheim",
+        "brew install tesseract poppler",
+        "sudo apt install tesseract-ocr poppler-utils",
+        "tesseract --version",
+        "pdftoppm -h",
+        "chi_sim",
+        "OCR is optional",
+    ]:
+        assert phrase in guide
+
+    for figure in figures:
+        assert figure.as_posix() in guide
+        assert figure.as_posix() in html
+
+    assert "OCR_SETUP.md" in readme
+    assert "docs/ocr_setup.html" in readme
+
+
 def test_guided_ui_exposes_word_and_pdf_exports():
     readme = Path("README.md").read_text(encoding="utf-8")
     readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")

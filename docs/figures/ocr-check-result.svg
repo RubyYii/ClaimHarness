@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">OCR setup check result</title>
+  <desc id="desc">A checklist view showing OCR setup commands and expected pass/fail signals.</desc>
+  <rect width="1200" height="675" fill="#fffdf8"/>
+  <text x="72" y="74" fill="#111827" font-family="Arial, sans-serif" font-size="34" font-weight="700">Check before testing / 测试前先检查</text>
+  <text x="74" y="112" fill="#4b5563" font-family="Arial, sans-serif" font-size="20">If these commands work, the local app can try optional OCR.</text>
+
+  <g transform="translate(90 165)">
+    <rect x="0" y="0" width="1020" height="360" rx="22" fill="#111827"/>
+    <circle cx="38" cy="36" r="9" fill="#ef4444"/>
+    <circle cx="68" cy="36" r="9" fill="#f59e0b"/>
+    <circle cx="98" cy="36" r="9" fill="#22c55e"/>
+    <text x="40" y="95" fill="#e5e7eb" font-family="Consolas, monospace" font-size="26">$ tesseract --version</text>
+    <text x="58" y="132" fill="#86efac" font-family="Consolas, monospace" font-size="22">OK: prints version number</text>
+    <text x="40" y="190" fill="#e5e7eb" font-family="Consolas, monospace" font-size="26">$ pdftoppm -h</text>
+    <text x="58" y="227" fill="#86efac" font-family="Consolas, monospace" font-size="22">OK: prints Poppler help text</text>
+    <text x="40" y="285" fill="#e5e7eb" font-family="Consolas, monospace" font-size="26">$ tesseract --list-langs</text>
+    <text x="58" y="322" fill="#fde68a" font-family="Consolas, monospace" font-size="22">Look for: eng, chi_sim if Chinese scans are expected</text>
+  </g>
+
+  <g transform="translate(160 560)">
+    <path d="M0 0h880" stroke="#d1d5db" stroke-width="3" stroke-linecap="round"/>
+    <text x="0" y="46" fill="#991b1b" font-family="Arial, sans-serif" font-size="22" font-weight="700">If a command is not found, install the missing system tool, then reopen the terminal/app.</text>
+    <text x="0" y="82" fill="#991b1b" font-family="Arial, sans-serif" font-size="22" font-weight="700">如果命令找不到，先安装缺失工具，然后重新打开终端或网页 App。</text>
+  </g>
+</svg>

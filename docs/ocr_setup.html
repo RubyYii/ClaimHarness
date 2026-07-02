@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ProblemBridge OCR Setup Guide</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #5f6b7a;
+      --line: #d9dee8;
+      --paper: #fbfaf7;
+      --panel: #ffffff;
+      --blue: #2563eb;
+      --green: #15803d;
+      --orange: #c2410c;
+      --red: #b91c1c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      line-height: 1.65;
+    }
+    header {
+      padding: 56px 24px 28px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff 0%, #fbfaf7 100%);
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 24px 72px;
+    }
+    .hero {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 48px 0 14px;
+      font-size: 30px;
+      letter-spacing: 0;
+    }
+    h3 {
+      margin: 28px 0 10px;
+      font-size: 22px;
+      letter-spacing: 0;
+    }
+    p, li {
+      font-size: 18px;
+    }
+    .lead {
+      max-width: 780px;
+      color: var(--muted);
+      font-size: 21px;
+    }
+    .notice {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin: 24px 0;
+    }
+    .notice strong { color: var(--orange); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin: 18px 0;
+    }
+    .card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .card h3 { margin-top: 0; }
+    img.figure {
+      width: 100%;
+      display: block;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      margin: 18px 0 26px;
+    }
+    code, pre {
+      font-family: Consolas, "SFMono-Regular", Menlo, monospace;
+    }
+    pre {
+      overflow-x: auto;
+      background: #111827;
+      color: #f9fafb;
+      padding: 16px 18px;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 13px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #eef2ff;
+      color: #1f2937;
+    }
+    a { color: var(--blue); }
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 10px;
+      margin: 4px 6px 4px 0;
+      background: #fff;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      header { padding-top: 36px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero">
+      <h1>OCR 安装说明<br>OCR Setup Guide</h1>
+      <p class="lead">OCR 是可选项。默认情况下，ProblemBridge / ClaimHarness 不需要 OCR。只有当你要读取扫描版 PDF 或图片文字时，才需要安装这一组工具。</p>
+      <span class="tag">Local only</span>
+      <span class="tag">No API key</span>
+      <span class="tag">Optional dependency</span>
+      <span class="tag">Scans and images</span>
+    </div>
+  </header>
+
+  <main>
+    <img class="figure" src="figures/ocr-setup-flow.svg" data-repo-path="docs/figures/ocr-setup-flow.svg" alt="OCR setup flow">
+
+    <section>
+      <h2>1. 先装 Python OCR extra</h2>
+      <p>在仓库根目录运行：</p>
+      <pre><code>pip install -e ".[ui,ocr]"</code></pre>
+      <p>这会安装 <code>pytesseract</code>、<code>pdf2image</code> 和 <code>Pillow</code>。这些只是 Python 包，还需要系统工具。</p>
+    </section>
+
+    <img class="figure" src="figures/ocr-install-stack.svg" data-repo-path="docs/figures/ocr-install-stack.svg" alt="OCR install stack">
+
+    <section>
+      <h2>2. 按系统安装 OCR 工具</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Windows</h3>
+          <p>安装 UB-Mannheim 的 Tesseract Windows installer，并尽量使用默认路径：</p>
+          <pre><code>C:\Program Files\Tesseract-OCR</code></pre>
+          <p>扫描版 PDF 还需要 Poppler，并把 Poppler 的 <code>bin</code> 目录加入 <code>PATH</code>。</p>
+        </article>
+        <article class="card">
+          <h3>macOS</h3>
+          <p>如果已经安装 Homebrew：</p>
+          <pre><code>brew install tesseract poppler</code></pre>
+        </article>
+        <article class="card">
+          <h3>Ubuntu / Debian</h3>
+          <pre><code>sudo apt update
+sudo apt install tesseract-ocr poppler-utils
+sudo apt install tesseract-ocr-chi-sim</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. 中文 OCR</h2>
+      <p>如果要识别中文扫描件，需要 <code>chi_sim</code> 语言数据。否则中文可能乱码、漏字或识别成英文字符。</p>
+      <pre><code>tesseract --list-langs</code></pre>
+      <p>列表里至少应看到 <code>eng</code>。如果要识别简体中文，还要看到 <code>chi_sim</code>。</p>
+    </section>
+
+    <img class="figure" src="figures/ocr-check-result.svg" data-repo-path="docs/figures/ocr-check-result.svg" alt="OCR check result">
+
+    <section>
+      <h2>4. 检查安装</h2>
+      <pre><code>tesseract --version
+pdftoppm -h
+tesseract --list-langs</code></pre>
+      <p>如果 <code>tesseract</code> 或 <code>pdftoppm</code> 显示“not recognized / command not found”，说明系统工具还没装好，或没有加入 <code>PATH</code>。</p>
+    </section>
+
+    <section>
+      <h2>5. 在本地 App 里使用</h2>
+      <ol>
+        <li>运行 <code>streamlit run apps/problem_bridge_wizard.py</code>。</li>
+        <li>打开 <strong>Document intake</strong>。</li>
+        <li>上传扫描版 PDF 或图片。</li>
+        <li>打开 <strong>Enable optional OCR for images and image-only PDFs</strong>。</li>
+        <li>生成文档摄取包。</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>常见问题</h2>
+      <table>
+        <thead>
+          <tr><th>现象</th><th>原因</th><th>处理</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>找不到 <code>tesseract</code></td><td>Tesseract 未安装或不在 PATH</td><td>安装 Tesseract，重新打开终端或 App</td></tr>
+          <tr><td>找不到 <code>pdftoppm</code></td><td>Poppler 未安装或不在 PATH</td><td>安装 Poppler，并把 <code>bin</code> 加入 PATH</td></tr>
+          <tr><td>中文识别很差</td><td>缺少 <code>chi_sim</code></td><td>安装简体中文语言数据</td></tr>
+          <tr><td>OCR 文本很乱</td><td>扫描质量或版式复杂</td><td>换更清晰扫描件，或把 OCR 当作粗略输入</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="notice">
+      <strong>边界：</strong>OCR 只提取可见文字，不理解图片、图表、医学/法律/教育判断，也不能替代人工复核。
+    </section>
+
+    <section>
+      <h2>Sources</h2>
+      <ul>
+        <li><a href="https://tesseract-ocr.github.io/tessdoc/Installation.html">Tesseract installation documentation</a></li>
+        <li><a href="https://github.com/UB-Mannheim/tesseract/wiki">UB-Mannheim Windows installer</a></li>
+        <li><a href="https://pdf2image.readthedocs.io/en/latest/installation.html">pdf2image Poppler installation notes</a></li>
+        <li><a href="https://brew.sh/">Homebrew</a></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

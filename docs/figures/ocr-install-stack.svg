@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">OCR install stack</title>
+  <desc id="desc">The OCR stack requires Python packages, Tesseract, language data, and Poppler for scanned PDFs.</desc>
+  <rect width="1200" height="675" fill="#f8fafc"/>
+  <text x="78" y="76" fill="#111827" font-family="Arial, sans-serif" font-size="34" font-weight="700">Install stack / 安装层级</text>
+  <text x="80" y="114" fill="#4b5563" font-family="Arial, sans-serif" font-size="20">For image OCR you need Tesseract. For scanned PDF OCR you also need Poppler.</text>
+
+  <g transform="translate(160 165)">
+    <rect x="0" y="300" width="880" height="88" rx="18" fill="#e0f2fe" stroke="#0284c7" stroke-width="3"/>
+    <text x="36" y="354" fill="#0f172a" font-family="Arial, sans-serif" font-size="24" font-weight="700">1. ClaimHarness Python extra</text>
+    <text x="520" y="354" fill="#0369a1" font-family="Consolas, monospace" font-size="22">pip install -e ".[ui,ocr]"</text>
+
+    <rect x="40" y="200" width="800" height="88" rx="18" fill="#dcfce7" stroke="#16a34a" stroke-width="3"/>
+    <text x="76" y="254" fill="#0f172a" font-family="Arial, sans-serif" font-size="24" font-weight="700">2. Tesseract OCR engine</text>
+    <text x="520" y="254" fill="#166534" font-family="Consolas, monospace" font-size="22">tesseract --version</text>
+
+    <rect x="80" y="100" width="720" height="88" rx="18" fill="#fff7ed" stroke="#ea580c" stroke-width="3"/>
+    <text x="116" y="154" fill="#0f172a" font-family="Arial, sans-serif" font-size="24" font-weight="700">3. Language data</text>
+    <text x="520" y="154" fill="#c2410c" font-family="Consolas, monospace" font-size="22">eng / chi_sim</text>
+
+    <rect x="120" y="0" width="640" height="88" rx="18" fill="#eef2ff" stroke="#4f46e5" stroke-width="3"/>
+    <text x="156" y="54" fill="#0f172a" font-family="Arial, sans-serif" font-size="24" font-weight="700">4. Poppler for PDF pages</text>
+    <text x="520" y="54" fill="#4338ca" font-family="Consolas, monospace" font-size="22">pdftoppm -h</text>
+  </g>
+
+  <path d="M272 578c130 34 283 32 443-4 116-26 235-32 358 12" fill="none" stroke="#cbd5e1" stroke-width="4" stroke-linecap="round" stroke-dasharray="9 13"/>
+  <text x="156" y="615" fill="#475569" font-family="Arial, sans-serif" font-size="20">Install bottom-up, test top-down. 先装底层，再从命令检查。</text>
+</svg>
