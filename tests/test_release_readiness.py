@@ -91,6 +91,39 @@ def test_readme_documents_runnable_demo_and_required_outputs():
         assert phrase in text
 
 
+def test_github_landing_page_has_visual_portfolio_header():
+    readme = Path("README.md").read_text(encoding="utf-8")
+    readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
+    hero = Path("docs/figures/github-hero.svg")
+    workflow = Path("docs/figures/github-workflow.svg")
+
+    assert hero.is_file()
+    assert workflow.is_file()
+    assert hero.read_text(encoding="utf-8").lstrip().startswith("<svg")
+    assert workflow.read_text(encoding="utf-8").lstrip().startswith("<svg")
+
+    for phrase in [
+        "docs/figures/github-hero.svg",
+        "docs/figures/github-workflow.svg",
+        "Project at a glance",
+        "Guided workflow",
+        "Start locally",
+        "No API by default",
+        "Document intake -> Question discovery -> Workflow alignment -> AI task check -> Evidence audit",
+    ]:
+        assert phrase in readme
+
+    for phrase in [
+        "docs/figures/github-hero.svg",
+        "docs/figures/github-workflow.svg",
+        "项目一眼看懂",
+        "引导式工作流",
+        "本地运行",
+        "默认不需要 API",
+    ]:
+        assert phrase in readme_zh
+
+
 def test_limitations_are_conservative():
     text = Path("docs/limitations.md").read_text(encoding="utf-8").lower()
     required = [

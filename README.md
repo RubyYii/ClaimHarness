@@ -1,6 +1,10 @@
 # ProblemBridge + ClaimHarness
 
 <p align="center">
+  <img src="docs/figures/github-hero.svg" alt="ProblemBridge + ClaimHarness: local-first problem alignment and evidence audit workflow" width="100%">
+</p>
+
+<p align="center">
   <strong>A two-stage harness for interdisciplinary AI projects.</strong><br>
   ProblemBridge aligns domain problems before AI work begins. ClaimHarness audits evidence after claims exist.
 </p>
@@ -12,8 +16,31 @@
   <img alt="ClaimHarness" src="https://img.shields.io/badge/ClaimHarness-evidence%20audit-374151">
 </p>
 
+<p align="center">
+  <a href="#run-locally">Start locally</a> ·
+  <a href="#for-non-ai-users">For non-AI users</a> ·
+  <a href="docs/static_showcase/en.html">Static showcase</a> ·
+  <a href="README.zh-CN.md">简体中文</a>
+</p>
+
 **Language:** [English](README.md) | [简体中文](README.zh-CN.md)
+
 **Showcase:** [English static showcase](docs/static_showcase/en.html) | [中文静态展示](docs/static_showcase/zh-CN.html)
+
+## Project at a glance
+
+| What | How it helps |
+| --- | --- |
+| **No API by default** | Runs locally in deterministic mock mode for first-round testing. |
+| **Guided workflow** | Carries context from document intake to question discovery, workflow alignment, AI task check, and generated outputs. |
+| **ProblemBridge** | Converts a domain workflow into task specs, evidence contracts, evaluation protocols, and review boundaries. |
+| **ClaimHarness** | Audits whether written or generated claims are supported by provided evidence and trace logs. |
+
+<p align="center">
+  <img src="docs/figures/github-workflow.svg" alt="Guided workflow from document intake to evidence audit" width="100%">
+</p>
+
+**Guided workflow:** Document intake -> Question discovery -> Workflow alignment -> AI task check -> Evidence audit.
 
 ## Overview
 

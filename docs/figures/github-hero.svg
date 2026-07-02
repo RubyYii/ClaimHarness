@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
+  <title id="title">ProblemBridge and ClaimHarness portfolio header</title>
+  <desc id="desc">A local-first two-stage harness for problem alignment before AI work and evidence auditing after claims exist.</desc>
+  <rect width="1200" height="420" fill="#f8fbfc"/>
+  <rect x="38" y="34" width="1124" height="352" rx="18" fill="#ffffff" stroke="#d7e3ea" stroke-width="2"/>
+
+  <text x="74" y="90" fill="#0f172a" font-family="Segoe UI, Arial, sans-serif" font-size="36" font-weight="800">ProblemBridge + ClaimHarness</text>
+  <text x="74" y="124" fill="#546474" font-family="Segoe UI, Arial, sans-serif" font-size="17">A local-first harness for interdisciplinary AI projects</text>
+
+  <rect x="74" y="152" width="214" height="48" rx="8" fill="#e7f6f2" stroke="#9ad4c8"/>
+  <text x="98" y="182" fill="#0f766e" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">No API by default</text>
+  <rect x="304" y="152" width="236" height="48" rx="8" fill="#eef4ff" stroke="#b8c9f4"/>
+  <text x="328" y="182" fill="#1d4ed8" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">Guided for non-AI users</text>
+  <rect x="556" y="152" width="222" height="48" rx="8" fill="#fff7e6" stroke="#f2c46d"/>
+  <text x="580" y="182" fill="#a15c00" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">Evidence boundaries</text>
+
+  <g transform="translate(76 244)">
+    <rect x="0" y="0" width="170" height="74" rx="10" fill="#f1f8f7" stroke="#7fc8ba" stroke-width="2"/>
+    <text x="22" y="31" fill="#0f172a" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="800">Document intake</text>
+    <text x="22" y="55" fill="#546474" font-family="Segoe UI, Arial, sans-serif" font-size="13">files, URLs, OCR</text>
+
+    <path d="M182 37 H232" stroke="#7b8a9a" stroke-width="3" stroke-linecap="round"/>
+    <path d="M232 37 l-10 -7 v14 z" fill="#7b8a9a"/>
+
+    <rect x="244" y="0" width="178" height="74" rx="10" fill="#eef4ff" stroke="#9eb7ef" stroke-width="2"/>
+    <text x="266" y="31" fill="#0f172a" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="800">Questions first</text>
+    <text x="266" y="55" fill="#546474" font-family="Segoe UI, Arial, sans-serif" font-size="13">what to ask, who to ask</text>
+
+    <path d="M434 37 H484" stroke="#7b8a9a" stroke-width="3" stroke-linecap="round"/>
+    <path d="M484 37 l-10 -7 v14 z" fill="#7b8a9a"/>
+
+    <rect x="496" y="0" width="190" height="74" rx="10" fill="#fff7e6" stroke="#e9b85d" stroke-width="2"/>
+    <text x="518" y="31" fill="#0f172a" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="800">ProblemBridge</text>
+    <text x="518" y="55" fill="#546474" font-family="Segoe UI, Arial, sans-serif" font-size="13">task specs and contracts</text>
+
+    <path d="M698 37 H748" stroke="#7b8a9a" stroke-width="3" stroke-linecap="round"/>
+    <path d="M748 37 l-10 -7 v14 z" fill="#7b8a9a"/>
+
+    <rect x="760" y="0" width="190" height="74" rx="10" fill="#fef2f2" stroke="#f0a1a1" stroke-width="2"/>
+    <text x="782" y="31" fill="#0f172a" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="800">ClaimHarness</text>
+    <text x="782" y="55" fill="#546474" font-family="Segoe UI, Arial, sans-serif" font-size="13">claim-evidence audit</text>
+  </g>
+
+  <rect x="846" y="78" width="258" height="120" rx="12" fill="#0f172a"/>
+  <text x="876" y="116" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800">Core idea</text>
+  <text x="876" y="146" fill="#dbe8ee" font-family="Segoe UI, Arial, sans-serif" font-size="14">Align the problem before AI work.</text>
+  <text x="876" y="172" fill="#dbe8ee" font-family="Segoe UI, Arial, sans-serif" font-size="14">Audit the evidence after outputs exist.</text>
+</svg>

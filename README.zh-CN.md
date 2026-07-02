@@ -1,6 +1,10 @@
 # ProblemBridge + ClaimHarness
 
 <p align="center">
+  <img src="docs/figures/github-hero.svg" alt="ProblemBridge + ClaimHarness：本地优先的问题对齐与证据审计工作流" width="100%">
+</p>
+
+<p align="center">
   <strong>一个面向跨学科 AI 项目的双阶段 Harness。</strong><br>
   ProblemBridge 负责建模前的问题对齐，ClaimHarness 负责输出后的证据审计。
 </p>
@@ -12,8 +16,29 @@
   <img alt="ClaimHarness" src="https://img.shields.io/badge/ClaimHarness-evidence%20audit-374151">
 </p>
 
+<p align="center">
+  <a href="#本地运行">本地运行</a> ·
+  <a href="#谁适合使用">谁适合使用</a> ·
+  <a href="docs/static_showcase/zh-CN.html">中文静态展示</a> ·
+  <a href="README.md">English</a>
+</p>
+
 **语言：**[English](README.md) | [简体中文](README.zh-CN.md)
+
 **展示页：**[English static showcase](docs/static_showcase/en.html) | [中文静态展示](docs/static_showcase/zh-CN.html)
+
+## 项目一眼看懂
+
+| 重点 | 说明 |
+| --- | --- |
+| **默认不需要 API** | 首轮测试使用本地 deterministic mock mode，不调用外部模型。 |
+| **引导式工作流** | 从文档摄取到问题发现、工作流对齐、AI 任务检查和结果查看，逐步继承上下文。 |
+| **ProblemBridge** | 把领域工作流转成 AI 任务规格、证据契约、评价协议和人工复核边界。 |
+| **ClaimHarness** | 检查文本或系统输出中的 claims 是否有证据支撑，并保留审计 trace。 |
+
+<p align="center">
+  <img src="docs/figures/github-workflow.svg" alt="从文档摄取到证据审计的引导式工作流" width="100%">
+</p>
 
 ## 项目定位
 
