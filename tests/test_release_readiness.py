@@ -405,6 +405,13 @@ def test_document_intake_layer_is_documented_and_in_ui():
         ".doc",
         ".docx",
         "text-based PDF",
+        "Word comments",
+        "highlighted spans",
+        "font-color marks",
+        "annotation_map.json",
+        "highlighted_spans.csv",
+        "comment_threads.md",
+        "priority_marks.md",
         "extracted_text.md",
         "source_manifest.json",
         "extraction_warnings.md",
@@ -414,6 +421,8 @@ def test_document_intake_layer_is_documented_and_in_ui():
 
     assert "文档摄取层" in readme_zh
     assert "文字版 PDF" in readme_zh
+    assert "批注" in readme_zh
+    assert "高亮" in readme_zh
     assert "Document intake" in guide
 
     for phrase in [
@@ -421,6 +430,11 @@ def test_document_intake_layer_is_documented_and_in_ui():
         "Upload Word, PDF, Markdown, TXT, or CSV files",
         "Legacy .doc",
         "text-based PDF",
+        "DOCX comments",
+        "annotation_map.json",
+        "highlighted_spans.csv",
+        "comment_threads.md",
+        "priority_marks.md",
         "extracted_text.md",
         "source_manifest.json",
         "Generate document intake package",

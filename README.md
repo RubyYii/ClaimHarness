@@ -30,7 +30,7 @@ The Document Intake Layer lets users bring local files into the workflow before 
 
 Supported input types:
 
-- `.docx` Word documents
+- `.docx` Word documents, including basic Word comments, highlighted spans, and font-color marks
 - legacy `.doc` Word files, with a local conversion warning instead of silent failure
 - `.pdf` text-based PDF files
 - `.txt`
@@ -41,11 +41,17 @@ It writes:
 
 - `extracted_text.md`
 - `extracted_tables/`
+- `annotation_map.json`
+- `highlighted_spans.csv`
+- `comment_threads.md`
+- `priority_marks.md`
 - `source_manifest.json`
 - `extraction_warnings.md`
 - `problem_seed.md`
 
-The boundary is deliberate: text-based PDF only, no OCR, no scanned PDF understanding, no image understanding, and no figure interpretation. Document intake extracts text and tables; it does not validate professional claims or replace domain review.
+Word comments, highlights, and font colors are treated as user attention signals. The tool preserves them for later questioning; it does not infer that a color automatically means "high risk" or "approved."
+
+The boundary is deliberate: text-based PDF only, no OCR, no scanned PDF understanding, no image understanding, no figure interpretation, and no PDF annotation parsing. Document intake extracts text, tables, and basic `.docx` annotation signals; it does not validate professional claims or replace domain review.
 ## Question Discovery Layer
 
 ProblemBridge does not assume the user already knows the right problem. The Question Discovery Layer helps non-AI users discover what to ask, who to ask, and what unknowns must be validated before anyone proposes an AI solution.

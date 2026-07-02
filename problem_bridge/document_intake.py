@@ -6,7 +6,7 @@ import json
 import re
 import zlib
 import zipfile
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable
 from xml.etree import ElementTree
@@ -24,12 +24,24 @@ class ExtractedTable:
 
 
 @dataclass(frozen=True)
+class AnnotationMark:
+    source_name: str
+    kind: str
+    text: str
+    color: str = ""
+    comment_text: str = ""
+    author: str = ""
+    context: str = ""
+
+
+@dataclass(frozen=True)
 class DocumentExtraction:
     source_name: str
     file_type: str
     text: str
     tables: list[ExtractedTable]
     warnings: list[str]
+    annotations: list[AnnotationMark] = field(default_factory=list)
 
 
 def extract_document(path: str | Path) -> DocumentExtraction:
@@ -70,6 +82,7 @@ def write_intake_package(results: Iterable[DocumentExtraction], out: str | Path)
     result_list = list(results)
     (output_dir / "extracted_text.md").write_text(_combined_text(result_list), encoding="utf-8")
     _write_tables(result_list, table_dir)
+    _write_annotations(result_list, output_dir)
     (output_dir / "source_manifest.json").write_text(
         json.dumps(_manifest(result_list), indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
@@ -80,6 +93,7 @@ def write_intake_package(results: Iterable[DocumentExtraction], out: str | Path)
 def build_problem_seed_from_intake(results: Iterable[DocumentExtraction]) -> str:
     result_list = list(results)
     combined = _combined_text(result_list).strip()
+    annotations = _combined_annotations(result_list).strip()
     return _clean_markdown(
         f"""
         # Document Intake Problem Seed
@@ -87,8 +101,12 @@ def build_problem_seed_from_intake(results: Iterable[DocumentExtraction]) -> str
         ## Extracted context
         {combined}
 
+        ## Extracted annotation signals
+        {annotations}
+
         ## Boundary
         Document intake only extracts text and tables; it does not validate professional claims.
+        Word comments, highlights, and font colors are preserved as user attention signals, not interpreted as final risk labels.
         Use Question Discovery or ProblemBridge after a human checks whether the extracted context is complete.
         """
     )
@@ -111,6 +129,7 @@ def _extract_docx(path: Path) -> DocumentExtraction:
     try:
         with zipfile.ZipFile(path) as archive:
             xml_bytes = archive.read("word/document.xml")
+            comments = _docx_comments(archive)
     except (KeyError, zipfile.BadZipFile) as exc:
         return DocumentExtraction(
             source_name=path.name,
@@ -124,12 +143,14 @@ def _extract_docx(path: Path) -> DocumentExtraction:
     paragraphs = [_paragraph_text(paragraph) for paragraph in root.findall(".//w:p", WORD_NS)]
     text = "\n".join(paragraph for paragraph in paragraphs if paragraph)
     tables = _docx_tables(path.stem, root)
+    annotations = _docx_annotations(path.name, root, comments)
     return DocumentExtraction(
         source_name=path.name,
         file_type="docx",
         text=text,
         tables=tables,
         warnings=warnings,
+        annotations=annotations,
     )
 
 
@@ -148,6 +169,103 @@ def _docx_tables(stem: str, root: ElementTree.Element) -> list[ExtractedTable]:
 def _paragraph_text(element: ElementTree.Element) -> str:
     texts = [node.text or "" for node in element.findall(".//w:t", WORD_NS)]
     return "".join(texts).strip()
+
+
+def _docx_comments(archive: zipfile.ZipFile) -> dict[str, dict[str, str]]:
+    try:
+        comments_xml = archive.read("word/comments.xml")
+    except KeyError:
+        return {}
+    root = ElementTree.fromstring(comments_xml)
+    comments: dict[str, dict[str, str]] = {}
+    for comment in root.findall(".//w:comment", WORD_NS):
+        comment_id = comment.attrib.get(f"{{{WORD_NS['w']}}}id", "")
+        if not comment_id:
+            continue
+        comments[comment_id] = {
+            "author": comment.attrib.get(f"{{{WORD_NS['w']}}}author", ""),
+            "text": _paragraph_text(comment),
+        }
+    return comments
+
+
+def _docx_annotations(source_name: str, root: ElementTree.Element, comments: dict[str, dict[str, str]]) -> list[AnnotationMark]:
+    annotations: list[AnnotationMark] = []
+    for paragraph in root.findall(".//w:p", WORD_NS):
+        context = _paragraph_text(paragraph)
+        comment_ranges: dict[str, list[str]] = {}
+        active_comment_ids: list[str] = []
+
+        for child in list(paragraph):
+            local_name = _local_name(child.tag)
+            if local_name == "commentRangeStart":
+                comment_id = child.attrib.get(f"{{{WORD_NS['w']}}}id", "")
+                if comment_id:
+                    active_comment_ids.append(comment_id)
+                    comment_ranges.setdefault(comment_id, [])
+                continue
+            if local_name == "commentRangeEnd":
+                comment_id = child.attrib.get(f"{{{WORD_NS['w']}}}id", "")
+                if comment_id in active_comment_ids:
+                    active_comment_ids.remove(comment_id)
+                continue
+            if local_name != "r":
+                continue
+
+            run_text = _paragraph_text(child)
+            if not run_text:
+                continue
+            for comment_id in active_comment_ids:
+                comment_ranges.setdefault(comment_id, []).append(run_text)
+
+            highlight = child.find("./w:rPr/w:highlight", WORD_NS)
+            if highlight is not None:
+                color = highlight.attrib.get(f"{{{WORD_NS['w']}}}val", "")
+                if color and color != "none":
+                    annotations.append(
+                        AnnotationMark(
+                            source_name=source_name,
+                            kind="highlight",
+                            text=run_text,
+                            color=color,
+                            context=context,
+                        )
+                    )
+
+            font_color = child.find("./w:rPr/w:color", WORD_NS)
+            if font_color is not None:
+                color = font_color.attrib.get(f"{{{WORD_NS['w']}}}val", "")
+                if color and color.lower() != "auto":
+                    annotations.append(
+                        AnnotationMark(
+                            source_name=source_name,
+                            kind="font_color",
+                            text=run_text,
+                            color=color,
+                            context=context,
+                        )
+                    )
+
+        for comment_id, text_parts in comment_ranges.items():
+            comment = comments.get(comment_id, {})
+            annotations.insert(
+                0,
+                AnnotationMark(
+                    source_name=source_name,
+                    kind="comment",
+                    text="".join(text_parts).strip(),
+                    comment_text=comment.get("text", ""),
+                    author=comment.get("author", ""),
+                    context=context,
+                ),
+            )
+    return annotations
+
+
+def _local_name(tag: str) -> str:
+    if "}" in tag:
+        return tag.rsplit("}", 1)[1]
+    return tag
 
 
 def _extract_pdf(path: Path) -> DocumentExtraction:
@@ -340,12 +458,102 @@ def _combined_text(results: list[DocumentExtraction]) -> str:
     return "\n\n".join(sections).rstrip() + "\n"
 
 
+def _combined_annotations(results: list[DocumentExtraction]) -> str:
+    lines: list[str] = []
+    for result in results:
+        for annotation in result.annotations:
+            if annotation.kind == "comment":
+                label = f"comment: {annotation.text or 'unmarked text'}"
+                line = f"- {result.source_name} [{label}]"
+            else:
+                label = annotation.kind
+                if annotation.color:
+                    label = f"{label}:{annotation.color}"
+                line = f"- {result.source_name} [{label}] {annotation.text}"
+            if annotation.comment_text:
+                line += f" | comment: {annotation.comment_text}"
+            lines.append(line)
+    if not lines:
+        return "_No annotation signals extracted._\n"
+    return "\n".join(lines).rstrip() + "\n"
+
+
 def _write_tables(results: list[DocumentExtraction], table_dir: Path) -> None:
     for result in results:
         for table in result.tables:
             with (table_dir / f"{table.name}.csv").open("w", newline="", encoding="utf-8") as handle:
                 writer = csv.writer(handle)
                 writer.writerows(table.rows)
+
+
+def _write_annotations(results: list[DocumentExtraction], output_dir: Path) -> None:
+    annotations = [annotation for result in results for annotation in result.annotations]
+    (output_dir / "annotation_map.json").write_text(
+        json.dumps({"annotations": [_annotation_dict(annotation) for annotation in annotations]}, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
+    with (output_dir / "highlighted_spans.csv").open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["source_name", "kind", "color", "text", "context"])
+        writer.writeheader()
+        for annotation in annotations:
+            if annotation.kind in {"highlight", "font_color"}:
+                writer.writerow(
+                    {
+                        "source_name": annotation.source_name,
+                        "kind": annotation.kind,
+                        "color": annotation.color,
+                        "text": annotation.text,
+                        "context": annotation.context,
+                    }
+                )
+
+    (output_dir / "comment_threads.md").write_text(_comments_markdown(annotations), encoding="utf-8")
+    (output_dir / "priority_marks.md").write_text(_priority_marks_markdown(annotations), encoding="utf-8")
+
+
+def _annotation_dict(annotation: AnnotationMark) -> dict[str, str]:
+    return {
+        "source_name": annotation.source_name,
+        "kind": annotation.kind,
+        "text": annotation.text,
+        "color": annotation.color,
+        "comment_text": annotation.comment_text,
+        "author": annotation.author,
+        "context": annotation.context,
+    }
+
+
+def _comments_markdown(annotations: list[AnnotationMark]) -> str:
+    lines = ["# Comment Threads", ""]
+    comments = [annotation for annotation in annotations if annotation.kind == "comment"]
+    if not comments:
+        lines.append("- No Word comment threads extracted.")
+        return "\n".join(lines).rstrip() + "\n"
+    for annotation in comments:
+        author = f" ({annotation.author})" if annotation.author else ""
+        lines.extend(
+            [
+                f"## {annotation.source_name}{author}",
+                "",
+                f"- Marked text: {annotation.text or '_No marked text captured._'}",
+                f"- Comment: {annotation.comment_text or '_No comment text captured._'}",
+                f"- Context: {annotation.context or '_No paragraph context captured._'}",
+                "",
+            ]
+        )
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def _priority_marks_markdown(annotations: list[AnnotationMark]) -> str:
+    lines = ["# Priority Marks", ""]
+    marks = [annotation for annotation in annotations if annotation.kind in {"highlight", "font_color"}]
+    if not marks:
+        lines.append("- No highlighted spans or font-color marks extracted.")
+        return "\n".join(lines).rstrip() + "\n"
+    for annotation in marks:
+        lines.append(f"- {annotation.source_name} [{annotation.kind}:{annotation.color}] {annotation.text}")
+    return "\n".join(lines).rstrip() + "\n"
 
 
 def _manifest(results: list[DocumentExtraction]) -> dict[str, object]:
@@ -356,6 +564,7 @@ def _manifest(results: list[DocumentExtraction]) -> dict[str, object]:
                 "file_type": result.file_type,
                 "text_length": len(result.text),
                 "table_count": len(result.tables),
+                "annotation_count": len(result.annotations),
                 "warnings": result.warnings,
             }
             for result in results

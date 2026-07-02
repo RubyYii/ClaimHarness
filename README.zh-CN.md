@@ -30,7 +30,7 @@ ProblemBridge + ClaimHarness 是一个本地优先的跨学科 AI 原型。它�
 
 当前支持：
 
-- `.docx` Word 文档
+- `.docx` Word 文档，包括基础 Word 批注、高亮文本和字体颜色标记
 - `.doc` 旧版 Word 文件会给出本地转换提示
 - `.pdf` 文字版 PDF
 - `.txt`
@@ -41,11 +41,17 @@ ProblemBridge + ClaimHarness 是一个本地优先的跨学科 AI 原型。它�
 
 - `extracted_text.md`
 - `extracted_tables/`
+- `annotation_map.json`
+- `highlighted_spans.csv`
+- `comment_threads.md`
+- `priority_marks.md`
 - `source_manifest.json`
 - `extraction_warnings.md`
 - `problem_seed.md`
 
-边界很重要：只支持文字版 PDF，不做 OCR，不理解扫描版 PDF，不做图片理解，也不解释 figure。它只负责提取文本和表格，不验证专业结论，也不能替代领域专家复核。
+Word 批注、高亮和字体颜色会被当作“用户注意力信号”保留下来，用于后续追问；系统不会自动推断某种颜色一定代表“高风险”或“已通过”。
+
+边界很重要：只支持文字版 PDF，不做 OCR，不理解扫描版 PDF，不做图片理解，也不解释 figure，暂不解析 PDF 批注。它只负责提取文本、表格和基础 `.docx` 标注信号，不验证专业结论，也不能替代领域专家复核。
 ## 问题发现层
 
 ProblemBridge 不假设用户一开始就知道真正的问题。问题发现层用于先提出问题、识别该问谁，并列出进入方案讨论前必须验证的未知项。

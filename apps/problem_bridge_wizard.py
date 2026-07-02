@@ -145,7 +145,7 @@ MODULE_CARDS = [
         "title": "Document intake",
         "stage": "File preparation",
         "start_if": "You have Word, text-based PDF, Markdown, TXT, or CSV files.",
-        "what_you_get": "extracted_text.md, extracted_tables, source_manifest.json, warnings.",
+        "what_you_get": "extracted_text.md, annotation_map.json, extracted_tables, source_manifest.json, warnings.",
     },
     {
         "title": "Question discovery",
@@ -258,6 +258,10 @@ QUESTION_DISCOVERY_FILES = {
 
 DOCUMENT_INTAKE_FILES = {
     "extracted_text.md": "Extracted text",
+    "annotation_map.json": "Annotation map",
+    "highlighted_spans.csv": "Highlighted spans",
+    "comment_threads.md": "Comment threads",
+    "priority_marks.md": "Priority marks",
     "source_manifest.json": "Source manifest",
     "extraction_warnings.md": "Extraction warnings",
     "problem_seed.md": "ProblemBridge seed brief",
@@ -1133,7 +1137,23 @@ def _document_intake() -> None:
             "Supports .docx, .md, .txt, .csv, and text-based PDF. Legacy .doc uploads are accepted only to return conversion guidance. Scanned PDF, OCR, images, and figure understanding are not supported.",
             "支持 .docx、.md、.txt、.csv 和文字版 PDF。.doc 旧版 Word 上传后只会返回转换提示。不支持扫描 PDF、OCR、图片理解或 figure 解释。",
         ),
-        ["extracted_text.md", "extracted_tables/", "source_manifest.json", "extraction_warnings.md", "problem_seed.md"],
+        [
+            "extracted_text.md",
+            "annotation_map.json",
+            "highlighted_spans.csv",
+            "comment_threads.md",
+            "priority_marks.md",
+            "extracted_tables/",
+            "source_manifest.json",
+            "extraction_warnings.md",
+            "problem_seed.md",
+        ],
+    )
+    st.caption(
+        _text(
+            "DOCX comments, highlighted spans, and font-color marks are extracted as annotation signals. Legacy .doc files and PDF annotations are not parsed.",
+            "DOCX 批注、高亮文本和字体颜色会作为标注信号提取；旧版 .doc 文件和 PDF 批注暂不解析。",
+        )
     )
 
     uploaded_files = st.file_uploader(
@@ -1158,6 +1178,21 @@ def _render_document_intake_output(out: Path) -> None:
     manifest = out / "source_manifest.json"
     if manifest.is_file():
         st.code(manifest.read_text(encoding="utf-8"), language="json")
+
+    annotation_map = out / "annotation_map.json"
+    if annotation_map.is_file():
+        st.subheader("annotation_map.json")
+        st.code(annotation_map.read_text(encoding="utf-8"), language="json")
+
+    comments_path = out / "comment_threads.md"
+    if comments_path.is_file():
+        st.subheader("comment_threads.md")
+        st.markdown(comments_path.read_text(encoding="utf-8"))
+
+    priority_path = out / "priority_marks.md"
+    if priority_path.is_file():
+        st.subheader("priority_marks.md")
+        st.markdown(priority_path.read_text(encoding="utf-8"))
 
     warnings_path = out / "extraction_warnings.md"
     if warnings_path.is_file():

@@ -30,6 +30,24 @@ def test_extracts_docx_paragraphs_and_tables(tmp_path: Path):
     assert result.warnings == []
 
 
+def test_extracts_docx_comments_highlights_and_font_colors(tmp_path: Path):
+    docx_path = tmp_path / "annotated.docx"
+    _write_annotated_docx(docx_path)
+
+    result = extract_document(docx_path)
+
+    assert result.source_name == "annotated.docx"
+    assert "uncertain boundary" in result.text
+    assert [
+        (annotation.kind, annotation.text, annotation.color, annotation.comment_text)
+        for annotation in result.annotations
+    ] == [
+        ("comment", "uncertain boundary", "", "Ask domain expert whether this is a risk."),
+        ("highlight", "high priority", "yellow", ""),
+        ("font_color", "risk wording", "FF0000", ""),
+    ]
+
+
 def test_extracts_text_markdown_and_csv(tmp_path: Path):
     txt_path = tmp_path / "notes.txt"
     txt_path.write_text("Repeated work\nSlow review", encoding="utf-8")
@@ -112,14 +130,46 @@ def test_write_intake_package_creates_auditable_outputs(tmp_path: Path):
     assert (out / "extracted_tables" / "workflow_table_1.csv").is_file()
     assert (out / "source_manifest.json").is_file()
     assert (out / "extraction_warnings.md").is_file()
+    assert (out / "annotation_map.json").is_file()
+    assert (out / "highlighted_spans.csv").is_file()
+    assert (out / "comment_threads.md").is_file()
+    assert (out / "priority_marks.md").is_file()
 
     manifest = json.loads((out / "source_manifest.json").read_text(encoding="utf-8"))
     assert manifest["sources"][0]["source_name"] == "workflow.docx"
     assert manifest["sources"][0]["file_type"] == "docx"
     assert manifest["sources"][0]["table_count"] == 1
+    assert manifest["sources"][0]["annotation_count"] == 0
 
     extracted_text = (out / "extracted_text.md").read_text(encoding="utf-8")
     assert "A domain workflow" in extracted_text
+
+
+def test_write_intake_package_exports_annotation_files(tmp_path: Path):
+    docx_path = tmp_path / "annotated.docx"
+    _write_annotated_docx(docx_path)
+    result = extract_document(docx_path)
+
+    out = tmp_path / "out"
+    write_intake_package([result], out)
+
+    annotation_map = json.loads((out / "annotation_map.json").read_text(encoding="utf-8"))
+    assert annotation_map["annotations"][0]["kind"] == "comment"
+    assert annotation_map["annotations"][0]["comment_text"] == "Ask domain expert whether this is a risk."
+
+    with (out / "highlighted_spans.csv").open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    assert rows[0]["kind"] == "highlight"
+    assert rows[0]["text"] == "high priority"
+    assert rows[1]["kind"] == "font_color"
+    assert rows[1]["color"] == "FF0000"
+
+    comments = (out / "comment_threads.md").read_text(encoding="utf-8")
+    assert "Ask domain expert whether this is a risk." in comments
+
+    priority = (out / "priority_marks.md").read_text(encoding="utf-8")
+    assert "high priority" in priority
+    assert "risk wording" in priority
 
 
 def test_build_problem_seed_from_intake_keeps_extraction_boundary(tmp_path: Path):
@@ -132,6 +182,20 @@ def test_build_problem_seed_from_intake_keeps_extraction_boundary(tmp_path: Path
     assert "# Document Intake Problem Seed" in seed
     assert "The team needs to understand a slow review workflow." in seed
     assert "Document intake only extracts text and tables; it does not validate professional claims." in seed
+
+
+def test_build_problem_seed_from_intake_includes_annotation_signals(tmp_path: Path):
+    docx_path = tmp_path / "annotated.docx"
+    _write_annotated_docx(docx_path)
+    result = extract_document(docx_path)
+
+    seed = build_problem_seed_from_intake([result])
+
+    assert "## Extracted annotation signals" in seed
+    assert "comment: uncertain boundary" in seed
+    assert "Ask domain expert whether this is a risk." in seed
+    assert "highlight:yellow" in seed
+    assert "font_color:FF0000" in seed
 
 
 def _write_minimal_docx(path: Path, paragraphs: list[str], table_rows: list[list[str]]) -> None:
@@ -165,6 +229,40 @@ def _write_minimal_docx(path: Path, paragraphs: list[str], table_rows: list[list
             "</Types>",
         )
         archive.writestr("word/document.xml", document_xml)
+
+
+def _write_annotated_docx(path: Path) -> None:
+    document_xml = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+        "<w:body><w:p>"
+        "<w:r><w:t>Review </w:t></w:r>"
+        '<w:commentRangeStart w:id="0"/>'
+        "<w:r><w:t>uncertain boundary</w:t></w:r>"
+        '<w:commentRangeEnd w:id="0"/>'
+        '<w:r><w:commentReference w:id="0"/></w:r>'
+        '<w:r><w:rPr><w:highlight w:val="yellow"/></w:rPr><w:t>high priority</w:t></w:r>'
+        '<w:r><w:rPr><w:color w:val="FF0000"/></w:rPr><w:t>risk wording</w:t></w:r>'
+        "</w:p></w:body></w:document>"
+    )
+    comments_xml = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<w:comments xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+        '<w:comment w:id="0" w:author="Reviewer">'
+        "<w:p><w:r><w:t>Ask domain expert whether this is a risk.</w:t></w:r></w:p>"
+        "</w:comment>"
+        "</w:comments>"
+    )
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr(
+            "[Content_Types].xml",
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+            '<Default Extension="xml" ContentType="application/xml"/>'
+            "</Types>",
+        )
+        archive.writestr("word/document.xml", document_xml)
+        archive.writestr("word/comments.xml", comments_xml)
 
 
 def _write_simple_text_pdf(path: Path, text: str) -> None:
