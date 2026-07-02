@@ -1,7 +1,7 @@
 # ProblemBridge + ClaimHarness
 
 <p align="center">
-  <img src="docs/figures/github-hero.svg" alt="ProblemBridge + ClaimHarness: local-first problem alignment and evidence audit workflow" width="100%">
+  <img src="docs/figures/github-hero-flat-comic.png" alt="ProblemBridge + ClaimHarness: local-first problem alignment and evidence audit workflow" width="100%">
 </p>
 
 <p align="center">
