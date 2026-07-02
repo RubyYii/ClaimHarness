@@ -8,6 +8,7 @@ from pathlib import Path
 import streamlit as st
 
 from claim_harness.llm import PROVIDER_PRESETS
+from claim_harness.report_exporter import export_output_report
 from problem_bridge.generator import build_alignment_package
 from problem_bridge.guided import (
     FRIENDLY_FILE_LABELS,
@@ -1111,6 +1112,7 @@ def _render_question_discovery_output(out: Path) -> None:
         file_name=f"{out.name}.zip",
         mime="application/zip",
     )
+    _render_report_export_buttons(out)
 
     with st.expander(_text("All discovery files", "全部问题发现文件")):
         for filename, label in QUESTION_DISCOVERY_FILES.items():
@@ -1169,6 +1171,7 @@ def _render_document_intake_output(out: Path) -> None:
         file_name=f"{out.name}.zip",
         mime="application/zip",
     )
+    _render_report_export_buttons(out)
 
     with st.expander(_text("All intake files", "全部摄取文件")):
         for filename, label in DOCUMENT_INTAKE_FILES.items():
@@ -1524,12 +1527,40 @@ def _render_friendly_output(out: Path) -> None:
         file_name=f"{out.name}.zip",
         mime="application/zip",
     )
+    _render_report_export_buttons(out)
 
     with st.expander(_text("Technical delivery package", "技术交付包")):
         for item in discover_alignment_outputs(out):
             st.markdown(f"### {FRIENDLY_FILE_LABELS.get(item.filename, item.filename)}")
             st.caption(item.filename)
             st.code(item.path.read_text(encoding="utf-8"), language=_language_for(item.filename))
+
+def _render_report_export_buttons(out: Path) -> None:
+    st.markdown(f"### {_text('Portable report exports', '可分享报告导出')}")
+    try:
+        package = export_output_report(out)
+    except Exception as exc:  # pragma: no cover - defensive UI guard
+        st.warning(_text(f"Could not generate report exports: {exc}", f"无法生成报告导出：{exc}"))
+        return
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.download_button(
+            _text("Download Word report", "下载 Word 报告"),
+            package.docx_path.read_bytes(),
+            file_name=package.docx_path.name,
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            key=f"download_docx_{out.name}",
+        )
+    with col2:
+        st.download_button(
+            _text("Download PDF report", "下载 PDF 报告"),
+            package.pdf_path.read_bytes(),
+            file_name=package.pdf_path.name,
+            mime="application/pdf",
+            key=f"download_pdf_{out.name}",
+        )
+
 
 def _make_archive(out: Path) -> Path:
     archive_base = out / out.name

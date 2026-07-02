@@ -117,6 +117,8 @@ ClaimHarness 用在文本或系统输出之后，输出一个 evidence audit pac
 - `agent_trace.jsonl`
 - 可选静态报告 `index.html`
 
+本地网页工作台还可以把任意生成结果目录导出为 `export_report.docx` 和 `export_report.pdf`。导出内容来自输出目录里已有的 Markdown、CSV、YAML、JSON 和 trace 文件，在本地生成，不需要 API key，也不会调用远程模型。
+
 ## 本地运行
 
 如果你没有 AI 或编程基础，推荐直接运行本地网页 App：

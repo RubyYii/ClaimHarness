@@ -478,6 +478,10 @@ Generate a local HTML viewer for an existing audit package:
 
 This writes `outputs/oocyte_demo_run/index.html`, a static report viewer that can be opened directly in a browser. It does not run a server or change audit results.
 
+## Word and PDF Export
+
+The local Streamlit workbench can export any generated output folder as `export_report.docx` and `export_report.pdf`. These files are generated locally from the Markdown, CSV, YAML, JSON, and trace files already in the output folder. No API key or remote model call is required.
+
 ## Demo Input Structure
 
 ```text

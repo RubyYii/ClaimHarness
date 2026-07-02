@@ -422,6 +422,27 @@ def test_document_intake_layer_is_documented_and_in_ui():
         "Generate document intake package",
     ]:
         assert phrase in ui_text
+
+
+def test_guided_ui_exposes_word_and_pdf_exports():
+    readme = Path("README.md").read_text(encoding="utf-8")
+    readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
+    ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
+
+    for phrase in [
+        "export_output_report",
+        "Download Word report",
+        "Download PDF report",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/pdf",
+    ]:
+        assert phrase in ui_text
+
+    for phrase in ["export_report.docx", "export_report.pdf"]:
+        assert phrase in readme
+        assert phrase in readme_zh
+
+
 def test_question_discovery_layer_is_documented_and_in_ui():
     readme = Path("README.md").read_text(encoding="utf-8")
     readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
