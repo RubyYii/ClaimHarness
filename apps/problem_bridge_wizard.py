@@ -20,6 +20,7 @@ from problem_bridge.guided import (
 from problem_bridge.document_intake import (
     build_problem_seed_from_intake,
     extract_document,
+    extract_url,
     write_intake_package,
 )
 from problem_bridge.interview import (
@@ -144,7 +145,7 @@ MODULE_CARDS = [
     {
         "title": "Document intake",
         "stage": "File preparation",
-        "start_if": "You have Word, text-based PDF, Markdown, TXT, or CSV files.",
+        "start_if": "You have Word, PDF, HTML, webpages, images, Markdown, TXT, or CSV files.",
         "what_you_get": "extracted_text.md, annotation_map.json, extracted_tables, source_manifest.json, warnings.",
     },
     {
@@ -1130,11 +1131,11 @@ def _document_intake() -> None:
     _render_page_intro(
         _text("Document intake", "文档摄取"),
         _text(
-            "Upload Word, PDF, Markdown, TXT, or CSV files and convert them into local extraction outputs.",
+            "Upload Word, PDF, HTML, Markdown, TXT, CSV, or image files, or add public static webpage URLs, and convert them into local extraction outputs.",
             "上传 Word、PDF、Markdown、TXT 或 CSV 文件，并转成本地可检查的提取结果。",
         ),
         _text(
-            "Supports .docx, .md, .txt, .csv, and text-based PDF. Legacy .doc uploads are accepted only to return conversion guidance. Scanned PDF, OCR, images, and figure understanding are not supported.",
+            "Supports .docx, .html, .htm, .md, .txt, .csv, text-based PDF, public static http(s) URLs, and optional local OCR for images or image-only PDFs. Legacy .doc uploads only return conversion guidance. No login pages, JavaScript execution, crawling, image understanding, or figure interpretation.",
             "支持 .docx、.md、.txt、.csv 和文字版 PDF。.doc 旧版 Word 上传后只会返回转换提示。不支持扫描 PDF、OCR、图片理解或 figure 解释。",
         ),
         [
@@ -1151,19 +1152,33 @@ def _document_intake() -> None:
     )
     st.caption(
         _text(
-            "DOCX comments, highlighted spans, and font-color marks are extracted as annotation signals. Legacy .doc files and PDF annotations are not parsed.",
+            "DOCX comments, PDF annotations, highlighted spans, and font-color marks are extracted as annotation signals when available.",
             "DOCX 批注、高亮文本和字体颜色会作为标注信号提取；旧版 .doc 文件和 PDF 批注暂不解析。",
         )
     )
 
     uploaded_files = st.file_uploader(
-        _text("Upload Word, PDF, Markdown, TXT, or CSV files", "上传 Word、PDF、Markdown、TXT 或 CSV 文件"),
-        type=["doc", "docx", "pdf", "md", "txt", "csv"],
+        _text("Upload Word, PDF, HTML, Markdown, TXT, CSV, or image files", "上传 Word、PDF、HTML、Markdown、TXT、CSV 或图片文件"),
+        type=["doc", "docx", "pdf", "html", "htm", "md", "txt", "csv", "png", "jpg", "jpeg", "tif", "tiff", "bmp"],
         accept_multiple_files=True,
     )
+    urls_text = st.text_area(
+        _text("Public static webpage URLs, one per line", "公开静态网页 URL，每行一个"),
+        placeholder="https://example.org/workflow-guide",
+        key="document_intake_urls",
+    )
+    enable_ocr = st.checkbox(
+        _text("Enable optional OCR for images and image-only PDFs", "启用图片和图片型 PDF 的可选 OCR"),
+        value=False,
+        help=_text(
+            "OCR runs locally only if optional OCR dependencies and system tools are installed. No API key is required.",
+            "OCR 只在本机安装了可选 OCR 依赖和系统工具时运行，不需要 API key。",
+        ),
+    )
+    urls = [line.strip() for line in urls_text.splitlines() if line.strip()]
 
-    if st.button(_text("Generate document intake package", "生成文档摄取包"), disabled=not uploaded_files):
-        out = _run_document_intake(uploaded_files)
+    if st.button(_text("Generate document intake package", "生成文档摄取包"), disabled=not uploaded_files and not urls):
+        out = _run_document_intake(uploaded_files or [], urls=urls, enable_ocr=enable_ocr)
         st.success(_generated_message(out))
         _render_document_intake_output(out)
 
@@ -1480,7 +1495,7 @@ def _view_outputs() -> None:
     selected = st.selectbox(_text("Choose a generated run", "选择一个生成结果"), runs, format_func=lambda path: path.name)
     _render_friendly_output(selected)
 
-def _run_document_intake(uploaded_files) -> Path:
+def _run_document_intake(uploaded_files, *, urls: list[str] | None = None, enable_ocr: bool = False) -> Path:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     out = RUN_ROOT / f"{timestamp}_document_intake"
     source_dir = out / "source_files"
@@ -1491,7 +1506,9 @@ def _run_document_intake(uploaded_files) -> Path:
         safe_name = Path(uploaded_file.name).name
         source_path = source_dir / safe_name
         source_path.write_bytes(uploaded_file.getvalue())
-        results.append(extract_document(source_path))
+        results.append(extract_document(source_path, enable_ocr=enable_ocr))
+    for url in urls or []:
+        results.append(extract_url(url))
 
     write_intake_package(results, out)
     (out / "problem_seed.md").write_text(build_problem_seed_from_intake(results), encoding="utf-8")

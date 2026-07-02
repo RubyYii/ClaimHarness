@@ -405,6 +405,10 @@ def test_document_intake_layer_is_documented_and_in_ui():
         ".doc",
         ".docx",
         "text-based PDF",
+        ".html",
+        "public static `http(s)` webpage URLs",
+        "optional local OCR",
+        "PDF annotations",
         "Word comments",
         "highlighted spans",
         "font-color marks",
@@ -415,7 +419,8 @@ def test_document_intake_layer_is_documented_and_in_ui():
         "extracted_text.md",
         "source_manifest.json",
         "extraction_warnings.md",
-        "no OCR",
+        "no login pages",
+        "image understanding",
     ]:
         assert phrase in readme
 
@@ -423,14 +428,21 @@ def test_document_intake_layer_is_documented_and_in_ui():
     assert "文字版 PDF" in readme_zh
     assert "批注" in readme_zh
     assert "高亮" in readme_zh
+    assert "可选本地 OCR" in readme_zh
+    assert "公开静态" in readme_zh
     assert "Document intake" in guide
 
     for phrase in [
         "Document intake",
-        "Upload Word, PDF, Markdown, TXT, or CSV files",
+        "Upload Word, PDF, HTML, Markdown, TXT, CSV, or image files",
+        "Public static webpage URLs, one per line",
+        "Enable optional OCR for images and image-only PDFs",
         "Legacy .doc",
         "text-based PDF",
+        "public static http(s) URLs",
+        "optional local OCR",
         "DOCX comments",
+        "PDF annotations",
         "annotation_map.json",
         "highlighted_spans.csv",
         "comment_threads.md",

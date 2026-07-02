@@ -2,12 +2,13 @@
 
 ## Purpose
 
-Extend the Document Intake Layer so non-AI users can bring in two common source types before question discovery:
+Extend the Document Intake Layer so non-AI users can bring in common source types before question discovery:
 
 - text-based PDFs with basic annotation signals
 - saved HTML files or public static webpages
+- scanned PDFs or images when optional local OCR is explicitly enabled
 
-The goal is not to build OCR, browser automation, web search, or visual understanding. The goal is to preserve more user-provided context and attention signals so ProblemBridge can ask better follow-up questions.
+The goal is not to build browser automation, web search, or visual understanding. The goal is to preserve more user-provided context and attention signals so ProblemBridge can ask better follow-up questions.
 
 ## Scope
 
@@ -49,12 +50,23 @@ For HTML sources, intake should extract:
 
 For URL sources, intake should fetch only a public static page over HTTP(S), apply the same HTML extraction path, and record the source URL in the manifest.
 
+### Optional OCR intake
+
+OCR is optional and disabled by default. If enabled, document intake should attempt OCR only when normal text extraction returns no text or when the uploaded file is an image.
+
+OCR should support:
+
+- image files such as `.png`, `.jpg`, `.jpeg`, `.tif`, `.tiff`, and `.bmp`
+- scanned or image-only PDFs when the local OCR stack is available
+
+OCR should not require an API key. The default runtime may not have OCR installed. Missing OCR dependencies or missing system OCR binaries should produce a clear warning instead of failing the upload.
+
 ## Out of Scope
 
 This version will not support:
 
-- OCR
-- scanned PDF understanding
+- OCR as a required dependency
+- guaranteed scanned PDF extraction on machines without a local OCR stack
 - image or figure interpretation
 - PDF embedded image interpretation
 - PDF handwritten markup recognition
@@ -72,6 +84,7 @@ Add only minimal fields if needed:
 
 - `source_url` for URL-backed HTML extraction
 - `page_number` for PDF annotations
+- OCR status can be stored in extraction warnings and manifest metadata
 
 If adding fields would cause too much churn, page and URL can be stored in `AnnotationMark.context` and manifest metadata for this version.
 
@@ -101,12 +114,14 @@ HTML tables should continue using `ExtractedTable`.
 The Streamlit Document intake page should:
 
 - accept `.html` and `.htm` uploads
+- accept image uploads for optional OCR
 - include a URL input area for one or more public webpages
 - explain that URL intake works for public static pages only
+- include an "Enable optional OCR" control
 - show URL and HTML extraction warnings in the existing warnings panel
 - show annotation and link outputs in the existing "All intake files" area
 
-The UI must not imply that the system understands images, executes websites, or reads private/login-only pages.
+The UI must not imply that the system understands images, interprets figures, executes websites, or reads private/login-only pages.
 
 ## Error Handling
 
@@ -123,6 +138,13 @@ URL extraction:
 - record HTTP or parsing failures as extraction warnings
 - do not retry or crawl
 
+OCR extraction:
+
+- if OCR is disabled, image files should return a warning explaining how to enable optional OCR
+- if OCR is enabled but dependencies are missing, return a warning explaining that optional OCR is unavailable locally
+- if OCR runs but returns no text, return a warning that no OCR text was extracted
+- if OCR succeeds, store the extracted text in `extracted_text.md`
+
 HTML extraction:
 
 - tolerate malformed HTML
@@ -135,6 +157,9 @@ Add tests for:
 
 - PDF annotation records exported into `annotation_map.json`
 - PDF annotation signals included in `problem_seed.md`
+- optional OCR engine used for image files when enabled
+- optional OCR engine used for image-only PDFs when normal PDF text extraction returns no text
+- image upload without OCR returns a clear warning
 - `.html` extraction of title, headings, paragraphs, links, and simple tables
 - URL intake rejects non-HTTP(S) URLs
 - URL intake can parse a mocked local HTTP response without external network
@@ -146,4 +171,3 @@ Full verification remains:
 .venv\Scripts\python.exe -m pytest
 git diff --check
 ```
-

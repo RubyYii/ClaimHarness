@@ -7,6 +7,7 @@ from xml.sax.saxutils import escape
 from problem_bridge.document_intake import (
     build_problem_seed_from_intake,
     extract_document,
+    extract_url,
     write_intake_package,
 )
 
@@ -80,15 +81,15 @@ def test_extracts_gb18030_chinese_text_and_csv(tmp_path: Path):
     assert csv_result.tables[0].rows == [["项目", "风险"], ["报告", "需要复核"]]
 
 
-def test_unsupported_file_records_warning(tmp_path: Path):
-    image_path = tmp_path / "diagram.png"
-    image_path.write_bytes(b"not really an image")
+def test_unsupported_non_image_file_records_warning(tmp_path: Path):
+    image_path = tmp_path / "diagram.xyz"
+    image_path.write_bytes(b"not really a supported file")
 
     result = extract_document(image_path)
 
     assert result.text == ""
     assert result.tables == []
-    assert result.warnings == ["Unsupported file type '.png'. No text was extracted."]
+    assert result.warnings == ["Unsupported file type '.xyz'. No text was extracted."]
 
 
 def test_legacy_doc_upload_records_conversion_guidance(tmp_path: Path):
@@ -116,6 +117,119 @@ def test_pdf_text_fallback_extracts_simple_text_without_pypdf(tmp_path: Path):
     assert result.file_type == "pdf"
     assert "Workflow review needs evidence boundaries." in result.text
     assert result.warnings == []
+
+
+def test_extracts_pdf_highlight_annotations(tmp_path: Path):
+    pdf_path = tmp_path / "annotated.pdf"
+    _write_simple_annotated_pdf(pdf_path, "Workflow review needs evidence boundaries.", "Ask expert about this boundary.")
+
+    result = extract_document(pdf_path)
+
+    assert result.source_name == "annotated.pdf"
+    assert "Workflow review needs evidence boundaries." in result.text
+    assert len(result.annotations) == 1
+    assert result.annotations[0].kind == "highlight"
+    assert result.annotations[0].comment_text == "Ask expert about this boundary."
+    assert result.annotations[0].color == "1 1 0"
+    assert "page 1" in result.annotations[0].context
+
+
+def test_extracts_html_title_text_links_and_tables(tmp_path: Path):
+    html_path = tmp_path / "workflow.html"
+    html_path.write_text(
+        """
+        <!doctype html>
+        <html>
+          <head><title>Workflow Guide</title><style>.hidden{display:none}</style></head>
+          <body>
+            <nav>Menu text should not dominate extraction</nav>
+            <h1>Review workflow</h1>
+            <p>Teams inspect repeated work before deciding what to ask.</p>
+            <ul><li>Find the expert reviewer</li></ul>
+            <a href="/guide">Expert guide</a>
+            <table>
+              <tr><th>step</th><th>owner</th></tr>
+              <tr><td>review</td><td>domain expert</td></tr>
+            </table>
+            <script>window.secret = "skip me";</script>
+          </body>
+        </html>
+        """,
+        encoding="utf-8",
+    )
+
+    result = extract_document(html_path)
+
+    assert result.file_type == "html"
+    assert "Title: Workflow Guide" in result.text
+    assert "Review workflow" in result.text
+    assert "Teams inspect repeated work" in result.text
+    assert "Find the expert reviewer" in result.text
+    assert "skip me" not in result.text
+    assert result.tables[0].name == "workflow_links"
+    assert result.tables[0].rows == [["text", "url"], ["Expert guide", "/guide"]]
+    assert result.tables[1].name == "workflow_table_1"
+    assert result.tables[1].rows == [["step", "owner"], ["review", "domain expert"]]
+
+
+def test_extract_url_parses_static_html_with_injected_fetcher():
+    def fetcher(url: str) -> bytes:
+        assert url == "https://example.org/workflow"
+        return b"<html><head><title>Remote Guide</title></head><body><h1>Remote workflow</h1><p>Ask who owns the judgement.</p></body></html>"
+
+    result = extract_url("https://example.org/workflow", fetcher=fetcher)
+
+    assert result.source_name == "example.org_workflow"
+    assert result.file_type == "url"
+    assert result.source_url == "https://example.org/workflow"
+    assert "Title: Remote Guide" in result.text
+    assert "Remote workflow" in result.text
+    assert result.warnings == []
+
+
+def test_extract_url_rejects_non_http_urls():
+    result = extract_url("file:///private/report.html")
+
+    assert result.file_type == "url"
+    assert result.text == ""
+    assert result.warnings == ["URL intake only supports public http(s) URLs."]
+
+
+def test_optional_ocr_engine_extracts_image_text(tmp_path: Path):
+    image_path = tmp_path / "scan.png"
+    image_path.write_bytes(b"not a real image; fake OCR engine handles it")
+
+    result = extract_document(image_path, enable_ocr=True, ocr_engine=lambda path: "OCR workflow text")
+
+    assert result.source_name == "scan.png"
+    assert result.file_type == "png"
+    assert result.text == "OCR workflow text"
+    assert result.warnings == []
+
+
+def test_image_without_ocr_records_guidance(tmp_path: Path):
+    image_path = tmp_path / "scan.jpg"
+    image_path.write_bytes(b"not a real image")
+
+    result = extract_document(image_path)
+
+    assert result.text == ""
+    assert result.tables == []
+    assert result.warnings == [
+        "Image files require optional OCR. Enable OCR and install local OCR dependencies to extract text."
+    ]
+
+
+def test_optional_ocr_engine_extracts_image_only_pdf_text(tmp_path: Path):
+    pdf_path = tmp_path / "scan.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4\n%%EOF\n")
+
+    result = extract_document(pdf_path, enable_ocr=True, ocr_engine=lambda path: "OCR PDF workflow text")
+
+    assert result.source_name == "scan.pdf"
+    assert result.file_type == "pdf"
+    assert result.text == "OCR PDF workflow text"
+    assert result.warnings == ["PDF text extraction returned no text; optional OCR was used."]
 
 
 def test_write_intake_package_creates_auditable_outputs(tmp_path: Path):
@@ -290,3 +404,11 @@ def _write_simple_text_pdf(path: Path, text: str) -> None:
         f"trailer\n<< /Size {len(objects) + 1} /Root 1 0 R >>\nstartxref\n{xref_start}\n%%EOF\n".encode("ascii")
     )
     path.write_bytes(bytes(pdf))
+
+
+def _write_simple_annotated_pdf(path: Path, text: str, annotation: str) -> None:
+    _write_simple_text_pdf(path, text)
+    path.write_bytes(
+        path.read_bytes()
+        + f"\n6 0 obj\n<< /Subtype /Highlight /Contents ({annotation}) /C [1 1 0] >>\nendobj\n".encode("ascii")
+    )

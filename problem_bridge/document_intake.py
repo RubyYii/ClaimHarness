@@ -1,20 +1,26 @@
 from __future__ import annotations
 
 import csv
+import html
 import io
 import json
 import re
+import urllib.parse
+import urllib.request
 import zlib
 import zipfile
 from dataclasses import dataclass, field
+from html.parser import HTMLParser
 from pathlib import Path
-from typing import Iterable
+from typing import Callable, Iterable
 from xml.etree import ElementTree
 
 
 WORD_NS = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
-SUPPORTED_EXTENSIONS = {".doc", ".docx", ".pdf", ".txt", ".md", ".csv"}
+IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp"}
+SUPPORTED_EXTENSIONS = {".doc", ".docx", ".pdf", ".txt", ".md", ".csv", ".html", ".htm"} | IMAGE_EXTENSIONS
 TEXT_ENCODINGS = ("utf-8-sig", "utf-8", "gb18030", "gbk", "big5")
+OcrEngine = Callable[[Path], str]
 
 
 @dataclass(frozen=True)
@@ -32,6 +38,7 @@ class AnnotationMark:
     comment_text: str = ""
     author: str = ""
     context: str = ""
+    page_number: int | None = None
 
 
 @dataclass(frozen=True)
@@ -42,9 +49,10 @@ class DocumentExtraction:
     tables: list[ExtractedTable]
     warnings: list[str]
     annotations: list[AnnotationMark] = field(default_factory=list)
+    source_url: str = ""
 
 
-def extract_document(path: str | Path) -> DocumentExtraction:
+def extract_document(path: str | Path, *, enable_ocr: bool = False, ocr_engine: OcrEngine | None = None) -> DocumentExtraction:
     source = Path(path)
     suffix = source.suffix.lower()
     if suffix == ".doc":
@@ -52,7 +60,11 @@ def extract_document(path: str | Path) -> DocumentExtraction:
     if suffix == ".docx":
         return _extract_docx(source)
     if suffix == ".pdf":
-        return _extract_pdf(source)
+        return _extract_pdf(source, enable_ocr=enable_ocr, ocr_engine=ocr_engine)
+    if suffix in {".html", ".htm"}:
+        return _extract_html(source)
+    if suffix in IMAGE_EXTENSIONS:
+        return _extract_image(source, enable_ocr=enable_ocr, ocr_engine=ocr_engine)
     if suffix in {".txt", ".md"}:
         return DocumentExtraction(
             source_name=source.name,
@@ -70,6 +82,42 @@ def extract_document(path: str | Path) -> DocumentExtraction:
         text="",
         tables=[],
         warnings=[f"Unsupported file type '{suffix}'. No text was extracted."],
+    )
+
+
+def extract_url(url: str, *, fetcher: Callable[[str], bytes] | None = None) -> DocumentExtraction:
+    normalized_url = url.strip()
+    parsed = urllib.parse.urlparse(normalized_url)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        return DocumentExtraction(
+            source_name=normalized_url or "invalid-url",
+            file_type="url",
+            text="",
+            tables=[],
+            warnings=["URL intake only supports public http(s) URLs."],
+            source_url=normalized_url,
+        )
+
+    try:
+        raw = fetcher(normalized_url) if fetcher is not None else _fetch_url(normalized_url)
+    except Exception as exc:
+        return DocumentExtraction(
+            source_name=_url_source_name(normalized_url),
+            file_type="url",
+            text="",
+            tables=[],
+            warnings=[f"URL could not be fetched: {exc}"],
+            source_url=normalized_url,
+        )
+
+    if isinstance(raw, str):
+        raw = raw.encode("utf-8")
+    return _extract_html_bytes(
+        source_name=_url_source_name(normalized_url),
+        file_type="url",
+        stem=_url_source_name(normalized_url),
+        raw=raw,
+        source_url=normalized_url,
     )
 
 
@@ -121,6 +169,185 @@ def _extract_legacy_doc(path: Path) -> DocumentExtraction:
         warnings=[
             "Legacy .doc files cannot be parsed locally. Save or export the file as .docx, .txt, or PDF, then upload it again."
         ],
+    )
+
+
+def _fetch_url(url: str) -> bytes:
+    request = urllib.request.Request(
+        url,
+        headers={"User-Agent": "ProblemBridge-DocumentIntake/0.3"},
+    )
+    with urllib.request.urlopen(request, timeout=10) as response:  # nosec B310 - public user-provided HTTP(S) intake.
+        return response.read(2_000_000)
+
+
+def _url_source_name(url: str) -> str:
+    parsed = urllib.parse.urlparse(url)
+    path = parsed.path.strip("/").replace("/", "_") or "index"
+    raw_name = f"{parsed.netloc}_{path}"
+    return re.sub(r"[^A-Za-z0-9._-]+", "_", raw_name).strip("_") or "webpage"
+
+
+def _extract_html(path: Path) -> DocumentExtraction:
+    return _extract_html_bytes(
+        source_name=path.name,
+        file_type="html",
+        stem=path.stem,
+        raw=path.read_bytes(),
+    )
+
+
+def _extract_html_bytes(source_name: str, file_type: str, stem: str, raw: bytes, source_url: str = "") -> DocumentExtraction:
+    parser = _HTMLIntakeParser()
+    text = _decode_text_with_fallback(raw)
+    try:
+        parser.feed(text)
+        parser.close()
+    except Exception as exc:
+        return DocumentExtraction(
+            source_name=source_name,
+            file_type=file_type,
+            text=_normalize_space(_strip_html_tags(text)),
+            tables=[],
+            warnings=[f"HTML was malformed; fallback text extraction was used: {exc}"],
+            source_url=source_url,
+        )
+
+    tables: list[ExtractedTable] = []
+    if parser.links:
+        tables.append(ExtractedTable(name=f"{stem}_links", rows=[["text", "url"], *parser.links]))
+    for index, rows in enumerate(parser.tables, start=1):
+        if rows:
+            tables.append(ExtractedTable(name=f"{stem}_table_{index}", rows=rows))
+
+    return DocumentExtraction(
+        source_name=source_name,
+        file_type=file_type,
+        text=parser.to_text(),
+        tables=tables,
+        warnings=[],
+        source_url=source_url,
+    )
+
+
+class _HTMLIntakeParser(HTMLParser):
+    SKIP_TAGS = {"script", "style", "noscript", "svg", "nav", "footer", "header"}
+    BLOCK_TAGS = {"h1", "h2", "h3", "h4", "h5", "h6", "p", "li"}
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.title = ""
+        self.blocks: list[str] = []
+        self.links: list[list[str]] = []
+        self.tables: list[list[list[str]]] = []
+        self._skip_depth = 0
+        self._capture_tag = ""
+        self._capture_parts: list[str] = []
+        self._link_href = ""
+        self._table_rows: list[list[str]] | None = None
+        self._current_row: list[str] | None = None
+        self._cell_parts: list[str] | None = None
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        tag = tag.lower()
+        if tag in self.SKIP_TAGS:
+            self._skip_depth += 1
+            return
+        if self._skip_depth:
+            return
+        attrs_dict = {name.lower(): value or "" for name, value in attrs}
+        if tag == "title":
+            self._start_capture(tag)
+        elif tag in self.BLOCK_TAGS:
+            self._start_capture(tag)
+        elif tag == "a":
+            self._link_href = attrs_dict.get("href", "")
+            self._start_capture(tag)
+        elif tag == "table":
+            self._table_rows = []
+        elif tag == "tr" and self._table_rows is not None:
+            self._current_row = []
+        elif tag in {"td", "th"} and self._current_row is not None:
+            self._cell_parts = []
+
+    def handle_endtag(self, tag: str) -> None:
+        tag = tag.lower()
+        if tag in self.SKIP_TAGS and self._skip_depth:
+            self._skip_depth -= 1
+            return
+        if self._skip_depth:
+            return
+        if tag in {"td", "th"} and self._cell_parts is not None and self._current_row is not None:
+            self._current_row.append(_normalize_space(" ".join(self._cell_parts)))
+            self._cell_parts = None
+            return
+        if tag == "tr" and self._current_row is not None and self._table_rows is not None:
+            if any(cell for cell in self._current_row):
+                self._table_rows.append(self._current_row)
+            self._current_row = None
+            return
+        if tag == "table" and self._table_rows is not None:
+            if self._table_rows:
+                self.tables.append(self._table_rows)
+            self._table_rows = None
+            return
+        if tag == self._capture_tag:
+            text = _normalize_space(" ".join(self._capture_parts))
+            if tag == "title":
+                self.title = text
+            elif tag == "a":
+                if text or self._link_href:
+                    self.links.append([text, self._link_href])
+                self._link_href = ""
+            elif text:
+                self.blocks.append(text)
+            self._capture_tag = ""
+            self._capture_parts = []
+
+    def handle_data(self, data: str) -> None:
+        if self._skip_depth:
+            return
+        if self._cell_parts is not None:
+            self._cell_parts.append(data)
+            return
+        if self._capture_tag:
+            self._capture_parts.append(data)
+
+    def _start_capture(self, tag: str) -> None:
+        self._capture_tag = tag
+        self._capture_parts = []
+
+    def to_text(self) -> str:
+        lines: list[str] = []
+        if self.title:
+            lines.append(f"Title: {self.title}")
+        lines.extend(block for block in self.blocks if block)
+        if self.links:
+            lines.append("Links:")
+            lines.extend(f"- {text}: {url}" for text, url in self.links)
+        return "\n".join(lines).strip()
+
+
+def _strip_html_tags(text: str) -> str:
+    return re.sub(r"<[^>]+>", " ", text)
+
+
+def _extract_image(path: Path, *, enable_ocr: bool, ocr_engine: OcrEngine | None) -> DocumentExtraction:
+    if not enable_ocr:
+        return DocumentExtraction(
+            source_name=path.name,
+            file_type=path.suffix.lower().lstrip("."),
+            text="",
+            tables=[],
+            warnings=["Image files require optional OCR. Enable OCR and install local OCR dependencies to extract text."],
+        )
+    text, warnings = _ocr_file(path, ocr_engine=ocr_engine)
+    return DocumentExtraction(
+        source_name=path.name,
+        file_type=path.suffix.lower().lstrip("."),
+        text=text,
+        tables=[],
+        warnings=warnings,
     )
 
 
@@ -268,17 +495,17 @@ def _local_name(tag: str) -> str:
     return tag
 
 
-def _extract_pdf(path: Path) -> DocumentExtraction:
+def _extract_pdf(path: Path, *, enable_ocr: bool, ocr_engine: OcrEngine | None) -> DocumentExtraction:
     try:
         from pypdf import PdfReader  # type: ignore[import-not-found]
     except ImportError:
-        return _extract_pdf_fallback(path, pypdf_missing=True)
+        return _extract_pdf_fallback(path, pypdf_missing=True, enable_ocr=enable_ocr, ocr_engine=ocr_engine)
 
     try:
         reader = PdfReader(str(path))
         pages = [page.extract_text() or "" for page in reader.pages]
     except Exception as exc:  # pragma: no cover - parser-specific failures vary
-        fallback = _extract_pdf_fallback(path, pypdf_missing=False)
+        fallback = _extract_pdf_fallback(path, pypdf_missing=False, enable_ocr=enable_ocr, ocr_engine=ocr_engine)
         if fallback.text.strip():
             return fallback
         return DocumentExtraction(
@@ -290,19 +517,39 @@ def _extract_pdf(path: Path) -> DocumentExtraction:
         )
 
     text = "\n\n".join(page.strip() for page in pages if page.strip())
+    annotations = _pdf_annotations_from_reader(path.name, reader)
+    try:
+        raw = path.read_bytes()
+        annotations.extend(_pdf_annotations_from_raw(path.name, raw, existing_count=len(annotations)))
+    except OSError:
+        pass
     warnings = []
     if not text:
-        warnings.append("No text was extracted. Scanned PDFs and image-only PDFs require OCR, which is not supported.")
+        if enable_ocr:
+            ocr_text, ocr_warnings = _ocr_file(path, ocr_engine=ocr_engine)
+            if ocr_text:
+                text = ocr_text
+                warnings.append("PDF text extraction returned no text; optional OCR was used.")
+            warnings.extend(ocr_warnings)
+        if not text:
+            warnings.append("No text was extracted. Scanned PDFs and image-only PDFs require optional OCR.")
     return DocumentExtraction(
         source_name=path.name,
         file_type="pdf",
         text=text,
         tables=[],
         warnings=warnings,
+        annotations=annotations,
     )
 
 
-def _extract_pdf_fallback(path: Path, *, pypdf_missing: bool) -> DocumentExtraction:
+def _extract_pdf_fallback(
+    path: Path,
+    *,
+    pypdf_missing: bool,
+    enable_ocr: bool = False,
+    ocr_engine: OcrEngine | None = None,
+) -> DocumentExtraction:
     try:
         raw = path.read_bytes()
     except OSError as exc:
@@ -319,20 +566,29 @@ def _extract_pdf_fallback(path: Path, *, pypdf_missing: bool) -> DocumentExtract
         text_fragments.extend(_pdf_text_fragments(stream))
 
     text = "\n".join(fragment for fragment in text_fragments if fragment.strip()).strip()
+    annotations = _pdf_annotations_from_raw(path.name, raw)
     warnings = []
     if not text:
-        if pypdf_missing:
-            warnings.append(
-                "No PDF text was extracted. Install pypdf for broader text-based PDF support; scanned PDFs still require OCR."
-            )
-        else:
-            warnings.append("No text was extracted. Scanned PDFs and image-only PDFs require OCR, which is not supported.")
+        if enable_ocr:
+            ocr_text, ocr_warnings = _ocr_file(path, ocr_engine=ocr_engine)
+            if ocr_text:
+                text = ocr_text
+                warnings.append("PDF text extraction returned no text; optional OCR was used.")
+            warnings.extend(ocr_warnings)
+        if not text:
+            if pypdf_missing:
+                warnings.append(
+                    "No PDF text was extracted. Install pypdf for broader text-based PDF support; scanned PDFs require optional OCR."
+                )
+            else:
+                warnings.append("No text was extracted. Scanned PDFs and image-only PDFs require optional OCR.")
     return DocumentExtraction(
         source_name=path.name,
         file_type="pdf",
         text=text,
         tables=[],
         warnings=warnings,
+        annotations=annotations,
     )
 
 
@@ -361,6 +617,154 @@ def _pdf_text_fragments(stream: bytes) -> list[str]:
         if text:
             fragments.append(text)
     return fragments
+
+
+def _pdf_annotations_from_reader(source_name: str, reader: object) -> list[AnnotationMark]:
+    annotations: list[AnnotationMark] = []
+    pages = getattr(reader, "pages", [])
+    for page_number, page in enumerate(pages, start=1):
+        try:
+            page_text = (page.extract_text() or "").strip()
+            raw_annots = page.get("/Annots", []) or []
+        except Exception:
+            continue
+        for raw_annot in raw_annots:
+            try:
+                annot = raw_annot.get_object() if hasattr(raw_annot, "get_object") else raw_annot
+                subtype = str(annot.get("/Subtype", "")).lstrip("/")
+                kind = _pdf_annotation_kind(subtype)
+                if not kind:
+                    continue
+                contents = _pdf_object_text(annot.get("/Contents", ""))
+                color = _pdf_color_text(annot.get("/C", ""))
+                annotations.append(
+                    AnnotationMark(
+                        source_name=source_name,
+                        kind=kind,
+                        text=contents if kind == "comment" else f"PDF {kind} annotation",
+                        color=color,
+                        comment_text=contents if kind != "comment" else "",
+                        context=f"page {page_number}: {page_text[:240]}".strip(),
+                        page_number=page_number,
+                    )
+                )
+            except Exception:
+                continue
+    return annotations
+
+
+def _pdf_annotations_from_raw(source_name: str, raw: bytes, *, existing_count: int = 0) -> list[AnnotationMark]:
+    if existing_count:
+        return []
+    annotations: list[AnnotationMark] = []
+    pattern = re.compile(
+        rb"<<(?P<body>(?:(?!>>).)*?/Subtype\s*/(?P<subtype>Highlight|Text|FreeText)(?:(?!>>).)*?)>>",
+        flags=re.DOTALL,
+    )
+    for match in pattern.finditer(raw):
+        body = match.group("body")
+        subtype = _decode_text_with_fallback(match.group("subtype")).strip()
+        kind = _pdf_annotation_kind(subtype)
+        if not kind:
+            continue
+        contents = _pdf_raw_annotation_contents(body)
+        color = _pdf_raw_annotation_color(body)
+        annotations.append(
+            AnnotationMark(
+                source_name=source_name,
+                kind=kind,
+                text=contents if kind == "comment" else f"PDF {kind} annotation",
+                color=color,
+                comment_text=contents if kind != "comment" else "",
+                context="page 1 PDF annotation",
+                page_number=1,
+            )
+        )
+    return annotations
+
+
+def _pdf_annotation_kind(subtype: str) -> str:
+    normalized = subtype.strip().lstrip("/")
+    if normalized == "Highlight":
+        return "highlight"
+    if normalized in {"Text", "FreeText"}:
+        return "comment"
+    return ""
+
+
+def _pdf_raw_annotation_contents(body: bytes) -> str:
+    match = re.search(rb"/Contents\s*(?P<value>\((?:\\.|[^\\()])*\)|<[^>]*>)", body, flags=re.DOTALL)
+    if not match:
+        return ""
+    value = match.group("value")
+    if value.startswith(b"("):
+        return _decode_pdf_literal(value[1:-1])
+    if value.startswith(b"<"):
+        return _decode_pdf_hex(value[1:-1])
+    return ""
+
+
+def _pdf_raw_annotation_color(body: bytes) -> str:
+    match = re.search(rb"/C\s*\[(?P<value>[^\]]+)\]", body, flags=re.DOTALL)
+    if not match:
+        return ""
+    return _normalize_space(_decode_text_with_fallback(match.group("value")))
+
+
+def _pdf_object_text(value: object) -> str:
+    if value is None:
+        return ""
+    try:
+        if hasattr(value, "get_object"):
+            value = value.get_object()
+    except Exception:
+        return ""
+    return str(value).strip()
+
+
+def _pdf_color_text(value: object) -> str:
+    if not value:
+        return ""
+    try:
+        if hasattr(value, "get_object"):
+            value = value.get_object()
+        if isinstance(value, (list, tuple)):
+            return " ".join(str(item) for item in value)
+        return str(value).strip("[]")
+    except Exception:
+        return ""
+
+
+def _ocr_file(path: Path, *, ocr_engine: OcrEngine | None) -> tuple[str, list[str]]:
+    if ocr_engine is not None:
+        try:
+            return str(ocr_engine(path)).strip(), []
+        except Exception as exc:
+            return "", [f"Optional OCR failed: {exc}"]
+
+    suffix = path.suffix.lower()
+    try:
+        import pytesseract  # type: ignore[import-not-found]
+        if suffix == ".pdf":
+            from pdf2image import convert_from_path  # type: ignore[import-not-found]
+
+            pages = convert_from_path(str(path))
+            text = "\n\n".join(pytesseract.image_to_string(page).strip() for page in pages).strip()
+        else:
+            from PIL import Image  # type: ignore[import-not-found]
+
+            with Image.open(path) as image:
+                text = pytesseract.image_to_string(image).strip()
+    except ImportError:
+        return "", [
+            "Optional OCR is not available locally. Install the OCR extra and required system OCR tools: Tesseract for images, plus Poppler for PDF OCR."
+        ]
+    except Exception as exc:
+        return "", [f"Optional OCR failed: {exc}"]
+
+    if not text:
+        return "", ["Optional OCR ran but no text was extracted."]
+    return text, []
 
 
 def _decode_pdf_literal(raw: bytes) -> str:
@@ -446,6 +850,10 @@ def _decode_text_with_fallback(raw: bytes) -> str:
     return raw.decode("utf-8", errors="replace")
 
 
+def _normalize_space(text: str) -> str:
+    return re.sub(r"\s+", " ", html.unescape(text)).strip()
+
+
 def _combined_text(results: list[DocumentExtraction]) -> str:
     sections = []
     for result in results:
@@ -521,6 +929,7 @@ def _annotation_dict(annotation: AnnotationMark) -> dict[str, str]:
         "comment_text": annotation.comment_text,
         "author": annotation.author,
         "context": annotation.context,
+        "page_number": "" if annotation.page_number is None else str(annotation.page_number),
     }
 
 
@@ -565,13 +974,15 @@ def _manifest(results: list[DocumentExtraction]) -> dict[str, object]:
                 "text_length": len(result.text),
                 "table_count": len(result.tables),
                 "annotation_count": len(result.annotations),
+                "source_url": result.source_url,
                 "warnings": result.warnings,
             }
             for result in results
         ],
         "supported_extensions": sorted(SUPPORTED_EXTENSIONS),
         "boundaries": [
-            "Text-based PDFs only; scanned PDFs and image-only PDFs require OCR and are not supported.",
+            "Text-based PDFs are supported directly; scanned PDFs and images require optional local OCR.",
+            "URL intake supports public static http(s) pages only; it does not log in, execute JavaScript, or crawl sites.",
             "Image understanding and professional judgement are not performed by document intake.",
             "Human review is required before using extracted content for problem alignment or evidence audit.",
         ],
@@ -592,7 +1003,8 @@ def _warnings_markdown(results: list[DocumentExtraction]) -> str:
             "",
             "## Boundary",
             "",
-            "- Text-based PDFs only; scanned PDFs and image-only PDFs require OCR and are not supported.",
+            "- Text-based PDFs are supported directly; scanned PDFs and image files require optional local OCR.",
+            "- URL intake supports public static http(s) pages only; it does not log in, execute JavaScript, or crawl sites.",
             "- No image understanding, figure interpretation, clinical judgement, or education-policy authority is performed.",
         ]
     )

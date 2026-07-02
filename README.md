@@ -32,7 +32,10 @@ Supported input types:
 
 - `.docx` Word documents, including basic Word comments, highlighted spans, and font-color marks
 - legacy `.doc` Word files, with a local conversion warning instead of silent failure
-- `.pdf` text-based PDF files
+- `.pdf` text-based PDF files, with best-effort PDF annotation extraction
+- `.html` / `.htm` saved webpages
+- public static `http(s)` webpage URLs through the local UI
+- image files (`.png`, `.jpg`, `.jpeg`, `.tif`, `.tiff`, `.bmp`) when optional local OCR is enabled
 - `.txt`
 - `.md`
 - `.csv`
@@ -49,9 +52,9 @@ It writes:
 - `extraction_warnings.md`
 - `problem_seed.md`
 
-Word comments, highlights, and font colors are treated as user attention signals. The tool preserves them for later questioning; it does not infer that a color automatically means "high risk" or "approved."
+Word comments, PDF annotations, highlights, and font colors are treated as user attention signals. The tool preserves them for later questioning; it does not infer that a color automatically means "high risk" or "approved."
 
-The boundary is deliberate: text-based PDF only, no OCR, no scanned PDF understanding, no image understanding, no figure interpretation, and no PDF annotation parsing. Document intake extracts text, tables, and basic `.docx` annotation signals; it does not validate professional claims or replace domain review.
+The boundary is deliberate: OCR is optional and local-only, not a default dependency; URL intake only reads public static pages; no login pages, JavaScript execution, crawling, image understanding, figure interpretation, handwritten markup recognition, or professional judgement is performed. Document intake extracts text, simple tables, links, and basic annotation signals; it does not validate professional claims or replace domain review.
 ## Question Discovery Layer
 
 ProblemBridge does not assume the user already knows the right problem. The Question Discovery Layer helps non-AI users discover what to ask, who to ask, and what unknowns must be validated before anyone proposes an AI solution.
@@ -561,7 +564,7 @@ Implemented:
 Planned or optional:
 
 - richer prompt templates
-- scanned PDF OCR and figure-aware evidence ingestion
+- stronger OCR quality controls and figure-aware evidence ingestion
 
 ## Limitations
 
@@ -569,6 +572,6 @@ Planned or optional:
 - It only checks evidence available in the provided files.
 - Biomedical claims require human review.
 - Mock mode is deterministic and not semantically complete.
-- Scanned PDF OCR and figure understanding are future work.
+- OCR is optional and best-effort; stronger OCR quality controls and figure understanding are future work.
 
 See [docs/architecture.md](docs/architecture.md), [docs/demo_walkthrough.md](docs/demo_walkthrough.md), and [docs/limitations.md](docs/limitations.md) for more detail.
