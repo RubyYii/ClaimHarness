@@ -609,12 +609,34 @@ def _inject_visual_theme() -> None:
           --pb-soft-amber: #fff7ed;
         }
         .stApp { background: var(--pb-canvas); color: var(--pb-ink); }
+        [data-testid="stHeader"] {
+          background: transparent !important;
+          box-shadow: none !important;
+        }
+        [data-testid="stToolbar"],
+        [data-testid="stMainMenu"] {
+          display: none !important;
+        }
         [data-testid="stDeployButton"] { display: none !important; }
         [data-testid="stAppDeployButton"] { display: none !important; }
         [data-testid="stSidebar"] {
-          background: #ffffff;
+          background: linear-gradient(180deg, #ffffff 0%, #f8fbfc 100%);
           border-right: 1px solid var(--pb-line);
           color: var(--pb-ink);
+          width: 280px !important;
+          min-width: 280px !important;
+          max-width: 280px !important;
+        }
+        [data-testid="stSidebarContent"] {
+          padding: 0 14px 20px !important;
+        }
+        [data-testid="stSidebarUserContent"] {
+          padding-top: 6px;
+        }
+        [data-testid="stSidebar"] h3 {
+          font-size: 19px;
+          line-height: 1.2;
+          margin-bottom: 12px;
         }
         [data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
         [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] *,
@@ -630,27 +652,59 @@ def _inject_visual_theme() -> None:
           opacity: 1 !important;
         }
         [data-testid="stSidebar"] [role="radiogroup"],
-        [data-testid="stSidebar"] [data-testid="stRadio"] {
-          width: 100%;
+        [data-testid="stSidebar"] [data-testid="stRadio"],
+        [data-testid="stSidebar"] [data-testid="stCheckbox"],
+        [data-testid="stSidebar"] [data-testid="stElementContainer"]:has([data-testid="stRadio"]),
+        [data-testid="stSidebar"] [data-testid="stElementContainer"]:has([data-testid="stCheckbox"]) {
+          width: 100% !important;
         }
-        [data-testid="stSidebar"] [role="radiogroup"] label {
+        [data-testid="stSidebar"] [role="radiogroup"] {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        [data-testid="stSidebar"] [role="radiogroup"] label[data-baseweb="radio"] {
           width: 100%;
-          min-height: 30px;
-          padding: 5px 8px 5px 2px;
+          min-height: 34px;
+          padding: 7px 10px;
+          border: 1px solid transparent;
           border-radius: 8px;
+          background: transparent;
+          cursor: pointer;
+          transition: background .16s ease, border-color .16s ease, box-shadow .16s ease;
         }
-        [data-testid="stSidebar"] [role="radiogroup"] label:hover {
+        [data-testid="stSidebar"] [role="radiogroup"] label[data-baseweb="radio"] > div:first-child {
+          display: none;
+        }
+        [data-testid="stSidebar"] [role="radiogroup"] label[data-baseweb="radio"]:hover {
           background: var(--pb-soft-teal);
+        }
+        [data-testid="stSidebar"] [role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) {
+          background: #edf8f6;
+          border-color: rgba(15, 118, 110, .24);
+          box-shadow: inset 3px 0 0 var(--pb-teal);
+        }
+        [data-testid="stSidebar"] [role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) [data-testid="stMarkdownContainer"],
+        [data-testid="stSidebar"] [role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) [data-testid="stMarkdownContainer"] * {
+          color: var(--pb-teal) !important;
+          font-weight: 850;
         }
         [data-testid="stSidebar"] [data-testid="stCheckbox"] label {
           width: 100%;
-          min-height: 34px;
-          padding: 6px 8px;
+          min-height: 36px;
+          padding: 7px 9px;
           border: 1px solid var(--pb-line);
           border-radius: 8px;
           background: #fbfdff;
+          box-shadow: 0 5px 16px rgba(23, 32, 42, .04);
+          transition: background .16s ease, border-color .16s ease, box-shadow .16s ease;
         }
-        .block-container { padding-top: 1.6rem; max-width: 1180px; }
+        [data-testid="stSidebar"] [data-testid="stCheckbox"] label:hover {
+          background: #ffffff;
+          border-color: rgba(15, 118, 110, .28);
+          box-shadow: 0 8px 20px rgba(23, 32, 42, .07);
+        }
+        .block-container { padding-top: 1.45rem; max-width: 1180px; }
         .language-switcher {
           display: flex;
           align-items: center;
@@ -666,12 +720,14 @@ def _inject_visual_theme() -> None:
         }
         .language-switcher strong { color: var(--pb-ink); }
         .visual-shell {
-          padding: 26px 28px;
+          padding: 28px 30px;
           border: 1px solid var(--pb-line);
           border-radius: 8px;
-          background: var(--pb-paper);
-          box-shadow: 0 18px 45px rgba(23, 32, 42, .08);
-          margin-bottom: 18px;
+          background:
+            linear-gradient(135deg, rgba(234, 247, 245, .82) 0%, rgba(255, 255, 255, .78) 44%, rgba(237, 244, 255, .72) 100%),
+            var(--pb-paper);
+          box-shadow: 0 20px 48px rgba(23, 32, 42, .09);
+          margin-bottom: 16px;
         }
         .visual-eyebrow {
           color: var(--pb-teal);
@@ -711,6 +767,13 @@ def _inject_visual_theme() -> None:
           border: 1px solid var(--pb-line);
           border-radius: 8px;
           background: #ffffff;
+          box-shadow: 0 8px 24px rgba(23, 32, 42, .04);
+          transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+        }
+        .workflow-step:hover {
+          border-color: rgba(15, 118, 110, .28);
+          box-shadow: 0 14px 30px rgba(23, 32, 42, .08);
+          transform: translateY(-1px);
         }
         .workflow-step.is-active {
           border-color: var(--pb-teal);
@@ -737,6 +800,7 @@ def _inject_visual_theme() -> None:
           background: var(--pb-paper);
           padding: 18px;
           margin-bottom: 14px;
+          box-shadow: 0 10px 28px rgba(23, 32, 42, .045);
         }
         .module-card { min-height: 230px; }
         .module-card h3 { margin: 4px 0 10px; font-size: 20px; }
@@ -755,6 +819,12 @@ def _inject_visual_theme() -> None:
         [data-testid="stAlert"],
         [data-testid="stAlert"] * {
           color: var(--pb-ink) !important;
+        }
+        [data-testid="stAlert"] {
+          border: 1px solid #f5dfa8;
+          border-left: 5px solid var(--pb-coral);
+          border-radius: 8px;
+          box-shadow: 0 8px 24px rgba(180, 83, 9, .08);
         }
         .sidebar-note {
           margin-top: 14px;

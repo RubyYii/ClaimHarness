@@ -370,12 +370,21 @@ def test_guided_ui_sidebar_has_readable_theme():
 
     for phrase in [
         '[data-testid="stSidebar"] {',
+        "width: 280px !important;",
         "color: var(--pb-ink);",
+        '[data-testid="stHeader"]',
+        '[data-testid="stToolbar"]',
+        '[data-testid="stMainMenu"]',
         '[data-testid="stSidebar"] [data-testid="stMarkdownContainer"]',
         '[data-testid="stSidebar"] [data-testid="stWidgetLabel"]',
+        '[data-testid="stSidebarContent"]',
         '[data-testid="stSidebar"] [role="radiogroup"] label',
+        '[data-testid="stSidebar"] [data-testid="stElementContainer"]:has([data-testid="stRadio"])',
+        'label[data-baseweb="radio"]:has(input:checked)',
+        "box-shadow: inset 3px 0 0 var(--pb-teal);",
         '[data-testid="stSidebar"] [data-testid="stCheckbox"] label',
         '[data-testid="stAlert"]',
+        "border-left: 5px solid var(--pb-coral);",
         "color: var(--pb-ink) !important;",
         "color: var(--pb-muted) !important;",
     ]:
