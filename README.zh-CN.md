@@ -27,6 +27,8 @@
 
 **展示页：**[English static showcase](docs/static_showcase/en.html) | [中文静态展示](docs/static_showcase/zh-CN.html)
 
+**开发复盘：**[开发经验整理](DEVELOPMENT_LESSONS.md)
+
 ## 项目一眼看懂
 
 | 重点 | 说明 |

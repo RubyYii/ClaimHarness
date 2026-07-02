@@ -27,6 +27,8 @@
 
 **Showcase:** [English static showcase](docs/static_showcase/en.html) | [中文静态展示](docs/static_showcase/zh-CN.html)
 
+**Development reflection:** [Development lessons](DEVELOPMENT_LESSONS.md)
+
 ## Project at a glance
 
 | What | How it helps |
