@@ -48,6 +48,20 @@ def test_extracts_text_markdown_and_csv(tmp_path: Path):
     assert "CSV table extracted" in csv_result.text
 
 
+def test_extracts_gb18030_chinese_text_and_csv(tmp_path: Path):
+    txt_path = tmp_path / "中文记录.txt"
+    txt_path.write_bytes("重复工作\n人工复核边界".encode("gb18030"))
+    csv_path = tmp_path / "材料表.csv"
+    csv_path.write_bytes("项目,风险\n报告,需要复核\n".encode("gb18030"))
+
+    txt_result = extract_document(txt_path)
+    csv_result = extract_document(csv_path)
+
+    assert "重复工作" in txt_result.text
+    assert "人工复核边界" in txt_result.text
+    assert csv_result.tables[0].rows == [["项目", "风险"], ["报告", "需要复核"]]
+
+
 def test_unsupported_file_records_warning(tmp_path: Path):
     image_path = tmp_path / "diagram.png"
     image_path.write_bytes(b"not really an image")

@@ -32,6 +32,8 @@ def iter_project_text_files():
             continue
         if ignored_parts & set(path.parts):
             continue
+        if any(part.startswith(".pytest_tmp") for part in path.parts):
+            continue
         if path.suffix.lower() in TRACKED_TEXT_SUFFIXES:
             yield path
 

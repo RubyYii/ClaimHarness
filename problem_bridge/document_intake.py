@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import io
 import json
 import re
 import zlib
@@ -13,6 +14,7 @@ from xml.etree import ElementTree
 
 WORD_NS = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
 SUPPORTED_EXTENSIONS = {".doc", ".docx", ".pdf", ".txt", ".md", ".csv"}
+TEXT_ENCODINGS = ("utf-8-sig", "utf-8", "gb18030", "gbk", "big5")
 
 
 @dataclass(frozen=True)
@@ -43,7 +45,7 @@ def extract_document(path: str | Path) -> DocumentExtraction:
         return DocumentExtraction(
             source_name=source.name,
             file_type=suffix.lstrip("."),
-            text=source.read_text(encoding="utf-8"),
+            text=_read_text_with_fallback(source),
             tables=[],
             warnings=[],
         )
@@ -280,7 +282,7 @@ def _decode_pdf_literal(raw: bytes) -> str:
             continue
         output.append(escaped)
         index += 1
-    return output.decode("utf-8", errors="replace").strip()
+    return _decode_text_with_fallback(bytes(output)).strip()
 
 
 def _decode_pdf_hex(raw: bytes) -> str:
@@ -293,12 +295,11 @@ def _decode_pdf_hex(raw: bytes) -> str:
         return ""
     if data.startswith(b"\xfe\xff"):
         return data[2:].decode("utf-16-be", errors="replace").strip()
-    return data.decode("utf-8", errors="replace").strip()
+    return _decode_text_with_fallback(data).strip()
 
 
 def _extract_csv(path: Path) -> DocumentExtraction:
-    with path.open(newline="", encoding="utf-8") as handle:
-        rows = [row for row in csv.reader(handle)]
+    rows = [row for row in csv.reader(io.StringIO(_read_text_with_fallback(path)))]
     table = ExtractedTable(name=path.stem, rows=rows)
     return DocumentExtraction(
         source_name=path.name,
@@ -307,6 +308,24 @@ def _extract_csv(path: Path) -> DocumentExtraction:
         tables=[table],
         warnings=[],
     )
+
+
+def _read_text_with_fallback(path: Path) -> str:
+    return _decode_text_with_fallback(path.read_bytes())
+
+
+def _decode_text_with_fallback(raw: bytes) -> str:
+    if raw.startswith((b"\xff\xfe", b"\xfe\xff")):
+        try:
+            return raw.decode("utf-16")
+        except UnicodeDecodeError:
+            pass
+    for encoding in TEXT_ENCODINGS:
+        try:
+            return raw.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    return raw.decode("utf-8", errors="replace")
 
 
 def _combined_text(results: list[DocumentExtraction]) -> str:
