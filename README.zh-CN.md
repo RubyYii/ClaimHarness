@@ -75,6 +75,8 @@ ProblemBridge 不假设用户一开始就知道真正的问题。问题发现层
 
 在本地网页工作台里，问题发现完成后会显示 `Continue to Domain practitioner wizard` 按钮。它会把问题发现 seed 带入领域工作流表单的上下文里，让用户从“应该问什么”自然进入“应该重建哪段工作流”，不需要手动复制文件。
 
+后续链路也会继续传递上下文：领域工作流向导生成对齐包后，可以点击 `Continue to AI practitioner wizard`，把 `ai_task_spec.yaml`、`evidence_contract.yaml`、`evaluation_protocol.md` 和人工复核边界带入 AI 任务检查；AI 对齐检查完成后，可以点击 `Continue to View generated outputs`，直接查看、导出或分享结果包。
+
 ## 引导式访谈引擎
 
 ProblemBridge 的重点不是像普通聊天机器人一样马上回答，而是先通过引导式追问理解用户。系统会一次只问一个问题，维护当前的理解状态，显示已经理解的内容、还缺失的信息，以及当前完整度。

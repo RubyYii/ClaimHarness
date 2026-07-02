@@ -277,10 +277,11 @@ When the browser opens:
 
 1. Start with `Explore examples`.
 2. Use `Question discovery` if you do not yet know what to ask or who to ask.
-3. Generate one synthetic example.
-4. Read the friendly summary before opening the technical files.
-5. Use `Domain practitioner wizard` to describe a repeated workflow, not an AI task.
-6. Download the package for an AI engineer only after checking that it contains no private material.
+3. Use `Document intake` first when you have Word, PDF, webpage, image/OCR, or pasted text material; then click `Continue to Question discovery`.
+4. Use `Domain practitioner wizard` to describe a repeated workflow, not an AI task.
+5. After the workflow alignment package is generated, click `Continue to AI practitioner wizard` to check the candidate AI task against the domain problem, evidence contract, evaluation protocol, and human-review boundaries.
+6. After the AI alignment check, click `Continue to View generated outputs` to inspect, export, or share the generated package.
+7. Download the package for an AI engineer only after checking that it contains no private material.
 
 Start with synthetic examples. Do not upload private patient data, confidential manuscripts, API keys, or sensitive unpublished materials.
 

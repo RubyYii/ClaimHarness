@@ -537,6 +537,40 @@ def test_question_discovery_can_continue_into_domain_wizard():
     assert "_continue_to_domain_wizard_from_discovery" in ui_text
 
 
+def test_domain_alignment_can_continue_into_ai_wizard():
+    import apps.problem_bridge_wizard as ui
+
+    out = ui._run_problem_text(
+        "A team repeatedly reviews reports, compares evidence, and needs human review boundaries.",
+        "domain_practitioner",
+    )
+    seed = ui._ai_wizard_seed_from_alignment(out)
+    ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
+
+    assert "reviews reports" in seed["ai_draft_domain_problem"]
+    assert "ai_task_spec.yaml" in seed["ai_draft_candidate_task"]
+    assert "evidence_contract.yaml" in seed["ai_draft_high_risk_mistakes"]
+    assert "Continue to AI practitioner wizard" in ui_text
+    assert "_continue_to_ai_wizard_from_alignment" in ui_text
+    assert "last_alignment_package_dir" in ui_text
+
+
+def test_ai_alignment_can_continue_to_view_outputs():
+    import apps.problem_bridge_wizard as ui
+
+    out = ui._run_problem_text(
+        "The candidate AI task summarizes reports, but users need evidence boundaries and review routing.",
+        "ai_practitioner",
+    )
+    ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
+
+    assert ui._view_outputs_index_for_last_run([Path("older"), out], str(out)) == 1
+    assert ui._view_outputs_index_for_last_run([Path("older"), out], "") == 0
+    assert "Continue to View generated outputs" in ui_text
+    assert "_continue_to_view_outputs" in ui_text
+    assert "last_ai_alignment_dir" in ui_text
+
+
 def test_ocr_setup_guide_has_visual_install_instructions():
     readme = Path("README.md").read_text(encoding="utf-8")
     guide_path = Path("OCR_SETUP.md")

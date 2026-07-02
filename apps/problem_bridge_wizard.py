@@ -588,6 +588,8 @@ def _apply_memory_to_session(memory: dict, clear_existing: bool) -> None:
         "last_output_dir",
         "last_document_intake_dir",
         "last_question_discovery_dir",
+        "last_alignment_package_dir",
+        "last_ai_alignment_dir",
     ]
     for field_keys in DRAFT_KEY_GROUPS.values():
         keys.extend(field_keys)
@@ -1496,6 +1498,7 @@ def _domain_wizard() -> None:
         st.success(_generated_message(out))
         st.download_button(_text("Download problem.md", "下载 problem.md"), problem_text, file_name="problem.md")
         _render_friendly_output(out)
+        _render_alignment_next_step(out)
 
 def _guided_interview() -> None:
     st.subheader(_text("Guided interview", "引导式访谈"))
@@ -1549,6 +1552,7 @@ def _guided_interview() -> None:
                 st.success(_generated_message(out))
                 st.download_button(_text("Download guided_interview_problem.md", "下载 guided_interview_problem.md"), problem_text, file_name="problem.md")
                 _render_friendly_output(out)
+                _render_alignment_next_step(out)
             if not ready:
                 st.caption(_text("Answer the missing items before generating the package.", "请先回答缺失项，再生成结果包。"))
 
@@ -1606,6 +1610,7 @@ def _ai_wizard() -> None:
         st.success(_generated_message(out))
         st.download_button(_text("Download problem.md", "下载 problem.md"), problem_text, file_name="problem.md")
         _render_friendly_output(out)
+        _render_view_outputs_next_step(out)
 
 def _view_outputs() -> None:
     _render_page_intro(
@@ -1632,8 +1637,45 @@ def _view_outputs() -> None:
         ))
         return
 
-    selected = st.selectbox(_text("Choose a generated run", "选择一个生成结果"), runs, format_func=lambda path: path.name)
+    selected = st.selectbox(
+        _text("Choose a generated run", "选择一个生成结果"),
+        runs,
+        index=_view_outputs_index_for_last_run(runs, st.session_state.get("last_output_dir", "")),
+        format_func=lambda path: path.name,
+    )
     _render_friendly_output(selected)
+
+
+def _render_alignment_next_step(out: Path) -> None:
+    st.subheader(_text("Next step", "下一步"))
+    st.write(
+        _text(
+            "Use this alignment package to check whether the candidate AI task still matches the domain problem, evidence contract, evaluation protocol, and human-review boundaries.",
+            "把这个对齐包带入 AI 任务对齐向导，检查候选 AI 任务是否仍然贴合领域问题、证据契约、评价协议和人工复核边界。",
+        )
+    )
+    st.button(
+        _text("Continue to AI practitioner wizard", "继续到 AI 任务对齐向导"),
+        key=f"continue_to_ai_wizard_{out.name}",
+        on_click=_continue_to_ai_wizard_from_alignment,
+        args=(out,),
+    )
+
+
+def _render_view_outputs_next_step(out: Path) -> None:
+    st.subheader(_text("Next step", "下一步"))
+    st.write(
+        _text(
+            "Open the generated package in View generated outputs to inspect, export, or share the technical files.",
+            "进入查看生成结果，检查、导出或分享这个结果包里的技术文件。",
+        )
+    )
+    st.button(
+        _text("Continue to View generated outputs", "继续到查看生成结果"),
+        key=f"continue_to_view_outputs_{out.name}",
+        on_click=_continue_to_view_outputs,
+        args=(out,),
+    )
 
 
 def _last_output_path(session_key: str) -> Path | None:
@@ -1688,6 +1730,51 @@ def _continue_to_domain_wizard_from_discovery(out: Path) -> None:
     st.session_state.workspace_page = "Domain practitioner wizard"
 
 
+def _ai_wizard_seed_from_alignment(out: Path) -> dict[str, str]:
+    problem_card = _read_output_text(out, "problem_card.md") or _read_output_text(out, "problem.md")
+    task_spec = _read_output_text(out, "ai_task_spec.yaml")
+    evidence_contract = _read_output_text(out, "evidence_contract.yaml")
+    evaluation_protocol = _read_output_text(out, "evaluation_protocol.md")
+    human_plan = _read_output_text(out, "human_in_loop_plan.md")
+    risk_report = _read_output_text(out, "misalignment_risk_report.md")
+    return {
+        "ai_draft_domain_problem": problem_card,
+        "ai_draft_candidate_task": f"From ai_task_spec.yaml:\n\n{task_spec}",
+        "ai_draft_inputs": f"Review the inputs listed in ai_task_spec.yaml:\n\n{task_spec}",
+        "ai_draft_outputs": f"Review the outputs listed in ai_task_spec.yaml:\n\n{task_spec}",
+        "ai_draft_metric": f"From evaluation_protocol.md:\n\n{evaluation_protocol}",
+        "ai_draft_user": f"From human_in_loop_plan.md:\n\n{human_plan}",
+        "ai_draft_high_risk_mistakes": (
+            "Review misalignment_risk_report.md and evidence_contract.yaml:\n\n"
+            f"{risk_report}\n\n--- evidence_contract.yaml ---\n\n{evidence_contract}"
+        ),
+    }
+
+
+def _continue_to_ai_wizard_from_alignment(out: Path) -> None:
+    seed = _ai_wizard_seed_from_alignment(out)
+    for key, value in seed.items():
+        st.session_state[key] = value
+    st.session_state.last_alignment_package_dir = str(out)
+    st.session_state.last_output_dir = str(out)
+    st.session_state.workspace_page = "AI practitioner wizard"
+
+
+def _continue_to_view_outputs(out: Path) -> None:
+    st.session_state.last_ai_alignment_dir = str(out)
+    st.session_state.last_output_dir = str(out)
+    st.session_state.workspace_page = "View generated outputs"
+
+
+def _view_outputs_index_for_last_run(runs: list[Path], last_output_dir: str) -> int:
+    if not last_output_dir:
+        return 0
+    try:
+        return [str(path) for path in runs].index(str(Path(last_output_dir)))
+    except ValueError:
+        return 0
+
+
 def _run_document_intake(
     uploaded_files,
     *,
@@ -1740,6 +1827,10 @@ def _run_problem_text(problem_text: str, prefix: str) -> Path:
     (out / "problem.md").write_text(problem_text, encoding="utf-8")
     package = build_alignment_package(problem_text)
     write_alignment_package(package, out)
+    if prefix in {"domain_practitioner", "guided_interview"}:
+        st.session_state.last_alignment_package_dir = str(out)
+    if prefix == "ai_practitioner":
+        st.session_state.last_ai_alignment_dir = str(out)
     st.session_state.last_output_dir = str(out)
     return out
 
