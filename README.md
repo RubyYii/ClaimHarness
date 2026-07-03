@@ -5,8 +5,8 @@
 </p>
 
 <p align="center">
-  <strong>A two-stage harness for interdisciplinary AI projects.</strong><br>
-  ProblemBridge aligns domain problems before AI work begins. ClaimHarness audits evidence after claims exist.
+  <strong>Turn a vague domain concern into concrete questions, AI task boundaries, and auditable evidence.</strong><br>
+  ProblemBridge helps ask the right question before AI work begins. ClaimHarness checks evidence after claims exist.
 </p>
 
 <p align="center">
@@ -17,6 +17,7 @@
 </p>
 
 <p align="center">
+  <a href="#start-here">Start here</a> ·
   <a href="#run-locally">Start locally</a> ·
   <a href="#for-non-ai-users">For non-AI users</a> ·
   <a href="docs/static_showcase/en.html">Static showcase</a> ·
@@ -29,10 +30,31 @@
 
 **Development reflection:** [Development lessons](DEVELOPMENT_LESSONS.md)
 
+## Start Here
+
+This project is for the moment when someone says:
+
+```text
+This workflow feels slow, confusing, risky, or hard to explain.
+Maybe AI could help, but I do not know what problem to ask about yet.
+```
+
+ProblemBridge helps turn that vague feeling into a concrete problem conversation:
+
+| Vague feeling | Concrete questions it helps produce |
+| --- | --- |
+| "This review step takes too long." | Which step takes time? What judgement is being made? What evidence does the reviewer check? |
+| "This task seems suitable for AI." | What should AI support? What must stay human-reviewed? What would count as a useful output? |
+| "I do not know who to ask." | Which domain expert, operator, reviewer, or decision-maker has the missing knowledge? |
+| "The output sounds plausible." | Which claims are supported by the provided evidence, and which are weak or overclaimed? |
+
+You do not need AI vocabulary to start. Describe the repeated work, the materials people look at, the painful step, and the decision that still needs a human. The tool then helps produce questions, workflow notes, an AI task specification, evidence boundaries, and review artifacts.
+
 ## Project at a glance
 
 | What | How it helps |
 | --- | --- |
+| **Start from a vague feeling** | Turns "something feels unclear" into questions, stakeholders, evidence needs, and review boundaries. |
 | **No API by default** | Runs locally in deterministic mock mode for first-round testing. |
 | **Guided workflow** | Carries context from document intake to question discovery, workflow alignment, AI task check, and generated outputs. |
 | **ProblemBridge** | Converts a domain workflow into task specs, evidence contracts, evaluation protocols, and review boundaries. |
