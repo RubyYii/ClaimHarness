@@ -59,12 +59,22 @@ You do not need AI vocabulary to start. Describe the repeated work, the material
 | **Guided workflow** | Carries context from document intake to question discovery, workflow alignment, AI task check, and generated outputs. |
 | **ProblemBridge** | Converts a domain workflow into task specs, evidence contracts, evaluation protocols, and review boundaries. |
 | **ClaimHarness** | Audits whether written or generated claims are supported by provided evidence and trace logs. |
+| **Review surface** | Searches and filters claims, opens evidence details, and routes bounded pending work for human review. |
+| **Project records** | Binds completed runs to project/run IDs, manifests, summaries, completion hashes, and at most three revision rounds per target. |
 
 <p align="center">
   <img src="docs/figures/github-workflow.svg" alt="Guided workflow from document intake to evidence audit" width="100%">
 </p>
 
 **Guided workflow:** Document intake -> Question discovery -> Workflow alignment -> AI task check -> Evidence audit.
+
+### Use it in three steps
+
+1. Double-click `RUN_PROBLEMBRIDGE_WINDOWS.bat` and begin with files, a vague concern, or a repeated workflow.
+2. Follow the bilingual workbench through Document intake -> Question discovery -> Guided interview -> ProblemBridge -> View generated outputs.
+3. When a manuscript or system output exists, run ClaimHarness through the CLI and open its completed package in the searchable static report viewer.
+
+The workbench can inspect existing ClaimHarness audit packages, but it does not execute or replace a ClaimHarness audit. Audit execution, evidence-contract selection, and remote advisory providers remain CLI operations.
 
 ## Overview
 
@@ -203,6 +213,10 @@ The Streamlit workbench includes a bilingual English/Chinese interface switch at
 The guided interaction now keeps the full overview on Home and uses a compact workflow header on task pages. Required forms show inline guidance without creating an empty run. Question discovery seeds the one-question-at-a-time interview, the completed interview remains editable before generation, and the AI handoff separates the domain problem, candidate task, inputs, outputs, evaluation, and high-risk boundaries instead of copying raw YAML into several fields. The reviewer field stays blank until the user confirms a real role. Generated results keep the next action above the expanded review and collapsed technical files.
 
 `View generated outputs` is scoped to the active project by default. Turn on the explicit all-projects option only when you need to compare workspaces; each history label includes the verified UTC time, workflow, project identifier, and legacy status when applicable.
+
+When an older ClaimHarness package does not contain the newer diagnostics files, the audit-specific view reports them as unavailable instead of presenting missing values as zero.
+
+The workbench can inspect an existing ClaimHarness package with the correct audit-specific view, but it does not execute the audit. Run ClaimHarness through the CLI, then open the completed package in `View generated outputs` or its static `index.html` viewer.
 
 If you are cloning from GitHub manually:
 

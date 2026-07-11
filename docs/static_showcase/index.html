@@ -3,11 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ProblemBridge + ClaimHarness</title>
+  <title>ProblemBridge + ClaimHarness v0.4.0 | Interface index</title>
   <style>
     :root { --ink:#151f2b; --muted:#647282; --line:#d9e2ea; --paper:#fff; --canvas:#f5f7f9; --teal:#0f766e; --blue:#1d4ed8; --coral:#b45309; }
     * { box-sizing: border-box; }
     body { margin:0; color:var(--ink); background:var(--canvas); font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; line-height:1.6; }
+    .skip-link { position:fixed; left:12px; top:8px; z-index:50; transform:translateY(-160%); padding:8px 12px; border:2px solid var(--blue); border-radius:8px; background:#fff; color:var(--ink); font-weight:800; }
+    .skip-link:focus { transform:translateY(0); }
     main { width:min(980px, calc(100% - 36px)); margin:0 auto; padding:46px 0 64px; }
     .hero { padding:38px; border:1px solid var(--line); border-radius:8px; background:var(--paper); box-shadow:0 20px 55px rgba(21,31,43,.08); }
     .eyebrow { margin:0 0 10px; color:var(--teal); font-size:12px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
@@ -17,32 +19,34 @@
     .choice { display:block; padding:22px; min-height:190px; border:1px solid var(--line); border-radius:8px; background:#fff; color:inherit; text-decoration:none; }
     .choice:hover { border-color:var(--teal); box-shadow:0 12px 30px rgba(15,118,110,.12); }
     .choice strong { display:block; font-size:24px; margin-bottom:6px; }
-    .choice span { color:var(--muted); }
+    .choice > span:not(.tag) { display:block; color:var(--muted); }
     .tag { display:inline-block; margin-top:18px; padding:5px 10px; border-radius:999px; background:#e7f5f2; color:#0f5f57; font-size:13px; font-weight:800; }
+    a:focus-visible { outline:3px solid var(--blue); outline-offset:3px; }
     footer { margin-top:22px; color:var(--muted); font-size:14px; }
     @media (max-width:760px){ .hero{padding:26px 20px}.choices{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
-  <main>
-    <section class="hero">
-      <p class="eyebrow">ProblemBridge + ClaimHarness</p>
-      <h1>Choose your interface</h1>
-      <p class="lead">This static showcase does not run the interactive wizard. Pick a full standalone interface instead of reading a mixed bilingual page.</p>
-      <div class="choices">
-        <a class="choice" href="en.html">
-          <strong>English interface</strong>
-          <span>Overview, workflow, features, examples, local setup, and safety boundaries in English.</span>
+  <a class="skip-link" href="#main-content">Skip to content / 跳到正文</a>
+  <main id="main-content" tabindex="-1">
+    <section class="hero" aria-labelledby="interface-title">
+      <p class="eyebrow">ProblemBridge + ClaimHarness · v0.4.0</p>
+      <h1 id="interface-title">Choose your interface</h1>
+      <p class="lead">Choose a complete English or Chinese read-only showcase. These pages explain the current workflow and UI, but they do not run the guided workbench or execute a ClaimHarness audit.</p>
+      <nav class="choices" aria-label="Interface language / 界面语言">
+        <a class="choice" href="en.html" hreflang="en">
+          <strong>English showcase</strong>
+          <span>Current five-step workflow, interaction updates, outputs and logs, local setup, examples, and operating boundaries.</span>
           <span class="tag">Open English</span>
         </a>
-        <a class="choice" href="zh-CN.html">
-          <strong>中文界面</strong>
-          <span>完整中文介绍、工作流、功能、本地运行、合成样例和安全边界。</span>
+        <a class="choice" href="zh-CN.html" lang="zh-CN" hreflang="zh-CN">
+          <strong>中文展示</strong>
+          <span>完整介绍五步流程、交互更新、输出与日志、本地运行、合成样例和使用边界。</span>
           <span class="tag">打开中文</span>
         </a>
-      </div>
+      </nav>
     </section>
-    <footer>For the guided app, run <code>RUN_PROBLEMBRIDGE_WINDOWS.bat</code> from the repository root.</footer>
+    <footer>Guided problem alignment / 引导式问题对齐：从仓库根目录运行 <code>RUN_PROBLEMBRIDGE_WINDOWS.bat</code>。ClaimHarness audit execution / 审计执行：使用 CLI。</footer>
   </main>
 </body>
 </html>

@@ -196,3 +196,22 @@
   - README.zh-CN.md
   - docs/demo_walkthrough.md
   - docs/project_records/2026-07-11-project-lifecycle-integrity/ui_memory_restore_identity_verification.md
+
+### github-bilingual-presentation-v0.4.0 — round 1/3
+
+- Revision ID: 6c667953-e43a-4aa0-b580-6ee9e25ce2d1
+- Parent revision: None
+- Time: 2026-07-11T20:42:45.279375+00:00
+- Diagnosis: structural_mismatch
+- Status: accepted
+- Change: Synchronized the English and Chinese repository-facing README and static showcases, documented current UI and audit boundaries, and locked bilingual parity with tests.
+- Verification: Full regression: 362 passed, 2 skipped; release readiness: 42 passed, 2 skipped; desktop and 375px local browser checks passed; governed mock audit produced all required artifacts.
+- Integrity SHA-256: 6c145852d01a0c4f8acdc5edb7d763b940950e712fa4a06fb1ad1f561f145563
+- Changed files:
+  - README.md
+  - README.zh-CN.md
+  - docs/static_showcase/index.html
+  - docs/static_showcase/en.html
+  - docs/static_showcase/zh-CN.html
+  - tests/test_release_readiness.py
+  - docs/project_records/2026-07-11-project-lifecycle-integrity/github_bilingual_presentation_verification.md

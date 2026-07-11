@@ -937,10 +937,14 @@ def test_release_packaging_support_is_present():
 
     showcase_index = Path("docs/static_showcase/index.html").read_text(encoding="utf-8")
     assert "Choose your interface" in showcase_index
-    assert "English interface" in showcase_index
-    assert "中文界面" in showcase_index
+    assert "English showcase" in showcase_index
+    assert "中文展示" in showcase_index
     assert "en.html" in showcase_index
     assert "zh-CN.html" in showcase_index
+    assert "v0.4.0" in showcase_index
+    assert "read-only showcase" in showcase_index
+    assert 'id="main-content"' in showcase_index
+    assert 'aria-label="Interface language / 界面语言"' in showcase_index
     assert "data-lang-panel" not in showcase_index
     assert "setLanguage" not in showcase_index
 
@@ -956,6 +960,12 @@ def test_release_packaging_support_is_present():
         "Safety boundary",
         "ClaimHarness lab report sample",
         "zh-CN.html",
+        "The workbench can inspect existing ClaimHarness audit packages",
+        "audit_diagnostics.json",
+        "human_review_queue.json",
+        "run_complete.json",
+        "Clear memory",
+        "Searchable audit viewer",
     ]:
         assert phrase in showcase_en
 
@@ -971,8 +981,30 @@ def test_release_packaging_support_is_present():
         "安全边界",
         "实验报告审计样例",
         "en.html",
+        "工作台可以查看已有的 ClaimHarness 审计包",
+        "audit_diagnostics.json",
+        "human_review_queue.json",
+        "run_complete.json",
+        "清除记忆",
+        "可搜索审计查看器",
     ]:
         assert phrase in showcase_zh
+
+    shared_section_ids = [
+        "overview",
+        "start",
+        "workflow",
+        "ui-convenience",
+        "outputs-and-logs",
+        "run-locally",
+        "examples",
+        "safety-and-limits",
+    ]
+    section_pattern = re.compile(r'<section id="([^"]+)"')
+    for page in (showcase_en, showcase_zh):
+        assert '<main id="main-content"' in page
+        assert section_pattern.findall(page) == shared_section_ids
+        assert page.count('<article class="step">') == 5
 
     readme = Path("README.md").read_text(encoding="utf-8")
     assert "[English](README.md)" in readme
@@ -983,6 +1015,8 @@ def test_release_packaging_support_is_present():
     assert "English Overview" not in readme
     assert "Downloadable local web app package" in readme
     assert "RUN_PROBLEMBRIDGE_WINDOWS.bat" in readme
+    assert "Use it in three steps" in readme
+    assert "does not execute or replace a ClaimHarness audit" in readme
 
     readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
     for phrase in [
@@ -995,6 +1029,8 @@ def test_release_packaging_support_is_present():
         "RUN_PROBLEMBRIDGE_WINDOWS.bat",
         "不要输入真实患者数据",
         "docs/static_showcase/zh-CN.html",
+        "三步开始使用",
+        "不会执行或替代 ClaimHarness 审计",
     ]:
         assert phrase in readme_zh
 

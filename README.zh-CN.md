@@ -59,10 +59,20 @@ ProblemBridge 要做的第一件事，不是马上给方案，而是把这种模
 | **引导式工作流** | 从文档摄取到问题发现、工作流对齐、AI 任务检查和结果查看，逐步继承上下文。 |
 | **ProblemBridge** | 把领域工作流转成 AI 任务规格、证据契约、评价协议和人工复核边界。 |
 | **ClaimHarness** | 检查文本或系统输出中的 claims 是否有证据支撑，并保留审计 trace。 |
+| **复核界面** | 搜索和筛选声明、展开证据详情，并把有边界的待办交给人工复核。 |
+| **项目记录** | 用项目/运行 ID、清单、摘要、完成哈希和每个目标最多三轮修订绑定完整运行。 |
 
 <p align="center">
   <img src="docs/figures/github-workflow.svg" alt="从文档摄取到证据审计的引导式工作流" width="100%">
 </p>
+
+### 三步开始使用
+
+1. 双击 `RUN_PROBLEMBRIDGE_WINDOWS.bat`，从本地文件、一个模糊问题或一段反复发生的工作流开始。
+2. 按中文工作台依次完成“文档摄取 → 问题发现 → 引导式访谈 → ProblemBridge → 查看生成结果”。
+3. 当稿件或系统输出已经存在时，通过 CLI 运行 ClaimHarness，再用可搜索的静态报告查看器检查完成的审计包。
+
+工作台可以查看已有的 ClaimHarness 审计包，但不会执行或替代 ClaimHarness 审计。审计执行、证据契约选择和远程 advisory provider 仍然属于 CLI 操作。
 
 ## 项目定位
 
@@ -102,7 +112,7 @@ ProblemBridge + ClaimHarness 是一个本地优先的跨学科 AI 原型。它�
 - `extraction_warnings.md`
 - `problem_seed.md`
 
-在本地网页工作台里，文档摄取完成后会保留最近一次提取结果，并显示 `Continue to Question discovery` 按钮。点击后会把 `problem_seed.md` 自动带入问题发现表单，下一步不是空白开始，而是从已提取材料继续追问。
+在本地网页工作台里，文档摄取完成后会保留最近一次提取结果，并显示“继续到问题发现”按钮。点击后会把 `problem_seed.md` 自动带入问题发现表单，下一步不是空白开始，而是从已提取材料继续追问。
 
 Word 批注、PDF 批注、高亮和字体颜色会被当作“用户注意力信号”保留下来，用于后续追问；系统不会自动推断某种颜色一定代表“高风险”或“已通过”。
 
@@ -127,9 +137,9 @@ ProblemBridge 不假设用户一开始就知道真正的问题。问题发现层
 
 边界也很明确：先不要提出方案。先把值得问的问题、应该访问的人、需要验证的未知项梳理清楚，再进入引导式访谈或 ProblemBridge 对齐包生成。
 
-在本地网页工作台里，问题发现完成后会显示 `Continue to Domain practitioner wizard` 按钮。它会把问题发现 seed 带入领域工作流表单的上下文里，让用户从“应该问什么”自然进入“应该重建哪段工作流”，不需要手动复制文件。
+在本地网页工作台里，问题发现完成后会显示“继续到领域工作流向导”按钮。它会把问题发现 seed 带入领域工作流表单的上下文里，让用户从“应该问什么”自然进入“应该重建哪段工作流”，不需要手动复制文件。
 
-后续链路也会继续传递上下文：领域工作流向导生成对齐包后，可以点击 `Continue to AI practitioner wizard`，把 `ai_task_spec.yaml`、`evidence_contract.yaml`、`evaluation_protocol.md` 和人工复核边界带入 AI 任务检查；AI 对齐检查完成后，可以点击 `Continue to View generated outputs`，直接查看、导出或分享结果包。
+后续链路也会继续传递上下文：领域工作流向导生成对齐包后，可以点击“继续到 AI 任务对齐向导”，把 `ai_task_spec.yaml`、`evidence_contract.yaml`、`evaluation_protocol.md` 和人工复核边界带入 AI 任务检查；AI 对齐检查完成后，可以点击“继续到查看生成结果”，直接查看、导出或分享结果包。
 
 ## 引导式访谈引擎
 
@@ -220,6 +230,8 @@ ClaimHarness 用在文本或系统输出之后，输出一个 evidence audit pac
 
 `查看生成结果` 默认只显示当前项目。只有需要跨项目比较时才打开“显示所有项目”；历史标签会写明经过校验的 UTC 时间、工作流、项目标识，以及适用时的 `legacy` 状态。文档摄取、问题发现、ProblemBridge 对齐和 ClaimHarness 审计会进入各自的结果视图，不再统一误用对齐摘要。旧审计包缺少新版诊断文件时会显示“不可用”，不会把缺失值误报成零。
 
+工作台可以用审计专属视图检查已有的 ClaimHarness 结果包，但不会执行审计。请先通过 CLI 运行 ClaimHarness，再在“查看生成结果”或静态 `index.html` 查看器中打开完成的结果包。
+
 如果你是从 GitHub clone：
 
 ```powershell
@@ -230,11 +242,12 @@ cd ClaimHarness
 
 浏览器打开后，建议顺序是：
 
-1. 先看 `Explore examples`。
-2. 生成一个合成样例。
-3. 阅读 friendly summary。
-4. 再进入 `Domain practitioner wizard`。
-5. 描述一个非敏感、可重复的真实工作流。
+1. 先看“示例演示”，确认系统边界和合成样例。
+2. 有文件时进入“文档摄取”；问题还模糊时进入“问题发现”。
+3. 在“领域工作流向导”中描述一个非敏感、可重复的真实工作流。
+4. 在“AI 任务对齐向导”中检查候选任务、输入、输出、评价和高风险边界。
+5. 进入“查看生成结果”，阅读面向用户的摘要、技术文件和项目日志。
+6. 对最终稿件或系统输出，通过 ClaimHarness CLI 执行审计并打开静态报告查看器。
 
 CLI 用户可以运行：
 
