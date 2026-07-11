@@ -2,6 +2,7 @@
 
 ## Project
 
+- ID: sample-training-policy
 - Name: training_policy_response_alignment
 - Goal: Evaluate whether generated training or policy-support answers remain source-grounded, conceptually aligned, and appropriately bounded for review.
 - Revision rule: maximum 3 rounds per target; no fourth patch.

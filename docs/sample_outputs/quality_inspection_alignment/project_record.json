@@ -1,4 +1,6 @@
 {
+  "schema_version": 2,
+  "project_id": "sample-quality-inspection",
   "project_name": "quality_inspection_review_alignment",
   "project_goal": "Support reviewable inspection by preserving material quality, defect visibility, uncertainty, reviewer notes, and final human judgement.",
   "boundaries": [
@@ -23,7 +25,7 @@
     "project_record.json",
     "project_summary_log.md"
   ],
-  "created_at": "2026-07-11T00:45:18+00:00",
-  "updated_at": "2026-07-11T00:45:18+00:00",
+  "created_at": "2026-07-11T07:11:48.910365+00:00",
+  "updated_at": "2026-07-11T07:11:48.910365+00:00",
   "max_revision_rounds": 3
 }

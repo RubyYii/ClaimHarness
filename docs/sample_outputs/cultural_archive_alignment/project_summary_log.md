@@ -2,6 +2,7 @@
 
 ## Project
 
+- ID: sample-cultural-archive
 - Name: cultural_archive_interpretation_alignment
 - Goal: Evaluate whether AI outputs align visible archive details, catalog notes, source context, and expert interpretation boundaries.
 - Revision rule: maximum 3 rounds per target; no fourth patch.

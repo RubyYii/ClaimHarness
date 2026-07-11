@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -16,6 +17,7 @@ def load_manuscript(path: str | Path) -> list[ManuscriptSection]:
     current_start_line: int | None = None
     current_content_base = 1
     current_lines: list[str] = []
+    current_source_kind = "manuscript"
 
     def flush_section(fallback_name: str | None = None) -> None:
         section_name = current_name or fallback_name
@@ -38,11 +40,20 @@ def load_manuscript(path: str | Path) -> list[ManuscriptSection]:
                 text=section_text,
                 start_line=current_start_line or content_start_line,
                 content_start_line=content_start_line,
+                source_kind=current_source_kind,
             )
         )
 
     for line_number, line in enumerate(lines, start=1):
         stripped = line.strip()
+        if re.search(
+            r"<!--\s*provenance:\s*derived_text/ocr\b",
+            stripped,
+            flags=re.IGNORECASE,
+        ):
+            current_source_kind = "ocr"
+            current_lines.append(line)
+            continue
         if stripped.startswith("#"):
             heading = stripped.lstrip("#").strip()
             if heading:
@@ -51,6 +62,11 @@ def load_manuscript(path: str | Path) -> list[ManuscriptSection]:
                         flush_section("Preamble")
                 else:
                     flush_section()
+                if re.match(r"(?i)^source\s*:", heading):
+                    # ProblemBridge source blocks may contain their own Markdown
+                    # subheadings. Provenance persists through those headings
+                    # and resets only when the next source block begins.
+                    current_source_kind = "manuscript"
                 current_name = heading
                 current_start_line = line_number
                 current_content_base = line_number + 1

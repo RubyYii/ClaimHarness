@@ -2,6 +2,7 @@
 
 ## Project
 
+- ID: sample-quality-inspection
 - Name: quality_inspection_review_alignment
 - Goal: Support reviewable inspection by preserving material quality, defect visibility, uncertainty, reviewer notes, and final human judgement.
 - Revision rule: maximum 3 rounds per target; no fourth patch.

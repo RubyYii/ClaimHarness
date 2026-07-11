@@ -1,16 +1,22 @@
 {
-  "schema_version": 1,
-  "run_id": "44ab3e7074c14fcea5c0865ceda67595",
+  "schema_version": 2,
+  "project_id": "sample-claimharness-lab",
+  "run_id": "run-a376bde3156c49b8a5871a02eaf4a2b4",
   "tool": {
     "name": "claim-harness",
-    "version": "0.3.3"
+    "version": "0.4.0"
   },
-  "started_at": "2026-07-11T01:33:36+00:00",
-  "completed_at": "2026-07-11T01:33:36+00:00",
+  "started_at": "2026-07-11T07:11:49+00:00",
+  "completed_at": "2026-07-11T07:11:49+00:00",
   "provider": {
     "name": "mock",
-    "status": "not_requested"
+    "status": "not_requested",
+    "api_style": "mock",
+    "endpoint_origin": null,
+    "json_mode": "json_schema",
+    "model": null
   },
+  "run_spec_sha256": "b88ccf93aa0a22cd9d102565780dd545260a92cb315df71ba8d5363e08b34fd3",
   "inputs": {
     "manuscript": {
       "name": "manuscript.md",
@@ -33,7 +39,8 @@
       "name": "references.md",
       "size_bytes": 901,
       "sha256": "41a244329b38cfa6564f3c990b2dc1ceb95285350d23731393b9f3e36b6f6884"
-    }
+    },
+    "evidence_contract": null
   },
   "summary": {
     "claims": 16,
@@ -51,28 +58,28 @@
   "outputs": [
     {
       "name": "claim_table.csv",
-      "size_bytes": 6045,
-      "sha256": "3a43240f02b0849a54e9c5003caa52b0b4fb670bff9010f3074f4cd00d5182ee"
+      "size_bytes": 6216,
+      "sha256": "d125e0ed556055bfeb38ddd365d5826f9f7b9106bfd3ed68e60cd0081446f20a"
     },
     {
       "name": "evidence_map.json",
-      "size_bytes": 63405,
-      "sha256": "4ec00ae95b87959247e92565270f1b27cba159e79bc227f2ea1fcef012589595"
+      "size_bytes": 62041,
+      "sha256": "d99cf9bb8eac8264cfe25475ee4274f226d481ecad7ba1a47910608d90a732a7"
     },
     {
       "name": "audit_report.md",
-      "size_bytes": 7368,
-      "sha256": "1b39612dd252e2aafd497a0ccf208f68a12de4d6d0c8b840665f4fd15b8aef55"
+      "size_bytes": 7563,
+      "sha256": "035739df905ee18abc89cc674f4a8c5d537ead6e9921060e161114ae29df8612"
     },
     {
       "name": "revision_suggestions.md",
-      "size_bytes": 3380,
-      "sha256": "42ac3d5aaa42e2e34a8d7043b3f343215160b65a720121b2d5442d3ea1a86c4a"
+      "size_bytes": 3301,
+      "sha256": "3ad09e2c193322cb1eb19c93b4d5e781c81be031dbb8e0b44126421d35717554"
     },
     {
       "name": "agent_trace.jsonl",
-      "size_bytes": 1559,
-      "sha256": "2198e14e1e9eb69da57995fe680d59e1f12b9b304b4dd88a355e6293f707f2cc"
+      "size_bytes": 1522,
+      "sha256": "1b44880ab737786e552f4d759a4296ba9a9cf7379a8fab973935dd433c2e7ae9"
     }
   ]
 }

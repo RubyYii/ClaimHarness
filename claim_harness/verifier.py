@@ -2,6 +2,7 @@ import re
 from collections import defaultdict
 
 from .claim_extractor import contains_term, term_is_negated
+from .evidence_contract import DERIVED_SOURCE_KINDS, EvidenceContract
 from .schemas import Claim, EvidenceItem, VerificationResult
 
 
@@ -52,20 +53,42 @@ LOWER_IS_BETTER_METRIC_TOKENS = {
 NUMBER_FRAGMENT = r"([-+]?(?:\d+(?:\.\d+)?|\.\d+))(?:\s*(%))?"
 
 
-def verify_claims(claims: list[Claim], evidence: list[EvidenceItem]) -> list[VerificationResult]:
+def verify_claims(
+    claims: list[Claim],
+    evidence: list[EvidenceItem],
+    evidence_contract: EvidenceContract | None = None,
+) -> list[VerificationResult]:
     evidence_by_claim: dict[str, list[EvidenceItem]] = defaultdict(list)
     for item in evidence:
         for claim_id in item.linked_claim_ids:
             evidence_by_claim[claim_id].append(item)
 
-    return [_verify_claim(claim, evidence_by_claim.get(claim.claim_id, [])) for claim in claims]
+    return [
+        _verify_claim(
+            claim,
+            evidence_by_claim.get(claim.claim_id, []),
+            evidence_contract,
+        )
+        for claim in claims
+    ]
 
 
-def _verify_claim(claim: Claim, evidence_items: list[EvidenceItem]) -> VerificationResult:
+def _verify_claim(
+    claim: Claim,
+    evidence_items: list[EvidenceItem],
+    evidence_contract: EvidenceContract | None = None,
+) -> VerificationResult:
+    allowed_source_kinds = (
+        set(evidence_contract.source_kinds) if evidence_contract is not None else None
+    )
     supporting = [
         item
         for item in evidence_items
         if item.claim_link_relations.get(claim.claim_id, "supports") == "supports"
+        and (
+            allowed_source_kinds is None
+            or item.locator.source_kind in allowed_source_kinds
+        )
     ]
     contradicting = [
         item
@@ -76,17 +99,74 @@ def _verify_claim(claim: Claim, evidence_items: list[EvidenceItem]) -> Verificat
         item
         for item in evidence_items
         if item.claim_link_relations.get(claim.claim_id) == "related"
+        and (
+            allowed_source_kinds is None
+            or item.locator.source_kind in allowed_source_kinds
+        )
     ]
 
     table_support = [item for item in supporting if item.locator.source_kind == "table"]
     valid_table_relation = _has_verifiable_table_relation(claim, table_support)
+    strong_evidence_types = (
+        set(evidence_contract.strong_evidence_types)
+        if evidence_contract is not None
+        else STRONG_EVIDENCE_TYPES
+    )
     strong = [
         item
         for item in supporting
-        if item.evidence_type in STRONG_EVIDENCE_TYPES
+        if item.evidence_type in strong_evidence_types
+        and item.locator.source_kind not in DERIVED_SOURCE_KINDS
         and (item.locator.source_kind != "table" or valid_table_relation)
     ]
-    missing = _missing_requirements(claim, supporting, related, strong)
+    rule = evidence_contract.claim_rules[claim.claim_type] if evidence_contract is not None else None
+    requirements = list(rule.required_evidence) if rule is not None else claim.requires_evidence
+    missing = _missing_requirements(
+        claim,
+        supporting,
+        related,
+        strong,
+        requirements=requirements,
+    )
+    forbidden_missing: list[str] = []
+    missing_review_roles: list[str] = []
+    if rule is not None:
+        supporting_count = len(
+            {
+                item.evidence_id
+                for item in supporting
+                if item.locator.source_kind not in DERIVED_SOURCE_KINDS
+            }
+        )
+        if supporting_count < rule.minimum_evidence_count:
+            missing.append(f"minimum_evidence_count={rule.minimum_evidence_count}")
+        forbidden_missing = _missing_requirements(
+            claim,
+            supporting,
+            related,
+            strong,
+            requirements=list(rule.forbidden_without),
+        )
+        completed_review_roles = {
+            role_id
+            for item in supporting
+            if item.evidence_type == "human_review"
+            and item.locator.source_kind not in DERIVED_SOURCE_KINDS
+            for role_id in item.categorical_values
+        }
+        missing_review_roles = [
+            role_id
+            for role_id in rule.human_review_roles
+            if role_id not in completed_review_roles
+        ]
+        missing.extend(
+            requirement for requirement in forbidden_missing if requirement not in missing
+        )
+        missing.extend(
+            f"human_review_role={role_id}"
+            for role_id in missing_review_roles
+            if f"human_review_role={role_id}" not in missing
+        )
     risk_level = _risk_level(claim)
     support_ids = [item.evidence_id for item in supporting]
     contradiction_ids = [item.evidence_id for item in contradicting]
@@ -104,6 +184,47 @@ def _verify_claim(claim: Claim, evidence_items: list[EvidenceItem]) -> Verificat
             suggested_revision=(
                 "Remove readiness/deployment language or add independently reviewable external validation "
                 "and a documented human-review decision."
+            ),
+            missing_evidence=missing,
+            supporting_evidence_ids=support_ids,
+            contradicting_evidence_ids=contradiction_ids,
+        )
+
+    if claim.source_kind in DERIVED_SOURCE_KINDS:
+        derived_missing = [*missing]
+        if "source_inspection" not in derived_missing:
+            derived_missing.append("source_inspection")
+        return VerificationResult(
+            claim_id=claim.claim_id,
+            status="needs_human_review",
+            reason=(
+                "The claim was extracted from OCR-derived text. A human must inspect the "
+                "original source before this claim can be treated as supported."
+            ),
+            risk_level="high" if risk_level == "high" else "low",
+            suggested_revision=(
+                "Verify the transcription against the original page, then rerun the audit "
+                "with direct source text or a documented human-review record."
+            ),
+            missing_evidence=derived_missing,
+            supporting_evidence_ids=support_ids,
+            contradicting_evidence_ids=contradiction_ids,
+        )
+
+    if forbidden_missing or missing_review_roles:
+        details = []
+        if forbidden_missing:
+            details.append("forbidden-without conditions missing: " + ", ".join(forbidden_missing))
+        if missing_review_roles:
+            details.append("human review roles incomplete: " + ", ".join(missing_review_roles))
+        return VerificationResult(
+            claim_id=claim.claim_id,
+            status="needs_human_review",
+            reason="Evidence contract requires human review; " + "; ".join(details) + ".",
+            risk_level="high" if risk_level == "high" else "low",
+            suggested_revision=(
+                "Do not present the claim as contract-compliant until the forbidden-without conditions "
+                "and named human-review roles are satisfied."
             ),
             missing_evidence=missing,
             supporting_evidence_ids=support_ids,
@@ -219,10 +340,18 @@ def _missing_requirements(
     supporting: list[EvidenceItem],
     related: list[EvidenceItem],
     strong: list[EvidenceItem],
+    *,
+    requirements: list[str] | None = None,
 ) -> list[str]:
     missing = []
     strong_ids = {item.evidence_id for item in strong}
-    for raw_requirement in claim.requires_evidence:
+    eligible_supporting = [
+        item for item in supporting if item.locator.source_kind not in DERIVED_SOURCE_KINDS
+    ]
+    eligible_related = [
+        item for item in related if item.locator.source_kind not in DERIVED_SOURCE_KINDS
+    ]
+    for raw_requirement in claim.requires_evidence if requirements is None else requirements:
         requirement = _canonical_requirement(raw_requirement)
         if requirement == "table":
             satisfied = any(
@@ -235,21 +364,36 @@ def _missing_requirements(
                 for item in supporting
             )
         elif requirement == "trace":
-            satisfied = any(item.evidence_type == "workflow_trace" for item in supporting)
+            satisfied = any(item.evidence_type == "workflow_trace" for item in eligible_supporting)
         elif requirement == "result_text":
-            satisfied = any(item.evidence_type == "result_text" for item in supporting)
+            satisfied = any(item.evidence_type == "result_text" for item in eligible_supporting)
         elif requirement == "external_validation":
-            satisfied = any(item.evidence_type == "external_validation" for item in supporting)
+            satisfied = any(
+                item.evidence_type == "external_validation" and item.evidence_id in strong_ids
+                for item in eligible_supporting
+            )
         elif requirement == "human_review":
-            satisfied = any(item.evidence_type == "human_review" for item in supporting)
+            satisfied = any(item.evidence_type == "human_review" for item in eligible_supporting)
         elif requirement == "robustness_test":
-            satisfied = any(item.evidence_type == "robustness_test" for item in supporting)
+            satisfied = any(
+                item.evidence_type == "robustness_test" and item.evidence_id in strong_ids
+                for item in eligible_supporting
+            )
         elif requirement == "citation":
             satisfied = any(
-                item.evidence_type == "citation" for item in [*supporting, *related]
+                item.evidence_type == "citation"
+                for item in [*eligible_supporting, *eligible_related]
             )
         elif requirement == "manuscript_context":
-            satisfied = any(item.locator.source_kind == "manuscript" for item in supporting)
+            satisfied = any(
+                item.locator.source_kind == "manuscript" for item in eligible_supporting
+            )
+        elif requirement == "source_inspection":
+            satisfied = any(
+                item.evidence_type == "human_review"
+                and item.locator.source_kind not in DERIVED_SOURCE_KINDS
+                for item in eligible_supporting
+            )
         else:
             satisfied = False
         if not satisfied:

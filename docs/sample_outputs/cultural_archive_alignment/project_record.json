@@ -1,4 +1,6 @@
 {
+  "schema_version": 2,
+  "project_id": "sample-cultural-archive",
   "project_name": "cultural_archive_interpretation_alignment",
   "project_goal": "Evaluate whether AI outputs align visible archive details, catalog notes, source context, and expert interpretation boundaries.",
   "boundaries": [
@@ -22,7 +24,7 @@
     "project_record.json",
     "project_summary_log.md"
   ],
-  "created_at": "2026-07-11T00:45:18+00:00",
-  "updated_at": "2026-07-11T00:45:18+00:00",
+  "created_at": "2026-07-11T07:11:48.226198+00:00",
+  "updated_at": "2026-07-11T07:11:48.226198+00:00",
   "max_revision_rounds": 3
 }

@@ -1,16 +1,100 @@
-claim_type:
-  inspection_suggestion:
-    required_evidence:
-      - source_region_or_record
-      - uncertainty_statement
-      - human_review_flag
-    forbidden_without:
-      - reviewer_confirmation
-      - input_quality_assessment
-  model_performance:
-    required_evidence:
-      - quantitative_table
-      - baseline_comparison
-      - error_analysis
-    forbidden_without:
-      []
+{
+  "schema_version": 2,
+  "project_id": "sample-quality-inspection",
+  "contract_id": "contract-16e788ad603c388b0e234f6d",
+  "source_kinds": [
+    "table",
+    "manuscript",
+    "references",
+    "external",
+    "ocr",
+    "derived_text"
+  ],
+  "strong_evidence_types": [
+    "quantitative_result",
+    "ablation_result",
+    "external_validation",
+    "robustness_test"
+  ],
+  "human_review_roles": {
+    "domain_reviewer": "Review the ProblemBridge boundaries: Any final pass/fail suggestion; Low-confidence candidate detection; Poor visibility or ambiguous source material; Any wording that implies deployment readiness; inspection_suggestion requires: source_region_or_record, uncertainty_statement, human_review_flag; model_performance requires: quantitative_table, baseline_comparison, error_analysis; inspection_suggestion is forbidden without: reviewer_confirmation, input_quality_assessment"
+  },
+  "claim_rules": {
+    "clinical_claim": {
+      "minimum_evidence_count": 2,
+      "required_evidence": [
+        "external_validation",
+        "human_review"
+      ],
+      "forbidden_without": [
+        "external_validation",
+        "human_review"
+      ],
+      "human_review_roles": [
+        "domain_reviewer"
+      ]
+    },
+    "deployment_claim": {
+      "minimum_evidence_count": 2,
+      "required_evidence": [
+        "external_validation",
+        "human_review"
+      ],
+      "forbidden_without": [
+        "external_validation",
+        "human_review"
+      ],
+      "human_review_roles": [
+        "domain_reviewer"
+      ]
+    },
+    "performance_claim": {
+      "minimum_evidence_count": 3,
+      "required_evidence": [
+        "table",
+        "robustness_test"
+      ],
+      "forbidden_without": [],
+      "human_review_roles": []
+    },
+    "novelty_claim": {
+      "minimum_evidence_count": 1,
+      "required_evidence": [
+        "citation"
+      ],
+      "forbidden_without": [],
+      "human_review_roles": []
+    },
+    "robustness_claim": {
+      "minimum_evidence_count": 1,
+      "required_evidence": [
+        "robustness_test"
+      ],
+      "forbidden_without": [],
+      "human_review_roles": []
+    },
+    "workflow_claim": {
+      "minimum_evidence_count": 1,
+      "required_evidence": [
+        "trace"
+      ],
+      "forbidden_without": [],
+      "human_review_roles": []
+    },
+    "general_claim": {
+      "minimum_evidence_count": 3,
+      "required_evidence": [
+        "manuscript_context",
+        "source_inspection",
+        "human_review"
+      ],
+      "forbidden_without": [
+        "human_review",
+        "source_inspection"
+      ],
+      "human_review_roles": [
+        "domain_reviewer"
+      ]
+    }
+  }
+}

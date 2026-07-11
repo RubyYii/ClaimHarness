@@ -1,0 +1,16 @@
+{
+  "artifact_sha256": {
+    "agent_trace.jsonl": "1b44880ab737786e552f4d759a4296ba9a9cf7379a8fab973935dd433c2e7ae9",
+    "audit_report.md": "035739df905ee18abc89cc674f4a8c5d537ead6e9921060e161114ae29df8612",
+    "claim_table.csv": "d125e0ed556055bfeb38ddd365d5826f9f7b9106bfd3ed68e60cd0081446f20a",
+    "evidence_map.json": "d99cf9bb8eac8264cfe25475ee4274f226d481ecad7ba1a47910608d90a732a7",
+    "project_summary_log.md": "32ce7baae6679bb352ecb7ba3b19d4140f79346c2ab02e853011d4630977b9d2",
+    "revision_suggestions.md": "3ad09e2c193322cb1eb19c93b4d5e781c81be031dbb8e0b44126421d35717554",
+    "run_manifest.json": "e00b3c122f039e027e13e00dc1ffd43416b7b501c770eee1b36f5455f2d43971"
+  },
+  "completed_at": "2026-07-11T07:11:49.423597+00:00",
+  "project_id": "sample-claimharness-lab",
+  "run_id": "run-a376bde3156c49b8a5871a02eaf4a2b4",
+  "run_identity_sha256": "5d6d7a1e58806b601d8aa496076c7f546f2c77052dfda4eb53527dc69f5eb846",
+  "schema_version": 2
+}

@@ -43,6 +43,27 @@ def test_load_manuscript_preserves_headingless_text(tmp_path):
     assert sections[0].text == "Context.\nThe method improves score."
 
 
+def test_ocr_provenance_persists_through_nested_headings_until_next_source(tmp_path):
+    manuscript = tmp_path / "extracted_text.md"
+    manuscript.write_text(
+        "# Source: scan.png\n"
+        "<!-- provenance: derived_text/ocr; inspect source -->\n"
+        "## Methods\nThe workflow enables auditable review.\n"
+        "## Results\nThe method improves trace quality.\n"
+        "# Source: direct.md\n"
+        "## Methods\nA direct workflow description.\n",
+        encoding="utf-8",
+    )
+
+    sections = load_manuscript(manuscript)
+
+    by_name = {section.name: section for section in sections}
+    assert by_name["Methods"].source_kind == "manuscript"
+    ocr_sections = [section for section in sections if "improves trace" in section.text]
+    assert len(ocr_sections) == 1
+    assert ocr_sections[0].source_kind == "ocr"
+
+
 def test_load_tables_reads_all_csv_files_by_stem(tmp_path):
     tables_dir = tmp_path / "tables"
     tables_dir.mkdir()

@@ -140,7 +140,7 @@ def _section_evidence(sections: list[ManuscriptSection]) -> list[EvidenceItem]:
                     evidence_id=f"S{len(items) + 1:03d}",
                     source=section.name,
                     locator=EvidenceLocator(
-                        source_kind="manuscript",
+                        source_kind=section.source_kind,
                         source_name=section.name,
                         line=source_line,
                     ),
@@ -229,7 +229,7 @@ def _numeric_equal(left: float, right: float) -> bool:
 
 def _is_self_evidence(claim: Claim, item: EvidenceItem) -> bool:
     return (
-        item.locator.source_kind == "manuscript"
+        item.locator.source_kind in {"manuscript", "ocr", "derived_text"}
         and " ".join(item.text.split()).casefold() == " ".join(claim.text.split()).casefold()
     )
 

@@ -6,25 +6,28 @@ ProblemBridge does not ask you to define a model, prompt, RAG system, or benchma
 
 ## Document intake
 
-Use `Document intake` when your starting point is a Word document, text-based PDF, Markdown file, TXT notes, or CSV table instead of a clean problem description.
+Use `Document intake` when your starting point is a local document, public static webpage, image, or copied text instead of a clean problem description.
 
-Supported files:
+Supported inputs:
 
-- `.docx`
-- text-based `.pdf`
-- `.txt`
-- `.md`
-- `.csv`
+- `.docx` Word documents; legacy `.doc` uploads return local conversion guidance rather than silently pretending to extract them
+- text-based `.pdf` files, plus image-only/scanned PDFs when optional local OCR is enabled
+- saved `.html` / `.htm` pages
+- public static `http(s)` webpage URLs (no login, JavaScript execution, or crawling)
+- `.txt`, `.md`, and `.csv`
+- `.png`, `.jpg`, `.jpeg`, `.tif`, `.tiff`, and `.bmp` images when optional local OCR is enabled
+- text pasted into the fallback box when upload is unavailable
 
 Document intake produces:
 
 - `extracted_text.md`
 - `extracted_tables/`
 - `source_manifest.json`
+- `ocr_quality_report.json`
 - `extraction_warnings.md`
 - `problem_seed.md`
 
-Check `extraction_warnings.md` before using the result. There is no OCR, no scanned PDF support, no image understanding, and no figure interpretation. If extraction looks incomplete, rewrite the important parts in plain language before using `Question discovery` or `Domain practitioner wizard`.
+Check `extraction_warnings.md` and `ocr_quality_report.json` before using the result. Optional local OCR can derive text from images or image-only PDFs when its extra dependencies and system tools are installed. OCR has byte, page, character, timeout, PDF-DPI, and per-page-pixel limits; it is marked `derived_text/ocr`, is not strong evidence by default, and does not provide image, chart, or figure understanding. Claims extracted from OCR input require a person to inspect the original source before approval. If extraction looks incomplete, inspect the source and rewrite the important parts in plain language before continuing.
 ## Start by discovering questions
 
 If you cannot describe the problem clearly yet, start with `Question discovery` instead of the full workflow form.
@@ -77,7 +80,7 @@ ProblemBridge helps you:
 
 The generated package can include a workflow map, pain-point table, concept alignment table, AI task description, evidence expectations, evaluation protocol, risk report, human-review plan, `project_record.json`, and `project_summary_log.md`.
 
-If you revise one stable target, use `problem-bridge record-revision` to append `revision_history.jsonl`. Stop after at most three rounds: accept the result or escalate the specification, evidence, or structure instead of applying a fourth local patch.
+If you revise one stable target, use `problem-bridge record-revision` to append schema-v3 `revision_history.jsonl`. Stop after at most three rounds: round three must be accepted or escalated instead of followed by a fourth local patch. Old v1/v2 histories require an explicit project-ID-confirmed migration; they are not silently read or upgraded.
 
 ## what it does not do
 
@@ -141,4 +144,8 @@ When the browser opens:
 4. Generate a synthetic example package.
 5. Read the friendly summary first.
 6. Try `Domain practitioner wizard` with a non-sensitive workflow description.
-7. Download the project package only after checking that it contains no private material.
+7. Download the project package only after checking that it contains no private material. The ZIP uses a generated-file allow-list and excludes original uploads and unknown files by default; enable original inclusion only when every source file is approved for sharing. Check `share_manifest.json` for the exact included paths, sizes, and SHA-256 hashes.
+
+Use `Start a new project` in the sidebar when changing to a different task or dataset. This creates a new project identity and clears the active draft/output pointers without deleting earlier local runs.
+
+If earlier runs and uploads must be removed, use `Delete this project` and type the exact current project ID. This permanently deletes every local run associated with that project, including original uploads; it is not secure erasure of backups or storage media.

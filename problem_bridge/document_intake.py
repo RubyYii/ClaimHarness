@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import html
 import http.client
 import ipaddress
 import io
 import json
+import queue
 import re
 import socket
 import ssl
+import threading
 import urllib.error
 import urllib.parse
 import zlib
@@ -28,6 +31,36 @@ OcrEngine = Callable[[Path], str]
 AddressResolver = Callable[[str, int], Iterable[str]]
 MAX_URL_RESPONSE_BYTES = 2_000_000
 MAX_URL_REDIRECTS = 3
+OCR_REPORT_SCHEMA_VERSION = "1.0"
+OCR_PROVENANCE = "derived_text/ocr"
+
+
+@dataclass(frozen=True)
+class OcrLimits:
+    """Resource limits for optional local OCR.
+
+    The defaults are deliberately conservative for a local-first desktop tool.
+    Callers may pass a smaller limit for untrusted files or a larger one after
+    an explicit local review.
+    """
+
+    max_bytes: int = 25_000_000
+    max_pages: int = 50
+    max_characters: int = 1_000_000
+    timeout_seconds: float = 30.0
+    pdf_dpi: int = 150
+    max_pixels_per_page: int = 20_000_000
+
+    def __post_init__(self) -> None:
+        if (
+            self.max_bytes <= 0
+            or self.max_pages <= 0
+            or self.max_characters <= 0
+            or self.timeout_seconds <= 0
+            or self.pdf_dpi <= 0
+            or self.max_pixels_per_page <= 0
+        ):
+            raise ValueError("OCR resource limits must all be positive integers.")
 
 
 @dataclass(frozen=True)
@@ -57,9 +90,18 @@ class DocumentExtraction:
     warnings: list[str]
     annotations: list[AnnotationMark] = field(default_factory=list)
     source_url: str = ""
+    text_origin: str = "source_text/direct"
+    ocr_quality_report: dict[str, object] | None = None
 
 
-def extract_document(path: str | Path, *, enable_ocr: bool = False, ocr_engine: OcrEngine | None = None) -> DocumentExtraction:
+def extract_document(
+    path: str | Path,
+    *,
+    enable_ocr: bool = False,
+    ocr_engine: OcrEngine | None = None,
+    ocr_language: str | None = None,
+    ocr_limits: OcrLimits | None = None,
+) -> DocumentExtraction:
     source = Path(path)
     suffix = source.suffix.lower()
     if suffix == ".doc":
@@ -67,11 +109,23 @@ def extract_document(path: str | Path, *, enable_ocr: bool = False, ocr_engine: 
     if suffix == ".docx":
         return _extract_docx(source)
     if suffix == ".pdf":
-        return _extract_pdf(source, enable_ocr=enable_ocr, ocr_engine=ocr_engine)
+        return _extract_pdf(
+            source,
+            enable_ocr=enable_ocr,
+            ocr_engine=ocr_engine,
+            ocr_language=ocr_language,
+            ocr_limits=ocr_limits,
+        )
     if suffix in {".html", ".htm"}:
         return _extract_html(source)
     if suffix in IMAGE_EXTENSIONS:
-        return _extract_image(source, enable_ocr=enable_ocr, ocr_engine=ocr_engine)
+        return _extract_image(
+            source,
+            enable_ocr=enable_ocr,
+            ocr_engine=ocr_engine,
+            ocr_language=ocr_language,
+            ocr_limits=ocr_limits,
+        )
     if suffix in {".txt", ".md"}:
         return DocumentExtraction(
             source_name=source.name,
@@ -176,6 +230,10 @@ def write_intake_package(results: Iterable[DocumentExtraction], out: str | Path)
     _write_annotations(result_list, output_dir)
     (output_dir / "source_manifest.json").write_text(
         json.dumps(_manifest(result_list), indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    (output_dir / "ocr_quality_report.json").write_text(
+        json.dumps(_ocr_quality_package(result_list), indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
     (output_dir / "extraction_warnings.md").write_text(_warnings_markdown(result_list), encoding="utf-8")
@@ -598,7 +656,14 @@ def _strip_html_tags(text: str) -> str:
     return re.sub(r"<[^>]+>", " ", text)
 
 
-def _extract_image(path: Path, *, enable_ocr: bool, ocr_engine: OcrEngine | None) -> DocumentExtraction:
+def _extract_image(
+    path: Path,
+    *,
+    enable_ocr: bool,
+    ocr_engine: OcrEngine | None,
+    ocr_language: str | None = None,
+    ocr_limits: OcrLimits | None = None,
+) -> DocumentExtraction:
     if not enable_ocr:
         return DocumentExtraction(
             source_name=path.name,
@@ -607,13 +672,20 @@ def _extract_image(path: Path, *, enable_ocr: bool, ocr_engine: OcrEngine | None
             tables=[],
             warnings=["Image files require optional OCR. Enable OCR and install local OCR dependencies to extract text."],
         )
-    text, warnings = _ocr_file(path, ocr_engine=ocr_engine)
+    text, warnings, quality_report = _ocr_file_with_report(
+        path,
+        ocr_engine=ocr_engine,
+        language=ocr_language,
+        limits=ocr_limits,
+    )
     return DocumentExtraction(
         source_name=path.name,
         file_type=path.suffix.lower().lstrip("."),
         text=text,
         tables=[],
         warnings=warnings,
+        text_origin=OCR_PROVENANCE,
+        ocr_quality_report=quality_report,
     )
 
 
@@ -761,19 +833,51 @@ def _local_name(tag: str) -> str:
     return tag
 
 
-def _extract_pdf(path: Path, *, enable_ocr: bool, ocr_engine: OcrEngine | None) -> DocumentExtraction:
+def _extract_pdf(
+    path: Path,
+    *,
+    enable_ocr: bool,
+    ocr_engine: OcrEngine | None,
+    ocr_language: str | None = None,
+    ocr_limits: OcrLimits | None = None,
+) -> DocumentExtraction:
     try:
         from pypdf import PdfReader  # type: ignore[import-not-found]
     except ImportError:
-        return _extract_pdf_fallback(path, pypdf_missing=True, enable_ocr=enable_ocr, ocr_engine=ocr_engine)
+        return _extract_pdf_fallback(
+            path,
+            pypdf_missing=True,
+            enable_ocr=enable_ocr,
+            ocr_engine=ocr_engine,
+            ocr_language=ocr_language,
+            ocr_limits=ocr_limits,
+        )
 
     try:
         reader = PdfReader(str(path))
         pages = [page.extract_text() or "" for page in reader.pages]
     except Exception as exc:  # pragma: no cover - parser-specific failures vary
-        fallback = _extract_pdf_fallback(path, pypdf_missing=False, enable_ocr=enable_ocr, ocr_engine=ocr_engine)
+        fallback = _extract_pdf_fallback(
+            path,
+            pypdf_missing=False,
+            enable_ocr=enable_ocr,
+            ocr_engine=ocr_engine,
+            ocr_language=ocr_language,
+            ocr_limits=ocr_limits,
+        )
         if fallback.text.strip():
             return fallback
+        if fallback.ocr_quality_report is not None:
+            return DocumentExtraction(
+                source_name=path.name,
+                file_type="pdf",
+                text="",
+                tables=[],
+                warnings=[f"PDF text could not be extracted: {exc}", *fallback.warnings],
+                annotations=fallback.annotations,
+                text_origin=fallback.text_origin,
+                ocr_quality_report=fallback.ocr_quality_report,
+            )
         return DocumentExtraction(
             source_name=path.name,
             file_type="pdf",
@@ -790,9 +894,62 @@ def _extract_pdf(path: Path, *, enable_ocr: bool, ocr_engine: OcrEngine | None) 
     except OSError:
         pass
     warnings = []
+    text_origin = "source_text/direct"
+    ocr_quality_report: dict[str, object] | None = None
+    empty_page_numbers = [
+        page_number
+        for page_number, page_text in enumerate(pages, start=1)
+        if not page_text.strip()
+    ]
+    if text and empty_page_numbers:
+        page_list = ", ".join(str(number) for number in empty_page_numbers)
+        warning = (
+            "PDF contains page(s) with no extractable text: "
+            f"{page_list}. Mixed text/scanned PDFs require page-level source review; "
+            "these pages were not silently treated as empty evidence."
+        )
+        warnings.append(warning)
+        if enable_ocr:
+            active_limits = ocr_limits or OcrLimits()
+            ocr_quality_report = _base_ocr_report(
+                path, language=ocr_language, limits=active_limits
+            )
+            try:
+                ocr_quality_report["source_bytes"] = path.stat().st_size
+                ocr_quality_report["source_sha256"] = _sha256_file(path)
+            except OSError:
+                pass
+            ocr_quality_report.update(
+                status="failed",
+                failure="mixed_pdf_requires_page_review",
+                engine={"name": "not_run", "version": "not_run"},
+                pages_total=len(pages),
+                pages_processed=0,
+                failed_pages=empty_page_numbers,
+                warnings=[warning],
+            )
+            ocr_quality_report["pages"] = [
+                _page_quality(
+                    path.name,
+                    page_number,
+                    "",
+                    status=(
+                        "requires_page_review"
+                        if page_number in empty_page_numbers
+                        else "direct_text_present"
+                    ),
+                )
+                for page_number in range(1, len(pages) + 1)
+            ]
     if not text:
         if enable_ocr:
-            ocr_text, ocr_warnings = _ocr_file(path, ocr_engine=ocr_engine)
+            ocr_text, ocr_warnings, ocr_quality_report = _ocr_file_with_report(
+                path,
+                ocr_engine=ocr_engine,
+                language=ocr_language,
+                limits=ocr_limits,
+            )
+            text_origin = OCR_PROVENANCE
             if ocr_text:
                 text = ocr_text
                 warnings.append("PDF text extraction returned no text; optional OCR was used.")
@@ -806,6 +963,8 @@ def _extract_pdf(path: Path, *, enable_ocr: bool, ocr_engine: OcrEngine | None) 
         tables=[],
         warnings=warnings,
         annotations=annotations,
+        text_origin=text_origin,
+        ocr_quality_report=ocr_quality_report,
     )
 
 
@@ -815,6 +974,8 @@ def _extract_pdf_fallback(
     pypdf_missing: bool,
     enable_ocr: bool = False,
     ocr_engine: OcrEngine | None = None,
+    ocr_language: str | None = None,
+    ocr_limits: OcrLimits | None = None,
 ) -> DocumentExtraction:
     try:
         raw = path.read_bytes()
@@ -834,9 +995,17 @@ def _extract_pdf_fallback(
     text = "\n".join(fragment for fragment in text_fragments if fragment.strip()).strip()
     annotations = _pdf_annotations_from_raw(path.name, raw)
     warnings = []
+    text_origin = "source_text/direct"
+    ocr_quality_report: dict[str, object] | None = None
     if not text:
         if enable_ocr:
-            ocr_text, ocr_warnings = _ocr_file(path, ocr_engine=ocr_engine)
+            ocr_text, ocr_warnings, ocr_quality_report = _ocr_file_with_report(
+                path,
+                ocr_engine=ocr_engine,
+                language=ocr_language,
+                limits=ocr_limits,
+            )
+            text_origin = OCR_PROVENANCE
             if ocr_text:
                 text = ocr_text
                 warnings.append("PDF text extraction returned no text; optional OCR was used.")
@@ -855,6 +1024,8 @@ def _extract_pdf_fallback(
         tables=[],
         warnings=warnings,
         annotations=annotations,
+        text_origin=text_origin,
+        ocr_quality_report=ocr_quality_report,
     )
 
 
@@ -1002,35 +1173,517 @@ def _pdf_color_text(value: object) -> str:
 
 
 def _ocr_file(path: Path, *, ocr_engine: OcrEngine | None) -> tuple[str, list[str]]:
-    if ocr_engine is not None:
-        try:
-            return str(ocr_engine(path)).strip(), []
-        except Exception as exc:
-            return "", [f"Optional OCR failed: {exc}"]
+    """Backward-compatible text/warnings wrapper around the quality-gated OCR path."""
 
+    text, warnings, _ = _ocr_file_with_report(path, ocr_engine=ocr_engine)
+    return text, warnings
+
+
+def _ocr_file_with_report(
+    path: Path,
+    *,
+    ocr_engine: OcrEngine | None,
+    language: str | None = None,
+    limits: OcrLimits | None = None,
+) -> tuple[str, list[str], dict[str, object]]:
+    active_limits = limits or OcrLimits()
+    report = _base_ocr_report(path, language=language, limits=active_limits)
+    extraction_warnings: list[str] = []
+
+    try:
+        source_bytes = path.stat().st_size
+    except OSError as exc:
+        warning = f"Optional OCR failed before reading the source: {exc}"
+        report.update(status="failed", failure="source_unreadable")
+        report["warnings"] = [warning]
+        return "", [warning], report
+
+    report["source_bytes"] = source_bytes
+    try:
+        report["source_sha256"] = _sha256_file(path)
+    except OSError as exc:
+        warning = f"OCR source SHA-256 could not be calculated: {exc}"
+        report["warnings"] = [warning]
+        extraction_warnings.append(warning)
+
+    if source_bytes > active_limits.max_bytes:
+        warning = (
+            f"Optional OCR was not run because the source exceeds the "
+            f"{active_limits.max_bytes}-byte OCR limit."
+        )
+        report.update(
+            status="failed",
+            failure="resource_limit_exceeded",
+            limit_exceeded=["max_bytes"],
+        )
+        report["warnings"] = [*report.get("warnings", []), warning]
+        return "", [*extraction_warnings, warning], report
+
+    total_pages = 1 if path.suffix.lower() != ".pdf" else _estimate_pdf_page_count(path)
+    report["pages_total"] = total_pages
+    if ocr_engine is not None:
+        return _run_custom_ocr(
+            path,
+            ocr_engine=ocr_engine,
+            report=report,
+            extraction_warnings=extraction_warnings,
+            total_pages=total_pages,
+            limits=active_limits,
+        )
+    return _run_tesseract_ocr(
+        path,
+        report=report,
+        extraction_warnings=extraction_warnings,
+        total_pages=total_pages,
+        language=language,
+        limits=active_limits,
+    )
+
+
+def _base_ocr_report(path: Path, *, language: str | None, limits: OcrLimits) -> dict[str, object]:
+    return {
+        "schema_version": OCR_REPORT_SCHEMA_VERSION,
+        "source_name": path.name,
+        "source_sha256": "unavailable",
+        "source_bytes": None,
+        "text_origin": OCR_PROVENANCE,
+        "status": "pending",
+        "failure": None,
+        "engine": {"name": "pending", "version": "unavailable"},
+        "language": language or "engine-default",
+        "resource_limits": {
+            "max_bytes": limits.max_bytes,
+            "max_pages": limits.max_pages,
+            "max_characters": limits.max_characters,
+            "timeout_seconds_per_operation": limits.timeout_seconds,
+            "pdf_dpi": limits.pdf_dpi,
+            "max_pixels_per_page": limits.max_pixels_per_page,
+        },
+        "limit_exceeded": [],
+        "truncated": False,
+        "pages_total": None,
+        "pages_processed": 0,
+        "pages": [],
+        "failed_pages": [],
+        "skipped_pages": [],
+        "warnings": [],
+        "limitations": [
+            "OCR confidence is unavailable on this text-only extraction path unless a future engine exposes calibrated page confidence.",
+            "OCR output is derived_text/ocr and must not count as strong evidence without source inspection and human review.",
+            "OCR extracts text only; it does not interpret figures, charts, diagrams, or their scientific meaning.",
+        ],
+    }
+
+
+def _run_custom_ocr(
+    path: Path,
+    *,
+    ocr_engine: OcrEngine,
+    report: dict[str, object],
+    extraction_warnings: list[str],
+    total_pages: int | None,
+    limits: OcrLimits,
+) -> tuple[str, list[str], dict[str, object]]:
+    engine_name = getattr(ocr_engine, "engine_name", None) or getattr(ocr_engine, "__name__", None)
+    if not engine_name or str(engine_name).startswith("<"):
+        engine_name = "custom"
+    report["engine"] = {
+        "name": str(engine_name),
+        "version": str(getattr(ocr_engine, "version", "unavailable")),
+    }
+
+    if total_pages is not None and total_pages > limits.max_pages:
+        warning = (
+            f"Optional OCR was not run because this custom engine cannot be safely bounded to "
+            f"{limits.max_pages} pages (source has {total_pages})."
+        )
+        report.update(
+            status="failed",
+            failure="resource_limit_exceeded",
+            limit_exceeded=["max_pages"],
+        )
+        report["warnings"] = [*report.get("warnings", []), warning]
+        return "", [*extraction_warnings, warning], report
+
+    try:
+        raw_text = str(
+            _call_custom_ocr_with_timeout(
+                ocr_engine,
+                path,
+                timeout_seconds=limits.timeout_seconds,
+            )
+        ).strip()
+    except TimeoutError:
+        warning = (
+            f"Optional OCR exceeded the {limits.timeout_seconds:g}-second execution limit."
+        )
+        report.update(status="failed", failure="timeout", limit_exceeded=["timeout_seconds"])
+        report["warnings"] = [*report.get("warnings", []), warning]
+        return "", [*extraction_warnings, warning], report
+    except Exception as exc:
+        warning = f"Optional OCR failed: {exc}"
+        report.update(status="failed", failure="engine_error")
+        report["warnings"] = [*report.get("warnings", []), warning]
+        return "", [*extraction_warnings, warning], report
+
+    page_texts = raw_text.split("\f") if "\f" in raw_text else [raw_text]
+    detected_pages = len(page_texts)
+    if total_pages is None or detected_pages > total_pages:
+        total_pages = detected_pages
+        report["pages_total"] = total_pages
+    if detected_pages > limits.max_pages:
+        report["skipped_pages"] = list(range(limits.max_pages + 1, detected_pages + 1))
+        page_texts = page_texts[: limits.max_pages]
+        report["truncated"] = True
+        report["limit_exceeded"] = ["max_pages"]
+        extraction_warnings.append(
+            f"Optional OCR output was truncated at the {limits.max_pages}-page limit."
+        )
+
+    text, page_reports, character_truncated = _bounded_page_texts(
+        path.name,
+        page_texts,
+        max_characters=limits.max_characters,
+    )
+    if character_truncated:
+        report["truncated"] = True
+        report["limit_exceeded"] = sorted({*report.get("limit_exceeded", []), "max_characters"})
+        extraction_warnings.append(
+            f"Optional OCR output was truncated at the {limits.max_characters}-character limit."
+        )
+        if len(page_reports) < len(page_texts):
+            report["skipped_pages"] = sorted(
+                {
+                    *report.get("skipped_pages", []),
+                    *range(len(page_reports) + 1, len(page_texts) + 1),
+                }
+            )
+
+    if total_pages and total_pages > 1 and len(page_texts) == 1:
+        page_reports[0]["locator_scope"] = "document_aggregate"
+        for page_number in range(2, total_pages + 1):
+            page_reports.append(
+                _page_quality(
+                    path.name,
+                    page_number,
+                    "",
+                    status="not_separable",
+                    locator_scope="page_boundary_unavailable",
+                )
+            )
+        report["warnings"] = [
+            *report.get("warnings", []),
+            "The custom OCR engine returned aggregate text without page separators; page attribution is unavailable.",
+        ]
+
+    report["pages"] = page_reports
+    report["pages_processed"] = len(page_reports)
+    report["warnings"] = [*report.get("warnings", []), *extraction_warnings]
+    if not text:
+        warning = "Optional OCR ran but no text was extracted."
+        report.update(status="failed", failure="no_text")
+        report["warnings"] = [*report.get("warnings", []), warning]
+        return "", [*extraction_warnings, warning], report
+
+    report["status"] = "partial" if report["truncated"] else "success"
+    return text, extraction_warnings, report
+
+
+def _call_custom_ocr_with_timeout(
+    ocr_engine: OcrEngine,
+    path: Path,
+    *,
+    timeout_seconds: float,
+) -> object:
+    """Bound the caller-facing execution time of a custom local OCR hook.
+
+    A daemon worker is used because arbitrary Python callables cannot be
+    reliably killed or pickled into a subprocess on every supported platform.
+    The built-in Tesseract path below uses process-level timeouts as well.
+    """
+
+    result_queue: queue.Queue[tuple[bool, object]] = queue.Queue(maxsize=1)
+
+    def run_engine() -> None:
+        try:
+            result_queue.put((True, ocr_engine(path)), block=False)
+        except Exception as exc:  # pragma: no cover - exercised via caller
+            result_queue.put((False, exc), block=False)
+
+    worker = threading.Thread(target=run_engine, name="problembridge-ocr", daemon=True)
+    worker.start()
+    try:
+        succeeded, value = result_queue.get(timeout=timeout_seconds)
+    except queue.Empty as exc:
+        raise TimeoutError("custom OCR timed out") from exc
+    if not succeeded:
+        assert isinstance(value, Exception)
+        raise value
+    return value
+
+
+def _run_tesseract_ocr(
+    path: Path,
+    *,
+    report: dict[str, object],
+    extraction_warnings: list[str],
+    total_pages: int | None,
+    language: str | None,
+    limits: OcrLimits,
+) -> tuple[str, list[str], dict[str, object]]:
     suffix = path.suffix.lower()
     try:
         import pytesseract  # type: ignore[import-not-found]
+
+        try:
+            engine_version = str(pytesseract.get_tesseract_version())
+        except Exception:
+            engine_version = str(getattr(pytesseract, "__version__", "unavailable"))
+        report["engine"] = {"name": "tesseract", "version": engine_version}
+
         if suffix == ".pdf":
             from pdf2image import convert_from_path  # type: ignore[import-not-found]
-
-            pages = convert_from_path(str(path))
-            text = "\n\n".join(pytesseract.image_to_string(page).strip() for page in pages).strip()
         else:
             from PIL import Image  # type: ignore[import-not-found]
-
-            with Image.open(path) as image:
-                text = pytesseract.image_to_string(image).strip()
     except ImportError:
-        return "", [
-            "Optional OCR is not available locally. Install the OCR extra and required system OCR tools: Tesseract for images, plus Poppler for PDF OCR."
-        ]
-    except Exception as exc:
-        return "", [f"Optional OCR failed: {exc}"]
+        warning = (
+            "Optional OCR is not available locally. Install the OCR extra and required system OCR tools: "
+            "Tesseract for images, plus Poppler for PDF OCR."
+        )
+        report.update(status="failed", failure="dependency_unavailable")
+        report["warnings"] = [*report.get("warnings", []), warning]
+        return "", [*extraction_warnings, warning], report
 
+    if total_pages is not None and total_pages > limits.max_pages:
+        report["truncated"] = True
+        report["limit_exceeded"] = ["max_pages"]
+        report["skipped_pages"] = list(range(limits.max_pages + 1, total_pages + 1))
+        extraction_warnings.append(
+            f"Optional OCR was truncated at the {limits.max_pages}-page limit."
+        )
+
+    page_texts: list[str] = []
+    page_reports: list[dict[str, object]] = []
+    failed_pages: list[int] = []
+    remaining_characters = limits.max_characters
+    timed_out = False
+    last_page = min(total_pages, limits.max_pages) if total_pages else limits.max_pages
+    page_numbers = range(1, last_page + 1) if suffix == ".pdf" else range(1, 2)
+
+    for page_number in page_numbers:
+        if remaining_characters <= 0:
+            report["truncated"] = True
+            report["limit_exceeded"] = sorted(
+                {*report.get("limit_exceeded", []), "max_characters"}
+            )
+            report["skipped_pages"] = sorted(
+                {
+                    *report.get("skipped_pages", []),
+                    *range(page_number, last_page + 1),
+                }
+            )
+            break
+
+        image = None
+        extra_images: list[object] = []
+        try:
+            if suffix == ".pdf":
+                # Convert one bounded page at a time instead of materialising a
+                # potentially large PDF into memory before OCR begins.
+                converted = convert_from_path(
+                    str(path),
+                    dpi=limits.pdf_dpi,
+                    first_page=page_number,
+                    last_page=page_number,
+                    thread_count=1,
+                    timeout=limits.timeout_seconds,
+                )
+                if not converted:
+                    if total_pages is None:
+                        break
+                    raise RuntimeError("PDF renderer returned no page image")
+                image = converted[0]
+                extra_images = list(converted[1:])
+            else:
+                image = Image.open(path)
+
+            width, height = getattr(image, "size", (0, 0))
+            pixel_count = int(width) * int(height)
+            if width <= 0 or height <= 0:
+                raise RuntimeError("OCR image has invalid dimensions")
+            if pixel_count > limits.max_pixels_per_page:
+                failed_pages.append(page_number)
+                page_reports.append(_page_quality(path.name, page_number, "", status="failed"))
+                report["limit_exceeded"] = sorted(
+                    {*report.get("limit_exceeded", []), "max_pixels_per_page"}
+                )
+                extraction_warnings.append(
+                    f"Optional OCR skipped page {page_number}: {pixel_count} pixels exceeds "
+                    f"the {limits.max_pixels_per_page}-pixel limit."
+                )
+                continue
+
+            try:
+                kwargs = {"lang": language} if language else {}
+                page_text = str(
+                    pytesseract.image_to_string(
+                        image,
+                        timeout=limits.timeout_seconds,
+                        **kwargs,
+                    )
+                ).strip()
+            except Exception as exc:
+                if "timeout" in str(exc).lower():
+                    timed_out = True
+                    report["limit_exceeded"] = sorted(
+                        {*report.get("limit_exceeded", []), "timeout_seconds"}
+                    )
+                failed_pages.append(page_number)
+                page_reports.append(
+                    _page_quality(path.name, page_number, "", status="failed")
+                )
+                extraction_warnings.append(f"Optional OCR failed on page {page_number}: {exc}")
+                continue
+            separator_characters = 2 if page_text and any(page_texts) else 0
+            allowed_characters = max(0, remaining_characters - separator_characters)
+            truncated_page = len(page_text) > allowed_characters
+            if truncated_page:
+                page_text = page_text[:allowed_characters]
+                report["truncated"] = True
+                report["limit_exceeded"] = sorted({*report.get("limit_exceeded", []), "max_characters"})
+            page_texts.append(page_text)
+            page_reports.append(
+                _page_quality(
+                    path.name,
+                    page_number,
+                    page_text,
+                    status="text_present" if page_text else "empty",
+                    truncated=truncated_page,
+                )
+            )
+            remaining_characters -= len(page_text) + (separator_characters if page_text else 0)
+            if truncated_page and allowed_characters == 0:
+                remaining_characters = 0
+        except Exception as exc:
+            if "timeout" in str(exc).lower():
+                timed_out = True
+                report["limit_exceeded"] = sorted(
+                    {*report.get("limit_exceeded", []), "timeout_seconds"}
+                )
+            failed_pages.append(page_number)
+            page_reports.append(_page_quality(path.name, page_number, "", status="failed"))
+            extraction_warnings.append(
+                f"Optional OCR could not prepare page {page_number}: {exc}"
+            )
+            if suffix == ".pdf" and total_pages is None:
+                break
+        finally:
+            close = getattr(image, "close", None)
+            if callable(close):
+                close()
+            for extra_image in extra_images:
+                close = getattr(extra_image, "close", None)
+                if callable(close):
+                    close()
+
+    text = "\n\n".join(page for page in page_texts if page).strip()
+    report["pages"] = page_reports
+    report["pages_processed"] = len(page_reports)
+    report["failed_pages"] = failed_pages
+    report["warnings"] = [*report.get("warnings", []), *extraction_warnings]
     if not text:
-        return "", ["Optional OCR ran but no text was extracted."]
-    return text, []
+        warning = "Optional OCR ran but no text was extracted."
+        report.update(status="failed", failure="timeout" if timed_out else "no_text")
+        report["warnings"] = [*report.get("warnings", []), warning]
+        return "", [*extraction_warnings, warning], report
+
+    report["status"] = "partial" if report["truncated"] or failed_pages else "success"
+    return text, extraction_warnings, report
+
+
+def _bounded_page_texts(
+    source_name: str,
+    page_texts: list[str],
+    *,
+    max_characters: int,
+) -> tuple[str, list[dict[str, object]], bool]:
+    bounded: list[str] = []
+    page_reports: list[dict[str, object]] = []
+    remaining = max_characters
+    truncated = False
+    for page_number, raw_text in enumerate(page_texts, start=1):
+        page_text = raw_text.strip()
+        separator_characters = 2 if page_text and any(bounded) else 0
+        allowed_characters = max(0, remaining - separator_characters)
+        page_truncated = len(page_text) > allowed_characters
+        if page_truncated:
+            page_text = page_text[:allowed_characters]
+            truncated = True
+        bounded.append(page_text)
+        page_reports.append(
+            _page_quality(
+                source_name,
+                page_number,
+                page_text,
+                status="text_present" if page_text else "empty",
+                truncated=page_truncated,
+            )
+        )
+        remaining -= len(page_text) + (separator_characters if page_text else 0)
+        if page_truncated and allowed_characters == 0:
+            remaining = 0
+        if remaining <= 0 and page_number < len(page_texts):
+            truncated = True
+            break
+    return "\n\n".join(part for part in bounded if part).strip(), page_reports, truncated
+
+
+def _page_quality(
+    source_name: str,
+    page_number: int,
+    text: str,
+    *,
+    status: str,
+    locator_scope: str = "page",
+    truncated: bool = False,
+) -> dict[str, object]:
+    printable = sum(1 for character in text if character.isprintable())
+    return {
+        "locator": {"source_name": source_name, "page_number": page_number},
+        "locator_scope": locator_scope,
+        "status": status,
+        "character_count": len(text),
+        "non_whitespace_character_count": sum(1 for character in text if not character.isspace()),
+        "printable_ratio": round(printable / len(text), 4) if text else None,
+        "confidence": {
+            "status": "unavailable",
+            "value": None,
+            "reason": "The text-only OCR API does not expose calibrated page confidence.",
+        },
+        "truncated": truncated,
+    }
+
+
+def _estimate_pdf_page_count(path: Path) -> int | None:
+    try:
+        from pypdf import PdfReader  # type: ignore[import-not-found]
+
+        return len(PdfReader(str(path)).pages)
+    except Exception:
+        try:
+            raw = path.read_bytes()
+        except OSError:
+            return None
+        count = len(re.findall(rb"/Type\s*/Page\b", raw))
+        return count or None
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def _decode_pdf_literal(raw: bytes) -> str:
@@ -1124,12 +1777,32 @@ def _combined_text(results: list[DocumentExtraction]) -> str:
     sections = []
     for result in results:
         sections.append(f"# Source: {result.source_name}")
+        if result.text_origin == OCR_PROVENANCE:
+            sections.append(
+                "<!-- provenance: derived_text/ocr; inspect the source before treating this text as evidence -->"
+            )
         if result.text.strip():
-            sections.append(result.text.strip())
+            sections.append(_escape_embedded_markdown_headings(result.text.strip()))
         else:
             sections.append("_No text extracted._")
         sections.append("")
     return "\n\n".join(sections).rstrip() + "\n"
+
+
+def _escape_embedded_markdown_headings(text: str) -> str:
+    """Prevent source content from impersonating generated source boundaries."""
+
+    escaped: list[str] = []
+    for line in text.splitlines():
+        match = re.match(
+            r"^(\s*)(#+)(\s*source\s*:.*)$",
+            line,
+            flags=re.IGNORECASE,
+        )
+        if match:
+            line = f"{match.group(1)}\\{match.group(2)}{match.group(3)}"
+        escaped.append(line)
+    return "\n".join(escaped)
 
 
 def _combined_annotations(results: list[DocumentExtraction]) -> str:
@@ -1157,7 +1830,9 @@ def _write_tables(results: list[DocumentExtraction], table_dir: Path) -> None:
         for table in result.tables:
             with (table_dir / f"{table.name}.csv").open("w", newline="", encoding="utf-8") as handle:
                 writer = csv.writer(handle)
-                writer.writerows(table.rows)
+                writer.writerows(
+                    [_spreadsheet_safe(value) for value in row] for row in table.rows
+                )
 
 
 def _write_annotations(results: list[DocumentExtraction], output_dir: Path) -> None:
@@ -1174,11 +1849,11 @@ def _write_annotations(results: list[DocumentExtraction], output_dir: Path) -> N
             if annotation.kind in {"highlight", "font_color"}:
                 writer.writerow(
                     {
-                        "source_name": annotation.source_name,
-                        "kind": annotation.kind,
-                        "color": annotation.color,
-                        "text": annotation.text,
-                        "context": annotation.context,
+                        "source_name": _spreadsheet_safe(annotation.source_name),
+                        "kind": _spreadsheet_safe(annotation.kind),
+                        "color": _spreadsheet_safe(annotation.color),
+                        "text": _spreadsheet_safe(annotation.text),
+                        "context": _spreadsheet_safe(annotation.context),
                     }
                 )
 
@@ -1197,6 +1872,21 @@ def _annotation_dict(annotation: AnnotationMark) -> dict[str, str]:
         "context": annotation.context,
         "page_number": "" if annotation.page_number is None else str(annotation.page_number),
     }
+
+
+def _spreadsheet_safe(value: object) -> object:
+    """Force formula-like user content to remain literal in exported CSV files."""
+
+    if isinstance(value, str):
+        candidate = value.lstrip()
+        if candidate.startswith(("+", "-")) and re.fullmatch(
+            r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?",
+            candidate.strip(),
+        ):
+            return value
+        if candidate.startswith(("=", "+", "-", "@")):
+            return "'" + value
+    return value
 
 
 def _comments_markdown(annotations: list[AnnotationMark]) -> str:
@@ -1241,6 +1931,12 @@ def _manifest(results: list[DocumentExtraction]) -> dict[str, object]:
                 "table_count": len(result.tables),
                 "annotation_count": len(result.annotations),
                 "source_url": _safe_source_url(result.source_url),
+                "text_origin": result.text_origin,
+                "ocr_quality_status": (
+                    result.ocr_quality_report.get("status")
+                    if result.ocr_quality_report is not None
+                    else "not_run"
+                ),
                 "warnings": result.warnings,
             }
             for result in results
@@ -1248,10 +1944,33 @@ def _manifest(results: list[DocumentExtraction]) -> dict[str, object]:
         "supported_extensions": sorted(SUPPORTED_EXTENSIONS),
         "boundaries": [
             "Text-based PDFs are supported directly; scanned PDFs and images require optional local OCR.",
+            "OCR output is marked derived_text/ocr and is not strong evidence without source inspection and human review.",
             "URL intake supports public static http(s) pages only; it does not log in, execute JavaScript, or crawl sites.",
-            "Image understanding and professional judgement are not performed by document intake.",
+            "Image, figure, chart, and diagram understanding and professional judgement are not performed by document intake.",
             "Human review is required before using extracted content for problem alignment or evidence audit.",
         ],
+    }
+
+
+def _ocr_quality_package(results: list[DocumentExtraction]) -> dict[str, object]:
+    reports = [
+        result.ocr_quality_report
+        for result in results
+        if result.ocr_quality_report is not None
+    ]
+    return {
+        "schema_version": OCR_REPORT_SCHEMA_VERSION,
+        "reports": reports,
+        "summary": {
+            "ocr_sources": len(reports),
+            "successful": sum(report.get("status") == "success" for report in reports),
+            "partial": sum(report.get("status") == "partial" for report in reports),
+            "failed": sum(report.get("status") == "failed" for report in reports),
+        },
+        "boundary": (
+            "OCR is text derivation only. derived_text/ocr is not strong evidence by default, "
+            "and no figure, chart, diagram, or scientific-image interpretation is performed."
+        ),
     }
 
 
@@ -1270,8 +1989,9 @@ def _warnings_markdown(results: list[DocumentExtraction]) -> str:
             "## Boundary",
             "",
             "- Text-based PDFs are supported directly; scanned PDFs and image files require optional local OCR.",
+            "- OCR-derived text is marked derived_text/ocr and requires source inspection before it can support a claim.",
             "- URL intake supports public static http(s) pages only; it does not log in, execute JavaScript, or crawl sites.",
-            "- No image understanding, figure interpretation, clinical judgement, or education-policy authority is performed.",
+            "- No image understanding, figure/chart/diagram interpretation, clinical judgement, or education-policy authority is performed.",
         ]
     )
     return "\n".join(lines).rstrip() + "\n"

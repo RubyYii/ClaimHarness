@@ -5,6 +5,7 @@
       "text": "The proposed harness improves macro F1 and recall over a baseline rules-only workflow in the accompanying synthetic table.",
       "source_section": "Abstract",
       "source_line": 5,
+      "source_kind": "manuscript",
       "claim_type": "performance_claim",
       "polarity": "positive",
       "requires_evidence": [
@@ -104,6 +105,7 @@
       "text": "It enables auditable review by recording intermediate evidence, low-confidence statements, and replayable trace notes.",
       "source_section": "Abstract",
       "source_line": 5,
+      "source_kind": "manuscript",
       "claim_type": "workflow_claim",
       "polarity": "positive",
       "requires_evidence": [
@@ -191,6 +193,7 @@
       "text": "The workflow is ready for real-world operational deployment.",
       "source_section": "Abstract",
       "source_line": 5,
+      "source_kind": "manuscript",
       "claim_type": "deployment_claim",
       "polarity": "positive",
       "requires_evidence": [
@@ -219,6 +222,7 @@
       "text": "Report review requires reliable boundaries around what a measurement table supports, what a method note explains, and what still needs reviewer judgement.",
       "source_section": "Introduction",
       "source_line": 9,
+      "source_kind": "manuscript",
       "claim_type": "robustness_claim",
       "polarity": "positive",
       "requires_evidence": [
@@ -258,6 +262,7 @@
       "text": "A lightweight harness reduces the risk of opaque model output by separating the task specification, selected context, evidence table, and review decision.",
       "source_section": "Introduction",
       "source_line": 9,
+      "source_kind": "manuscript",
       "claim_type": "workflow_claim",
       "polarity": "positive",
       "requires_evidence": [
@@ -285,6 +290,7 @@
       "text": "The first design goal is to make every report claim traceable to a table row, a text passage, or a limitation statement.",
       "source_section": "Introduction",
       "source_line": 9,
+      "source_kind": "manuscript",
       "claim_type": "novelty_claim",
       "polarity": "positive",
       "requires_evidence": [
@@ -298,6 +304,7 @@
       "text": "The workflow uses an explainable evidence summary, a confidence note, and a structured trace replay for each synthetic report section.",
       "source_section": "Methods",
       "source_line": 13,
+      "source_kind": "manuscript",
       "claim_type": "workflow_claim",
       "polarity": "positive",
       "requires_evidence": [
@@ -433,6 +440,7 @@
       "text": "The human review gate supports manual inspection when evidence confidence is low or when the model highlights an ambiguous claim.",
       "source_section": "Methods",
       "source_line": 13,
+      "source_kind": "manuscript",
       "claim_type": "workflow_claim",
       "polarity": "positive",
       "requires_evidence": [
@@ -460,6 +468,7 @@
       "text": "Trace replay enables reviewers to see which table metrics, ablation rows, and limitation notes were available before a claim was labeled.",
       "source_section": "Methods",
       "source_line": 13,
+      "source_kind": "manuscript",
       "claim_type": "workflow_claim",
       "polarity": "positive",
       "requires_evidence": [
@@ -583,6 +592,7 @@
       "text": "The evidence_guided_reviewer_v1 model outperforms the baseline_rules model on macro F1, precision, and recall in the synthetic metric table.",
       "source_section": "Results",
       "source_line": 17,
+      "source_kind": "manuscript",
       "claim_type": "performance_claim",
       "polarity": "positive",
       "requires_evidence": [
@@ -658,6 +668,7 @@
       "text": "Adding the human review gate increases macro F1 from 0.86 to 0.88 and recall from 0.83 to 0.85 in the controlled benchmark.",
       "source_section": "Results",
       "source_line": 17,
+      "source_kind": "manuscript",
       "claim_type": "performance_claim",
       "polarity": "positive",
       "requires_evidence": [
@@ -733,6 +744,7 @@
       "text": "The full harness improves workflow success rate from 0.70 in the answer-only setting to 0.86 when evidence logging, human review, and trace replay are all enabled.",
       "source_section": "Results",
       "source_line": 17,
+      "source_kind": "manuscript",
       "claim_type": "performance_claim",
       "polarity": "positive",
       "requires_evidence": [
@@ -832,6 +844,7 @@
       "text": "The compact reviewer is less reliable around ambiguous limitation statements despite being faster in informal synthetic checks.",
       "source_section": "Results",
       "source_line": 17,
+      "source_kind": "manuscript",
       "claim_type": "robustness_claim",
       "polarity": "positive",
       "requires_evidence": [
@@ -859,6 +872,7 @@
       "text": "The table evidence supports claims about review metrics and workflow ablation under the synthetic benchmark.",
       "source_section": "Discussion",
       "source_line": 21,
+      "source_kind": "manuscript",
       "claim_type": "workflow_claim",
       "polarity": "positive",
       "requires_evidence": [
@@ -886,6 +900,7 @@
       "text": "The workflow is robust to missing trace commentary only in the narrow sense that CSV metrics can still be inspected manually.",
       "source_section": "Discussion",
       "source_line": 21,
+      "source_kind": "manuscript",
       "claim_type": "robustness_claim",
       "polarity": "positive",
       "requires_evidence": [
@@ -913,6 +928,7 @@
       "text": "ClaimHarness enables a compact demonstration of claim extraction, evidence linking, conservative verification, human-review routing, and trace logging for technical or scientific writing.",
       "source_section": "Conclusion",
       "source_line": 25,
+      "source_kind": "manuscript",
       "claim_type": "workflow_claim",
       "polarity": "positive",
       "requires_evidence": [

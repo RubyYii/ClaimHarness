@@ -1,4 +1,6 @@
+import hashlib
 from importlib import resources
+import json
 import os
 from pathlib import Path
 import re
@@ -159,6 +161,7 @@ def test_ci_workflow_and_packaged_prompt_are_present():
     workflow_text = workflow.read_text(encoding="utf-8")
     assert "pytest" in workflow_text
     assert "python-version" in workflow_text
+    assert workflow_text.count('-e ".[dev,ui]"') == 2
 
     prompt = resources.files("claim_harness").joinpath("prompts/audit_summary.md")
     assert prompt.is_file()
@@ -190,6 +193,8 @@ def test_external_review_packaging_is_present():
         "misalignment_risk_report.md",
         "project_record.json",
         "project_summary_log.md",
+        "run_identity.json",
+        "run_complete.json",
     ]
     for sample_dir in (
         Path("docs/sample_outputs/quality_inspection_alignment"),
@@ -206,11 +211,33 @@ def test_external_review_packaging_is_present():
         "agent_trace.jsonl",
         "run_manifest.json",
         "project_summary_log.md",
+        "run_identity.json",
+        "run_complete.json",
         "index.html",
     ]
     sample_dir = Path("docs/sample_outputs/claimharness_lab_report_audit_demo")
     for filename in claimharness_required:
         assert (sample_dir / filename).is_file(), sample_dir / filename
+
+
+def test_committed_sample_runs_have_verifiable_completion_provenance():
+    from problem_bridge.project_lifecycle import load_run_completion
+
+    sample_root = Path("docs/sample_outputs")
+    sample_names = [
+        "claimharness_lab_report_audit_demo",
+        "quality_inspection_alignment",
+        "cultural_archive_alignment",
+        "training_policy_alignment",
+    ]
+    for name in sample_names:
+        sample = sample_root / name
+        identity = json.loads((sample / "run_identity.json").read_text(encoding="utf-8"))
+        completion = load_run_completion(sample)
+
+        assert completion["project_id"] == identity["project_id"]
+        assert completion["run_id"] == identity["run_id"]
+        assert completion["artifact_sha256"]
 
 
 def test_guided_ui_is_documented_for_non_ai_users():
@@ -532,6 +559,42 @@ def test_document_intake_accepts_manual_upload_fallback_text():
     assert "Manual fallback workflow text" in (out / "problem_seed.md").read_text(encoding="utf-8")
 
 
+def test_document_intake_never_overwrites_duplicate_upload_names_or_fallback(tmp_path, monkeypatch):
+    import apps.problem_bridge_wizard as ui
+    from problem_bridge.project_lifecycle import load_run_completion
+
+    class Upload:
+        def __init__(self, name: str, data: bytes):
+            self.name = name
+            self._data = data
+
+        def getvalue(self):
+            return self._data
+
+    monkeypatch.setattr(ui, "RUN_ROOT", tmp_path / "ui_runs")
+    out = ui._run_document_intake(
+        [
+            Upload("notes.md", b"first source"),
+            Upload("notes.md", b"second source"),
+            Upload("manual_upload_fallback.md", b"uploaded fallback name"),
+        ],
+        pasted_text="pasted fallback source",
+    )
+
+    source_names = sorted(path.name for path in (out / "source_files").iterdir())
+    assert source_names == [
+        "manual_upload_fallback.md",
+        "manual_upload_fallback__2.md",
+        "notes.md",
+        "notes__2.md",
+    ]
+    assert (out / "source_files" / "notes.md").read_bytes() == b"first source"
+    assert (out / "source_files" / "notes__2.md").read_bytes() == b"second source"
+    completion = load_run_completion(out)
+    assert "source_files/notes.md" in completion["artifact_sha256"]
+    assert "source_files/notes__2.md" in completion["artifact_sha256"]
+
+
 def test_document_intake_can_continue_into_question_discovery():
     import apps.problem_bridge_wizard as ui
 
@@ -618,7 +681,7 @@ def test_ocr_setup_guide_has_visual_install_instructions():
     guide = guide_path.read_text(encoding="utf-8")
     html = html_path.read_text(encoding="utf-8")
     for phrase in [
-        "pip install -e \".[ui,ocr]\"",
+        "pip install -c requirements/constraints.txt -e \".[ui,ocr]\"",
         "UB-Mannheim",
         "brew install tesseract poppler",
         "sudo apt install tesseract-ocr poppler-utils",
@@ -690,12 +753,17 @@ def test_question_discovery_layer_is_documented_and_in_ui():
     assert "question brief" in showcase_en
 
 def test_release_packaging_support_is_present():
-    release_version = "0.3.3"
+    release_version = "0.4.0"
     package_name = f"ProblemBridge-ClaimHarness-v{release_version}-local-webapp.zip"
     required_files = [
         Path("RUN_PROBLEMBRIDGE_WINDOWS.bat"),
         Path("scripts/build_release_zip_powershell.ps1"),
         Path("scripts/test_release_zip_powershell.ps1"),
+        Path("scripts/build_and_test_release_powershell.ps1"),
+        Path("scripts/setup_problembridge_windows.ps1"),
+        Path("scripts/setup_problembridge_windows.bat"),
+        Path("requirements/constraints.txt"),
+        Path(".gitattributes"),
         Path("RELEASE_PACKAGE_GUIDE.md"),
         Path("README.zh-CN.md"),
         Path("docs/static_showcase/index.html"),
@@ -710,12 +778,24 @@ def test_release_packaging_support_is_present():
     assert "pause" in launcher.lower()
 
     build_script = Path("scripts/build_release_zip_powershell.ps1").read_text(encoding="utf-8")
-    assert package_name in build_script
+    assert 'Read-ReleaseVersion' in build_script
+    assert '$derivedVersion = "v$projectVersion"' in build_script
+    assert "Requested release version" in build_script
     assert "git archive" in build_script
+    assert "Get-FileHash" in build_script
+    assert "manifest.json" in build_script
+    assert "sample_runs" in build_script
+    assert "archive_entry_count" in build_script
+    assert "archive_text_entry_count" in build_script
+    assert "Release archive text is not LF-normalized" in build_script
     assert "dist" in build_script
 
     test_script = Path("scripts/test_release_zip_powershell.ps1").read_text(encoding="utf-8")
-    assert package_name in test_script
+    assert "clean-smoke-venv" in test_script
+    assert '-c $constraints ".[dev,ui]"' in test_script
+    assert "--no-build-isolation" in test_script
+    assert "PIP_REQUIRE_VIRTUALENV" in test_script
+    assert "$sampleGate" in test_script
     assert f'version = "{release_version}"' in Path("pyproject.toml").read_text(encoding="utf-8")
     assert f'__version__ = "{release_version}"' in Path("claim_harness/__init__.py").read_text(encoding="utf-8")
     assert f'__version__ = "{release_version}"' in Path("problem_bridge/__init__.py").read_text(encoding="utf-8")
@@ -727,19 +807,59 @@ def test_release_packaging_support_is_present():
         "claim_harness/run_records.py",
         "claim_harness/demo_data/manuscript.md",
         "problem_bridge/revision_governance.py",
+        "problem_bridge/project_lifecycle.py",
         "problem_bridge/demo_data/problem.md",
+        "claim_harness/evidence_contract.py",
+        "claim_harness/evaluation.py",
+        "claim_harness/eval_data/gold_claims.jsonl",
+        "scripts/evaluate_gold_set.py",
+        "requirements/constraints.txt",
         "$pythonFiles",
-        "$isolatedRunner",
         "README.zh-CN.md",
         "docs/static_showcase/en.html",
         "docs/static_showcase/zh-CN.html",
         "py_compile",
+        "pip check",
     ]:
         assert phrase in test_script
     assert "streamlit run" not in test_script
     pyproject = Path("pyproject.toml").read_text(encoding="utf-8")
+    gitignore = Path(".gitignore").read_text(encoding="utf-8")
     assert '"demo_data/*.md"' in pyproject
     assert '"demo_data/tables/*.csv"' in pyproject
+    assert '"eval_data/*.jsonl"' in pyproject
+    assert "build/" in gitignore
+
+    constraints = Path("requirements/constraints.txt").read_text(encoding="utf-8")
+    for pinned_requirement in [
+        "pip==25.0.1",
+        "pydantic==2.10.6",
+        "pandas==2.2.3",
+        "pypdf==5.1.0",
+        "typer==0.15.1",
+        "click==8.1.8",
+        "rich==13.9.4",
+        "pytest==8.3.4",
+        "build==1.2.2.post1",
+        "setuptools==75.6.0",
+        "wheel==0.45.1",
+        "streamlit==1.41.1",
+        "pytesseract==0.3.13",
+        "pdf2image==1.17.0",
+        "Pillow==11.0.0",
+        "pydantic-core==2.27.2",
+        "numpy==2.2.1",
+        "packaging==24.2",
+        "pyproject-hooks==1.2.0",
+    ]:
+        assert pinned_requirement in constraints
+    assert '"click>=8.1.7,<8.2"' in pyproject
+
+    attributes = Path(".gitattributes").read_text(encoding="utf-8")
+    assert "* text=auto eol=lf" in attributes
+    assert "*.ps1 text eol=lf" in attributes
+    assert "*.bat text eol=lf" in attributes
+    assert "*.png binary" in attributes
 
     guide = Path("RELEASE_PACKAGE_GUIDE.md").read_text(encoding="utf-8")
     for phrase in [
@@ -861,22 +981,28 @@ def test_model_provider_guide_is_present():
 def test_windows_launchers_are_robust_for_double_click_usage():
     bat = Path("scripts/run_problembridge_ui_windows.bat").read_text(encoding="utf-8")
     ps1 = Path("scripts/run_problembridge_ui_powershell.ps1").read_text(encoding="utf-8")
+    setup = Path("scripts/setup_problembridge_windows.ps1").read_text(encoding="utf-8")
     readme = Path("README.md").read_text(encoding="utf-8")
 
     assert 'cd /d "%~dp0\\.."' in bat
-    assert "where py" in bat
-    assert "where python" in bat
+    assert "setup_problembridge_windows.bat" in bat
+    assert ".claimharness_setup_v0.4.0" in bat
     assert ".venv\\Scripts\\python.exe" in bat
     assert "http://127.0.0.1:8501" in bat
     assert "--server.headless true" in bat
     assert "pause" in bat.lower()
 
     assert '$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path' in ps1
-    assert "Get-Command py" in ps1
-    assert "Get-Command python" in ps1
+    assert "setup_problembridge_windows.ps1" in ps1
+    assert ".claimharness_setup_v0.4.0" in ps1
     assert ".venv\\Scripts\\python.exe" in ps1
     assert "http://127.0.0.1:8501" in ps1
     assert "--server.headless" in ps1
+
+    assert "Get-Command py" in setup
+    assert "Get-Command python" in setup
+    assert "requirements\\constraints.txt" in setup
+    assert '-c $constraints -e ".[dev,ui]"' in setup
 
     assert "If the Windows launcher does not load" in readme
     assert "Static HTML is best for viewing examples only" in readme
@@ -894,22 +1020,34 @@ def _assert_immediate_native_exit_check(script_text, invocation):
 
 def test_powershell_native_commands_check_exit_codes_immediately():
     launcher = Path("scripts/run_problembridge_ui_powershell.ps1").read_text(encoding="utf-8")
+    setup = Path("scripts/setup_problembridge_windows.ps1").read_text(encoding="utf-8")
     release_test = Path("scripts/test_release_zip_powershell.ps1").read_text(encoding="utf-8")
     release_build = Path("scripts/build_release_zip_powershell.ps1").read_text(encoding="utf-8")
 
     for invocation in [
         "& py -3 -m venv .venv",
         "& python -m venv .venv",
-        "& $venvPython -m pip install --upgrade pip",
-        '& $venvPython -m pip install -e ".[dev,ui]"',
+        '& $venvPython -m pip install "pip==25.0.1"',
+        '& $venvPython -m pip install -c $constraints -e ".[dev,ui]"',
+    ]:
+        _assert_immediate_native_exit_check(setup, invocation)
+
+    for invocation in [
         "& $venvPython -m streamlit run",
     ]:
         _assert_immediate_native_exit_check(launcher, invocation)
 
     for invocation in [
-        "& $python -m py_compile $pythonFile.FullName",
-        '& $python -c $isolatedRunner $packageDir.FullName $repoRoot "claim_harness"',
-        '& $python -c $isolatedRunner $packageDir.FullName $repoRoot "problem_bridge"',
+        "& $bootstrapPython @bootstrapArgs -m py_compile $pythonFile.FullName",
+        "& $bootstrapPython @bootstrapArgs -m venv $smokeVenv",
+        '& $venvPython -m pip install --disable-pip-version-check -c $constraints "pip==25.0.1"',
+        '& $venvPython -m pip install --disable-pip-version-check --no-build-isolation -c $constraints ".[dev,ui]"',
+        "& $venvPython -m pip check",
+        "& $venvPython -c $installGate $smokeVenv $repoRoot",
+        "& $venvPython -c $sampleGate $packageDir.FullName",
+        "& $venvPython -m claim_harness demo --out $claimOut",
+        "& $venvPython -m problem_bridge demo --out $problemOut",
+        '& $venvPython (Join-Path $packageDir.FullName "scripts\\evaluate_gold_set.py")',
     ]:
         _assert_immediate_native_exit_check(release_test, invocation)
 
@@ -917,6 +1055,7 @@ def test_powershell_native_commands_check_exit_codes_immediately():
         release_build, "git status --porcelain --untracked-files=all"
     )
     _assert_immediate_native_exit_check(release_build, "git archive --format=zip")
+    _assert_immediate_native_exit_check(release_build, "git rev-parse HEAD")
 
 
 def _powershell_executable():
@@ -933,13 +1072,20 @@ def _write_release_zip_from_project(zip_path, *, omit=(), overrides=None):
         Path("apps"),
         Path("examples/problem_bridge"),
         Path("docs/static_showcase"),
+        Path("docs/sample_outputs"),
     ]
     individual_files = [
+        Path(".gitattributes"),
         Path("README.md"),
         Path("README.zh-CN.md"),
         Path("NON_AI_USER_GUIDE.md"),
         Path("RUN_PROBLEMBRIDGE_WINDOWS.bat"),
         Path("scripts/run_problembridge_ui_windows.bat"),
+        Path("scripts/setup_problembridge_windows.ps1"),
+        Path("scripts/setup_problembridge_windows.bat"),
+        Path("scripts/evaluate_gold_set.py"),
+        Path("requirements/constraints.txt"),
+        Path("docs/v0.4_upgrade.md"),
         Path("pyproject.toml"),
     ]
     files = list(individual_files)
@@ -981,12 +1127,101 @@ def _run_release_zip_test(zip_path):
     )
 
 
+def _skip_if_strict_release_install_is_offline(result):
+    output = result.stdout + result.stderr
+    if (
+        result.returncode != 0
+        and "Could not install constrained build tooling" in output
+        and (
+            "Failed to establish a new connection" in output
+            or "Temporary failure in name resolution" in output
+            or "No matching distribution found" in output
+            or "ResolutionImpossible" in output
+        )
+    ):
+        pytest.skip("Strict clean-venv release smoke needs package-index access.")
+
+
+def _write_minimal_release_build_fixture(root: Path, *, version: str = "0.4.0") -> None:
+    (root / ".gitattributes").write_text("* text=auto eol=lf\n", encoding="utf-8")
+    (root / "claim_harness").mkdir(parents=True, exist_ok=True)
+    (root / "problem_bridge").mkdir(parents=True, exist_ok=True)
+    (root / "pyproject.toml").write_text(
+        f'[project]\nname = "release-fixture"\nversion = "{version}"\n',
+        encoding="utf-8",
+    )
+    for package in ("claim_harness", "problem_bridge"):
+        (root / package / "__init__.py").write_text(
+            f'__version__ = "{version}"\n', encoding="utf-8"
+        )
+
+    sample_names = [
+        "claimharness_lab_report_audit_demo",
+        "quality_inspection_alignment",
+        "cultural_archive_alignment",
+        "training_policy_alignment",
+    ]
+    for index, sample_name in enumerate(sample_names, start=1):
+        sample = root / "docs" / "sample_outputs" / sample_name
+        sample.mkdir(parents=True, exist_ok=True)
+        artifact = sample / "artifact.txt"
+        artifact.write_bytes(f"sample artifact {index}\n".encode("utf-8"))
+        project_id = f"sample-project-{index}"
+        run_id = f"run-sample-{index}"
+        identity = {
+            "schema_version": 2,
+            "project_id": project_id,
+            "run_id": run_id,
+        }
+        identity_path = sample / "run_identity.json"
+        identity_path.write_text(json.dumps(identity), encoding="utf-8")
+        completion = {
+            "schema_version": 2,
+            "project_id": project_id,
+            "run_id": run_id,
+            "run_identity_sha256": hashlib.sha256(identity_path.read_bytes()).hexdigest(),
+            "artifact_sha256": {
+                "artifact.txt": hashlib.sha256(artifact.read_bytes()).hexdigest()
+            },
+        }
+        (sample / "run_complete.json").write_text(
+            json.dumps(completion), encoding="utf-8"
+        )
+
+
+def _commit_release_build_fixture(root: Path) -> str:
+    subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "config", "user.email", "release-test@example.test"],
+        cwd=root,
+        check=True,
+    )
+    subprocess.run(
+        ["git", "config", "user.name", "Release Test"], cwd=root, check=True
+    )
+    subprocess.run(["git", "add", "."], cwd=root, check=True)
+    subprocess.run(
+        ["git", "commit", "-m", "release fixture"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+    )
+    return subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+
 @pytest.mark.skipif(_powershell_executable() is None, reason="PowerShell is not available")
 def test_release_zip_script_runs_both_packaged_demos_from_extracted_source(tmp_path):
     zip_path = tmp_path / "valid-release.zip"
     _write_release_zip_from_project(zip_path)
 
     result = _run_release_zip_test(zip_path)
+    _skip_if_strict_release_install_is_offline(result)
 
     output = result.stdout + result.stderr
     assert result.returncode == 0, output
@@ -1016,6 +1251,7 @@ def test_release_zip_script_rejects_missing_imported_module(tmp_path):
     _write_release_zip_from_project(zip_path, omit={"claim_harness/llm.py"})
 
     result = _run_release_zip_test(zip_path)
+    _skip_if_strict_release_install_is_offline(result)
 
     output = result.stdout + result.stderr
     assert result.returncode != 0
@@ -1128,3 +1364,241 @@ def test_release_build_script_rejects_dirty_worktree(tmp_path):
     assert result.returncode != 0
     assert "Working tree is dirty" in output
     assert "Release package written" not in output
+
+
+@pytest.mark.skipif(
+    _powershell_executable() is None or shutil.which("git") is None,
+    reason="PowerShell and Git are required",
+)
+def test_release_build_writes_commit_bound_manifest_and_sha256(tmp_path):
+    scripts_dir = tmp_path / "scripts"
+    scripts_dir.mkdir()
+    copied_script = scripts_dir / "build_release_zip_powershell.ps1"
+    copied_script.write_text(
+        Path("scripts/build_release_zip_powershell.ps1").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    (tmp_path / "README.md").write_text("release fixture\n", encoding="utf-8")
+    _write_minimal_release_build_fixture(tmp_path)
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "config", "user.email", "release-test@example.test"],
+        cwd=tmp_path,
+        check=True,
+    )
+    subprocess.run(
+        ["git", "config", "user.name", "Release Test"],
+        cwd=tmp_path,
+        check=True,
+    )
+    subprocess.run(["git", "add", "."], cwd=tmp_path, check=True)
+    subprocess.run(
+        ["git", "commit", "-m", "release fixture"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+
+    result = subprocess.run(
+        [
+            _powershell_executable(),
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(copied_script),
+        ],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    output = result.stdout + result.stderr
+    package = tmp_path / "dist" / "ProblemBridge-ClaimHarness-v0.4.0-local-webapp.zip"
+    manifest_path = Path(f"{package}.manifest.json")
+    sha_path = Path(f"{package}.sha256")
+    assert result.returncode == 0, output
+    assert package.is_file()
+    assert manifest_path.is_file()
+    assert sha_path.is_file()
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
+    actual_hash = hashlib.sha256(package.read_bytes()).hexdigest()
+    expected_commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    assert manifest["git_commit"] == expected_commit
+    assert manifest["sha256"] == actual_hash
+    assert manifest["version"] == "v0.4.0"
+    assert manifest["project_version"] == "0.4.0"
+    assert manifest["archive_root"] == "ProblemBridge-ClaimHarness-v0.4.0"
+    assert manifest["archive_entry_count"] > 0
+    assert manifest["archive_text_entry_count"] > 0
+    assert len(manifest["sample_runs"]) == 4
+    assert sha_path.read_text(encoding="ascii").startswith(actual_hash)
+
+
+@pytest.mark.skipif(
+    _powershell_executable() is None or shutil.which("git") is None,
+    reason="PowerShell and Git are required",
+)
+def test_release_build_rejects_version_override_mismatch(tmp_path):
+    scripts_dir = tmp_path / "scripts"
+    scripts_dir.mkdir()
+    copied_script = scripts_dir / "build_release_zip_powershell.ps1"
+    copied_script.write_text(
+        Path("scripts/build_release_zip_powershell.ps1").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    _write_minimal_release_build_fixture(tmp_path)
+    _commit_release_build_fixture(tmp_path)
+
+    result = subprocess.run(
+        [
+            _powershell_executable(),
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(copied_script),
+            "-Version",
+            "v9.9.9",
+        ],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    output = result.stdout + result.stderr
+    assert result.returncode != 0
+    assert "does not match project version v0.4.0" in output
+    assert "Release package written" not in output
+
+
+@pytest.mark.skipif(
+    _powershell_executable() is None or shutil.which("git") is None,
+    reason="PowerShell and Git are required",
+)
+def test_release_build_rejects_package_metadata_version_mismatch(tmp_path):
+    scripts_dir = tmp_path / "scripts"
+    scripts_dir.mkdir()
+    copied_script = scripts_dir / "build_release_zip_powershell.ps1"
+    copied_script.write_text(
+        Path("scripts/build_release_zip_powershell.ps1").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    _write_minimal_release_build_fixture(tmp_path)
+    (tmp_path / "problem_bridge" / "__init__.py").write_text(
+        '__version__ = "0.3.9"\n', encoding="utf-8"
+    )
+    _commit_release_build_fixture(tmp_path)
+
+    result = subprocess.run(
+        [
+            _powershell_executable(),
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(copied_script),
+        ],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    output = result.stdout + result.stderr
+    assert result.returncode != 0
+    assert "Release version mismatch" in output
+    assert "problem_bridge=0.3.9" in output
+    assert "Release package written" not in output
+
+
+@pytest.mark.skipif(
+    _powershell_executable() is None or shutil.which("git") is None,
+    reason="PowerShell and Git are required",
+)
+def test_release_build_rejects_corrupt_sample_provenance(tmp_path):
+    scripts_dir = tmp_path / "scripts"
+    scripts_dir.mkdir()
+    copied_script = scripts_dir / "build_release_zip_powershell.ps1"
+    copied_script.write_text(
+        Path("scripts/build_release_zip_powershell.ps1").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    _write_minimal_release_build_fixture(tmp_path)
+    corrupt_artifact = (
+        tmp_path
+        / "docs"
+        / "sample_outputs"
+        / "quality_inspection_alignment"
+        / "artifact.txt"
+    )
+    corrupt_artifact.write_text("content changed after completion\n", encoding="utf-8")
+    _commit_release_build_fixture(tmp_path)
+
+    result = subprocess.run(
+        [
+            _powershell_executable(),
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(copied_script),
+        ],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    output = result.stdout + result.stderr
+    assert result.returncode != 0
+    assert "Sample completion SHA-256 mismatch" in output
+    assert "Release package written" not in output
+    assert not (tmp_path / "dist" / "ProblemBridge-ClaimHarness-v0.4.0-local-webapp.zip").exists()
+
+
+@pytest.mark.skipif(
+    _powershell_executable() is None or shutil.which("git") is None,
+    reason="PowerShell and Git are required",
+)
+def test_release_build_rejects_non_lf_release_text(tmp_path):
+    scripts_dir = tmp_path / "scripts"
+    scripts_dir.mkdir()
+    copied_script = scripts_dir / "build_release_zip_powershell.ps1"
+    copied_script.write_text(
+        Path("scripts/build_release_zip_powershell.ps1").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    _write_minimal_release_build_fixture(tmp_path)
+    (tmp_path / ".gitattributes").write_bytes(b"* text=auto eol=lf\r\nbad.txt -text\r\n")
+    (tmp_path / "bad.txt").write_bytes(b"not normalized\r\n")
+    _commit_release_build_fixture(tmp_path)
+
+    result = subprocess.run(
+        [
+            _powershell_executable(),
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(copied_script),
+        ],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    output = result.stdout + result.stderr
+    assert result.returncode != 0
+    assert "Release archive text is not LF-normalized: bad.txt" in output
+    assert "Release package written" not in output
+    assert not (tmp_path / "dist" / "ProblemBridge-ClaimHarness-v0.4.0-local-webapp.zip").exists()

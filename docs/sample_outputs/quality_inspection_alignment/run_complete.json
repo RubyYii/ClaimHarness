@@ -1,0 +1,20 @@
+{
+  "artifact_sha256": {
+    "ai_task_spec.yaml": "2c9cd6bf62c2df05134d95a0bcd7332607c0558344ccb3658b47e4fd664291de",
+    "alignment_trace.jsonl": "51f089e13f78957ea38ff6ecd658d9dc467c2fa479ec9cbb8438026272829889",
+    "concept_alignment_table.csv": "611bfd175cd2019a27914d8ff1aefcb6836ecc60efdb46f682ec3943df834f52",
+    "evaluation_protocol.md": "76197bc496e523650a8a9a3f1e3e0dad5184dd6bb743b267f12cf3735e8d1c53",
+    "evidence_contract.yaml": "b428f8ccf4d903a8e23360a88693efb0a340d69ee8af7d4992383c8079e0eafd",
+    "human_in_loop_plan.md": "098bc9c2a9ca32b8d95eb5414fac96153f58277e8cd427113facfbe791b54ca3",
+    "implementation_routes.md": "d9fe40edfb88f8ea42bb6043a87500912fa65270f9ff3774d82067073bc5e187",
+    "misalignment_risk_report.md": "aa97910b129eb91f6252982fbc27a99eb02b3801253428b46b697ffca3097e8f",
+    "painpoint_opportunity_matrix.csv": "194a57e40ad0a0e336fbe3abda7b303e67186e7d594b817e5b7c7cb93fc2043f",
+    "problem_card.md": "725789204666de16e038a38fa51faed26842f5933a451ef860454a7a3aaa515d",
+    "workflow_map.md": "5ae0e0c2a7d9ef7cf1cf197534b16dd243b8e3d7b99a2f2d708d224aee710c2a"
+  },
+  "completed_at": "2026-07-11T07:11:48.923508+00:00",
+  "project_id": "sample-quality-inspection",
+  "run_id": "run-d245ae332e8f4552a33c5c7f5f9692c8",
+  "run_identity_sha256": "05526038b881a1b903b0ac7074b7530a221350712fff23d042e9c9b42b035338",
+  "schema_version": 2
+}

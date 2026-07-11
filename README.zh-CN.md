@@ -98,6 +98,7 @@ ProblemBridge + ClaimHarness 是一个本地优先的跨学科 AI 原型。它�
 - `comment_threads.md`
 - `priority_marks.md`
 - `source_manifest.json`
+- `ocr_quality_report.json`
 - `extraction_warnings.md`
 - `problem_seed.md`
 
@@ -105,7 +106,11 @@ ProblemBridge + ClaimHarness 是一个本地优先的跨学科 AI 原型。它�
 
 Word 批注、PDF 批注、高亮和字体颜色会被当作“用户注意力信号”保留下来，用于后续追问；系统不会自动推断某种颜色一定代表“高风险”或“已通过”。
 
-边界很重要：OCR 是可选本地能力，不是默认依赖；URL 摄取只读取公开静态网页；不支持登录网页、JavaScript 执行、站点爬取、图片理解、figure 解释、手写标注意图识别或专业判断。它只负责提取文本、简单表格、链接和基础标注信号，不验证专业结论，也不能替代领域专家复核。
+边界很重要：OCR 是可选本地能力，不是默认依赖；URL 摄取只读取公开静态网页；不支持登录网页、JavaScript 执行、站点爬取、图片理解、figure 解释、手写标注意图识别或专业判断。它只负责提取文本、简单表格、链接和基础标注信号，不验证专业结论，也不能替代领域专家复核。OCR 同时受文件大小、页数、字符数、单次操作超时、PDF DPI 和单页像素上限约束。来自 OCR 的 claim 会标记为 `derived_text/ocr` 并进入人工原件核对；OCR 文本及 OCR 来源的“复核记录”本身都不能满足强证据或人工批准要求。
+
+混合文字/扫描 PDF 按页 fail closed：如果部分页面能直接提取文字，而另一些页面没有文字层，系统会保留已提取的直接文本，在 `extraction_warnings.md` 中列出全部无文本页，但不会把这些页静默 OCR 后与直接文本合并，因为页级对应关系可能产生歧义。启用 OCR 时，`ocr_quality_report.json` 会记录 `mixed_pdf_requires_page_review` 及受影响页码。请人工查看原件；必要时把扫描页拆成单独的纯扫描 PDF 或图片再做 OCR。无文本页也可能本来就是空白页，因此警告不等于证明该页含扫描内容。
+
+在 UI 中启用 OCR 后，可选择 `eng`、`chi_sim` 或 `eng+chi_sim`；对应 Tesseract 语言包必须已经安装。英文界面默认 `eng`，中文界面默认 `eng+chi_sim`，但系统不会自动检测文档语言。选择结果会写入 OCR 报告和运行规格。
 
 OCR 图文安装说明见 [OCR_SETUP.md](OCR_SETUP.md)，也可以直接打开本地网页 [docs/ocr_setup.html](docs/ocr_setup.html)。
 ## 问题发现层
@@ -175,6 +180,7 @@ ProblemBridge 用在 AI 工作开始之前，输出一个 Problem Alignment Pack
 - `project_record.json`
 - `project_summary_log.md`
 - 首次记录修订后生成的 `revision_history.jsonl`
+- 生命周期治理运行中的 `run_identity.json` 和 `run_complete.json`
 
 ### ClaimHarness
 
@@ -187,6 +193,9 @@ ClaimHarness 用在文本或系统输出之后，输出一个 evidence audit pac
 - `agent_trace.jsonl`
 - `run_manifest.json`
 - `project_summary_log.md`
+- `run_identity.json`
+- `run_complete.json`
+- 提供 `--evidence-contract` 时生成的可选 `applied_evidence_contract.json`
 - 可选静态报告 `index.html`
 
 本地网页工作台还可以把任意生成结果目录导出为 `export_report.docx` 和 `export_report.pdf`。导出内容来自输出目录里已有的 Markdown、CSV、YAML、JSON 和 trace 文件，在本地生成，不需要 API key，也不会调用远程模型。
@@ -221,7 +230,7 @@ CLI 用户可以运行：
 
 ```powershell
 python -m venv .venv
-.venv\Scripts\python.exe -m pip install -e ".[dev,ui]"
+.venv\Scripts\python.exe -m pip install -c requirements\constraints.txt -e ".[dev,ui]"
 .venv\Scripts\python.exe -m problem_bridge demo
 .venv\Scripts\python.exe -m claim_harness demo
 ```
@@ -231,7 +240,7 @@ python -m venv .venv
 如果要分享给别人测试，可以发送本地压缩包：
 
 ```text
-ProblemBridge-ClaimHarness-v0.3.3-local-webapp.zip
+ProblemBridge-ClaimHarness-v0.4.0-local-webapp.zip
 ```
 
 对方解压后双击：
@@ -261,6 +270,8 @@ RUN_PROBLEMBRIDGE_WINDOWS.bat
 
 本地网页 UI 不接收、收集或保存 API key。侧边栏的 `显示工作台记忆` 只保存草稿字段和最近输出目录，文件位于 `outputs/ui_memory/workbench_memory.json`。分享文件夹或 zip 前，如果草稿里有敏感工作流信息，请先清除本地记忆。
 
+远程 provider 的公共 provenance 只保存 provider 名称、API style、模型、JSON mode 和 endpoint origin（协议、主机、端口），不保存 API key、URL 凭据、endpoint 路径或 query。完整 endpoint 配置只通过 `run_spec_sha256` 间接绑定，用于发现配置漂移，而不会把完整 URL 或凭据写进运行包。
+
 Qwen / DashScope 可以使用 `qwen` provider：设置 `DASHSCOPE_API_KEY`，可选设置 `QWEN_BASE_URL` 和 `QWEN_MODEL`。
 
 ## 三轮修订治理
@@ -268,6 +279,41 @@ Qwen / DashScope 可以使用 `qwen` provider：设置 `DASHSCOPE_API_KEY`，可
 ProblemBridge 输出包现在包含 `project_record.json` 和 `project_summary_log.md`。可以用 `problem-bridge record-revision` 把每轮修改追加到 `revision_history.jsonl`。同一个稳定 target 最多修订三轮：第三轮仍未解决时必须升级为结构、规格或证据问题；在完成整合前，不允许继续打第四个局部补丁。
 
 ClaimHarness 每次审计都会生成 `run_manifest.json` 和 `project_summary_log.md`。manifest 记录 run ID、工具版本、时间、provider 状态，以及输入/输出文件名、大小和 SHA-256，不暴露本地绝对路径；Markdown 摘要只是导航和 provenance 辅助，不是科学证据或批准记录。
+
+v0.4 使用修订记录 schema v3：每条记录绑定不可变的 `project_id`，并包含 revision/parent ID、输入输出文件哈希、记录哈希链、跨进程文件锁和并发冲突检测。旧 v1/v2 记录不会在正常流程中直接读取或追加，必须运行 `problem-bridge migrate-revision-history`，并明确输入完全一致的项目 ID 后才能迁移。三轮上限没有放宽；第三轮必须接受或升级，不能继续写第四轮。
+
+`problem-bridge record-revision` CLI 现在必须选择且只能选择一种证据路线：至少提供一个可重复的 `--output-artifact`（相对于 `--project` 目录解析），或者在确实没有可哈希结果时提供 `--no-artifact-hash-reason "..."`。两者不能同时使用。`--changed-file` 只是描述字段，不能代替输出哈希；缺失原因只记录证据缺口，并不提供文件完整性。
+
+## v0.4 项目与证据治理
+
+- 每个项目有稳定 `project_id`，每次运行有唯一 `run_id`；`run_identity.json` 绑定工作流类型与运行规格 SHA-256。CLI 的运行规格包含工具版本、输入和 provider 配置，因此不同工作流、规格或工具版本不能伪装成同一次 `resume`。
+- ProblemBridge 与 ClaimHarness CLI 都使用明确的 `new`、`resume`、`replace` 模式。`resume` 或 `replace` 必须同时由用户提供 `--project-id` 和 `--expected-run-id`；不能只信任可编辑的身份文件。
+- `run_complete.json` 最后写入，并记录治理范围内的精确文件快照。Document intake 会逐个哈希 allow-list 内 `extracted_tables/` 和 `source_files/` 的嵌套非符号链接文件，因此提取表格与原件字节都受完整性检查；未知根目录文件不冒充系统产物。
+- 分享 ZIP 只从生成物 allow-list 取文件，默认排除 `source_files/` 和未知/可能私密文件，并生成带精确路径、大小和 SHA-256 的 `share_manifest.json`。只有显式勾选后才会包含原件。项目级删除必须输入当前项目 ID，随后删除该项目的全部运行及原件。
+- Document intake 生成 `ocr_quality_report.json`，记录 OCR 引擎、版本、语言、逐页定位、超时、DPI、像素和其他资源上限及失败信息。`derived_text/ocr` 默认不能作为强证据；从 OCR 输入提取的 claim 必须人工检查原件，也不代表系统理解图表或图片含义。
+- Windows 首次安装与日常启动已分开。正常启动不会每次重新安装依赖；发布门会在 Windows 上构建、测试并生成 ZIP manifest 和 SHA-256。
+
+ProblemBridge 生成的证据契约可以直接交给 ClaimHarness。严格的 schema v2 契约同时绑定稳定 `project_id` 和由契约内容计算得到的 `contract_id`；ClaimHarness 会拒绝项目 ID 不一致或内容 ID 不匹配的契约，并在运行 provenance 中记录这两个 ID 与契约哈希：
+
+```powershell
+.venv\Scripts\python.exe -m claim_harness run `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --evidence-contract outputs/problem_bridge_quality_inspection_demo/evidence_contract.yaml `
+  --out outputs/lab_report_contract_audit `
+  --llm mock
+```
+
+未知 schema、规则、来源类型、证据类型、人工复核角色、项目绑定或内容 ID 会在写输出前失败。提供契约时，审计包还会生成 `applied_evidence_contract.json`：它是经过验证、实际执行的契约的规范化 JSON 快照，并随运行一起受治理和哈希；未提供契约时该文件不存在。未提供契约时仍保留原有验证行为。
+
+离线合成评测：
+
+```powershell
+.venv\Scripts\python.exe scripts\evaluate_gold_set.py --out outputs\synthetic_evaluation
+```
+
+该命令报告 claim precision/recall/F1、evidence recall@k、status macro-F1/confusion、高风险漏检率、**不安全高风险决策率**和 abstention rate。这只是小型版本化合成回归门，不是完整 gold 评测，也不是现实有效性、临床安全性、跨领域或跨语言能力证明。完整升级说明见 [`docs/v0.4_upgrade.md`](docs/v0.4_upgrade.md)。
 
 ## 安全边界
 
@@ -277,12 +323,15 @@ ClaimHarness 每次审计都会生成 `run_manifest.json` 和 `project_summary_l
 - biomedical 或高风险 claims 仍然需要人工复核。
 - Results 章节中的自述不会自动成为该 claim 的强证据；强表格证据必须有可核验的指标/数值关系。
 - mock mode 是确定性的演示模式，不等于完整语义理解。
+- 中文界面不等于中文 claim 审计已验证；当前规则和合成 gold set 以英文为主，中文稿件必须人工复核。
 - 不要输入真实患者数据、机密论文、未公开项目材料、API key 或任何敏感内容。
 
 ## 路线图
 
 - v0.1：ClaimHarness 科研 claim-evidence audit demo。
 - v0.2：ProblemBridge 问题对齐 MVP。
-- v0.3：Guided Interaction Layer，让非 AI 背景用户从工作流开始描述问题。
-- v0.4：让 ProblemBridge 生成的 evidence contract 更直接地进入 ClaimHarness。
-- v0.5：进行 human review study，评估它是否真的提升问题清晰度、任务定义和评价设计。
+- v0.3：稳定、可审计基线（已完成），包括确定性证据检索/验证、文档摄取、摘要日志、三轮治理和发布 smoke test。
+- v0.4：证据契约与项目生命周期（当前），包括 schema-v2 契约、运行身份、完成快照、安全分享、OCR 质量门和合成评测门。
+- v0.5：在一个获批准且不含私密材料的仓库内进行有边界试点。
+- v0.6：开展 human review study，并在版本化中文 gold set 通过明确门槛后再增加中文 claim 审计支持。
+- v0.7：在一个真实跨学科项目中开展 FDE pilot，记录任务定义、证据契约、评测协议与复核负担的前后变化。

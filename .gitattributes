@@ -1,0 +1,24 @@
+* text=auto eol=lf
+
+# Keep release-facing source and metadata byte-stable across platforms.
+*.bat text eol=lf
+*.csv text eol=lf
+*.html text eol=lf
+*.json text eol=lf
+*.jsonl text eol=lf
+*.md text eol=lf
+*.ps1 text eol=lf
+*.py text eol=lf
+*.toml text eol=lf
+*.txt text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+
+# Binary assets must never be line-ending converted.
+*.gif binary
+*.ico binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.png binary
+*.zip binary

@@ -1,14 +1,16 @@
 import json
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from claim_harness.cli import app
 from claim_harness.report_viewer import MissingAuditOutput, render_report_viewer
+from problem_bridge.project_lifecycle import prepare_run_directory
 
 
 def write_sample_audit_package(path: Path, include_llm_review: bool = False) -> None:
-    path.mkdir(parents=True)
+    path.mkdir(parents=True, exist_ok=True)
     (path / "claim_table.csv").write_text(
         "\n".join(
             [
@@ -110,6 +112,7 @@ def test_render_report_viewer_writes_static_html(tmp_path):
     assert "Match reason" in html
     assert "Escaped &lt;claim&gt;" in html
     assert "<claim>" not in html
+    assert "Unverified legacy package" in html
 
 
 def test_render_report_viewer_reports_missing_required_outputs(tmp_path):
@@ -137,3 +140,42 @@ def test_view_cli_writes_index_html(tmp_path):
     assert result.exit_code == 0, result.output
     assert (run_dir / "index.html").exists()
     assert "index.html" in result.output
+
+
+def test_governed_viewer_rejects_tampered_or_incomplete_artifacts(tmp_path):
+    run_dir = tmp_path / "governed"
+    context = prepare_run_directory(
+        run_dir,
+        project_id="project-viewer",
+        owned_artifacts=(
+            "claim_table.csv",
+            "evidence_map.json",
+            "audit_report.md",
+            "revision_suggestions.md",
+            "agent_trace.jsonl",
+        ),
+        required_artifacts=(
+            "claim_table.csv",
+            "evidence_map.json",
+            "audit_report.md",
+            "revision_suggestions.md",
+            "agent_trace.jsonl",
+            "project_summary_log.md",
+        ),
+    )
+    with context.transaction():
+        write_sample_audit_package(run_dir)
+
+    html_path = render_report_viewer(run_dir)
+    assert "Verified governed run" in html_path.read_text(encoding="utf-8")
+    (run_dir / "claim_table.csv").write_text("tampered", encoding="utf-8")
+    with pytest.raises(MissingAuditOutput, match="integrity"):
+        render_report_viewer(run_dir)
+
+
+def test_viewer_refuses_to_overwrite_package_artifact(tmp_path):
+    run_dir = tmp_path / "audit"
+    write_sample_audit_package(run_dir)
+
+    with pytest.raises(MissingAuditOutput, match="Refusing to overwrite"):
+        render_report_viewer(run_dir, run_dir / "audit_report.md")

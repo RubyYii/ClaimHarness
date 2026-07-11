@@ -1,5 +1,6 @@
 import re
 
+from .evidence_contract import EvidenceContract
 from .schemas import Claim, ManuscriptSection
 
 
@@ -32,7 +33,10 @@ META_STATEMENT_PATTERNS = (
 )
 
 
-def extract_claims(sections: list[ManuscriptSection]) -> list[Claim]:
+def extract_claims(
+    sections: list[ManuscriptSection],
+    evidence_contract: EvidenceContract | None = None,
+) -> list[Claim]:
     claims: list[Claim] = []
     for section in sections:
         for sentence, source_line in sentences_with_lines(section):
@@ -52,7 +56,12 @@ def extract_claims(sections: list[ManuscriptSection]) -> list[Claim]:
                     claim_type=claim_type,
                     strength=_claim_strength(claim_type, lowered),
                     polarity=statement_polarity(lowered, matched_terms),
-                    requires_evidence=_required_evidence(claim_type),
+                    requires_evidence=(
+                        list(evidence_contract.claim_rules[claim_type].required_evidence)
+                        if evidence_contract is not None
+                        else _required_evidence(claim_type)
+                    ),
+                    source_kind=section.source_kind,
                 )
             )
     return claims
@@ -69,6 +78,10 @@ def sentences_with_lines(section: ManuscriptSection) -> list[tuple[str, int | No
     for offset, line in enumerate(section.text.splitlines()):
         stripped = line.strip()
         if not stripped:
+            continue
+        if stripped.startswith("<!--") and "provenance:" in stripped.lower():
+            # Provenance markers affect source classification but are not
+            # manuscript content and must never be merged into a claim.
             continue
         line_number = content_start + offset if content_start is not None else None
         parts = [part.strip() for part in re.split(r"(?<=[.!?])\s+", stripped) if part.strip()]

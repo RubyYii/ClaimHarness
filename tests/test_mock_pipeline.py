@@ -131,28 +131,40 @@ def test_demo_cli_command_generates_audit_and_viewer_outside_repository_cwd(tmp_
 
 def test_mock_run_replaces_owned_outputs_and_preserves_unknown_files(tmp_path):
     output_dir = tmp_path / "reused_run"
-    output_dir.mkdir()
+    runner = CliRunner()
+    base_command = [
+        "run",
+        "--manuscript",
+        str(DEMO_MANUSCRIPT),
+        "--tables",
+        str(DEMO_TABLES),
+        "--references",
+        str(DEMO_REFERENCES),
+        "--out",
+        str(output_dir),
+        "--llm",
+        "mock",
+        "--project-id",
+        "project-replace-test",
+    ]
+    first = runner.invoke(app, base_command)
+    assert first.exit_code == 0, first.output
+    identity = json.loads((output_dir / "run_identity.json").read_text(encoding="utf-8"))
+
     (output_dir / "llm_review.json").write_text('{"summary": "stale"}', encoding="utf-8")
     (output_dir / "index.html").write_text("stale viewer", encoding="utf-8")
     (output_dir / "audit_report.md").write_text("stale audit", encoding="utf-8")
     (output_dir / "project_summary_log.md").write_text("stale summary", encoding="utf-8")
     (output_dir / "keep.txt").write_text("user-owned", encoding="utf-8")
-    runner = CliRunner()
 
     result = runner.invoke(
         app,
         [
-            "run",
-            "--manuscript",
-            str(DEMO_MANUSCRIPT),
-            "--tables",
-            str(DEMO_TABLES),
-            "--references",
-            str(DEMO_REFERENCES),
-            "--out",
-            str(output_dir),
-            "--llm",
-            "mock",
+            *base_command,
+            "--mode",
+            "replace",
+            "--expected-run-id",
+            identity["run_id"],
         ],
     )
 

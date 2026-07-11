@@ -2,13 +2,15 @@
 
 ## Run
 
-- Run ID: `44ab3e7074c14fcea5c0865ceda67595`
-- Started: 2026-07-11T01:33:36+00:00
-- Completed: 2026-07-11T01:33:36+00:00
-- ClaimHarness version: 0.3.3
+- Project ID: `sample-claimharness-lab`
+- Run ID: `run-a376bde3156c49b8a5871a02eaf4a2b4`
+- Started: 2026-07-11T07:11:49+00:00
+- Completed: 2026-07-11T07:11:49+00:00
+- ClaimHarness version: 0.4.0
 - Provider: mock (not_requested)
 - Manuscript: manuscript.md
 - References: references.md
+- Evidence contract: not supplied (built-in legacy verification rules used)
 - Tables: table1_metrics.csv, table2_ablation.csv
 
 ## Audit Snapshot

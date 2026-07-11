@@ -1,9 +1,98 @@
-claim_type:
-  training_explanation:
-    required_evidence:
-      - training_objective
-      - policy_source_fragment
-      - uncertainty_or_scope_statement
-    forbidden_without:
-      - reviewer_approval
-      - source_grounding
+{
+  "schema_version": 2,
+  "project_id": "sample-training-policy",
+  "contract_id": "contract-6efe98be2d2f9e37a39a2437",
+  "source_kinds": [
+    "table",
+    "manuscript",
+    "references",
+    "external",
+    "ocr",
+    "derived_text"
+  ],
+  "strong_evidence_types": [
+    "quantitative_result",
+    "ablation_result",
+    "external_validation",
+    "robustness_test"
+  ],
+  "human_review_roles": {
+    "domain_reviewer": "Review the ProblemBridge boundaries: Policy-sensitive or procedural explanation; Unsupported claim about source guidance; Ambiguous framing or contested interpretation; training_explanation requires: training_objective, policy_source_fragment, uncertainty_or_scope_statement; training_explanation is forbidden without: reviewer_approval, source_grounding"
+  },
+  "claim_rules": {
+    "clinical_claim": {
+      "minimum_evidence_count": 2,
+      "required_evidence": [
+        "external_validation",
+        "human_review"
+      ],
+      "forbidden_without": [
+        "external_validation",
+        "human_review"
+      ],
+      "human_review_roles": [
+        "domain_reviewer"
+      ]
+    },
+    "deployment_claim": {
+      "minimum_evidence_count": 2,
+      "required_evidence": [
+        "external_validation",
+        "human_review"
+      ],
+      "forbidden_without": [
+        "external_validation",
+        "human_review"
+      ],
+      "human_review_roles": [
+        "domain_reviewer"
+      ]
+    },
+    "performance_claim": {
+      "minimum_evidence_count": 1,
+      "required_evidence": [
+        "table"
+      ],
+      "forbidden_without": [],
+      "human_review_roles": []
+    },
+    "novelty_claim": {
+      "minimum_evidence_count": 1,
+      "required_evidence": [
+        "citation"
+      ],
+      "forbidden_without": [],
+      "human_review_roles": []
+    },
+    "robustness_claim": {
+      "minimum_evidence_count": 1,
+      "required_evidence": [
+        "robustness_test"
+      ],
+      "forbidden_without": [],
+      "human_review_roles": []
+    },
+    "workflow_claim": {
+      "minimum_evidence_count": 1,
+      "required_evidence": [
+        "trace"
+      ],
+      "forbidden_without": [],
+      "human_review_roles": []
+    },
+    "general_claim": {
+      "minimum_evidence_count": 3,
+      "required_evidence": [
+        "manuscript_context",
+        "citation"
+      ],
+      "forbidden_without": [
+        "human_review",
+        "citation"
+      ],
+      "human_review_roles": [
+        "domain_reviewer"
+      ]
+    }
+  }
+}

@@ -6,7 +6,7 @@ ClaimHarness is a CLI-first Agent Harness for scientific claim-evidence auditing
 
 ```mermaid
 flowchart TD
-    A["Task Spec"] --> B["Input Loader"]
+    A["Task Spec + Optional Evidence Contract"] --> B["Input Loader"]
     B --> C["Context Manager"]
     C --> D["Claim Extractor"]
     D --> E["Evidence Retriever"]
@@ -31,23 +31,33 @@ flowchart TD
 
 `claim_harness.loader` reads Markdown manuscript sections, CSV tables, and references.
 
+`claim_harness.evidence_contract` validates a strict schema-v2 contract before output mutation. It defines allowed source kinds, strong evidence types, minimum counts, forbidden-without rules, and human-review roles. Each contract binds a stable `project_id` to a content-derived `contract_id`; the ClaimHarness CLI also checks that the requested project matches the contract. Unknown policy fields, identity mismatches, and content-ID mismatches fail closed.
+
 `claim_harness.context_manager` packages loaded inputs into an `AuditContext`.
 
 `claim_harness.claim_extractor` uses deterministic keyword rules with word-boundary, negation, and attribution checks to extract claim-like sentences, assign `C001`, `C002`, and later IDs, and preserve the source line for manuscript traceability.
 
 `claim_harness.evidence_retriever` converts table rows, Results text, Discussion limitations, and references into located evidence items. Results prose is candidate context and cannot automatically act as strong evidence for the same claim. Table evidence is strong only when the deterministic rules can verify a metric/value relationship; links distinguish support, contradiction, and topical relation.
 
-`claim_harness.verifier` assigns support labels: `supported`, `weakly_supported`, `unsupported`, `overclaimed`, or `needs_human_review`.
+`claim_harness.verifier` assigns support labels: `supported`, `weakly_supported`, `unsupported`, `overclaimed`, or `needs_human_review`. Evidence from `ocr` or `derived_text` is excluded from strong-evidence and human-approval checks; a claim extracted from derived input is always routed to `needs_human_review` with `source_inspection` outstanding.
 
 `claim_harness.report_generator` writes the audit package.
 
-`claim_harness.llm` isolates provider configuration, prompt loading, structured JSON request construction, and optional advisory review calls. It includes OpenAI-compatible presets plus native Gemini and Anthropic request builders. Remote providers are ClaimHarness CLI-only, run after deterministic verification, and do not change claim statuses. The local Streamlit UI is deterministic mock-only and never accepts or stores API keys.
+`claim_harness.llm` isolates provider configuration, prompt loading, structured JSON request construction, and optional advisory review calls. It includes OpenAI-compatible presets plus native Gemini and Anthropic request builders. Remote providers are ClaimHarness CLI-only, run after deterministic verification, and do not change claim statuses. The local Streamlit UI is deterministic mock-only and never accepts or stores API keys. Persisted public provider provenance is restricted to provider name, API style, model, JSON mode, and endpoint origin (scheme/host/port); API keys, URL credentials, paths, and queries are excluded. A hash of the full endpoint configuration is included only inside the canonical run-specification hash, binding resume behavior without publishing the endpoint configuration.
 
 `claim_harness.report_viewer` renders an existing audit package as a static `index.html` file. It is a read-only presentation layer and does not run a server or change audit results.
 
 `claim_harness.audit_logger` records ordered JSONL trace events in `agent_trace.jsonl`. The trace supports inspection but is not a complete execution replay by itself.
 
-`claim_harness.run_records` writes `run_manifest.json` and `project_summary_log.md`. The manifest records run identity, version, timestamps, provider status, and filename/size/SHA-256 records without exposing absolute paths. The Markdown summary is a navigation aid, not scientific evidence or approval.
+`claim_harness.run_records` writes `run_manifest.json` and `project_summary_log.md`. The manifest records run identity, version, timestamps, sanitized public provider provenance, and filename/size/SHA-256 records without exposing absolute paths or credentials. The Markdown summary is a navigation aid, not scientific evidence or approval.
+
+`claim_harness.evaluation` runs the deterministic pipeline on a small, versioned synthetic JSONL set and reports extraction, retrieval, status, high-risk miss, unsafe high-risk decision, and abstention metrics without network access. This is a regression gate, not a complete gold evaluation.
+
+`problem_bridge.document_intake` extracts direct text first and runs optional bounded OCR for image-only inputs. Mixed text/scanned PDFs fail closed at the page boundary: direct text is retained, every no-text page is warned, and page-selective OCR is not silently merged because a no-text page may be an intentional blank or an ambiguously aligned scan. With OCR enabled, the report records `mixed_pdf_requires_page_review`. The UI exposes explicit `eng`, `chi_sim`, and `eng+chi_sim` choices; it supplies a language-dependent default but performs no automatic language detection.
+
+`problem_bridge.project_lifecycle` provides identity-bound `new`, `resume`, and `replace` modes, allow-listed cleanup, cross-process locking, staged flat-file writes, artifact hashes, and a completion marker published last. `run_identity.json` records the workflow type and canonical run-specification hash; the ClaimHarness and ProblemBridge CLI specifications include the tool version, so `resume` rejects workflow, input/configuration, or version drift. Both `resume` and `replace` require the caller to provide `project_id` and `expected_run_id` independently of the editable identity file.
+
+`run_complete.json` binds the identity-file hash to the exact governed artifact set. Document-intake runs additionally register `extracted_tables/` and `source_files/` as allow-listed snapshot directories; every nested non-symlink file is hashed, and later additions, removals, or byte changes invalidate completion. `replace` preflights and clears both the old and requested run-owned snapshot trees so stale nested files cannot enter the next run. Unknown root files are outside the governed set. The local UI allocates unique runs, hides incomplete or deletion-pending governed runs, builds share ZIPs from verified generated-artifact snapshots, rejects linked/junction run roots, excludes originals and unknown files by default, and offers project-level deletion only after exact project-ID confirmation. Deletion binds the marker to the live identity and atomically renames the authorized run before recursive cleanup, so a newly created run at the old path is not removed by delayed cleanup.
 
 ## Data Objects
 
@@ -74,11 +84,14 @@ The output package contains:
 - `agent_trace.jsonl`: ordered, inspectable step trace.
 - `run_manifest.json`: machine-readable run provenance and input/output hashes.
 - `project_summary_log.md`: human-readable run summary and revision guardrail.
+- `run_identity.json`: stable project/run identity, lifecycle mode, workflow type, run-specification hash, owned/required artifacts, and allow-listed snapshot directories.
+- `run_complete.json`: identity hash plus the exact governed artifact hashes, including nested table/original files for document-intake runs; published last.
+- `applied_evidence_contract.json`: optional normalized snapshot of the exact validated contract executed for this audit; present and governed only when `--evidence-contract` is supplied.
 - `llm_review.json`: optional advisory review when a remote `--llm` provider is selected.
 - `index.html`: optional static report viewer generated by `claim_harness view`.
 
 ## Bounded Revision Governance
 
-ProblemBridge packages include `project_record.json` and `project_summary_log.md`. The `problem-bridge record-revision` command appends `revision_history.jsonl` after the first revision. Each stable target is limited to three rounds; round three must be accepted or escalated, and a fourth local patch is rejected until the specification, evidence, or structure is consolidated.
+ProblemBridge packages include `project_record.json` and `project_summary_log.md`. The `problem-bridge record-revision` command appends `revision_history.jsonl` after the first revision. Its CLI requires at least one repeatable `--output-artifact` or an explicit `--no-artifact-hash-reason`; the options are mutually exclusive, and a descriptive `--changed-file` is not a hash substitute. Each stable target is limited to three rounds; round three must be accepted or escalated, and a fourth local patch is rejected. Schema v3 binds every record to the immutable `project_id` and records revision/parent IDs, input/output hashes, and a tamper-evident record chain under a cross-process lock. Legacy v1/v2 histories are rejected by normal reads and appends; one homogeneous history can be rebound only through the explicit migration command with exact project-ID confirmation.
 
 The ProblemBridge and ClaimHarness files named `project_summary_log.md` have different schemas: ProblemBridge summarizes project boundaries and revision history, while ClaimHarness summarizes one audit run. Interpret each file within its own output directory.

@@ -1,6 +1,9 @@
 import csv
 import json
 import socket
+import sys
+import time
+import types
 import urllib.error
 import zipfile
 from pathlib import Path
@@ -12,6 +15,8 @@ import problem_bridge.document_intake as intake_module
 from problem_bridge.document_intake import (
     MAX_URL_REDIRECTS,
     MAX_URL_RESPONSE_BYTES,
+    OCR_PROVENANCE,
+    OcrLimits,
     _connect_to_approved_ip,
     _fetch_url,
     _read_url_response,
@@ -75,6 +80,51 @@ def test_extracts_text_markdown_and_csv(tmp_path: Path):
     assert "# Brief" in md_result.text
     assert csv_result.tables[0].rows == [["item", "risk"], ["image", "needs review"]]
     assert "CSV table extracted" in csv_result.text
+
+
+def test_intake_csv_exports_neutralize_formula_like_uploaded_content(tmp_path: Path):
+    csv_path = tmp_path / "untrusted.csv"
+    csv_path.write_text(
+        "item,risk\n=HYPERLINK(\"https://example.test\"), +cmd\n"
+        "metric,-1e-3\n",
+        encoding="utf-8",
+    )
+    extracted = extract_document(csv_path)
+    annotated = intake_module.DocumentExtraction(
+        source_name="@source.docx",
+        file_type="docx",
+        text="review",
+        tables=[],
+        warnings=[],
+        annotations=[
+            intake_module.AnnotationMark(
+                source_name="@source.docx",
+                kind="highlight",
+                text="-2+3",
+                color="yellow",
+                context="  =HYPERLINK(\"https://example.test\")",
+            )
+        ],
+    )
+    out = tmp_path / "out"
+
+    write_intake_package([extracted, annotated], out)
+
+    with (out / "extracted_tables" / "untrusted.csv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        table_rows = list(csv.reader(handle))
+    with (out / "highlighted_spans.csv").open(newline="", encoding="utf-8") as handle:
+        annotation_rows = list(csv.DictReader(handle))
+    annotation_json = json.loads((out / "annotation_map.json").read_text(encoding="utf-8"))
+
+    assert table_rows[1] == ["'=HYPERLINK(\"https://example.test\")", "' +cmd"]
+    assert table_rows[2] == ["metric", "-1e-3"]
+    assert annotation_rows[0]["source_name"] == "'@source.docx"
+    assert annotation_rows[0]["text"] == "'-2+3"
+    assert annotation_rows[0]["context"] == "'  =HYPERLINK(\"https://example.test\")"
+    # Machine-readable JSON retains the original evidence text; only CSV is neutralized.
+    assert annotation_json["annotations"][0]["text"] == "-2+3"
 
 
 def test_extracts_gb18030_chinese_text_and_csv(tmp_path: Path):
@@ -438,6 +488,336 @@ def test_optional_ocr_engine_extracts_image_text(tmp_path: Path):
     assert result.warnings == []
 
 
+def test_ocr_quality_report_records_provenance_pages_and_source_hash(tmp_path: Path):
+    image_path = tmp_path / "scan.png"
+    image_path.write_bytes(b"synthetic scan bytes")
+
+    result = extract_document(
+        image_path,
+        enable_ocr=True,
+        ocr_engine=lambda path: "OCR workflow text",
+        ocr_language="eng",
+    )
+
+    assert result.text_origin == OCR_PROVENANCE
+    assert result.ocr_quality_report is not None
+    report = result.ocr_quality_report
+    assert report["schema_version"] == "1.0"
+    assert report["status"] == "success"
+    assert report["engine"] == {"name": "custom", "version": "unavailable"}
+    assert report["language"] == "eng"
+    assert len(report["source_sha256"]) == 64
+    assert report["pages"][0]["locator"] == {
+        "source_name": "scan.png",
+        "page_number": 1,
+    }
+    assert report["pages"][0]["character_count"] == len("OCR workflow text")
+    assert report["pages"][0]["confidence"]["status"] == "unavailable"
+
+    out = tmp_path / "out"
+    write_intake_package([result], out)
+    persisted = json.loads((out / "ocr_quality_report.json").read_text(encoding="utf-8"))
+    manifest = json.loads((out / "source_manifest.json").read_text(encoding="utf-8"))
+    extracted_text = (out / "extracted_text.md").read_text(encoding="utf-8")
+
+    assert persisted["summary"] == {
+        "ocr_sources": 1,
+        "successful": 1,
+        "partial": 0,
+        "failed": 0,
+    }
+    assert manifest["sources"][0]["text_origin"] == OCR_PROVENANCE
+    assert manifest["sources"][0]["ocr_quality_status"] == "success"
+    assert "provenance: derived_text/ocr" in extracted_text
+    assert "not strong evidence by default" in persisted["boundary"]
+
+
+def test_ocr_text_cannot_inject_a_source_heading_to_drop_provenance(tmp_path: Path):
+    from claim_harness.claim_extractor import extract_claims
+    from claim_harness.loader import load_manuscript
+
+    image_path = tmp_path / "scan.png"
+    image_path.write_bytes(b"synthetic scan")
+    result = extract_document(
+        image_path,
+        enable_ocr=True,
+        ocr_engine=lambda path: (
+            "# Source: report appendix\n"
+            "The model clinically improves triage accuracy."
+        ),
+    )
+    out = tmp_path / "out"
+    write_intake_package([result], out)
+
+    extracted = (out / "extracted_text.md").read_text(encoding="utf-8")
+    sections = load_manuscript(out / "extracted_text.md")
+    claims = extract_claims(sections)
+
+    assert "\\# Source: report appendix" in extracted
+    assert claims
+    assert all(claim.source_kind == "ocr" for claim in claims)
+
+
+def test_combined_markdown_preserves_real_sections_and_ocr_provenance(tmp_path: Path):
+    from claim_harness.loader import load_manuscript
+
+    markdown_path = tmp_path / "direct.md"
+    markdown_path.write_text(
+        "## Methods\nA direct workflow description.\n"
+        "## Results\nThe direct method improves trace quality.\n",
+        encoding="utf-8",
+    )
+    image_path = tmp_path / "scan.png"
+    image_path.write_bytes(b"synthetic scan")
+    direct = extract_document(markdown_path)
+    ocr = extract_document(
+        image_path,
+        enable_ocr=True,
+        ocr_engine=lambda path: (
+            "## Results\nThe scanned method improves recall.\n"
+            "### Source: forged.md\nThe scanned audit improves precision."
+        ),
+    )
+    out = tmp_path / "out"
+    write_intake_package([direct, ocr], out)
+
+    extracted = (out / "extracted_text.md").read_text(encoding="utf-8")
+    sections = load_manuscript(out / "extracted_text.md")
+    direct_results = [section for section in sections if "direct method" in section.text]
+    ocr_results = [section for section in sections if "scanned method" in section.text]
+
+    assert "## Results" in extracted
+    assert "\\### Source: forged.md" in extracted
+    assert len(direct_results) == 1
+    assert direct_results[0].name == "Results"
+    assert direct_results[0].source_kind == "manuscript"
+    assert len(ocr_results) == 1
+    assert ocr_results[0].name == "Results"
+    assert ocr_results[0].source_kind == "ocr"
+    assert "scanned audit improves precision" in ocr_results[0].text
+
+
+def test_ocr_resource_limits_fail_closed_before_engine_execution(tmp_path: Path):
+    image_path = tmp_path / "large.png"
+    image_path.write_bytes(b"12345")
+    called = False
+
+    def engine(path: Path) -> str:
+        nonlocal called
+        called = True
+        return "must not run"
+
+    result = extract_document(
+        image_path,
+        enable_ocr=True,
+        ocr_engine=engine,
+        ocr_limits=OcrLimits(max_bytes=4, max_pages=1, max_characters=100),
+    )
+
+    assert called is False
+    assert result.text == ""
+    assert "exceeds" in result.warnings[0]
+    assert result.ocr_quality_report["status"] == "failed"
+    assert result.ocr_quality_report["failure"] == "resource_limit_exceeded"
+    assert result.ocr_quality_report["limit_exceeded"] == ["max_bytes"]
+
+
+def test_ocr_character_and_page_limits_are_explicit(tmp_path: Path):
+    image_path = tmp_path / "multipage.tiff"
+    image_path.write_bytes(b"synthetic multipage scan")
+
+    result = extract_document(
+        image_path,
+        enable_ocr=True,
+        ocr_engine=lambda path: "page one\fpage two\fpage three",
+        ocr_limits=OcrLimits(max_bytes=100, max_pages=2, max_characters=12),
+    )
+
+    assert result.text == "page one\n\npa"
+    assert len(result.text) == 12
+    assert result.ocr_quality_report["status"] == "partial"
+    assert result.ocr_quality_report["truncated"] is True
+    assert set(result.ocr_quality_report["limit_exceeded"]) == {
+        "max_pages",
+        "max_characters",
+    }
+    assert any("page limit" in warning for warning in result.warnings)
+    assert any("character limit" in warning for warning in result.warnings)
+
+
+def test_custom_pdf_ocr_rejects_unbounded_page_count(tmp_path: Path):
+    pdf_path = tmp_path / "two-pages.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4 /Type /Page /Type /Page %%EOF")
+    called = False
+
+    def engine(path: Path) -> str:
+        nonlocal called
+        called = True
+        return "must not run"
+
+    result = extract_document(
+        pdf_path,
+        enable_ocr=True,
+        ocr_engine=engine,
+        ocr_limits=OcrLimits(max_bytes=1000, max_pages=1, max_characters=100),
+    )
+
+    assert called is False
+    assert result.ocr_quality_report["failure"] == "resource_limit_exceeded"
+    assert result.ocr_quality_report["limit_exceeded"] == ["max_pages"]
+
+
+def test_mixed_text_and_scanned_pdf_fails_closed_with_page_warning(
+    tmp_path: Path, monkeypatch
+):
+    pdf_path = tmp_path / "mixed.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4 synthetic mixed PDF %%EOF")
+    ocr_called = False
+
+    class Page:
+        def __init__(self, text):
+            self._text = text
+
+        def extract_text(self):
+            return self._text
+
+        def get(self, key, default=None):
+            return default
+
+    class Reader:
+        def __init__(self, path):
+            self.pages = [Page("Direct page text."), Page("")]
+
+    def engine(path):
+        nonlocal ocr_called
+        ocr_called = True
+        return "must not be ambiguously merged"
+
+    monkeypatch.setitem(sys.modules, "pypdf", types.SimpleNamespace(PdfReader=Reader))
+
+    result = extract_document(
+        pdf_path,
+        enable_ocr=True,
+        ocr_engine=engine,
+    )
+
+    assert result.text == "Direct page text."
+    assert ocr_called is False
+    assert any("page(s) with no extractable text: 2" in warning for warning in result.warnings)
+    assert result.ocr_quality_report["failure"] == "mixed_pdf_requires_page_review"
+    assert result.ocr_quality_report["failed_pages"] == [2]
+
+
+def test_ocr_limits_require_positive_values():
+    with pytest.raises(ValueError, match="positive"):
+        OcrLimits(max_bytes=0)
+
+
+def test_custom_ocr_timeout_fails_closed_without_blocking_caller(tmp_path: Path):
+    image_path = tmp_path / "slow.png"
+    image_path.write_bytes(b"synthetic image")
+
+    def slow_engine(path: Path) -> str:
+        time.sleep(0.5)
+        return "too late"
+
+    started = time.monotonic()
+    result = extract_document(
+        image_path,
+        enable_ocr=True,
+        ocr_engine=slow_engine,
+        ocr_limits=OcrLimits(timeout_seconds=0.02),
+    )
+
+    assert time.monotonic() - started < 0.3
+    assert result.text == ""
+    assert result.ocr_quality_report["failure"] == "timeout"
+    assert result.ocr_quality_report["limit_exceeded"] == ["timeout_seconds"]
+
+
+def test_builtin_pdf_ocr_converts_one_bounded_page_at_a_time(tmp_path: Path, monkeypatch):
+    pdf_path = tmp_path / "two-pages.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4 /Type /Page /Type /Page %%EOF")
+    calls = []
+
+    class FakeImage:
+        size = (100, 100)
+
+        def close(self):
+            return None
+
+    def convert_from_path(path, **kwargs):
+        calls.append(kwargs)
+        return [FakeImage()]
+
+    fake_tesseract = types.SimpleNamespace(
+        __version__="test",
+        get_tesseract_version=lambda: "test",
+        image_to_string=lambda image, **kwargs: f"page {len(calls)}",
+    )
+    monkeypatch.setitem(sys.modules, "pytesseract", fake_tesseract)
+    monkeypatch.setitem(
+        sys.modules,
+        "pdf2image",
+        types.SimpleNamespace(convert_from_path=convert_from_path),
+    )
+
+    text, warnings, report = intake_module._ocr_file_with_report(
+        pdf_path,
+        ocr_engine=None,
+        limits=OcrLimits(pdf_dpi=120, timeout_seconds=3, max_pages=2),
+    )
+
+    assert text == "page 1\n\npage 2"
+    assert warnings == []
+    assert [(call["first_page"], call["last_page"]) for call in calls] == [(1, 1), (2, 2)]
+    assert all(call["dpi"] == 120 and call["timeout"] == 3 for call in calls)
+    assert all(call["thread_count"] == 1 for call in calls)
+    assert report["status"] == "success"
+
+
+def test_builtin_pdf_ocr_rejects_oversized_page_before_tesseract(tmp_path: Path, monkeypatch):
+    pdf_path = tmp_path / "one-page.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4 /Type /Page %%EOF")
+    tesseract_called = False
+
+    class FakeImage:
+        size = (5000, 5000)
+
+        def close(self):
+            return None
+
+    def image_to_string(image, **kwargs):
+        nonlocal tesseract_called
+        tesseract_called = True
+        return "must not run"
+
+    monkeypatch.setitem(
+        sys.modules,
+        "pytesseract",
+        types.SimpleNamespace(
+            __version__="test",
+            get_tesseract_version=lambda: "test",
+            image_to_string=image_to_string,
+        ),
+    )
+    monkeypatch.setitem(
+        sys.modules,
+        "pdf2image",
+        types.SimpleNamespace(convert_from_path=lambda *args, **kwargs: [FakeImage()]),
+    )
+
+    _, _, report = intake_module._ocr_file_with_report(
+        pdf_path,
+        ocr_engine=None,
+        limits=OcrLimits(max_pixels_per_page=1_000_000),
+    )
+
+    assert tesseract_called is False
+    assert report["status"] == "failed"
+    assert "max_pixels_per_page" in report["limit_exceeded"]
+
+
 def test_image_without_ocr_records_guidance(tmp_path: Path):
     image_path = tmp_path / "scan.jpg"
     image_path.write_bytes(b"not a real image")
@@ -474,6 +854,7 @@ def test_write_intake_package_creates_auditable_outputs(tmp_path: Path):
     assert (out / "extracted_text.md").is_file()
     assert (out / "extracted_tables" / "workflow_table_1.csv").is_file()
     assert (out / "source_manifest.json").is_file()
+    assert (out / "ocr_quality_report.json").is_file()
     assert (out / "extraction_warnings.md").is_file()
     assert (out / "annotation_map.json").is_file()
     assert (out / "highlighted_spans.csv").is_file()
@@ -485,6 +866,7 @@ def test_write_intake_package_creates_auditable_outputs(tmp_path: Path):
     assert manifest["sources"][0]["file_type"] == "docx"
     assert manifest["sources"][0]["table_count"] == 1
     assert manifest["sources"][0]["annotation_count"] == 0
+    assert manifest["sources"][0]["ocr_quality_status"] == "not_run"
 
     extracted_text = (out / "extracted_text.md").read_text(encoding="utf-8")
     assert "A domain workflow" in extracted_text

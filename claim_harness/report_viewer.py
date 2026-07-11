@@ -1,9 +1,18 @@
 import csv
 import html
+import io
 import json
+import os
+import uuid
 from collections import Counter
 from pathlib import Path
 from typing import Any
+
+from problem_bridge.project_lifecycle import (
+    RUN_IDENTITY_NAME,
+    ProjectLifecycleError,
+    snapshot_completed_run,
+)
 
 
 REQUIRED_OUTPUTS = [
@@ -22,38 +31,82 @@ class MissingAuditOutput(FileNotFoundError):
 def render_report_viewer(run_dir: str | Path, out_file: str | Path | None = None) -> Path:
     run_path = Path(run_dir)
     output_path = Path(out_file) if out_file is not None else run_path / "index.html"
+    _validate_viewer_output_path(run_path, output_path)
     payload = _load_audit_package(run_path)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(_render_html(payload, run_path), encoding="utf-8")
+    temporary = output_path.with_name(f".{output_path.name}.{uuid.uuid4().hex}.tmp")
+    try:
+        with temporary.open("w", encoding="utf-8", newline="") as handle:
+            handle.write(_render_html(payload, run_path))
+        os.replace(temporary, output_path)
+    finally:
+        temporary.unlink(missing_ok=True)
     return output_path
 
 
 def _load_audit_package(run_dir: Path) -> dict[str, Any]:
-    missing = [name for name in REQUIRED_OUTPUTS if not (run_dir / name).exists()]
+    governed = (run_dir / RUN_IDENTITY_NAME).is_file()
+    if governed:
+        try:
+            files = snapshot_completed_run(run_dir)
+        except (OSError, ProjectLifecycleError, ValueError) as exc:
+            raise MissingAuditOutput(
+                f"Governed run failed lifecycle integrity validation: {exc}"
+            ) from exc
+    else:
+        files = {
+            path.name: path.read_bytes()
+            for path in run_dir.iterdir()
+            if path.is_file() and not path.is_symlink()
+        }
+    missing = [name for name in REQUIRED_OUTPUTS if name not in files]
     if missing:
         raise MissingAuditOutput(
             f"Missing required ClaimHarness output file(s): {', '.join(missing)}"
         )
 
-    llm_review_path = run_dir / "llm_review.json"
-    llm_review = None
-    if llm_review_path.exists():
-        llm_review = json.loads(llm_review_path.read_text(encoding="utf-8"))
-    summary_path = run_dir / "project_summary_log.md"
+    llm_review = (
+        json.loads(files["llm_review.json"].decode("utf-8"))
+        if "llm_review.json" in files
+        else None
+    )
     project_summary = (
-        summary_path.read_text(encoding="utf-8") if summary_path.is_file() else None
+        files["project_summary_log.md"].decode("utf-8")
+        if "project_summary_log.md" in files
+        else None
     )
 
     return {
-        "claims": _read_claim_rows(run_dir / "claim_table.csv"),
-        "evidence_map": json.loads((run_dir / "evidence_map.json").read_text(encoding="utf-8")),
-        "audit_report": (run_dir / "audit_report.md").read_text(encoding="utf-8"),
-        "revision_suggestions": (run_dir / "revision_suggestions.md").read_text(encoding="utf-8"),
-        "trace": _read_trace(run_dir / "agent_trace.jsonl"),
+        "claims": _read_claim_rows_text(files["claim_table.csv"].decode("utf-8")),
+        "evidence_map": json.loads(files["evidence_map.json"].decode("utf-8")),
+        "audit_report": files["audit_report.md"].decode("utf-8"),
+        "revision_suggestions": files["revision_suggestions.md"].decode("utf-8"),
+        "trace": _read_trace_text(files["agent_trace.jsonl"].decode("utf-8")),
         "llm_review": llm_review,
         "project_summary": project_summary,
+        "integrity_status": (
+            "Verified governed run: lifecycle identity and artifact hashes passed."
+            if governed
+            else "Unverified legacy package: no run_identity.json was present."
+        ),
     }
+
+
+def _validate_viewer_output_path(run_path: Path, output_path: Path) -> None:
+    resolved_run = run_path.resolve()
+    resolved_output = output_path.resolve()
+    default_output = (run_path / "index.html").resolve()
+    if resolved_output == default_output:
+        return
+    try:
+        resolved_output.relative_to(resolved_run)
+    except ValueError:
+        return
+    if resolved_output.exists():
+        raise MissingAuditOutput(
+            f"Refusing to overwrite an existing audit-package file: {output_path}"
+        )
 
 
 def _read_claim_rows(path: Path) -> list[dict[str, str]]:
@@ -61,9 +114,21 @@ def _read_claim_rows(path: Path) -> list[dict[str, str]]:
         return [dict(row) for row in csv.DictReader(handle)]
 
 
+def _read_claim_rows_text(text: str) -> list[dict[str, str]]:
+    return [dict(row) for row in csv.DictReader(io.StringIO(text, newline=""))]
+
+
 def _read_trace(path: Path) -> list[dict[str, Any]]:
     events: list[dict[str, Any]] = []
     for line in path.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            events.append(json.loads(line))
+    return events
+
+
+def _read_trace_text(text: str) -> list[dict[str, Any]]:
+    events: list[dict[str, Any]] = []
+    for line in text.splitlines():
         if line.strip():
             events.append(json.loads(line))
     return events
@@ -103,6 +168,7 @@ def _render_html(payload: dict[str, Any], run_dir: Path) -> str:
             "</div>",
             "</header>",
             '<main class="wrap">',
+            _render_markdown_block("Integrity status", payload["integrity_status"]),
             '<section class="summary-grid" aria-label="Audit summary">',
             _metric("Claims audited", len(claims)),
             _metric("Evidence items", len(evidence)),

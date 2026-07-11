@@ -8,6 +8,7 @@ class ManuscriptSection(BaseModel):
     text: str
     start_line: int | None
     content_start_line: int | None = None
+    source_kind: Literal["manuscript", "ocr", "derived_text"] = "manuscript"
 
 
 ClaimType = Literal[
@@ -32,10 +33,21 @@ class Claim(BaseModel):
     strength: ClaimStrength
     polarity: ClaimPolarity = "positive"
     requires_evidence: list[str]
+    source_kind: Literal["manuscript", "ocr", "derived_text"] = "manuscript"
+
+
+EvidenceSourceKind = Literal[
+    "table",
+    "manuscript",
+    "references",
+    "external",
+    "ocr",
+    "derived_text",
+]
 
 
 class EvidenceLocator(BaseModel):
-    source_kind: Literal["table", "manuscript", "references", "external"]
+    source_kind: EvidenceSourceKind
     source_name: str
     line: int | None = Field(default=None, gt=0)
     row: int | None = Field(default=None, gt=0)

@@ -100,6 +100,7 @@ It writes:
 - `comment_threads.md`
 - `priority_marks.md`
 - `source_manifest.json`
+- `ocr_quality_report.json`
 - `extraction_warnings.md`
 - `problem_seed.md`
 
@@ -107,7 +108,11 @@ In the local web workbench, completing Document intake now keeps the latest extr
 
 Word comments, PDF annotations, highlights, and font colors are treated as user attention signals. The tool preserves them for later questioning; it does not infer that a color automatically means "high risk" or "approved."
 
-The boundary is deliberate: OCR is optional and local-only, not a default dependency; URL intake only reads public static pages; no login pages, JavaScript execution, crawling, image understanding, figure interpretation, handwritten markup recognition, or professional judgement is performed. Document intake extracts text, simple tables, links, and basic annotation signals; it does not validate professional claims or replace domain review.
+The boundary is deliberate: OCR is optional and local-only, not a default dependency; URL intake only reads public static pages; no login pages, JavaScript execution, crawling, image understanding, figure interpretation, handwritten markup recognition, or professional judgement is performed. Document intake extracts text, simple tables, links, and basic annotation signals; it does not validate professional claims or replace domain review. OCR is bounded by file/page/character limits plus a per-operation timeout, PDF DPI, and per-page pixel ceiling. OCR-origin claims are marked `derived_text/ocr` and routed to human source inspection; OCR text and OCR-origin review notes cannot satisfy strong-evidence or human-approval requirements by themselves.
+
+Mixed text/scanned PDFs fail closed at the page boundary. If some pages have direct text and other pages are blank or scanned, Document Intake retains the direct text, lists every no-text page in `extraction_warnings.md`, and does not silently OCR-and-merge those pages because page alignment would be ambiguous. When OCR is enabled, `ocr_quality_report.json` records `mixed_pdf_requires_page_review` with the affected page numbers. Inspect the original and, if needed, split scanned pages into a separate image-only PDF or image files for reviewed OCR. A no-text page may be intentionally blank, so the warning is not proof that it contains a scan.
+
+When OCR is enabled in the UI, choose `eng`, `chi_sim`, or `eng+chi_sim`; the selected Tesseract language packs must already be installed. The UI defaults to `eng` in English and `eng+chi_sim` in Chinese, but it does not auto-detect document language. The selection is recorded in the OCR report and run specification.
 
 For a visual OCR installation guide, see [OCR_SETUP.md](OCR_SETUP.md) or open the local webpage [docs/ocr_setup.html](docs/ocr_setup.html).
 ## Question Discovery Layer
@@ -168,6 +173,7 @@ ProblemBridge writes a Problem Alignment Package:
 - `project_record.json`
 - `project_summary_log.md`
 - `revision_history.jsonl` after the first recorded revision
+- `run_identity.json` and `run_complete.json` for lifecycle-governed runs
 
 ClaimHarness writes an audit package:
 
@@ -178,6 +184,8 @@ ClaimHarness writes an audit package:
 - `agent_trace.jsonl`
 - `run_manifest.json`
 - `project_summary_log.md`
+- `run_identity.json` and `run_complete.json`
+- optional `applied_evidence_contract.json` when `--evidence-contract` is supplied
 - optional static `index.html` report viewer
 
 ## Run Locally
@@ -202,7 +210,7 @@ For CLI users:
 
 ```powershell
 python -m venv .venv
-.venv\Scripts\python.exe -m pip install -e ".[dev,ui]"
+.venv\Scripts\python.exe -m pip install -c requirements\constraints.txt -e ".[dev,ui]"
 .venv\Scripts\python.exe -m problem_bridge demo
 .venv\Scripts\python.exe -m claim_harness demo
 ```
@@ -216,7 +224,7 @@ Do not enter real patient data, confidential manuscripts, API keys, unpublished 
 For external testing, share the generated local package:
 
 ```text
-ProblemBridge-ClaimHarness-v0.3.3-local-webapp.zip
+ProblemBridge-ClaimHarness-v0.4.0-local-webapp.zip
 ```
 
 After downloading, unzip it and double-click:
@@ -226,6 +234,10 @@ RUN_PROBLEMBRIDGE_WINDOWS.bat
 ```
 
 The first run creates `.venv`, installs dependencies, and opens a local browser UI. This is not an online service and not a standalone `.exe`.
+
+After the first setup, normal launches do not reinstall dependencies. Run `scripts/setup_problembridge_windows.ps1 -Force` only when intentionally refreshing the tested dependency set.
+
+See [docs/v0.4_upgrade.md](docs/v0.4_upgrade.md) for evidence-contract, project lifecycle, OCR quality, evaluation, privacy, and release migration details.
 ## Technical Overview
 
 ClaimHarness: A Lightweight Agent Harness for Scientific Claim-Evidence Auditing
@@ -280,7 +292,7 @@ Create and install the development environment:
 
 ```bash
 python -m venv .venv
-.venv\Scripts\python.exe -m pip install -e ".[dev]"
+.venv\Scripts\python.exe -m pip install -c requirements\constraints.txt -e ".[dev]"
 ```
 
 Run the synthetic lab-report audit demo manually:
@@ -346,7 +358,7 @@ Start with synthetic examples. Do not upload private patient data, confidential 
 For external testing, the repository can be shared as a local web app package:
 
 ```text
-ProblemBridge-ClaimHarness-v0.3.3-local-webapp.zip
+ProblemBridge-ClaimHarness-v0.4.0-local-webapp.zip
 ```
 
 After downloading:
@@ -453,7 +465,7 @@ ProblemBridge also includes an optional local guided UI for people who do not al
 Install the optional UI dependencies:
 
 ```powershell
-.venv\Scripts\python.exe -m pip install -e ".[dev,ui]"
+.venv\Scripts\python.exe -m pip install -c requirements\constraints.txt -e ".[dev,ui]"
 ```
 
 Run the local Streamlit wizard:
@@ -472,6 +484,10 @@ The wizard includes:
 - Friendly output cards
 - Advanced technical file view
 - Downloadable alignment package
+
+Each UI project has a stable project ID and every generated run has a unique run ID. Incomplete governed runs are not shown as completed outputs. A governed identity records the workflow type and a run-specification SHA-256; the CLI run specification includes the tool version, inputs, and provider configuration, so `resume` rejects a different workflow, specification, or tool version. CLI `resume` and `replace` both require an independently supplied `--project-id` and `--expected-run-id`.
+
+`run_complete.json` is published last and hashes the exact governed artifact snapshot. Document-intake snapshots include every non-symlink file under the allow-listed `extracted_tables/` and `source_files/` directories, so table and original-upload bytes are covered without treating unknown root files as system output. Share packages are built from a generated-artifact allow-list, exclude originals and unknown/private files by default, and add `share_manifest.json` with exact included paths, sizes, and SHA-256 hashes. Original uploads require an explicit choice. The sidebar also supports project-level deletion only after the user types the current project ID; this deletes all runs for that project, including originals.
 
 Do not upload private patient data, confidential manuscripts, API keys, or sensitive unpublished materials.
 
@@ -509,7 +525,7 @@ $env:OPENAI_MODEL="gpt-5.4-mini"
   --llm openai-compatible
 ```
 
-`OPENAI_BASE_URL` is optional and defaults to `https://api.openai.com/v1`. The provider writes `llm_review.json` as an advisory artifact; it does not replace deterministic verification or human review.
+`OPENAI_BASE_URL` is optional and defaults to `https://api.openai.com/v1`. The provider writes `llm_review.json` as an advisory artifact; it does not replace deterministic verification or human review. Public run provenance records only the provider name, API style, model, JSON mode, and endpoint origin (scheme/host/port). It does not persist API keys, URL credentials, endpoint paths, or query strings. The full endpoint configuration is bound indirectly through `run_spec_sha256`, so configuration drift can be detected without disclosing the full endpoint path/query or credentials.
 
 Qwen / DashScope has its own preset:
 
@@ -543,9 +559,9 @@ See [MODEL_PROVIDER_GUIDE.md](MODEL_PROVIDER_GUIDE.md) for `openai`, `qwen`, `de
 
 ## Bounded Revision Governance
 
-ProblemBridge output packages now include `project_record.json` and `project_summary_log.md`. Revisions can be appended to `revision_history.jsonl` with `problem-bridge record-revision`. Each stable target is limited to three rounds: a third unresolved round is escalated, and the system refuses a fourth local patch until the specification, evidence, or structure has been consolidated.
+ProblemBridge output packages now include `project_record.json` and `project_summary_log.md`. Revisions can be appended to `revision_history.jsonl` with `problem-bridge record-revision`. Each stable target is limited to three rounds: round three must be `accepted` or `escalated`, and the system refuses a fourth local patch. Revision schema v3 binds every record to the immutable `project_id` and adds revision/parent IDs, artifact hashes, a record hash chain, cross-process locking, and optimistic conflict checks. Legacy v1/v2 histories are not read or appended during normal operation; they require the explicit `problem-bridge migrate-revision-history` command and an exact project-ID confirmation.
 
-The repository remediation itself is recorded as a three-round worked example in [`docs/project_records/2026-07-11-remediation/project_summary_log.md`](docs/project_records/2026-07-11-remediation/project_summary_log.md).
+The v0.4 lifecycle-integrity work is recorded as a schema-v3 three-round worked example in [`docs/project_records/2026-07-11-project-lifecycle-integrity/project_summary_log.md`](docs/project_records/2026-07-11-project-lifecycle-integrity/project_summary_log.md). The older `2026-07-11-remediation` folder is retained only as historical pre-v0.4 material and is not accepted by the schema-v3 verifier.
 
 ```powershell
 .venv\Scripts\python.exe -m problem_bridge record-revision `
@@ -554,10 +570,37 @@ The repository remediation itself is recorded as a three-round worked example in
   --diagnosis evidence_gap `
   --summary "Clarified required source fields" `
   --verification "Focused tests passed" `
+  --output-artifact evidence_contract.yaml `
   --status needs_revision
 ```
 
+The revision CLI requires exactly one evidence route: provide at least one repeatable `--output-artifact` path (resolved inside `--project`) or provide `--no-artifact-hash-reason "..."` when no hashable result exists. The two routes cannot be combined. `--changed-file` is descriptive and does not substitute for an output hash; an omission reason records the gap but does not provide artifact integrity.
+
 ClaimHarness audit runs also write `run_manifest.json` and `project_summary_log.md`. The manifest records a run ID, tool version, timestamps, provider status, input/output filenames, sizes, and SHA-256 hashes without exposing absolute local paths. The Markdown summary is a navigation and provenance aid, not scientific evidence or an approval record.
+
+## Versioned Evidence Contracts
+
+ProblemBridge `evidence_contract.yaml` files can now be enforced directly. The strict schema-v2 contract binds a stable `project_id` to a content-derived `contract_id`; ClaimHarness rejects a requested project ID that differs from the contract and records both identifiers plus the contract hash in run provenance:
+
+```powershell
+.venv\Scripts\python.exe -m claim_harness run `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --evidence-contract outputs/problem_bridge_quality_inspection_demo/evidence_contract.yaml `
+  --out outputs/lab_report_contract_audit `
+  --llm mock
+```
+
+Unknown schemas, rule fields, source kinds, evidence types, review roles, project bindings, or contract-content IDs fail before output mutation. OCR/derived text is never strong evidence by default, and claims extracted from derived input require source inspection and human review. When a contract is supplied, the audit package also contains `applied_evidence_contract.json`: a normalized JSON snapshot of the exact validated executable contract, governed and hashed with the run. It is absent when no contract is supplied. Without `--evidence-contract`, the v0.3.3 verification behavior remains available for backward compatibility.
+
+## Offline Evaluation Gate
+
+```powershell
+.venv\Scripts\python.exe scripts\evaluate_gold_set.py --out outputs\synthetic_evaluation
+```
+
+This writes deterministic JSON and Markdown metrics for the small, versioned synthetic set: claim precision/recall/F1, evidence recall@k, status macro-F1/confusion, high-risk miss rate, **unsafe high-risk decision rate**, and abstention rate. It is a regression check, not a complete gold evaluation or evidence of real-world, clinical, cross-domain, or multilingual validity.
 
 ## Static Report Viewer
 
@@ -588,7 +631,7 @@ The manuscript is fully synthetic and describes a human-in-the-loop workflow for
 
 ## Expected Output
 
-The mock audit writes five core audit files plus two run records. The `demo` command also writes the static viewer:
+The mock audit writes five core audit files plus four provenance/lifecycle records. The `demo` command also writes the static viewer:
 
 ```text
 outputs/lab_report_audit_demo_run/
@@ -599,6 +642,8 @@ outputs/lab_report_audit_demo_run/
   agent_trace.jsonl
   run_manifest.json
   project_summary_log.md
+  run_identity.json
+  run_complete.json
   index.html
 ```
 
@@ -642,6 +687,12 @@ Implemented:
 - Results self-statements do not automatically count as strong evidence
 - high-risk clinical claims default to human review
 - run-level provenance in `run_manifest.json` and `project_summary_log.md`
+- project/run identity with explicit `new`, `resume`, and `replace` lifecycle controls, plus workflow/run-spec/tool-version binding
+- locked, project-bound schema-v3 revision records with an enforced three-round ceiling and explicit legacy migration
+- executable schema-v2 evidence contracts with project/content identity binding and fail-closed validation
+- OCR provenance and `ocr_quality_report.json` with timeout, DPI, pixel, byte, page, and character limits
+- privacy-preserving allow-list share archives that exclude original uploads and unknown files by default, plus explicit project-level deletion
+- versioned synthetic evaluation metrics, including unsafe high-risk decision rate, and a Windows release gate
 - optional OpenAI-compatible advisory review
 - static report viewer
 - GitHub Actions CI
@@ -650,7 +701,8 @@ Implemented:
 Planned or optional:
 
 - richer prompt templates
-- stronger OCR quality controls and figure-aware evidence ingestion
+- a reviewed Chinese claim-audit gold set
+- figure-aware evidence ingestion (not currently supported)
 
 ## Limitations
 
@@ -658,6 +710,7 @@ Planned or optional:
 - It only checks evidence available in the provided files.
 - Biomedical claims require human review.
 - Mock mode is deterministic and not semantically complete.
-- OCR is optional and best-effort; stronger OCR quality controls and figure understanding are future work.
+- OCR is optional and bounded; its quality report does not make OCR text strong evidence, and figure understanding is not supported.
+- The Chinese interface does not imply validated Chinese claim auditing. Current deterministic audit rules and the synthetic gold set are English-first.
 
 See [docs/architecture.md](docs/architecture.md), [docs/demo_walkthrough.md](docs/demo_walkthrough.md), and [docs/limitations.md](docs/limitations.md) for more detail.

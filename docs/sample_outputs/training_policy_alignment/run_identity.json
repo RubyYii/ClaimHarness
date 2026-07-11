@@ -1,0 +1,38 @@
+{
+  "directory_created_at": "2026-07-11T07:11:48.462418+00:00",
+  "mode": "new",
+  "owned_artifacts": [
+    "ai_task_spec.yaml",
+    "alignment_trace.jsonl",
+    "concept_alignment_table.csv",
+    "evaluation_protocol.md",
+    "evidence_contract.yaml",
+    "human_in_loop_plan.md",
+    "implementation_routes.md",
+    "misalignment_risk_report.md",
+    "painpoint_opportunity_matrix.csv",
+    "problem_card.md",
+    "workflow_map.md"
+  ],
+  "previous_run_id": null,
+  "project_id": "sample-training-policy",
+  "required_artifacts": [
+    "ai_task_spec.yaml",
+    "alignment_trace.jsonl",
+    "concept_alignment_table.csv",
+    "evaluation_protocol.md",
+    "evidence_contract.yaml",
+    "human_in_loop_plan.md",
+    "implementation_routes.md",
+    "misalignment_risk_report.md",
+    "painpoint_opportunity_matrix.csv",
+    "problem_card.md",
+    "workflow_map.md"
+  ],
+  "run_created_at": "2026-07-11T07:11:48.462418+00:00",
+  "run_id": "run-60c5a724518e4c5eb3ecf127635339e5",
+  "run_spec_sha256": "3fd83961d1e6fd95dffe39d153506099e74160dbd4438e5085438226a8c28d4a",
+  "schema_version": 2,
+  "snapshot_directories": [],
+  "workflow_type": "problem_bridge.alignment"
+}

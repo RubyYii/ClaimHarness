@@ -106,11 +106,12 @@ pre {
 <header class="topbar">
 <div class="wrap">
 <h1>ClaimHarness Report Viewer</h1>
-<p>claimharness_lab_report_audit_demo</p>
+<p>claim</p>
 <p class="notice">Advisory review surface only. ClaimHarness does not guarantee factual correctness, clinical validity, or publication readiness.</p>
 </div>
 </header>
 <main class="wrap">
+<section><h2>Integrity status</h2><pre>Verified governed run: lifecycle identity and artifact hashes passed.</pre></section>
 <section class="summary-grid" aria-label="Audit summary">
 <div class="metric"><span>Claims audited</span><strong>16</strong></div>
 <div class="metric"><span>Evidence items</span><strong>26</strong></div>
@@ -206,13 +207,15 @@ Suggestion: Add verifiable evidence or narrow the wording.
 
 ## Run
 
-- Run ID: `44ab3e7074c14fcea5c0865ceda67595`
-- Started: 2026-07-11T01:33:36+00:00
-- Completed: 2026-07-11T01:33:36+00:00
-- ClaimHarness version: 0.3.3
+- Project ID: `sample-claimharness-lab`
+- Run ID: `run-a376bde3156c49b8a5871a02eaf4a2b4`
+- Started: 2026-07-11T07:11:49+00:00
+- Completed: 2026-07-11T07:11:49+00:00
+- ClaimHarness version: 0.4.0
 - Provider: mock (not_requested)
 - Manuscript: manuscript.md
 - References: references.md
+- Evidence contract: not supplied (built-in legacy verification rules used)
 - Tables: table1_metrics.csv, table2_ablation.csv
 
 ## Audit Snapshot
@@ -261,7 +264,7 @@ Suggestion: Add verifiable evidence or narrow the wording.
 This log is a navigation and provenance aid. It is not scientific evidence, a peer review, or a clinical decision.
 </pre></section>
 
-<section><h2>Audit trace</h2><div class="table-wrap"><table><thead><tr><th>Step</th><th>Module</th><th>Message</th><th>Data</th></tr></thead><tbody><tr><td class="mono">1</td><td>cli</td><td>Started ClaimHarness run</td><td class="trace-data mono">{&quot;llm&quot;: &quot;mock&quot;, &quot;out&quot;: &quot;claimharness_lab_report_audit_demo&quot;}</td></tr><tr><td class="mono">2</td><td>loader</td><td>Loaded inputs</td><td class="trace-data mono">{&quot;sections&quot;: 7, &quot;tables&quot;: [&quot;table1_metrics&quot;, &quot;table2_ablation&quot;]}</td></tr><tr><td class="mono">3</td><td>claim_extractor</td><td>Extracted claims</td><td class="trace-data mono">{&quot;claims&quot;: 16}</td></tr><tr><td class="mono">4</td><td>evidence_retriever</td><td>Retrieved evidence</td><td class="trace-data mono">{&quot;evidence_items&quot;: 26}</td></tr><tr><td class="mono">5</td><td>verifier</td><td>Verified claims</td><td class="trace-data mono">{&quot;status_counts&quot;: {&quot;weakly_supported&quot;: 10, &quot;overclaimed&quot;: 1, &quot;needs_human_review&quot;: 1, &quot;unsupported&quot;: 1, &quot;supported&quot;: 3}}</td></tr><tr><td class="mono">6</td><td>report_generator</td><td>Wrote audit package</td><td class="trace-data mono">{&quot;out&quot;: &quot;claimharness_lab_report_audit_demo&quot;}</td></tr><tr><td class="mono">7</td><td>cli</td><td>Finalized deterministic audit package</td><td class="trace-data mono">{&quot;provider_status&quot;: &quot;not_requested&quot;}</td></tr></tbody></table></div></section>
+<section><h2>Audit trace</h2><div class="table-wrap"><table><thead><tr><th>Step</th><th>Module</th><th>Message</th><th>Data</th></tr></thead><tbody><tr><td class="mono">1</td><td>cli</td><td>Started ClaimHarness run</td><td class="trace-data mono">{&quot;llm&quot;: &quot;mock&quot;, &quot;out&quot;: &quot;claim&quot;}</td></tr><tr><td class="mono">2</td><td>loader</td><td>Loaded inputs</td><td class="trace-data mono">{&quot;sections&quot;: 7, &quot;tables&quot;: [&quot;table1_metrics&quot;, &quot;table2_ablation&quot;]}</td></tr><tr><td class="mono">3</td><td>claim_extractor</td><td>Extracted claims</td><td class="trace-data mono">{&quot;claims&quot;: 16}</td></tr><tr><td class="mono">4</td><td>evidence_retriever</td><td>Retrieved evidence</td><td class="trace-data mono">{&quot;evidence_items&quot;: 26}</td></tr><tr><td class="mono">5</td><td>verifier</td><td>Verified claims</td><td class="trace-data mono">{&quot;status_counts&quot;: {&quot;weakly_supported&quot;: 10, &quot;overclaimed&quot;: 1, &quot;needs_human_review&quot;: 1, &quot;unsupported&quot;: 1, &quot;supported&quot;: 3}}</td></tr><tr><td class="mono">6</td><td>report_generator</td><td>Wrote audit package</td><td class="trace-data mono">{&quot;out&quot;: &quot;claim&quot;}</td></tr><tr><td class="mono">7</td><td>cli</td><td>Finalized deterministic audit package</td><td class="trace-data mono">{&quot;provider_status&quot;: &quot;not_requested&quot;}</td></tr></tbody></table></div></section>
 </main>
 <script>
 const buttons = document.querySelectorAll('[data-filter]');

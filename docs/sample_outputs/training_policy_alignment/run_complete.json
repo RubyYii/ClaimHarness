@@ -1,0 +1,20 @@
+{
+  "artifact_sha256": {
+    "ai_task_spec.yaml": "e244daf934076b4e888cd4349bc5fb44e93e5dbc108f93cc66c398ff6a6b99d4",
+    "alignment_trace.jsonl": "3a3bc372b9ad057739644dbb19cac51d56a47ea3ffb0341f5b80f423e9948e9f",
+    "concept_alignment_table.csv": "fad86ea4e4d9eae90eb8b17c173eddf9b3e62b6060c589bf10c225acf25d024c",
+    "evaluation_protocol.md": "2fd9eedc068aff28acafee050e49999182b63a58de0691c1db7a2220f97a115d",
+    "evidence_contract.yaml": "ea0bfe08697be048d04024912ffb17c4df76b6a9597f8c32c0c08769323c339f",
+    "human_in_loop_plan.md": "9c0f0da6df3de961d4fecc83d694020f2c9b9df1402f057a286d07000621a832",
+    "implementation_routes.md": "787f56145dd79529abbc0d4fc9476a449fd4e160bf90349c3d9cf8d4cc314cfc",
+    "misalignment_risk_report.md": "fc7000404ea142aa316ec10f1929a042d5498af033cbce96f7da53c2e53bea0d",
+    "painpoint_opportunity_matrix.csv": "506758367c4f2185cd51a1aca8a74e3d7bef459c5aa0691cb52637bc5e4cfd33",
+    "problem_card.md": "8a0a9d6dc942cc571528878146e713a1e1c76e4b91915f380c83e38b4e202720",
+    "workflow_map.md": "b2f3b992d42ac68525c301e5b5ff952bcc7df8388cd9caf6243f9056e5e43e39"
+  },
+  "completed_at": "2026-07-11T07:11:48.512746+00:00",
+  "project_id": "sample-training-policy",
+  "run_id": "run-60c5a724518e4c5eb3ecf127635339e5",
+  "run_identity_sha256": "897b8cf0d791d27184849460e05459474ad069cf7b7750923836bdc63a1c5a65",
+  "schema_version": 2
+}

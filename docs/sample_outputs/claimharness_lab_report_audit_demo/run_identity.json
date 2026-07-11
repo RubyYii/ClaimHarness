@@ -1,0 +1,30 @@
+{
+  "directory_created_at": "2026-07-11T07:11:49.382960+00:00",
+  "mode": "new",
+  "owned_artifacts": [
+    "agent_trace.jsonl",
+    "audit_report.md",
+    "claim_table.csv",
+    "evidence_map.json",
+    "llm_review.json",
+    "revision_suggestions.md",
+    "run_manifest.json"
+  ],
+  "previous_run_id": null,
+  "project_id": "sample-claimharness-lab",
+  "required_artifacts": [
+    "agent_trace.jsonl",
+    "audit_report.md",
+    "claim_table.csv",
+    "evidence_map.json",
+    "project_summary_log.md",
+    "revision_suggestions.md",
+    "run_manifest.json"
+  ],
+  "run_created_at": "2026-07-11T07:11:49.382960+00:00",
+  "run_id": "run-a376bde3156c49b8a5871a02eaf4a2b4",
+  "run_spec_sha256": "b88ccf93aa0a22cd9d102565780dd545260a92cb315df71ba8d5363e08b34fd3",
+  "schema_version": 2,
+  "snapshot_directories": [],
+  "workflow_type": "claim_harness.audit"
+}

@@ -1,5 +1,6 @@
 import csv
 import json
+import re
 from collections import Counter
 from pathlib import Path
 
@@ -30,6 +31,7 @@ def _write_claim_table(path: Path, claims: list[Claim], results: list[Verificati
                 "text",
                 "source_section",
                 "source_line",
+                "source_kind",
                 "claim_type",
                 "strength",
                 "polarity",
@@ -52,6 +54,7 @@ def _write_claim_table(path: Path, claims: list[Claim], results: list[Verificati
                     "text": _spreadsheet_safe(claim.text),
                     "source_section": _spreadsheet_safe(claim.source_section),
                     "source_line": claim.source_line,
+                    "source_kind": claim.source_kind,
                     "claim_type": claim.claim_type,
                     "strength": claim.strength,
                     "polarity": claim.polarity,
@@ -75,6 +78,7 @@ def _write_evidence_map(path: Path, claims: list[Claim], evidence: list[Evidence
                 "text": claim.text,
                 "source_section": claim.source_section,
                 "source_line": claim.source_line,
+                "source_kind": claim.source_kind,
                 "claim_type": claim.claim_type,
                 "polarity": claim.polarity,
                 "requires_evidence": claim.requires_evidence,
@@ -128,6 +132,7 @@ def _write_audit_report(
                 "",
                 f"- Source section: {claim.source_section}",
                 f"- Source line: {claim.source_line if claim.source_line is not None else 'unknown'}",
+                f"- Source kind: {claim.source_kind}",
                 f"- Risk level: {result.risk_level}",
                 f"- Reason: {result.reason}",
                 f"- Required evidence: {', '.join(claim.requires_evidence) or 'none'}",
@@ -143,10 +148,15 @@ def _write_audit_report(
 def _spreadsheet_safe(value: object) -> object:
     """Prevent user-controlled CSV cells from being interpreted as spreadsheet formulas."""
 
-    if not isinstance(value, str):
-        return value
-    if value.lstrip().startswith(("=", "+", "-", "@")):
-        return "'" + value
+    if isinstance(value, str):
+        candidate = value.lstrip()
+        if candidate.startswith(("+", "-")) and re.fullmatch(
+            r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?",
+            candidate.strip(),
+        ):
+            return value
+        if candidate.startswith(("=", "+", "-", "@")):
+            return "'" + value
     return value
 
 

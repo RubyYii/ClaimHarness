@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from typer.testing import CliRunner
@@ -5,7 +6,7 @@ from typer.testing import CliRunner
 import claim_harness
 import claim_harness.cli as cli_module
 from claim_harness.cli import app
-from claim_harness.llm import LLMProviderError
+from claim_harness.llm import LLMProviderConfig, LLMProviderError
 
 
 DEMO_MANUSCRIPT = Path("examples/lab_report_audit_demo/manuscript.md")
@@ -17,6 +18,29 @@ def test_package_imports():
     assert claim_harness.__version__
 
 
+def test_provider_public_provenance_strips_credentials_but_hash_spec_binds_full_endpoint():
+    first = LLMProviderConfig(
+        provider="openai-compatible",
+        api_key="secret-key",
+        base_url="https://user:token@example.test/v1?key=hidden",
+        model="model-a",
+        api_style="openai-chat",
+    )
+    second = LLMProviderConfig(
+        provider="openai-compatible",
+        api_key="secret-key",
+        base_url="https://user:token@example.test/v2?key=hidden",
+        model="model-a",
+        api_style="openai-chat",
+    )
+
+    public = cli_module._provider_public_details(first)
+    persisted = json.dumps(public)
+    assert public["endpoint_origin"] == "https://example.test"
+    assert "user" not in persisted and "token" not in persisted and "hidden" not in persisted
+    assert cli_module._provider_hash_spec(first) != cli_module._provider_hash_spec(second)
+
+
 def test_run_help_command():
     runner = CliRunner()
     result = runner.invoke(app, ["run", "--help"])
@@ -25,6 +49,8 @@ def test_run_help_command():
     assert "Run a ClaimHarness audit" in result.output
     assert "--manuscript" in result.output
     assert "--llm" in result.output
+    assert "--mode" in result.output
+    assert "--project-id" in result.output
 
 
 def test_run_help_documents_common_provider_presets():
@@ -101,8 +127,66 @@ def test_remote_provider_failure_is_reported_without_internal_traceback(monkeypa
     assert (output_dir / "agent_trace.jsonl").is_file()
     assert (output_dir / "run_manifest.json").is_file()
     assert (output_dir / "project_summary_log.md").is_file()
-    manifest = __import__("json").loads(
+    manifest = json.loads(
         (output_dir / "run_manifest.json").read_text(encoding="utf-8")
     )
     assert manifest["provider"]["status"] == "failed"
+    assert manifest["project_id"]
+    assert manifest["run_id"] == json.loads(
+        (output_dir / "run_identity.json").read_text(encoding="utf-8")
+    )["run_id"]
+    assert (output_dir / "run_complete.json").is_file()
     assert not (output_dir / "llm_review.json").exists()
+
+
+def test_run_requires_explicit_identity_guard_before_replacing_outputs(tmp_path):
+    output_dir = tmp_path / "governed_run"
+    runner = CliRunner()
+    command = [
+        "run",
+        "--manuscript",
+        str(DEMO_MANUSCRIPT),
+        "--tables",
+        str(DEMO_TABLES),
+        "--references",
+        str(DEMO_REFERENCES),
+        "--out",
+        str(output_dir),
+        "--llm",
+        "mock",
+        "--project-id",
+        "project-claim-cli",
+    ]
+
+    first = runner.invoke(app, command)
+    identity = json.loads((output_dir / "run_identity.json").read_text(encoding="utf-8"))
+    second = runner.invoke(app, command)
+    missing_guard = runner.invoke(app, [*command, "--mode", "replace"])
+    wrong_guard = runner.invoke(
+        app,
+        [*command, "--mode", "replace", "--expected-run-id", "run-wrong"],
+    )
+    replaced = runner.invoke(
+        app,
+        [
+            *command,
+            "--mode",
+            "replace",
+            "--expected-run-id",
+            identity["run_id"],
+        ],
+    )
+
+    assert first.exit_code == 0, first.output
+    assert second.exit_code != 0
+    assert "new mode requires an empty directory" in second.output.lower()
+    assert missing_guard.exit_code != 0
+    assert "expected-run-id" in missing_guard.output.lower()
+    assert wrong_guard.exit_code != 0
+    assert "mismatch" in wrong_guard.output.lower()
+    assert replaced.exit_code == 0, replaced.output
+    replacement_identity = json.loads(
+        (output_dir / "run_identity.json").read_text(encoding="utf-8")
+    )
+    assert replacement_identity["project_id"] == "project-claim-cli"
+    assert replacement_identity["run_id"] != identity["run_id"]

@@ -1,0 +1,20 @@
+{
+  "artifact_sha256": {
+    "ai_task_spec.yaml": "a60d76b2caa9d28c950b846f664d83186d9ea20d2316a7b992f307c9acfa9789",
+    "alignment_trace.jsonl": "0d9013f3c87e4c6d2a109e7adc61e10e4446dd07bf3ad9878f6ab0a1b727b5a5",
+    "concept_alignment_table.csv": "925d9af01e6f12129164d07d7ec5b62847524e5b6ba881fc6971901dd371a3db",
+    "evaluation_protocol.md": "700e559f40ffbe5cafdad02d34c7de26ac1498287d681dcad8e8c34f9d8d2389",
+    "evidence_contract.yaml": "6b172a3cccb56114f759eee4735ee873370fed784b37ee1954da59b982cee48d",
+    "human_in_loop_plan.md": "54b6233b73249f909e9f10880ef2e9b69ad9772a80dedf17bb7590137e71ce5c",
+    "implementation_routes.md": "357bde7456d6846b7fe1003764fa4f430ab4a3534353f14cbf3a1e3aa2896f2f",
+    "misalignment_risk_report.md": "e108d4a77f396507d2f4c9dbddc36c725258d872bb85a9467e1fc71912ee7b2d",
+    "painpoint_opportunity_matrix.csv": "94d999f672c07e4ff7bcefd20aabbe17ea22c2b331bd6daccc308c7e59f5e82d",
+    "problem_card.md": "9a61aeb9400a6733ef7fc82ff97bc0b29e4c27d5b25adffb98c1598a3d916b52",
+    "workflow_map.md": "cafb7a6ffe5c063e291e5c8588669a5177de7a92f1e73542f3fdb9418d54389e"
+  },
+  "completed_at": "2026-07-11T07:11:48.254198+00:00",
+  "project_id": "sample-cultural-archive",
+  "run_id": "run-77584e7042034eeb9294115331ce9875",
+  "run_identity_sha256": "c714a01b9687115fd8f08cfe41e993b587ab40fbf6881dd899eb0e859a473167",
+  "schema_version": 2
+}

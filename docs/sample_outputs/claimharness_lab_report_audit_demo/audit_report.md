@@ -18,6 +18,7 @@ The proposed harness improves macro F1 and recall over a baseline rules-only wor
 
 - Source section: Abstract
 - Source line: 5
+- Source kind: manuscript
 - Risk level: low
 - Reason: Required evidence is missing: table.
 - Required evidence: table
@@ -31,6 +32,7 @@ It enables auditable review by recording intermediate evidence, low-confidence s
 
 - Source section: Abstract
 - Source line: 5
+- Source kind: manuscript
 - Risk level: low
 - Reason: Only narrative or topically related evidence is available; no strong relation was verified.
 - Required evidence: trace
@@ -44,6 +46,7 @@ The workflow is ready for real-world operational deployment.
 
 - Source section: Abstract
 - Source line: 5
+- Source kind: manuscript
 - Risk level: high
 - Reason: High-risk readiness or deployment language is missing required evidence: external_validation, human_review.
 - Required evidence: external_validation, human_review
@@ -57,6 +60,7 @@ Report review requires reliable boundaries around what a measurement table suppo
 
 - Source section: Introduction
 - Source line: 9
+- Source kind: manuscript
 - Risk level: low
 - Reason: Required evidence is missing: robustness_test.
 - Required evidence: robustness_test
@@ -70,6 +74,7 @@ A lightweight harness reduces the risk of opaque model output by separating the 
 
 - Source section: Introduction
 - Source line: 9
+- Source kind: manuscript
 - Risk level: low
 - Reason: Provided evidence conflicts with the claim: S012.
 - Required evidence: trace
@@ -83,6 +88,7 @@ The first design goal is to make every report claim traceable to a table row, a 
 
 - Source section: Introduction
 - Source line: 9
+- Source kind: manuscript
 - Risk level: low
 - Reason: Required evidence is missing: citation.
 - Required evidence: citation
@@ -96,6 +102,7 @@ The workflow uses an explainable evidence summary, a confidence note, and a stru
 
 - Source section: Methods
 - Source line: 13
+- Source kind: manuscript
 - Risk level: low
 - Reason: Required evidence is missing: trace.
 - Required evidence: trace
@@ -109,6 +116,7 @@ The human review gate supports manual inspection when evidence confidence is low
 
 - Source section: Methods
 - Source line: 13
+- Source kind: manuscript
 - Risk level: low
 - Reason: Required evidence is missing: trace.
 - Required evidence: trace
@@ -122,6 +130,7 @@ Trace replay enables reviewers to see which table metrics, ablation rows, and li
 
 - Source section: Methods
 - Source line: 13
+- Source kind: manuscript
 - Risk level: low
 - Reason: Only narrative or topically related evidence is available; no strong relation was verified.
 - Required evidence: trace
@@ -135,6 +144,7 @@ The evidence_guided_reviewer_v1 model outperforms the baseline_rules model on ma
 
 - Source section: Results
 - Source line: 17
+- Source kind: manuscript
 - Risk level: low
 - Reason: All evidence requirements are met with 3 independently verifiable strong evidence item(s).
 - Required evidence: table
@@ -148,6 +158,7 @@ Adding the human review gate increases macro F1 from 0.86 to 0.88 and recall fro
 
 - Source section: Results
 - Source line: 17
+- Source kind: manuscript
 - Risk level: low
 - Reason: All evidence requirements are met with 2 independently verifiable strong evidence item(s).
 - Required evidence: table
@@ -161,6 +172,7 @@ The full harness improves workflow success rate from 0.70 in the answer-only set
 
 - Source section: Results
 - Source line: 17
+- Source kind: manuscript
 - Risk level: low
 - Reason: All evidence requirements are met with 4 independently verifiable strong evidence item(s).
 - Required evidence: table
@@ -174,6 +186,7 @@ The compact reviewer is less reliable around ambiguous limitation statements des
 
 - Source section: Results
 - Source line: 17
+- Source kind: manuscript
 - Risk level: low
 - Reason: Required evidence is missing: robustness_test.
 - Required evidence: robustness_test
@@ -187,6 +200,7 @@ The table evidence supports claims about review metrics and workflow ablation un
 
 - Source section: Discussion
 - Source line: 21
+- Source kind: manuscript
 - Risk level: low
 - Reason: Required evidence is missing: trace.
 - Required evidence: trace
@@ -200,6 +214,7 @@ The workflow is robust to missing trace commentary only in the narrow sense that
 
 - Source section: Discussion
 - Source line: 21
+- Source kind: manuscript
 - Risk level: low
 - Reason: Required evidence is missing: robustness_test.
 - Required evidence: robustness_test
@@ -213,6 +228,7 @@ ClaimHarness enables a compact demonstration of claim extraction, evidence linki
 
 - Source section: Conclusion
 - Source line: 25
+- Source kind: manuscript
 - Risk level: low
 - Reason: Only narrative or topically related evidence is available; no strong relation was verified.
 - Required evidence: trace

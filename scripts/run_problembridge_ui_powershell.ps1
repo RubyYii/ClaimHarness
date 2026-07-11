@@ -4,39 +4,14 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 Set-Location $repoRoot
 
 $venvPython = Join-Path $repoRoot ".venv\Scripts\python.exe"
+$setupMarker = Join-Path $repoRoot ".venv\.claimharness_setup_v0.4.0"
 
-if (-not (Test-Path $venvPython)) {
-    Write-Host "Creating local Python environment..."
-    if (Get-Command py -ErrorAction SilentlyContinue) {
-        & py -3 -m venv .venv
-        if ($LASTEXITCODE -ne 0) {
-            throw "Failed to create the local Python environment with the py launcher (exit code $LASTEXITCODE)."
-        }
+if (-not (Test-Path $venvPython) -or -not (Test-Path $setupMarker)) {
+    Write-Host "First run or version change detected; preparing the local environment once..."
+    & (Join-Path $PSScriptRoot "setup_problembridge_windows.ps1")
+    if (-not (Test-Path $venvPython) -or -not (Test-Path $setupMarker)) {
+        throw "ProblemBridge setup did not complete successfully."
     }
-    elseif (Get-Command python -ErrorAction SilentlyContinue) {
-        & python -m venv .venv
-        if ($LASTEXITCODE -ne 0) {
-            throw "Failed to create the local Python environment with python (exit code $LASTEXITCODE)."
-        }
-    }
-    else {
-        throw 'Python 3.10 or newer was not found. Install Python and enable "Add python.exe to PATH".'
-    }
-}
-
-if (-not (Test-Path $venvPython)) {
-    throw "The local Python environment could not be created."
-}
-
-Write-Host "Installing or updating ProblemBridge UI dependencies..."
-& $venvPython -m pip install --upgrade pip
-if ($LASTEXITCODE -ne 0) {
-    throw "Failed to upgrade pip in the local Python environment (exit code $LASTEXITCODE)."
-}
-
-& $venvPython -m pip install -e ".[dev,ui]"
-if ($LASTEXITCODE -ne 0) {
-    throw "Failed to install ProblemBridge UI dependencies (exit code $LASTEXITCODE)."
 }
 
 Write-Host "Starting ProblemBridge local UI..."

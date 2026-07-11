@@ -1,9 +1,11 @@
+import json
 from pathlib import Path
 
 from typer.testing import CliRunner
 
 import problem_bridge
 from problem_bridge.cli import app
+from problem_bridge.project_lifecycle import is_run_complete
 
 
 EXPECTED_FILES = {
@@ -20,6 +22,8 @@ EXPECTED_FILES = {
     "alignment_trace.jsonl",
     "project_record.json",
     "project_summary_log.md",
+    "run_identity.json",
+    "run_complete.json",
 }
 
 
@@ -35,6 +39,8 @@ def test_align_help_documents_problem_alignment_cli():
     assert "Generate a Problem Alignment Package" in result.output
     assert "--brief" in result.output
     assert "--llm" in result.output
+    assert "--mode" in result.output
+    assert "--project-id" in result.output
 
 
 def test_align_rejects_unknown_provider(tmp_path):
@@ -87,3 +93,90 @@ def test_align_writes_deterministic_quality_inspection_package(tmp_path):
     assert "quality_inspection_review_alignment" in task_spec
     assert "not_allowed_goal: autonomous pass/fail decision" in task_spec
     assert "pass/fail decision" in risk_report
+
+
+def test_align_refuses_implicit_overwrite_and_requires_explicit_replace(tmp_path):
+    runner = CliRunner()
+    out = tmp_path / "alignment"
+    command = [
+        "align",
+        "--brief",
+        "examples/problem_bridge/quality_inspection/problem.md",
+        "--out",
+        str(out),
+        "--project-id",
+        "project-cli-test",
+    ]
+
+    first = runner.invoke(app, command)
+    identity = json.loads((out / "run_identity.json").read_text(encoding="utf-8"))
+    second = runner.invoke(app, command)
+    missing_guard = runner.invoke(app, [*command, "--mode", "replace"])
+    wrong = runner.invoke(
+        app,
+        [*command, "--mode", "replace", "--expected-run-id", "run-wrong"],
+    )
+    replaced = runner.invoke(
+        app,
+        [
+            *command,
+            "--mode",
+            "replace",
+            "--expected-run-id",
+            identity["run_id"],
+        ],
+    )
+
+    assert first.exit_code == 0
+    assert second.exit_code != 0
+    assert "new mode requires an empty directory" in second.output.lower()
+    assert missing_guard.exit_code != 0
+    assert "expected-run-id" in missing_guard.output.lower()
+    assert wrong.exit_code != 0
+    assert "mismatch" in wrong.output.lower()
+    assert replaced.exit_code == 0
+    replacement_identity = json.loads((out / "run_identity.json").read_text(encoding="utf-8"))
+    assert replacement_identity["project_id"] == "project-cli-test"
+    assert replacement_identity["run_id"] != identity["run_id"]
+    assert (out / "run_complete.json").is_file()
+
+
+def test_record_revision_does_not_invalidate_completed_alignment_run(tmp_path):
+    runner = CliRunner()
+    out = tmp_path / "alignment"
+    aligned = runner.invoke(
+        app,
+        [
+            "align",
+            "--brief",
+            "examples/problem_bridge/quality_inspection/problem.md",
+            "--out",
+            str(out),
+            "--project-id",
+            "project-revision-test",
+        ],
+    )
+    assert aligned.exit_code == 0
+    assert is_run_complete(out)
+
+    revised = runner.invoke(
+        app,
+        [
+            "record-revision",
+            "--project",
+            str(out),
+            "--target",
+            "alignment-contract",
+            "--diagnosis",
+            "evidence_gap",
+            "--summary",
+            "Added an explicit review note.",
+            "--verification",
+            "Reviewed the generated contract.",
+            "--output-artifact",
+            "evidence_contract.yaml",
+        ],
+    )
+
+    assert revised.exit_code == 0
+    assert is_run_complete(out)
