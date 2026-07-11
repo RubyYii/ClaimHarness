@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import hashlib
 import json
 import re
@@ -86,6 +87,14 @@ MEMORY_FILE_LABEL = "workbench_memory.json"
 PAGE_OPTIONS = [
     "Home",
     "Explore examples",
+    "Document intake",
+    "Question discovery",
+    "Domain practitioner wizard",
+    "AI practitioner wizard",
+    "View generated outputs",
+]
+
+WORKSPACE_FLOW_PAGES = [
     "Document intake",
     "Question discovery",
     "Domain practitioner wizard",
@@ -382,6 +391,7 @@ DRAFT_KEY_GROUPS = {
 }
 
 PROJECT_SCOPED_SESSION_KEYS = (
+    "active_project_id",
     "last_output_dir",
     "last_document_intake_dir",
     "last_question_discovery_dir",
@@ -392,6 +402,8 @@ PROJECT_SCOPED_SESSION_KEYS = (
     "interview_seed_source",
     "ai_seed_source_dir",
     "domain_input_mode",
+    "confirm_interview_reset",
+    "confirm_start_new_project",
 )
 PROJECT_SCOPED_KEY_PREFIXES = ("interview_answer_", "interview_edit_")
 
@@ -567,6 +579,7 @@ def main() -> None:
     else:
         _render_compact_shell_header(page)
     _render_workflow_strip(page, compact=page != "Home")
+    _render_flow_navigation(page)
     _safety_banner(compact=page != "Home")
     _render_flash_message()
 
@@ -624,8 +637,14 @@ def _render_memory_sidebar() -> None:
             if st.button(_text("Clear memory", "清除记忆"), key="memory_clear"):
                 clear_workbench_memory(MEMORY_PATH)
                 st.session_state.pending_workbench_memory = {}
-                st.session_state.pending_workbench_memory_clear = True
-                _set_flash_message("success", _text("Local workspace memory cleared.", "本地工作台记忆已清除。"))
+                st.session_state.pending_workbench_memory_clear = False
+                _set_flash_message(
+                    "success",
+                    _text(
+                        "Saved workspace memory cleared; current on-screen drafts were kept.",
+                        "已清除保存的工作台记忆；当前页面中的草稿仍然保留。",
+                    ),
+                )
                 st.rerun()
 
     st.sidebar.caption(
@@ -640,10 +659,39 @@ def _render_project_sidebar() -> None:
     project_id = _active_project_id()
     st.sidebar.divider()
     st.sidebar.caption(_text(f"Active project: `{project_id}`", f"当前项目：`{project_id}`"))
-    if st.sidebar.button(_text("Start a new project", "开始新项目"), key="start_new_project"):
-        _reset_active_project()
-        _set_flash_message("success", _text("Started a new local project.", "已开始一个新的本地项目。"))
-        st.rerun()
+    if not st.session_state.get("confirm_start_new_project"):
+        if st.sidebar.button(_text("Start a new project", "开始新项目"), key="start_new_project"):
+            st.session_state.confirm_start_new_project = True
+            st.rerun()
+    else:
+        st.sidebar.warning(
+            _text(
+                "Starting a new project clears current drafts from this workspace. Existing generated runs stay on disk.",
+                "开始新项目会清空当前工作台草稿；已经生成的运行结果仍保留在本地。",
+            )
+        )
+        if st.sidebar.button(
+            _text("Save drafts, then start", "保存草稿后开始"),
+            key="save_then_start_project",
+        ):
+            payload = _current_workbench_memory()
+            save_workbench_memory(payload, MEMORY_PATH)
+            st.session_state.workbench_memory = payload
+            st.session_state.pop("confirm_start_new_project", None)
+            _reset_active_project()
+            _set_flash_message("success", _text("Drafts saved; started a new local project.", "草稿已保存，并已开始新的本地项目。"))
+            st.rerun()
+        if st.sidebar.button(
+            _text("Start without saving drafts", "不保存草稿并开始"),
+            key="discard_then_start_project",
+        ):
+            st.session_state.pop("confirm_start_new_project", None)
+            _reset_active_project()
+            _set_flash_message("success", _text("Started a new local project.", "已开始一个新的本地项目。"))
+            st.rerun()
+        if st.sidebar.button(_text("Cancel", "取消"), key="cancel_start_project"):
+            st.session_state.pop("confirm_start_new_project", None)
+            st.rerun()
     project_runs = _project_run_paths(project_id)
     show_project_deletion = st.sidebar.checkbox(
         _text("Show project deletion controls", "显示项目删除控件"),
@@ -751,6 +799,19 @@ def _apply_memory_to_session(memory: dict, clear_existing: bool) -> None:
             if str(key).startswith(PROJECT_SCOPED_KEY_PREFIXES):
                 del st.session_state[key]
 
+    memory_project_id = (
+        memory.get("active_project_id") if isinstance(memory, dict) else None
+    )
+    if not _is_valid_project_id(memory_project_id):
+        memory_project_id = None
+    existing_project_id = st.session_state.get("active_project_id")
+    if clear_existing and memory_project_id is not None:
+        st.session_state.active_project_id = memory_project_id
+    elif memory_project_id is not None:
+        if _is_valid_project_id(existing_project_id) and existing_project_id != memory_project_id:
+            return
+        st.session_state.setdefault("active_project_id", memory_project_id)
+
     drafts = memory.get("drafts", {}) if isinstance(memory, dict) else {}
     if isinstance(drafts, dict):
         for group, field_keys in DRAFT_KEY_GROUPS.items():
@@ -761,10 +822,13 @@ def _apply_memory_to_session(memory: dict, clear_existing: bool) -> None:
                 if key in group_values:
                     st.session_state.setdefault(key, group_values[key])
 
+    active_project_id = st.session_state.get("active_project_id")
     if isinstance(memory, dict) and memory.get("last_output_dir"):
-        st.session_state.setdefault("last_output_dir", memory["last_output_dir"])
-    if isinstance(memory, dict) and memory.get("active_project_id"):
-        st.session_state.setdefault("active_project_id", memory["active_project_id"])
+        restored_output = _validated_project_output_path(
+            memory["last_output_dir"], active_project_id
+        )
+        if restored_output is not None:
+            st.session_state.setdefault("last_output_dir", str(restored_output))
 
 
 def _current_workbench_memory() -> dict:
@@ -778,12 +842,16 @@ def _current_workbench_memory() -> dict:
 
 def _active_project_id() -> str:
     project_id = st.session_state.get("active_project_id")
-    if not isinstance(project_id, str) or not re.fullmatch(
-        r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}", project_id
-    ):
+    if not _is_valid_project_id(project_id):
         project_id = f"project-{uuid.uuid4().hex}"
         st.session_state.active_project_id = project_id
     return project_id
+
+
+def _is_valid_project_id(value: object) -> bool:
+    return isinstance(value, str) and bool(
+        re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}", value)
+    )
 
 
 def _reset_active_project() -> str:
@@ -997,7 +1065,15 @@ def _inject_visual_theme() -> None:
           transition: background .16s ease, border-color .16s ease, box-shadow .16s ease;
         }
         [data-testid="stSidebar"] [role="radiogroup"] label[data-baseweb="radio"] > div:first-child {
-          display: none;
+          position: absolute !important;
+          width: 1px !important;
+          height: 1px !important;
+          padding: 0 !important;
+          margin: -1px !important;
+          overflow: hidden !important;
+          clip: rect(0, 0, 0, 0) !important;
+          white-space: nowrap !important;
+          border: 0 !important;
         }
         [data-testid="stSidebar"] [role="radiogroup"] label[data-baseweb="radio"]:hover {
           background: var(--pb-soft-teal);
@@ -1234,11 +1310,17 @@ def _inject_visual_theme() -> None:
         textarea, input { border-radius: 8px !important; }
         @media (max-width: 900px) {
           .st-key-workflow_steps_container [data-testid="stHorizontalBlock"] {
-            flex-direction: column;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scroll-snap-type: x proximity;
+            padding-bottom: 4px;
           }
           .st-key-workflow_steps_container [data-testid="stColumn"] {
-            width: 100% !important;
-            flex: 1 1 100% !important;
+            width: 168px !important;
+            min-width: 168px !important;
+            flex: 0 0 168px !important;
+            scroll-snap-align: start;
           }
           .visual-shell { padding: 22px 18px; }
         }
@@ -1329,6 +1411,54 @@ def _render_workflow_strip(active_page: str, *, compact: bool = False) -> None:
                     </article>
                     """,
                     unsafe_allow_html=True,
+                )
+
+
+def _render_flow_navigation(active_page: str) -> None:
+    if active_page not in WORKSPACE_FLOW_PAGES:
+        return
+    current_index = WORKSPACE_FLOW_PAGES.index(active_page)
+    previous_page = (
+        WORKSPACE_FLOW_PAGES[current_index - 1] if current_index > 0 else None
+    )
+    next_page = (
+        WORKSPACE_FLOW_PAGES[current_index + 1]
+        if current_index + 1 < len(WORKSPACE_FLOW_PAGES)
+        else None
+    )
+    with st.container(key="flow_navigation_container"):
+        previous_col, progress_col, next_col = st.columns([1, 1.1, 1])
+        with previous_col:
+            if previous_page is not None:
+                st.button(
+                    _text(
+                        f"← Previous: {_page_label(previous_page)}",
+                        f"← 上一步：{_page_label(previous_page)}",
+                    ),
+                    key=f"flow_previous_{current_index}",
+                    on_click=_navigate_to_page,
+                    args=(previous_page,),
+                    use_container_width=True,
+                )
+        with progress_col:
+            st.caption(
+                _text(
+                    f"Workflow step {current_index + 1} of {len(WORKSPACE_FLOW_PAGES)}",
+                    f"工作流第 {current_index + 1}/{len(WORKSPACE_FLOW_PAGES)} 步",
+                )
+            )
+        with next_col:
+            if next_page is not None:
+                st.button(
+                    _text(
+                        f"Next: {_page_label(next_page)} →",
+                        f"下一步：{_page_label(next_page)} →",
+                    ),
+                    key=f"flow_next_{current_index}",
+                    on_click=_navigate_to_page,
+                    args=(next_page,),
+                    type="primary",
+                    use_container_width=True,
                 )
 
 
@@ -1535,13 +1665,12 @@ def _question_discovery() -> None:
     else:
         previous_out = _last_output_path("last_question_discovery_dir")
         if previous_out:
-            st.info(
-                _text(
-                    "Most recent question discovery package is still available below.",
-                    "最近一次问题发现结果仍可在下方继续使用。",
-                )
+            _render_previous_result_card(
+                previous_out,
+                _render_question_discovery_output,
+                key_suffix="question-discovery",
+                label=_text("question discovery result", "问题发现结果"),
             )
-            _render_question_discovery_output(previous_out)
 
 
 def _render_question_discovery_output(out: Path) -> None:
@@ -1689,13 +1818,12 @@ def _document_intake() -> None:
     if generated_out is None:
         previous_out = _last_output_path("last_document_intake_dir")
         if previous_out:
-            st.info(
-                _text(
-                    "Most recent document intake package is still available below.",
-                    "最近一次文档摄取结果仍可在下方继续使用。",
-                )
+            _render_previous_result_card(
+                previous_out,
+                _render_document_intake_output,
+                key_suffix="document-intake",
+                label=_text("document intake result", "文档摄取结果"),
             )
-            _render_document_intake_output(previous_out)
 
 
 def _render_document_intake_output(out: Path) -> None:
@@ -1817,14 +1945,12 @@ def _domain_wizard() -> None:
         if generated_out is None:
             previous_out = _last_output_path("last_alignment_package_dir")
             if previous_out:
-                st.info(
-                    _text(
-                        "Most recent workflow alignment remains available below.",
-                        "下方仍可查看最近一次工作流对齐结果。",
-                    )
+                _render_previous_result_card(
+                    previous_out,
+                    _render_workflow_alignment_result,
+                    key_suffix="guided-alignment",
+                    label=_text("workflow alignment result", "工作流对齐结果"),
                 )
-                _render_alignment_next_step(previous_out)
-                _render_friendly_output(previous_out)
         return
 
     st.divider()
@@ -1923,9 +2049,12 @@ def _domain_wizard() -> None:
     else:
         previous_out = _last_output_path("last_alignment_package_dir")
         if previous_out:
-            st.info(_text("Most recent workflow alignment is shown below.", "下方显示最近一次工作流对齐结果。"))
-            _render_alignment_next_step(previous_out)
-            _render_friendly_output(previous_out)
+            _render_previous_result_card(
+                previous_out,
+                _render_workflow_alignment_result,
+                key_suffix="advanced-alignment",
+                label=_text("workflow alignment result", "工作流对齐结果"),
+            )
 
 def _guided_interview() -> Path | None:
     generated_out: Path | None = None
@@ -2007,14 +2136,35 @@ def _guided_interview() -> Path | None:
 
         reset_col, generate_col = st.columns(2)
         with reset_col:
-            if st.button(_text("Reset guided interview", "重置访谈"), key="interview_reset"):
-                st.session_state.problem_bridge_interview_state = start_interview()
-                st.session_state.pop("interview_seed_source", None)
-                for key in list(st.session_state):
-                    if str(key).startswith(("interview_answer_", "interview_edit_")):
-                        del st.session_state[key]
-                _set_flash_message("success", _text("Guided interview reset.", "引导式访谈已重置。"))
-                st.rerun()
+            if not st.session_state.get("confirm_interview_reset"):
+                if st.button(_text("Reset guided interview", "重置访谈"), key="interview_reset"):
+                    st.session_state.confirm_interview_reset = True
+                    st.rerun()
+            else:
+                st.warning(
+                    _text(
+                        "Resetting removes the current interview answers.",
+                        "重置会清除当前访谈答案。",
+                    )
+                )
+                if st.button(
+                    _text("Confirm interview reset", "确认重置访谈"),
+                    key="confirm_interview_reset_button",
+                ):
+                    st.session_state.problem_bridge_interview_state = start_interview()
+                    st.session_state.pop("interview_seed_source", None)
+                    st.session_state.pop("confirm_interview_reset", None)
+                    for key in list(st.session_state):
+                        if str(key).startswith(("interview_answer_", "interview_edit_")):
+                            del st.session_state[key]
+                    _set_flash_message("success", _text("Guided interview reset.", "引导式访谈已重置。"))
+                    st.rerun()
+                if st.button(
+                    _text("Cancel reset", "取消重置"),
+                    key="cancel_interview_reset",
+                ):
+                    st.session_state.pop("confirm_interview_reset", None)
+                    st.rerun()
         with generate_col:
             ready = is_ready_for_alignment(state)
             if st.button(
@@ -2122,9 +2272,12 @@ def _ai_wizard() -> None:
     else:
         previous_out = _last_output_path("last_ai_alignment_dir")
         if previous_out:
-            st.info(_text("Most recent AI alignment result is shown below.", "下方显示最近一次 AI 对齐结果。"))
-            _render_view_outputs_next_step(previous_out)
-            _render_friendly_output(previous_out)
+            _render_previous_result_card(
+                previous_out,
+                _render_ai_alignment_result,
+                key_suffix="ai-alignment",
+                label=_text("AI alignment result", "AI 对齐结果"),
+            )
 
 def _view_outputs() -> None:
     _render_page_intro(
@@ -2216,7 +2369,177 @@ def _view_outputs() -> None:
         index=_view_outputs_index_for_last_run(runs, st.session_state.get("last_output_dir", "")),
         format_func=lambda path: run_labels[path],
     )
-    _render_friendly_output(selected)
+    _render_output_for_run(selected)
+
+
+def _output_kind(out: Path) -> str:
+    """Return the narrow renderer kind for one verified or legacy output package."""
+
+    if (out / RUN_IDENTITY_NAME).is_file():
+        _project_id, workflow_type = _view_output_identity_details(out)
+        suffix = workflow_type.removeprefix("problem_bridge.")
+        if suffix == "document_intake":
+            return "document-intake"
+        if suffix == "question_discovery":
+            return "question-discovery"
+        if suffix in {"claim_audit", "claim-harness", "audit"} or workflow_type == "claim_harness.audit":
+            return "claim-audit"
+        return "alignment"
+    return _detect_legacy_package_type(out)
+
+
+def _detect_legacy_package_type(out: Path) -> str:
+    detected = [
+        package_type
+        for package_type, sentinels in LEGACY_PACKAGE_SENTINELS.items()
+        if any((out / name).is_file() for name in sentinels)
+    ]
+    if len(detected) != 1:
+        raise ValueError(
+            "Legacy output must contain exactly one recognizable package type; "
+            "regenerate mixed or unknown folders as a governed run."
+        )
+    return detected[0]
+
+
+def _render_output_for_run(out: Path) -> None:
+    try:
+        kind = _output_kind(out)
+    except (OSError, ValueError, ProjectLifecycleError) as exc:
+        st.error(
+            _text(
+                "This output package cannot be opened safely.",
+                "无法安全打开这个输出包。",
+            )
+        )
+        st.caption(str(exc))
+        return
+    if kind == "document-intake":
+        _render_document_intake_output(out)
+    elif kind == "question-discovery":
+        _render_question_discovery_output(out)
+    elif kind == "claim-audit":
+        _render_claim_audit_output(out)
+    else:
+        _render_friendly_output(out)
+
+
+def _render_claim_audit_output(out: Path) -> None:
+    st.subheader(_text("Claim audit summary", "声明审计摘要"))
+    diagnostics_path = out / "audit_diagnostics.json"
+    queue_path = out / "human_review_queue.json"
+    diagnostics = _read_optional_json_object(
+        diagnostics_path, _text("audit diagnostics", "审计诊断")
+    )
+    queue = _read_optional_json_object(
+        queue_path, _text("human-review queue", "人工复核队列")
+    )
+    metrics = diagnostics.get("metrics", {}) if diagnostics else {}
+
+    claim_path = out / "claim_table.csv"
+    rows: list[dict[str, str]] = []
+    if claim_path.is_file():
+        try:
+            with claim_path.open(newline="", encoding="utf-8") as handle:
+                rows = list(csv.DictReader(handle))
+        except (OSError, UnicodeError, csv.Error) as exc:
+            st.warning(
+                _text(
+                    f"Claim table is unavailable: {exc}",
+                    f"声明表不可用：{exc}",
+                )
+            )
+
+    def metric_value(name: str) -> str:
+        metric = metrics.get(name, {})
+        if not isinstance(metric, dict) or "numerator" not in metric:
+            return _text("Unavailable", "不可用")
+        return f"{metric.get('numerator', 0)}/{metric.get('denominator', 0)}"
+
+    needs_review_count = sum(
+        row.get("status") == "needs_human_review" for row in rows
+    )
+    pending_items = (
+        queue.get("counts", {}).get("pending_items", 0)
+        if queue is not None and isinstance(queue.get("counts", {}), dict)
+        else _text("Unavailable", "不可用")
+    )
+
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric(_text("Claims", "声明"), len(rows))
+    col2.metric(_text("Support relations", "支持关系"), metric_value("support_relation_coverage"))
+    col3.metric(
+        _text("Needs human review", "需人工复核"),
+        f"{needs_review_count}/{len(rows)}" if rows else _text("Unavailable", "不可用"),
+    )
+    col4.metric(_text("Pending review items", "待复核事项"), pending_items)
+    st.caption(
+        _text(
+            "Structural diagnostics describe this run only; they are not factual-correctness or scientific-validity scores.",
+            "结构诊断只描述本次运行，不是事实正确性或科学有效性评分。",
+        )
+    )
+    if diagnostics is None or queue is None:
+        st.info(
+            _text(
+                "This older package does not contain every diagnostic artifact; unavailable values are not treated as zero.",
+                "这个旧版结果包缺少部分诊断文件；不可用的数值不会按零处理。",
+            )
+        )
+
+    if rows:
+        attention = [row for row in rows if row.get("status") != "supported"]
+        st.markdown(f"### {_text('Claims needing attention', '需要处理的声明')}")
+        if attention:
+            st.dataframe(
+                [
+                    {
+                        "claim_id": row.get("claim_id", ""),
+                        "status": row.get("status", ""),
+                        "risk": row.get("risk_level", ""),
+                        "claim": row.get("text", ""),
+                        "next_action": row.get("suggested_revision", ""),
+                    }
+                    for row in attention
+                ],
+                use_container_width=True,
+                hide_index=True,
+            )
+        else:
+            st.success(_text("No claims need follow-up in this run.", "本次运行没有需要跟进的声明。"))
+
+    _render_share_controls(out, "ClaimHarness audit")
+    _render_report_export_buttons(out)
+    with st.expander(_text("Audit files", "审计文件")):
+        for filename in (
+            "audit_report.md",
+            "revision_suggestions.md",
+            "audit_diagnostics.json",
+            "human_review_queue.json",
+        ):
+            path = out / filename
+            if path.is_file():
+                st.markdown(f"### {filename}")
+                st.code(path.read_text(encoding="utf-8"), language=_language_for(filename))
+
+
+def _read_optional_json_object(path: Path, label: str) -> dict | None:
+    if not path.is_file():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        st.warning(_text(f"Could not read {label}: {exc}", f"无法读取{label}：{exc}"))
+        return None
+    if not isinstance(payload, dict):
+        st.warning(
+            _text(
+                f"Could not read {label}: expected a JSON object.",
+                f"无法读取{label}：应为 JSON 对象。",
+            )
+        )
+        return None
+    return payload
 
 
 def _sort_view_output_runs(paths: list[Path]) -> tuple[list[Path], dict[Path, str]]:
@@ -2296,6 +2619,11 @@ def _render_alignment_next_step(out: Path) -> None:
     )
 
 
+def _render_workflow_alignment_result(out: Path) -> None:
+    _render_alignment_next_step(out)
+    _render_friendly_output(out)
+
+
 def _render_view_outputs_next_step(out: Path) -> None:
     st.subheader(_text("Next step", "下一步"))
     st.write(
@@ -2314,12 +2642,54 @@ def _render_view_outputs_next_step(out: Path) -> None:
     )
 
 
+def _render_ai_alignment_result(out: Path) -> None:
+    _render_view_outputs_next_step(out)
+    _render_friendly_output(out)
+
+
+def _render_previous_result_card(
+    out: Path,
+    renderer,
+    *,
+    key_suffix: str,
+    label: str,
+) -> None:
+    st.info(
+        _text(
+            f"A previous {label} is available. It does not include edits currently in this form.",
+            f"已有上一次{label}。它不包含当前表单中尚未生成的修改。",
+        )
+    )
+    show_previous = st.checkbox(
+        _text(f"Show most recent {label}", f"显示最近一次{label}"),
+        value=False,
+        key=f"show_previous_{key_suffix}_{out.name}",
+    )
+    if show_previous:
+        renderer(out)
+
+
 def _last_output_path(session_key: str) -> Path | None:
     value = st.session_state.get(session_key)
     if not value:
         return None
-    path = Path(value)
-    return path if path.is_dir() else None
+    return _validated_project_output_path(value, _active_project_id())
+
+
+def _validated_project_output_path(
+    value: str | Path,
+    project_id: object,
+) -> Path | None:
+    if not _is_valid_project_id(project_id):
+        return None
+    try:
+        path = _resolve_ui_run_for_read(Path(value))
+        identity = load_run_identity(path)
+    except (OSError, ValueError, ProjectLifecycleError):
+        return None
+    if identity.get("project_id") != project_id or not is_run_complete(path):
+        return None
+    return path
 
 
 def _read_output_text(out: Path, filename: str) -> str:
@@ -2686,12 +3056,18 @@ def _render_friendly_output(out: Path) -> None:
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(f"### {_text('Priority opportunities', '优先机会')}")
-        for item in summary.opportunities[:5]:
-            st.write(f"- {item}")
+        if summary.opportunities:
+            for item in summary.opportunities[:5]:
+                st.write(f"- {item}")
+        else:
+            st.caption(_text("No priority opportunities were identified yet.", "暂未识别出优先机会。"))
     with col2:
         st.markdown(f"### {_text('Human review boundaries', '人工复核边界')}")
-        for item in summary.must_review[:5]:
-            st.write(f"- {item}")
+        if summary.must_review:
+            for item in summary.must_review[:5]:
+                st.write(f"- {item}")
+        else:
+            st.caption(_text("No explicit human-review boundary was found; add one before sharing.", "尚未找到明确的人工复核边界；分享前请补充。"))
 
     st.markdown(f"### {_text('Current workflow map', '当前工作流图')}")
     if summary.workflow_steps:
@@ -2701,8 +3077,11 @@ def _render_friendly_output(out: Path) -> None:
         st.write(_text("No clear workflow steps were identified yet.", "还没有识别出清晰的工作流步骤。"))
 
     st.markdown(f"### {_text('Next steps', '下一步')}")
-    for item in summary.next_steps[:5]:
-        st.write(f"- {item}")
+    if summary.next_steps:
+        for item in summary.next_steps[:5]:
+            st.write(f"- {item}")
+    else:
+        st.caption(_text("No next step was generated; review the technical package and define one.", "尚未生成下一步；请检查技术文件并补充行动。"))
 
     _render_share_controls(out, "ProblemBridge alignment")
     _render_report_export_buttons(out)
@@ -2716,7 +3095,17 @@ def _render_friendly_output(out: Path) -> None:
 def _render_report_export_buttons(out: Path) -> None:
     st.markdown(f"### {_text('Portable report exports', '可分享报告导出')}")
     try:
-        package = export_output_report(out)
+        token = _completed_run_cache_token(out)
+        if token is None:
+            package = export_output_report(out)
+            docx_name = package.docx_path.name
+            pdf_name = package.pdf_path.name
+            docx_bytes = package.docx_path.read_bytes()
+            pdf_bytes = package.pdf_path.read_bytes()
+        else:
+            docx_name, docx_bytes, pdf_name, pdf_bytes = _cached_report_payload(
+                str(out), token
+            )
     except Exception as exc:  # pragma: no cover - defensive UI guard
         st.warning(_text(f"Could not generate report exports: {exc}", f"无法生成报告导出：{exc}"))
         return
@@ -2725,16 +3114,16 @@ def _render_report_export_buttons(out: Path) -> None:
     with col1:
         st.download_button(
             _text("Download Word report", "下载 Word 报告"),
-            package.docx_path.read_bytes(),
-            file_name=package.docx_path.name,
+            docx_bytes,
+            file_name=docx_name,
             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             key=f"download_docx_{out.name}",
         )
     with col2:
         st.download_button(
             _text("Download PDF report", "下载 PDF 报告"),
-            package.pdf_path.read_bytes(),
-            file_name=package.pdf_path.name,
+            pdf_bytes,
+            file_name=pdf_name,
             mime="application/pdf",
             key=f"download_pdf_{out.name}",
         )
@@ -2776,7 +3165,12 @@ def _render_share_controls(
                 )
             )
 
-    archive_bytes = _make_archive(out, include_source_files=include_source_files)
+    token = _completed_run_cache_token(out)
+    archive_bytes = (
+        _cached_archive_payload(str(out), token, False)
+        if token is not None and not include_source_files
+        else _make_archive(out, include_source_files=include_source_files)
+    )
     st.download_button(
         _download_package_label(package_name),
         archive_bytes,
@@ -2810,6 +3204,58 @@ def _render_share_controls(
             st.rerun()
 
 
+def _completed_run_cache_token(out: Path) -> str | None:
+    identity = out / RUN_IDENTITY_NAME
+    completion = out / "run_complete.json"
+    if not identity.is_file() or not completion.is_file():
+        return None
+    try:
+        if not is_run_complete(out):
+            return None
+    except (OSError, ValueError, ProjectLifecycleError):
+        return None
+    digest = hashlib.sha256(completion.read_bytes())
+    if (out / "project_record.json").is_file():
+        governance = snapshot_project_governance(out)
+        for name, data in sorted(governance.items()):
+            digest.update(name.encode("utf-8"))
+            digest.update(b"\0")
+            digest.update(data)
+    return digest.hexdigest()
+
+
+@st.cache_data(show_spinner=False, ttl=300, max_entries=8)
+def _cached_archive_payload(
+    out_value: str,
+    completion_token: str,
+    include_source_files: bool,
+) -> bytes:
+    del completion_token
+    return _make_archive(
+        Path(out_value), include_source_files=include_source_files
+    )
+
+
+@st.cache_data(show_spinner=False, ttl=300, max_entries=8)
+def _cached_report_payload(
+    out_value: str,
+    completion_token: str,
+) -> tuple[str, bytes, str, bytes]:
+    del completion_token
+    package = export_output_report(Path(out_value))
+    return (
+        package.docx_path.name,
+        package.docx_path.read_bytes(),
+        package.pdf_path.name,
+        package.pdf_path.read_bytes(),
+    )
+
+
+def _clear_export_caches() -> None:
+    _cached_archive_payload.clear()
+    _cached_report_payload.clear()
+
+
 def _make_archive(out: Path, *, include_source_files: bool = False) -> bytes:
     """Build a verified allow-list archive from one immutable byte snapshot."""
 
@@ -2823,17 +3269,13 @@ def _make_archive(out: Path, *, include_source_files: bool = False) -> bytes:
         # Legacy folders have no immutable declaration. Detect exactly one
         # workflow from narrow sentinels; a global union would leak stale files
         # from another workflow (including local workbench drafts).
-        detected = [
-            package_type
-            for package_type, sentinels in LEGACY_PACKAGE_SENTINELS.items()
-            if any((out / name).is_file() for name in sentinels)
-        ]
-        if len(detected) != 1:
+        try:
+            legacy_package_type = _detect_legacy_package_type(out)
+        except ValueError as exc:
             raise ValueError(
                 "Legacy output cannot be shared safely: expected exactly one "
                 "recognizable package type. Regenerate it as a governed run."
-            )
-        legacy_package_type = detected[0]
+            ) from exc
         for name in sorted(LEGACY_PACKAGE_FILES[legacy_package_type]):
             path = out / name
             if path.is_file() and not path.is_symlink():
@@ -2948,6 +3390,7 @@ def _delete_ui_run(out: Path) -> None:
     archive = candidate.parent / f"{candidate.name}.zip"
     if archive.is_file():
         archive.unlink()
+    _clear_export_caches()
 
 
 def _project_run_paths(
@@ -3015,6 +3458,7 @@ def _delete_ui_project(project_id: str) -> int:
     memory = load_workbench_memory(MEMORY_PATH)
     if memory.get("active_project_id") == project_id:
         clear_workbench_memory(MEMORY_PATH)
+    _clear_export_caches()
     return len(runs)
 
 

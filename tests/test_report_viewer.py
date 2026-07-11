@@ -106,9 +106,31 @@ def test_render_report_viewer_writes_static_html(tmp_path):
     assert "Project summary log" in html
     assert "example-run" in html
     assert str(run_dir.parent) not in html
-    assert "data-filter=\"weak-or-worse\"" in html
+    assert 'href="#main-content"' in html
+    assert 'class="quick-nav"' in html
+    assert 'href="#claims"' in html
+    assert 'id="claim-search"' in html
+    assert 'data-filter="needs-action"' in html
+    assert 'data-filter="priority-review"' in html
+    assert 'id="claim-results"' in html
+    assert 'role="status" aria-live="polite"' in html
+    assert 'id="claim-C001"' in html
+    assert '<details class="row-details">' in html
+    assert 'role="region" aria-labelledby="claims-title" tabindex="0"' in html
+    assert '<th scope="col">ID</th>' in html
+    assert 'id="claim-empty"' in html
     assert "data-status=\"supported\"" in html
     assert "data-risk=\"high\"" in html
+    assert (
+        'id="claim-C001" data-claim-row data-status="supported" '
+        'data-risk="low" data-priority="false"'
+    ) in html
+    assert (
+        'id="claim-C002" data-claim-row data-status="overclaimed" '
+        'data-risk="high" data-priority="true"'
+    ) in html
+    assert "return copied;" in html
+    assert "Copy failed; select the review text manually." in html
     assert "Match reason" in html
     assert "Escaped &lt;claim&gt;" in html
     assert "<claim>" not in html
@@ -188,6 +210,10 @@ def test_viewer_renders_structural_diagnostics_precise_locations_and_pending_rev
     assert "1/2 (50.0%)" in html
     assert "Pending human review" in html
     assert "metrics.csv, data row 1, cells score=0.91 (B2)" in html
+    assert 'href="#claim-C002"' in html
+    assert 'id="claim-C002"' in html
+    assert 'data-copy-label="HR-C002-domain"' in html
+    assert "Copy review brief" in html
     assert "&lt;script&gt;alert(1)&lt;/script&gt;" in html
     assert "<script>alert(1)</script>" not in html
     assert "&lt;img src=x onerror=&quot;alert(1)&quot;&gt;/2 (50.0%)" in html

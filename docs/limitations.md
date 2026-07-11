@@ -15,6 +15,8 @@ ClaimHarness is a small engineering demo, not a scientific review authority.
 - The verifier is conservative but rule-based.
 - Optional LLM review output may be wrong and is advisory only.
 - Remote providers are available only through the ClaimHarness CLI. The local Streamlit UI is mock-only and does not accept, collect, or store API keys. Public provenance omits API keys, URL credentials, endpoint paths, and query strings, but it intentionally reveals the provider/model/API style and endpoint origin (scheme/host/port). This sanitization does not prevent `llm_review.json` or the submitted inputs from containing sensitive project text.
+- The Streamlit workbench can display an existing ClaimHarness package, but it does not execute a ClaimHarness audit. Audit execution, evidence-contract selection, and remote advisory providers remain CLI operations.
+- The static viewer search, filters, anchors, and copy helper run only in the local browser and do not change audit files or verification status. Clipboard access can be blocked by browser policy; the viewer reports failure but cannot grant clipboard permission.
 - `run_manifest.json` and `project_summary_log.md` provide provenance and navigation; they are not scientific evidence, peer review, or approval records.
 - `audit_diagnostics.json` has no gold labels. Its coverage and gap ratios describe only the current deterministic link graph and verifier outputs; they are not accuracy, faithfulness, hallucination, scientific-validity, or safety estimates.
 - `human_review_queue.json` is pending work only. ClaimHarness does not verify reviewer identity, qualifications, independence, or authority, and the queue cannot act as a human decision or upgrade a claim status.

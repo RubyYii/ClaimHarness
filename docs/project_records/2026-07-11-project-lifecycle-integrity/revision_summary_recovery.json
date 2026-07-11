@@ -2,10 +2,10 @@
   "schema_version": 1,
   "project_id": "claimharness-v040-lifecycle-integrity",
   "phase": "complete",
-  "request_sha256": "4fd9c459c1024e3d82ede9295676a76f4d6397d4adbc27f1508da3c4af11a90e",
-  "revision_id": "6319a120-af87-4f11-bb70-a1775ecc89f8",
-  "previous_history_sha256": "53b0317e4758648aa7fa5e5c9767ed091a3aa8e262530c826d0d52e2855e7d6a",
-  "committed_history_sha256": "6541ce7067399348a112936451c9635440f4126ef00dd37ecf304b6fd4804db8",
-  "created_at": "2026-07-11T15:56:53.266731+00:00",
-  "updated_at": "2026-07-11T15:56:53.282730+00:00"
+  "request_sha256": "141769059458c5f2ad6fbc8ebc0997b87fdddf2a255b359b74788919e42d080b",
+  "revision_id": "f1018a64-ee5a-4fbc-a1ea-85fb96653e8a",
+  "previous_history_sha256": "032cd9230aa70edfd3fd399776434e20371e7d838b132952f31649f00175178b",
+  "committed_history_sha256": "bd2e30c4d221173f251589b1bc90801e97bf0264387fae2d6e6dfd37b9173d88",
+  "created_at": "2026-07-11T17:04:12.407729+00:00",
+  "updated_at": "2026-07-11T17:04:12.466289+00:00"
 }

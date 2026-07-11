@@ -41,6 +41,22 @@ def test_home_route_keeps_one_workspace_session(isolated_app_file):
     assert app.session_state["active_project_id"] == original_project
 
 
+def test_compact_next_step_navigation_keeps_one_workspace_session(isolated_app_file):
+    app = AppTest.from_file(isolated_app_file).run(timeout=30)
+    original_project = app.session_state["active_project_id"]
+    app.sidebar.radio[0].set_value("Document intake").run(timeout=30)
+
+    next(
+        button
+        for button in app.button
+        if button.label == "Next: Question discovery →"
+    ).click().run(timeout=30)
+
+    assert not app.exception
+    assert app.sidebar.radio[0].value == "Question discovery"
+    assert app.session_state["active_project_id"] == original_project
+
+
 def test_language_switch_keeps_one_workspace_session(isolated_app_file):
     app = AppTest.from_file(isolated_app_file).run(timeout=30)
     original_project = app.session_state["active_project_id"]
@@ -127,7 +143,7 @@ def test_question_discovery_success_continues_with_provisional_interview_seed(is
     }
 
 
-def test_starting_new_project_clears_project_scoped_interaction_state(isolated_app_file):
+def test_starting_new_project_requires_confirmation_before_clearing_state(isolated_app_file):
     app = AppTest.from_file(isolated_app_file).run(timeout=30)
     original_project = app.session_state["active_project_id"]
     for key in [
@@ -135,11 +151,34 @@ def test_starting_new_project_clears_project_scoped_interaction_state(isolated_a
         "interview_seed_source",
         "ai_seed_source_dir",
         "interview_answer_materials",
+        "confirm_interview_reset",
     ]:
         app.session_state[key] = "old-project-value"
 
     next(
         button for button in app.sidebar.button if button.label == "Start a new project"
+    ).click().run(timeout=30)
+
+    assert not app.exception
+    assert app.session_state["active_project_id"] == original_project
+    assert all(
+        app.session_state[key] == "old-project-value"
+        for key in [
+            "last_example_dir",
+            "interview_seed_source",
+            "ai_seed_source_dir",
+            "interview_answer_materials",
+            "confirm_interview_reset",
+        ]
+    )
+    assert any(
+        button.label == "Start without saving drafts" for button in app.sidebar.button
+    )
+
+    next(
+        button
+        for button in app.sidebar.button
+        if button.label == "Start without saving drafts"
     ).click().run(timeout=30)
 
     assert not app.exception
@@ -150,8 +189,118 @@ def test_starting_new_project_clears_project_scoped_interaction_state(isolated_a
         "interview_seed_source",
         "ai_seed_source_dir",
         "interview_answer_materials",
+        "confirm_interview_reset",
     ]:
         assert key not in app.session_state
+
+
+def test_saved_drafts_restore_their_original_project_identity(isolated_app_file):
+    app = AppTest.from_file(isolated_app_file).run(timeout=30)
+    original_project = app.session_state["active_project_id"]
+    app.session_state["question_seed_text"] = "Draft from the original project"
+
+    next(
+        button for button in app.sidebar.button if button.label == "Start a new project"
+    ).click().run(timeout=30)
+    next(
+        button
+        for button in app.sidebar.button
+        if button.label == "Save drafts, then start"
+    ).click().run(timeout=30)
+
+    new_project = app.session_state["active_project_id"]
+    assert new_project != original_project
+    assert "question_seed_text" not in app.session_state
+
+    next(
+        checkbox
+        for checkbox in app.sidebar.checkbox
+        if checkbox.label == "Show workspace memory"
+    ).set_value(True).run(timeout=30)
+    next(
+        button for button in app.sidebar.button if button.label == "Load saved memory"
+    ).click().run(timeout=30)
+
+    assert not app.exception
+    assert app.session_state["active_project_id"] == original_project
+    assert app.session_state["question_seed_text"] == "Draft from the original project"
+
+
+def test_guided_interview_reset_requires_confirmation(isolated_app_file):
+    from problem_bridge.interview import answer_question
+
+    app = AppTest.from_file(isolated_app_file).run(timeout=30)
+    app.sidebar.radio[0].set_value("Domain practitioner wizard").run(timeout=30)
+    state = answer_question(
+        app.session_state["problem_bridge_interview_state"],
+        "domain",
+        "Museum collections",
+    )
+    app.session_state["problem_bridge_interview_state"] = state
+
+    next(
+        button for button in app.button if button.label == "Reset guided interview"
+    ).click().run(timeout=30)
+
+    assert not app.exception
+    assert app.session_state["problem_bridge_interview_state"].answers["domain"] == "Museum collections"
+    assert any(button.label == "Confirm interview reset" for button in app.button)
+
+    next(
+        button for button in app.button if button.label == "Cancel reset"
+    ).click().run(timeout=30)
+
+    assert not app.exception
+    assert app.session_state["problem_bridge_interview_state"].answers["domain"] == "Museum collections"
+    assert any(button.label == "Reset guided interview" for button in app.button)
+
+    app.session_state["interview_answer_materials"] = "temporary widget value"
+    app.session_state["interview_edit_domain"] = "temporary edit value"
+    next(
+        button for button in app.button if button.label == "Reset guided interview"
+    ).click().run(timeout=30)
+    next(
+        button for button in app.button if button.label == "Confirm interview reset"
+    ).click().run(timeout=30)
+
+    assert not app.exception
+    assert app.session_state["problem_bridge_interview_state"].answers == {}
+    assert "interview_answer_materials" not in app.session_state
+    assert "interview_edit_domain" not in app.session_state
+    assert "confirm_interview_reset" not in app.session_state
+
+
+def test_clear_saved_memory_keeps_current_draft(isolated_app_file):
+    app = AppTest.from_file(isolated_app_file).run(timeout=30)
+    app.session_state["question_seed_text"] = "Keep this unsaved draft"
+    app.session_state["domain_draft_repeated_work"] = "Keep domain draft"
+    app.session_state["ai_draft_candidate_task"] = "Keep AI draft"
+
+    show_memory = next(
+        checkbox
+        for checkbox in app.sidebar.checkbox
+        if checkbox.label == "Show workspace memory"
+    )
+    show_memory.set_value(True).run(timeout=30)
+    next(
+        button
+        for button in app.sidebar.button
+        if button.label == "Save current workspace"
+    ).click().run(timeout=30)
+    memory_path = Path("outputs/ui_memory/workbench_memory.json")
+    assert memory_path.is_file()
+
+    next(
+        button for button in app.sidebar.button if button.label == "Clear memory"
+    ).click().run(timeout=30)
+
+    assert not app.exception
+    assert app.session_state["question_seed_text"] == "Keep this unsaved draft"
+    assert app.session_state["domain_draft_repeated_work"] == "Keep domain draft"
+    assert app.session_state["ai_draft_candidate_task"] == "Keep AI draft"
+    assert not memory_path.exists()
+    assert app.session_state["workbench_memory"] == {}
+    assert "pending_workbench_memory" not in app.session_state
 
 
 def test_ui_action_failure_is_recoverable(monkeypatch):

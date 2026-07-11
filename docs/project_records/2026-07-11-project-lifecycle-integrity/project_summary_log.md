@@ -154,3 +154,45 @@
   - README.zh-CN.md
   - docs/comparative_landscape.md
   - docs/project_records/2026-07-11-project-lifecycle-integrity/competitive_evidence_enhancement_verification.md
+
+### ui-flow-convenience-v0.4.0 — round 1/3
+
+- Revision ID: cd187fe6-42f4-4a10-9688-837eb968edb8
+- Parent revision: None
+- Time: 2026-07-11T16:53:28.742708+00:00
+- Diagnosis: structural_mismatch
+- Status: accepted
+- Change: Shortened the local UI path, prevented destructive-state loss, corrected output routing, bounded export caching, and made static claim review searchable, navigable, accessible, and honest about unavailable legacy diagnostics.
+- Verification: Full regression 360 passed and 2 skipped; focused UI/viewer/archive/release checks passed; deterministic mock audit produced all required outputs; two independent reviews were resolved; post-change browser screenshot remained blocked and is recorded as missing evidence.
+- Integrity SHA-256: 40935d4012f9d14dcfd87f2959aae211441c9c2149a2e7cd70abb1a374b83431
+- Changed files:
+  - apps/problem_bridge_wizard.py
+  - claim_harness/report_viewer.py
+  - tests/test_ui_flow_convenience.py
+  - tests/test_ui_smoke.py
+  - tests/test_report_viewer.py
+  - README.md
+  - README.zh-CN.md
+  - docs/demo_walkthrough.md
+  - docs/limitations.md
+  - docs/sample_outputs/claimharness_lab_report_audit_demo/index.html
+  - docs/project_records/2026-07-11-project-lifecycle-integrity/ui_flow_convenience_verification.md
+
+### ui-memory-restore-identity-v0.4.0 — round 1/3
+
+- Revision ID: f1018a64-ee5a-4fbc-a1ea-85fb96653e8a
+- Parent revision: None
+- Time: 2026-07-11T17:04:12.407729+00:00
+- Diagnosis: version_contamination
+- Status: accepted
+- Change: Bound explicit workspace-memory recovery to its validated project identity and rejected cross-project, incomplete, or unbound output pointers.
+- Verification: Full regression 362 passed and 2 skipped; focused memory, interaction, and archive suite 40 passed; independent review reproduction is covered by AppTest and direct project-output validation.
+- Integrity SHA-256: a0db42153de503d9cae6b9c49cb4e5e9b4b190f3a803c7d8fba90601e3345a37
+- Changed files:
+  - apps/problem_bridge_wizard.py
+  - tests/test_ui_smoke.py
+  - tests/test_ui_flow_convenience.py
+  - README.md
+  - README.zh-CN.md
+  - docs/demo_walkthrough.md
+  - docs/project_records/2026-07-11-project-lifecycle-integrity/ui_memory_restore_identity_verification.md

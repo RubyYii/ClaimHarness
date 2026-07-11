@@ -21,7 +21,7 @@ This runs the mock audit and writes the static `index.html` report viewer. `new`
 
 The local Streamlit workbench and this demo path both use deterministic mock rules. The UI does not accept or store API keys. Remote advisory providers are available only through the ClaimHarness CLI.
 
-For a UI walkthrough, keep one active local project and follow Home -> Question discovery -> Domain practitioner wizard -> AI practitioner wizard -> View generated outputs. Empty required forms should show inline guidance without creating a run. Question discovery should seed the guided interview at partial completeness; the interview should remain editable before generation; and the AI form should receive separate concise fields rather than duplicated raw package files. Output history is current-project-only by default, with an explicit opt-in for all projects.
+For a UI walkthrough, keep one active local project and follow Home -> Document intake -> Question discovery -> Domain practitioner wizard -> AI practitioner wizard -> View generated outputs. The compact previous/next controls should move between those pages without changing the project ID; on a narrow screen, the five-step strip should scroll horizontally. Empty required forms should show inline guidance without creating a run. Question discovery should seed the guided interview at partial completeness; the interview should remain editable before generation; and the AI form should receive separate concise fields rather than duplicated raw package files. Previous results stay collapsed until requested and explicitly exclude unsaved edits in the current form. Output history is current-project-only by default, with an explicit opt-in for all projects and package-specific renderers for intake, discovery, alignment, and audits.
 
 Manual path:
 
@@ -92,7 +92,9 @@ Open `run_identity.json` to check the project/run IDs, workflow type, and run-sp
 
 Open `project_summary_log.md` for a concise navigation summary and the three-round revision guardrail. This summary is not scientific evidence, peer review, or approval.
 
-Open `index.html` when you want a browser-friendly overview with status counts, high-risk claims, evidence links, match reasons, revision suggestions, trace events, and local status filters.
+Open `index.html` when you want a browser-friendly overview. Use the sticky navigation to jump between diagnostics, pending review, claims, evidence, revisions, and trace. Search claim ID/text/evidence, combine search with an action or status filter, and use the live result count to confirm the scope. Pending-review cards link to the corresponding claim and can copy a review brief; each claim row keeps the core decision visible and puts locations, match reasons, contradictions, and revision guidance in expandable details. Evidence and trace tables are collapsed by default.
+
+Before destructive UI actions, verify the two-stage behavior: the first `Start a new project` or `Reset guided interview` click must preserve current state and show confirmation. `Cancel` keeps the state; confirmation performs the reset. `Clear memory` deletes the saved memory file but must keep current on-screen draft fields. To test identity-safe recovery, save project A's drafts, start project B, then load the saved memory: the active ID must return to A, and an output path must be restored only when its completed run identity also belongs to A.
 
 When reading evidence, remember that a Results sentence does not automatically provide strong evidence for itself. Strong table support requires a verifiable metric/value relationship, and high-risk biomedical or clinical claims default to human review unless the required external evidence is present.
 

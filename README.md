@@ -503,9 +503,14 @@ The wizard includes:
 - Document intake
 - Domain practitioner wizard
 - AI practitioner wizard
+- Compact previous/current/next workflow navigation
 - Friendly output cards
-- Advanced technical file view
+- Correct package-specific output views for intake, discovery, alignment, and claim audits
+- Previous results collapsed by default so current form edits are not confused with old output
+- Advanced technical file view and cached local report downloads
 - Downloadable alignment package
+
+Starting a new project and resetting a guided interview now require an explicit confirmation; starting a project can save the current drafts first. Clearing saved workspace memory removes the file on disk but keeps the current on-screen drafts. On narrow screens, the five-step overview scrolls horizontally instead of expanding into a long stack. Generated packages keep their direct next-step action, while the compact navigation provides a shortcut between workflow pages without changing the active project.
 
 Each UI project has a stable project ID and every generated run has a unique run ID. Incomplete governed runs are not shown as completed outputs. A governed identity records the workflow type and a run-specification SHA-256; the CLI run specification includes the tool version, inputs, and provider configuration, so `resume` rejects a different workflow, specification, or tool version. CLI `resume` and `replace` both require an independently supplied `--project-id` and `--expected-run-id`.
 
@@ -562,7 +567,7 @@ $env:QWEN_MODEL="qwen-plus"
   --llm qwen
 ```
 
-The local Streamlit UI intentionally runs deterministic mock workflows only. It has no provider, model, base-URL, or API-key controls and does not collect or store API keys. `Show workspace memory` can save draft fields and the most recent output path to `outputs/ui_memory/workbench_memory.json`. Clear local memory before sharing if drafts contain sensitive workflow details. Remote advisory providers are configured and run only through the ClaimHarness CLI.
+The local Streamlit UI intentionally runs deterministic mock workflows only. It has no provider, model, base-URL, or API-key controls and does not collect or store API keys. `Show workspace memory` can save draft fields and the most recent output path to `outputs/ui_memory/workbench_memory.json`. Loading that memory restores its original project ID and restores a recent output only when the governed run is complete and belongs to that project. `Clear memory` deletes the saved file while retaining the current unsaved form values; starting a new project is the separate action that clears project-scoped drafts after confirmation. Clear local memory before sharing if drafts contain sensitive workflow details. Remote advisory providers are configured and run only through the ClaimHarness CLI.
 
 DeepSeek can use its own preset:
 
@@ -632,11 +637,11 @@ Generate a local HTML viewer for an existing audit package:
 .venv\Scripts\python.exe -m claim_harness view --run outputs/lab_report_audit_demo_run
 ```
 
-This writes `outputs/lab_report_audit_demo_run/index.html`, a static report viewer that can be opened directly in a browser. It does not run a server or change audit results.
+This writes `outputs/lab_report_audit_demo_run/index.html`, a static report viewer that can be opened directly in a browser. It does not run a server or change audit results. The viewer provides sticky section navigation, claim search, combined action/status filters, live result counts, direct links from pending review items to claims, copyable review briefs, compact claim rows with expandable evidence details, and collapsed evidence/trace tables. Keyboard focus styles, a skip link, focusable wide tables, reduced-motion behavior, and narrow-screen layouts are included. A copy failure is reported instead of being presented as success.
 
 ## Word and PDF Export
 
-The local Streamlit workbench can export any generated output folder as `export_report.docx` and `export_report.pdf`. These files are generated locally from the Markdown, CSV, YAML, JSON, and trace files already in the output folder. No API key or remote model call is required.
+The local Streamlit workbench can export any generated output folder as `export_report.docx` and `export_report.pdf`. These files are generated locally from the Markdown, CSV, YAML, JSON, and trace files already in the output folder. No API key or remote model call is required. Completed-run downloads use a short, bounded cache keyed by the immutable completion record plus current revision-governance files. Archives that explicitly include original uploads bypass the cache.
 
 ## Demo Input Structure
 

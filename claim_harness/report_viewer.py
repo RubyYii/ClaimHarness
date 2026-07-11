@@ -182,7 +182,8 @@ def _render_html(payload: dict[str, Any], run_dir: Path) -> str:
             "<title>ClaimHarness Report Viewer</title>",
             f"<style>{_css()}</style>",
             "</head>",
-            "<body>",
+            '<body id="top">',
+            '<a class="skip-link" href="#main-content">Skip to report</a>',
             '<header class="topbar">',
             '<div class="wrap">',
             "<h1>ClaimHarness Report Viewer</h1>",
@@ -190,9 +191,13 @@ def _render_html(payload: dict[str, Any], run_dir: Path) -> str:
             '<p class="notice">Advisory review surface only. ClaimHarness does not guarantee factual correctness, clinical validity, or publication readiness.</p>',
             "</div>",
             "</header>",
-            '<main class="wrap">',
-            _render_markdown_block("Integrity status", payload["integrity_status"]),
-            '<section class="summary-grid" aria-label="Audit summary">',
+            _render_quick_nav(payload),
+            '<div id="copy-status" class="sr-status" role="status" aria-live="polite"></div>',
+            '<main id="main-content" class="wrap" tabindex="-1">',
+            _render_markdown_block(
+                "Integrity status", payload["integrity_status"], section_id="integrity"
+            ),
+            '<section id="overview" class="summary-grid anchor-target" aria-label="Audit summary">',
             _metric("Claims audited", len(claims)),
             _metric("Evidence items", len(evidence)),
             _metric("Supported", status_counts.get("supported", 0)),
@@ -201,23 +206,60 @@ def _render_html(payload: dict[str, Any], run_dir: Path) -> str:
             "</section>",
             _render_status_breakdown(status_counts),
             _render_diagnostics(payload["audit_diagnostics"]),
-            _render_human_review_queue(payload["human_review_queue"]),
+            _render_human_review_queue(
+                payload["human_review_queue"],
+                {row.get("claim_id", "") for row in claims},
+            ),
             _render_high_risk_claims(high_risk_claims),
             _render_claim_table(claims, payload["evidence_map"].get("claims", [])),
             _render_evidence_table(evidence),
-            _render_markdown_block("Revision suggestions", payload["revision_suggestions"]),
+            _render_markdown_block(
+                "Revision suggestions",
+                payload["revision_suggestions"],
+                section_id="revisions",
+            ),
             (
-                _render_markdown_block("Project summary log", payload["project_summary"])
+                _render_markdown_block(
+                    "Project summary log",
+                    payload["project_summary"],
+                    section_id="project-summary",
+                    collapsible=True,
+                )
                 if payload["project_summary"] is not None
                 else ""
             ),
             _render_llm_review(payload["llm_review"]),
             _render_trace(trace),
             "</main>",
+            '<a class="back-to-top" href="#top" aria-label="Back to top">↑ Top</a>',
             f"<script>{_script()}</script>",
             "</body>",
             "</html>",
         ]
+    )
+
+
+def _render_quick_nav(payload: dict[str, Any]) -> str:
+    links = [
+        ("Overview", "overview"),
+        ("Priority", "priority"),
+        ("Claims", "claims"),
+        ("Evidence", "evidence"),
+        ("Revisions", "revisions"),
+        ("Trace", "trace"),
+    ]
+    if payload.get("audit_diagnostics") is not None:
+        links.insert(1, ("Diagnostics", "diagnostics"))
+    if payload.get("human_review_queue") is not None:
+        insert_at = 2 if payload.get("audit_diagnostics") is not None else 1
+        links.insert(insert_at, ("Review queue", "review-queue"))
+    rendered = "".join(
+        f'<a href="#{_e(section_id)}">{_e(label)}</a>' for label, section_id in links
+    )
+    return (
+        '<nav class="quick-nav" aria-label="Report sections"><div class="wrap">'
+        + rendered
+        + "</div></nav>"
     )
 
 
@@ -230,19 +272,34 @@ def _css() -> str:
   --line: #d8dee6;
   --panel: #ffffff;
   --supported: #0f766e;
-  --weak: #b7791f;
+  --weak: #8a5a12;
   --over: #b42318;
   --human: #6d28d9;
   --accent: #2557a7;
 }
 * { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 body {
   margin: 0;
+  overflow-x: hidden;
   background: var(--bg);
   color: var(--ink);
   font: 14px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 .wrap { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+.skip-link {
+  position: fixed;
+  left: 12px;
+  top: 8px;
+  z-index: 100;
+  transform: translateY(-160%);
+  background: #fff;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+.skip-link:focus { transform: translateY(0); }
 .topbar { background: #101820; color: #fff; border-bottom: 4px solid var(--accent); }
 .topbar .wrap { padding: 24px 0 20px; }
 h1 { margin: 0 0 6px; font-size: 26px; font-weight: 700; letter-spacing: 0; }
@@ -251,6 +308,35 @@ h3 { margin: 0 0 8px; font-size: 15px; letter-spacing: 0; }
 p { margin: 0 0 8px; }
 .notice { color: #dce5ef; max-width: 860px; }
 .boundary { color: var(--muted); border-left: 4px solid var(--weak); padding-left: 10px; }
+.quick-nav {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: rgba(255, 255, 255, .97);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 4px 14px rgba(24, 32, 42, .06);
+}
+.quick-nav .wrap { display: flex; gap: 4px; overflow-x: auto; padding: 8px 0; }
+.quick-nav a {
+  flex: 0 0 auto;
+  color: var(--ink);
+  text-decoration: none;
+  border-radius: 6px;
+  padding: 6px 9px;
+}
+.quick-nav a:hover { background: #eef4fb; color: var(--accent); }
+.anchor-target, tr[id] { scroll-margin-top: 68px; }
+.sr-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 main { padding: 20px 0 36px; }
 section {
   background: var(--panel);
@@ -273,6 +359,24 @@ section {
 .metric span { display: block; color: var(--muted); font-size: 12px; }
 .metric strong { display: block; margin-top: 4px; font-size: 24px; }
 .status-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.claim-tools {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+.search-field { display: grid; gap: 5px; font-weight: 700; }
+.search-field input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 9px 10px;
+  color: var(--ink);
+  background: #fff;
+  font: inherit;
+}
+.result-count { color: var(--muted); font-size: 13px; padding-bottom: 9px; }
 .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .filter-button {
   border: 1px solid var(--line);
@@ -284,6 +388,10 @@ section {
   font: inherit;
 }
 .filter-button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visible, .table-wrap:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
 .status-pill {
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -297,9 +405,32 @@ section {
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; }
 table { width: 100%; border-collapse: collapse; min-width: 760px; background: #fff; }
 th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
-th { background: #eef2f6; color: #27313d; font-size: 12px; text-transform: uppercase; }
+th { position: sticky; top: 0; z-index: 2; background: #eef2f6; color: #27313d; font-size: 12px; text-transform: uppercase; }
+caption { text-align: left; color: var(--muted); padding: 8px 10px; font-size: 12px; }
 tr:last-child td { border-bottom: 0; }
+.claim-table { min-width: 720px; }
+.claim-table th:first-child, .claim-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: #fff;
+}
+.claim-table th:first-child { background: #eef2f6; z-index: 4; }
 .claim-text { min-width: 300px; }
+.row-details summary, .advanced-section > summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+.row-details dl { display: grid; grid-template-columns: minmax(110px, 160px) 1fr; gap: 6px 12px; margin: 10px 0 0; }
+.row-details dt { font-weight: 700; color: var(--muted); }
+.row-details dd { margin: 0; overflow-wrap: anywhere; }
+.review-list { display: grid; gap: 10px; }
+.review-card { border: 1px solid var(--line); border-left: 4px solid var(--human); border-radius: 6px; padding: 12px; background: #fbf9ff; }
+.review-card h3 { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.review-meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.review-meta span { border: 1px solid var(--line); border-radius: 999px; background: #fff; padding: 3px 8px; font-size: 12px; }
+.review-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.review-actions a, .copy-button { border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--accent); padding: 6px 9px; text-decoration: none; font: inherit; cursor: pointer; }
+.advanced-section > summary { display: flex; justify-content: space-between; gap: 12px; }
+.advanced-section[open] > summary { margin-bottom: 12px; }
+.empty-state { color: var(--muted); border: 1px dashed var(--line); border-radius: 6px; padding: 12px; }
 .mono { font-family: "Cascadia Mono", Consolas, monospace; font-size: 12px; }
 .risk-list { display: grid; gap: 10px; }
 .risk-item { border-left: 4px solid var(--over); padding: 10px 12px; background: #fff7f5; }
@@ -313,12 +444,31 @@ pre {
   padding: 12px;
 }
 .trace-data { color: var(--muted); }
+.back-to-top {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 20;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 9px 12px;
+  box-shadow: 0 6px 18px rgba(37, 87, 167, .24);
+}
 @media (max-width: 760px) {
   .wrap { width: min(100% - 20px, 1180px); }
   h1 { font-size: 22px; }
   .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .claim-tools { grid-template-columns: 1fr; gap: 4px; }
+  .result-count { padding-bottom: 4px; }
+  .row-details dl { grid-template-columns: 1fr; gap: 3px; }
+  .row-details dd { margin-bottom: 7px; }
+  .quick-nav .wrap { width: calc(100% - 20px); }
+  .back-to-top { right: 10px; bottom: 10px; }
   section { padding: 12px; }
 }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 """
 
 
@@ -326,25 +476,82 @@ def _script() -> str:
     return """
 const buttons = document.querySelectorAll('[data-filter]');
 const rows = document.querySelectorAll('[data-claim-row]');
+const search = document.getElementById('claim-search');
+const resultCount = document.getElementById('claim-results');
+const emptyState = document.getElementById('claim-empty');
+let activeFilter = 'all';
 function visibleForFilter(row, filter) {
   const status = row.dataset.status;
   const risk = row.dataset.risk;
   if (filter === 'all') return true;
-  if (filter === 'weak-or-worse') {
-    return ['weakly_supported', 'unsupported', 'overclaimed', 'needs_human_review'].includes(status);
-  }
-  if (filter === 'high-risk') return risk === 'high';
+  if (filter === 'needs-action') return status !== 'supported';
+  if (filter === 'priority-review') return row.dataset.priority === 'true';
   return status === filter;
+}
+function updateClaims() {
+  const query = search ? search.value.trim().toLocaleLowerCase() : '';
+  let visible = 0;
+  rows.forEach((row) => {
+    const matchesFilter = visibleForFilter(row, activeFilter);
+    const matchesSearch = !query || (row.dataset.search || '').toLocaleLowerCase().includes(query);
+    const show = matchesFilter && matchesSearch;
+    row.hidden = !show;
+    if (show) visible += 1;
+  });
+  if (resultCount) resultCount.textContent = `Showing ${visible} of ${rows.length} claims`;
+  if (emptyState) emptyState.hidden = visible !== 0;
 }
 buttons.forEach((button) => {
   button.addEventListener('click', () => {
-    const filter = button.dataset.filter;
+    activeFilter = button.dataset.filter;
     buttons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
-    rows.forEach((row) => {
-      row.hidden = !visibleForFilter(row, filter);
-    });
+    updateClaims();
   });
 });
+if (search) search.addEventListener('input', updateClaims);
+
+function fallbackCopy(text) {
+  const area = document.createElement('textarea');
+  area.value = text;
+  area.setAttribute('readonly', '');
+  area.style.position = 'fixed';
+  area.style.opacity = '0';
+  document.body.appendChild(area);
+  area.select();
+  const copied = document.execCommand('copy');
+  area.remove();
+  return copied;
+}
+async function copyReviewText(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (_clipboardError) {
+      // Local file viewers may block the Clipboard API; try the legacy path.
+    }
+  }
+  try {
+    return fallbackCopy(text);
+  } catch (_fallbackError) {
+    return false;
+  }
+}
+document.querySelectorAll('[data-copy-text]').forEach((button) => {
+  button.addEventListener('click', async () => {
+    const text = button.dataset.copyText || '';
+    const copied = await copyReviewText(text);
+    const status = document.getElementById('copy-status');
+    if (copied) {
+      if (status) status.textContent = `Copied ${button.dataset.copyLabel || 'review item'}.`;
+      button.textContent = 'Copied';
+    } else {
+      if (status) status.textContent = 'Copy failed; select the review text manually.';
+      button.textContent = 'Copy failed';
+    }
+  });
+});
+updateClaims();
 """
 
 
@@ -354,7 +561,7 @@ def _metric(label: str, value: int | str) -> str:
 
 def _render_status_breakdown(status_counts: Counter[str]) -> str:
     pills = [
-        f'<span class="status-pill"><span class="{_status_class(status)}">{_e(status)}</span>: {count}</span>'
+        f'<span class="status-pill"><span class="{_status_class(status)}">{_e(_humanize_status(status))}</span>: {count}</span>'
         for status, count in sorted(status_counts.items())
     ]
     return (
@@ -381,7 +588,7 @@ def _render_diagnostics(diagnostics: dict[str, Any] | None) -> str:
     gaps = diagnostics.get("requirement_gap_counts", {})
     gap_text = ", ".join(f"{key}: {value}" for key, value in sorted(gaps.items())) or "none"
     return (
-        '<section><h2>Structural diagnostics</h2>'
+        '<section id="diagnostics" class="anchor-target"><h2>Structural diagnostics</h2>'
         f'<p class="boundary">{_e(diagnostics.get("boundary", ""))}</p>'
         f'<div class="summary-grid">{rendered_cards}</div>'
         f'<p><strong>Missing requirement counts:</strong> {_e(gap_text)}</p>'
@@ -389,34 +596,65 @@ def _render_diagnostics(diagnostics: dict[str, Any] | None) -> str:
     )
 
 
-def _render_human_review_queue(queue: dict[str, Any] | None) -> str:
+def _render_human_review_queue(
+    queue: dict[str, Any] | None,
+    known_claim_ids: set[str],
+) -> str:
     if queue is None:
         return ""
     items = queue.get("items", [])
     if not items:
         body = "<p>No pending human-review work items in this run.</p>"
     else:
-        rows = []
+        cards = []
         for item in items:
-            rows.append(
-                "<tr>"
-                f'<td class="mono">{_e(item.get("review_item_id", ""))}</td>'
-                f'<td class="mono">{_e(item.get("claim_id", ""))}</td>'
-                f'<td>{_e(item.get("required_role", ""))}</td>'
-                f'<td>{_e(item.get("verification_status", ""))}</td>'
-                f'<td>{_e(item.get("risk_level", ""))}</td>'
-                f'<td>{_e(", ".join(item.get("trigger_codes", [])))}</td>'
-                f'<td>{_e(item.get("state", "pending"))}</td>'
-                "</tr>"
+            claim_id = str(item.get("claim_id", ""))
+            review_id = str(item.get("review_item_id", ""))
+            claim_reference = (
+                f'<a href="#{_claim_anchor(claim_id)}">{_e(claim_id)}</a>'
+                if claim_id in known_claim_ids
+                else f'<span class="mono">{_e(claim_id)}</span>'
             )
-        body = (
-            '<div class="table-wrap"><table>'
-            "<thead><tr><th>Review item</th><th>Claim</th><th>Required role</th>"
-            "<th>Deterministic status</th><th>Risk</th><th>Triggers</th><th>State</th></tr></thead>"
-            "<tbody>" + "".join(rows) + "</tbody></table></div>"
-        )
+            support_ids = item.get("candidate_supporting_evidence_ids", [])
+            contradiction_ids = item.get("candidate_contradicting_evidence_ids", [])
+            copy_text = "\n".join(
+                [
+                    f"Review item: {review_id}",
+                    f"Claim: {claim_id} — {item.get('claim_text', '')}",
+                    f"Required role: {item.get('required_role', '')}",
+                    f"Deterministic status: {item.get('verification_status', '')}",
+                    f"Risk: {item.get('risk_level', '')}",
+                    f"Candidate evidence: {', '.join(support_ids) or 'none'}",
+                    f"Contradictions: {', '.join(contradiction_ids) or 'none'}",
+                ]
+            )
+            cards.append(
+                '<article class="review-card">'
+                f'<h3><span class="mono">{_e(review_id)}</span> · claim {claim_reference}</h3>'
+                f'<p>{_e(item.get("claim_text", ""))}</p>'
+                '<div class="review-meta">'
+                f'<span>role: {_e(item.get("required_role", ""))}</span>'
+                f'<span>status: {_e(_humanize_status(str(item.get("verification_status", ""))))}</span>'
+                f'<span>risk: {_e(item.get("risk_level", ""))}</span>'
+                f'<span>state: {_e(item.get("state", "pending"))}</span>'
+                "</div>"
+                '<details><summary>Triggers and candidate evidence</summary>'
+                f'<p><strong>Triggers:</strong> {_e(", ".join(item.get("trigger_codes", [])) or "none")}</p>'
+                f'<p><strong>Supporting candidates:</strong> {_e(", ".join(support_ids) or "none")}</p>'
+                f'<p><strong>Contradictions:</strong> {_e(", ".join(contradiction_ids) or "none")}</p>'
+                "</details>"
+                '<div class="review-actions">'
+                + (
+                    f'<a href="#{_claim_anchor(claim_id)}">Review claim</a>'
+                    if claim_id in known_claim_ids
+                    else ""
+                )
+                + f'<button class="copy-button" type="button" data-copy-label="{_e(review_id)}" data-copy-text="{_e(copy_text)}">Copy review brief</button>'
+                + "</div></article>"
+            )
+        body = '<div class="review-list">' + "".join(cards) + "</div>"
     return (
-        '<section><h2>Pending human review</h2>'
+        '<section id="review-queue" class="anchor-target"><h2>Pending human review</h2>'
         f'<p class="boundary">{_e(queue.get("boundary", ""))}</p>'
         f'<p>{_e(queue.get("role_boundary", ""))}</p>'
         + body
@@ -426,17 +664,17 @@ def _render_human_review_queue(queue: dict[str, Any] | None) -> str:
 
 def _render_high_risk_claims(claims: list[dict[str, str]]) -> str:
     if not claims:
-        return "<section><h2>Highest-risk claims</h2><p>No high-risk claims in this audit package.</p></section>"
+        return '<section id="priority" class="anchor-target"><h2>Priority review claims</h2><p>No priority-review claims in this audit package.</p></section>'
     items = []
     for row in claims:
         items.append(
             '<div class="risk-item">'
-            f'<h3>{_e(row.get("claim_id", ""))}: <span class="{_status_class(row.get("status", ""))}">{_e(row.get("status", ""))}</span></h3>'
+            f'<h3>{_e(row.get("claim_id", ""))}: <span class="{_status_class(row.get("status", ""))}">{_e(_humanize_status(row.get("status", "")))}</span></h3>'
             f'<p>{_e(row.get("text", ""))}</p>'
             f'<p class="mono">risk={_e(row.get("risk_level", ""))} source={_e(row.get("source_section", ""))}</p>'
             "</div>"
         )
-    return '<section><h2>Highest-risk claims</h2><div class="risk-list">' + "".join(items) + "</div></section>"
+    return '<section id="priority" class="anchor-target"><h2>Priority review claims</h2><div class="risk-list">' + "".join(items) + "</div></section>"
 
 
 def _render_claim_table(claims: list[dict[str, str]], evidence_links: list[dict[str, Any]]) -> str:
@@ -451,7 +689,8 @@ def _render_claim_table(claims: list[dict[str, str]], evidence_links: list[dict[
     rows = []
     for row in claims:
         claim_id = row.get("claim_id", "")
-        evidence_ids = ", ".join(evidence_by_claim.get(claim_id, []))
+        linked_ids = evidence_by_claim.get(claim_id, [])
+        evidence_ids = ", ".join(linked_ids)
         match_reasons = "; ".join(
             f'{link.get("evidence_id", "")}: {link.get("match_reason", "linked by retrieval rule")}'
             for link in reasons_by_claim.get(claim_id, [])
@@ -462,37 +701,72 @@ def _render_claim_table(claims: list[dict[str, str]], evidence_links: list[dict[
             f'{link.get("evidence_id", "")}: {_format_locator_dict(link.get("locator"))}'
             for link in reasons_by_claim.get(claim_id, [])
         )
+        status = row.get("status", "")
+        risk = row.get("risk_level", "")
+        priority = risk == "high" or status in {"overclaimed", "needs_human_review"}
+        search_text = " ".join(
+            [
+                claim_id,
+                status,
+                risk,
+                row.get("claim_type", ""),
+                row.get("text", ""),
+                evidence_ids,
+                locations,
+                match_reasons,
+                row.get("suggested_revision", ""),
+            ]
+        )
+        details = (
+            '<details class="row-details"><summary>Review evidence and action</summary><dl>'
+            f'<dt>Type and source</dt><dd>{_e(row.get("claim_type", ""))} · '
+            f'{_e(row.get("source_section", ""))}, line {_e(row.get("source_line", "unknown") or "unknown")}</dd>'
+            f'<dt>Evidence IDs</dt><dd class="mono">{_e(evidence_ids or "none")}</dd>'
+            f'<dt>Location</dt><dd>{_e(locations or "location unavailable")}</dd>'
+            f'<dt>Match reason</dt><dd>{_e(match_reasons or "no linked evidence")}</dd>'
+            f'<dt>Missing evidence</dt><dd>{_e(row.get("missing_evidence", "") or "none")}</dd>'
+            f'<dt>Contradictions</dt><dd class="mono">{_e(row.get("contradicting_evidence_ids", "") or "none")}</dd>'
+            f'<dt>Suggested revision</dt><dd>{_e(row.get("suggested_revision", ""))}</dd>'
+            "</dl></details>"
+        )
         rows.append(
-            f'<tr data-claim-row data-status="{_e(row.get("status", ""))}" data-risk="{_e(row.get("risk_level", ""))}">'
+            f'<tr id="{_claim_anchor(claim_id)}" data-claim-row data-status="{_e(status)}" '
+            f'data-risk="{_e(risk)}" data-priority="{str(priority).lower()}" data-search="{_e(search_text)}">'
             f'<td class="mono">{_e(claim_id)}</td>'
-            f'<td><span class="{_status_class(row.get("status", ""))}">{_e(row.get("status", ""))}</span></td>'
-            f'<td>{_e(row.get("risk_level", ""))}</td>'
-            f'<td>{_e(row.get("claim_type", ""))}</td>'
-            f'<td class="mono">{_e(row.get("source_line", ""))}</td>'
+            f'<td><span class="{_status_class(status)}">{_e(_humanize_status(status))}</span></td>'
+            f'<td>{_e(risk)}</td>'
             f'<td class="claim-text">{_e(row.get("text", ""))}</td>'
-            f'<td class="mono">{_e(evidence_ids)}</td>'
-            f'<td>{_e(locations)}</td>'
-            f'<td>{_e(match_reasons)}</td>'
-            f'<td>{_e(row.get("suggested_revision", ""))}</td>'
+            f'<td><span title="{_e(evidence_ids or "No linked evidence")}">{len(linked_ids)} linked</span></td>'
+            f'<td>{details}</td>'
             "</tr>"
         )
     return (
-        '<section><h2>Claim table</h2>'
-        '<div class="filter-bar" aria-label="Claim filters">'
-        '<button class="filter-button" type="button" data-filter="all" aria-pressed="true">All</button>'
-        '<button class="filter-button" type="button" data-filter="weak-or-worse" aria-pressed="false">Weak or worse</button>'
-        '<button class="filter-button" type="button" data-filter="high-risk" aria-pressed="false">High risk</button>'
-        '<button class="filter-button" type="button" data-filter="supported" aria-pressed="false">Supported</button>'
-        '<button class="filter-button" type="button" data-filter="overclaimed" aria-pressed="false">Overclaimed</button>'
-        '</div><div class="table-wrap"><table>'
-        "<thead><tr><th>ID</th><th>Status</th><th>Risk</th><th>Type</th><th>Line</th><th>Claim</th><th>Evidence</th><th>Location</th><th>Match reason</th><th>Suggested revision</th></tr></thead>"
-        "<tbody>"
+        '<section id="claims" class="anchor-target"><h2 id="claims-title">Claim review</h2>'
+        '<div class="claim-tools"><label class="search-field" for="claim-search">Search claims'
+        '<input id="claim-search" type="search" placeholder="Claim ID, text, evidence, status…" aria-controls="claim-table-body">'
+        '</label><span id="claim-results" class="result-count" role="status" aria-live="polite">'
+        f'Showing {len(claims)} of {len(claims)} claims</span></div>'
+        '<div class="filter-bar" role="group" aria-label="Claim filters">'
+        '<button class="filter-button" type="button" data-filter="all" aria-controls="claim-table-body" aria-pressed="true">All</button>'
+        '<button class="filter-button" type="button" data-filter="needs-action" aria-controls="claim-table-body" aria-pressed="false">Needs action</button>'
+        '<button class="filter-button" type="button" data-filter="priority-review" aria-controls="claim-table-body" aria-pressed="false">Priority review</button>'
+        '<button class="filter-button" type="button" data-filter="needs_human_review" aria-controls="claim-table-body" aria-pressed="false">Needs human review</button>'
+        '<button class="filter-button" type="button" data-filter="unsupported" aria-controls="claim-table-body" aria-pressed="false">Unsupported</button>'
+        '<button class="filter-button" type="button" data-filter="weakly_supported" aria-controls="claim-table-body" aria-pressed="false">Weak support</button>'
+        '<button class="filter-button" type="button" data-filter="supported" aria-controls="claim-table-body" aria-pressed="false">Supported</button>'
+        '<button class="filter-button" type="button" data-filter="overclaimed" aria-controls="claim-table-body" aria-pressed="false">Overclaimed</button>'
+        '</div><div class="table-wrap" role="region" aria-labelledby="claims-title" tabindex="0"><table class="claim-table">'
+        '<caption>Core claim information. Expand each row for evidence locations, match reasons, and revision guidance.</caption>'
+        '<thead><tr><th scope="col">ID</th><th scope="col">Status</th><th scope="col">Risk</th><th scope="col">Claim</th><th scope="col">Evidence</th><th scope="col">Details</th></tr></thead>'
+        '<tbody id="claim-table-body">'
         + "".join(rows)
-        + "</tbody></table></div></section>"
+        + '</tbody></table></div><p id="claim-empty" class="empty-state" hidden>No claims match the current search and filter.</p></section>'
     )
 
 
 def _render_evidence_table(evidence: list[dict[str, Any]]) -> str:
+    if not evidence:
+        return '<section id="evidence" class="anchor-target"><h2>Evidence map</h2><p class="empty-state">No evidence items were collected.</p></section>'
     rows = []
     for item in evidence:
         linked = ", ".join(item.get("linked_claim_ids", []))
@@ -509,31 +783,49 @@ def _render_evidence_table(evidence: list[dict[str, Any]]) -> str:
             "</tr>"
         )
     return (
-        '<section><h2>Evidence map</h2><div class="table-wrap"><table>'
-        "<thead><tr><th>ID</th><th>Source</th><th>Type</th><th>Base location</th><th>Claims</th><th>Match reason</th><th>Evidence text</th></tr></thead>"
+        '<section id="evidence" class="anchor-target"><details class="advanced-section">'
+        f'<summary><span id="evidence-title">Evidence map</span><span>{len(evidence)} items · expand</span></summary>'
+        '<div class="table-wrap" role="region" aria-labelledby="evidence-title" tabindex="0"><table>'
+        '<caption>All collected evidence items and their base locations.</caption>'
+        '<thead><tr><th scope="col">ID</th><th scope="col">Source</th><th scope="col">Type</th><th scope="col">Base location</th><th scope="col">Claims</th><th scope="col">Match reason</th><th scope="col">Evidence text</th></tr></thead>'
         "<tbody>"
         + "".join(rows)
-        + "</tbody></table></div></section>"
+        + "</tbody></table></div></details></section>"
     )
 
 
-def _render_markdown_block(title: str, text: str) -> str:
-    return f"<section><h2>{_e(title)}</h2><pre>{_e(text)}</pre></section>"
+def _render_markdown_block(
+    title: str,
+    text: str,
+    *,
+    section_id: str | None = None,
+    collapsible: bool = False,
+) -> str:
+    id_attr = f' id="{_e(section_id)}"' if section_id else ""
+    css_class = ' class="anchor-target"' if section_id else ""
+    if collapsible:
+        return (
+            f"<section{id_attr}{css_class}><details class=\"advanced-section\">"
+            f"<summary>{_e(title)}</summary><pre>{_e(text)}</pre></details></section>"
+        )
+    return f"<section{id_attr}{css_class}><h2>{_e(title)}</h2><pre>{_e(text)}</pre></section>"
 
 
 def _render_llm_review(review: dict[str, Any] | None) -> str:
     if review is None:
         return ""
     return (
-        "<section>"
-        "<h2>Advisory LLM review</h2>"
+        '<section id="llm-review" class="anchor-target"><details class="advanced-section">'
+        "<summary>Advisory LLM review</summary>"
         "<p>This optional section is advisory only and does not override deterministic verification.</p>"
         f"<pre>{_e(json.dumps(review, indent=2, ensure_ascii=False))}</pre>"
-        "</section>"
+        "</details></section>"
     )
 
 
 def _render_trace(trace: list[dict[str, Any]]) -> str:
+    if not trace:
+        return '<section id="trace" class="anchor-target"><h2>Audit trace</h2><p class="empty-state">No trace events were recorded.</p></section>'
     rows = []
     for event in trace:
         rows.append(
@@ -545,17 +837,32 @@ def _render_trace(trace: list[dict[str, Any]]) -> str:
             "</tr>"
         )
     return (
-        '<section><h2>Audit trace</h2><div class="table-wrap"><table>'
-        "<thead><tr><th>Step</th><th>Module</th><th>Message</th><th>Data</th></tr></thead>"
+        '<section id="trace" class="anchor-target"><details class="advanced-section">'
+        f'<summary><span id="trace-title">Audit trace</span><span>{len(trace)} events · expand</span></summary>'
+        '<div class="table-wrap" role="region" aria-labelledby="trace-title" tabindex="0"><table>'
+        '<caption>Ordered deterministic audit events.</caption>'
+        '<thead><tr><th scope="col">Step</th><th scope="col">Module</th><th scope="col">Message</th><th scope="col">Data</th></tr></thead>'
         "<tbody>"
         + "".join(rows)
-        + "</tbody></table></div></section>"
+        + "</tbody></table></div></details></section>"
     )
 
 
 def _status_class(status: str) -> str:
     safe = "".join(ch if ch.isalnum() or ch == "_" else "_" for ch in status)
     return f"status-{safe}"
+
+
+def _humanize_status(status: str) -> str:
+    return status.replace("_", " ").strip().title() or "Unknown"
+
+
+def _claim_anchor(claim_id: str) -> str:
+    safe = "".join(
+        char if char.isalnum() or char in {"_", "-"} else "-"
+        for char in str(claim_id)
+    ).strip("-")
+    return f"claim-{safe or 'unknown'}"
 
 
 def _format_ratio(metric: dict[str, Any]) -> str:
