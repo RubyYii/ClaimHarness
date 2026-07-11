@@ -43,6 +43,7 @@ from problem_bridge.project_lifecycle import (
     allocate_run_directory,
     delete_run_directory,
     is_run_complete,
+    is_internal_staging_name,
     is_link_or_reparse,
     load_pending_deletion,
     load_run_identity,
@@ -745,7 +746,11 @@ def _resolve_safe_ui_run_candidate(
     if trusted_root is None:
         raise ValueError("Configured UI run directory does not exist.")
     candidate = Path(out).absolute()
-    if not candidate.is_dir() or is_link_or_reparse(candidate):
+    if (
+        is_internal_staging_name(candidate.name)
+        or not candidate.is_dir()
+        or is_link_or_reparse(candidate)
+    ):
         raise ValueError("Output directory is missing, linked, or unsafe.")
     resolved = candidate.resolve()
     if resolved == trusted_root or resolved.parent != trusted_root:
@@ -1809,6 +1814,7 @@ def _view_outputs() -> None:
             path
             for path in resolved_run_root.iterdir()
             if path.is_dir()
+            and not is_internal_staging_name(path.name)
             and not is_link_or_reparse(path)
             and path.resolve().parent == resolved_run_root
         ],

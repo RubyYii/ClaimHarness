@@ -24,6 +24,10 @@ RUN_IDENTITY_NAME = "run_identity.json"
 RUN_COMPLETION_NAME = "run_complete.json"
 RUN_LOCK_NAME = ".run_lifecycle.lock"
 RUN_DELETE_MARKER_NAME = ".run_delete_pending"
+RUN_STAGING_PREFIX = ".t-"
+RUN_STAGING_BOOTSTRAP_PREFIX = ".b-"
+RUN_STAGING_OWNER_NAME = ".o"
+LIFECYCLE_TEMP_PREFIX = ".l-"
 
 # Only these flat, generated files may be removed by ``replace`` or written by
 # the transactional interface. User notes, source uploads, tables, and arbitrary
@@ -281,8 +285,28 @@ def prepare_run_directory(
             next_run_id = requested_run_id or _new_run_id()
             if next_run_id == existing_run_id:
                 raise RunConflictError("Replace mode requires a new run_id.")
+            # A hard-exited transaction belongs to the identity being
+            # replaced. Validate every formal staging tree before making any
+            # change, then remove it while the old identity is still current;
+            # otherwise the replacement run would inherit a path-bound tree
+            # whose owner can no longer pass its identity check.
+            _preflight_owned_staging(
+                root,
+                project_id=clean_project_id,
+                run_id=existing_run_id,
+            )
             _preflight_owned_artifacts(root, clearable)
             _preflight_snapshot_directories(root, clearable_snapshot_dirs)
+            _cleanup_bootstrap_staging(
+                root,
+                project_id=clean_project_id,
+                run_id=existing_run_id,
+            )
+            _cleanup_owned_staging(
+                root,
+                project_id=clean_project_id,
+                run_id=existing_run_id,
+            )
             (root / RUN_COMPLETION_NAME).unlink(missing_ok=True)
             _clear_owned_artifacts(root, clearable)
             _clear_snapshot_directories(root, clearable_snapshot_dirs)
@@ -457,6 +481,16 @@ def delete_run_directory(
             else:
                 identity = _load_identity_unlocked(root)
                 _assert_identity(identity, project_id=project_id, run_id=run_id)
+            _cleanup_bootstrap_staging(
+                root,
+                project_id=str(identity["project_id"]),
+                run_id=str(identity["run_id"]),
+            )
+            _cleanup_owned_staging(
+                root,
+                project_id=str(identity["project_id"]),
+                run_id=str(identity["run_id"]),
+            )
             completion_path = root / RUN_COMPLETION_NAME
             if not marker_present and not allow_incomplete:
                 if not completion_path.is_file():
@@ -482,9 +516,9 @@ def delete_run_directory(
                         "marked_at": _utc_now(),
                     },
                 )
-            tombstone = root.parent / (
-                f".{root.name}.{identity['run_id']}.{uuid.uuid4().hex}.delete-tombstone"
-            )
+            # Keep the sibling name short enough for Windows MAX_PATH even
+            # when the governed run itself lives in a deeply nested project.
+            tombstone = root.parent / f".delete-{uuid.uuid4().hex[:16]}"
             if tombstone.exists() or tombstone.is_symlink():
                 raise RunConflictError(f"Deletion tombstone already exists: {tombstone}")
             # Renaming is the delete commit point. A later process may create a
@@ -577,10 +611,61 @@ class RunTransaction:
                 project_id=self.context.project_id,
                 run_id=self.context.run_id,
             )
+            _cleanup_bootstrap_staging(
+                self.context.path,
+                project_id=self.context.project_id,
+                run_id=self.context.run_id,
+            )
+            _cleanup_owned_staging(
+                self.context.path,
+                project_id=self.context.project_id,
+                run_id=self.context.run_id,
+            )
             if (self.context.path / RUN_COMPLETION_NAME).exists():
                 raise RunConflictError("Run is already complete; use replace before writing again.")
-            self._staging = self.context.path / f".run-txn-{uuid.uuid4().hex}"
-            self._staging.mkdir()
+            staging_prefix = _staging_prefix_for(self.context.path)
+            bootstrap_prefix = _staging_bootstrap_prefix_for(self.context.path)
+            for _ in range(32):
+                # Stage beside the run, not inside it: Windows limits directory
+                # paths more aggressively than file paths, and the run name can
+                # already be close to MAX_PATH in nested workspaces.
+                token = uuid.uuid4().hex[:8]
+                bootstrap = self.context.path.parent / f"{bootstrap_prefix}{token}"
+                staging = self.context.path.parent / f"{staging_prefix}{token}"
+                if staging.exists() or staging.is_symlink():
+                    continue
+                try:
+                    bootstrap.mkdir()
+                except FileExistsError:
+                    continue
+                try:
+                    _atomic_write_json(
+                        bootstrap / RUN_STAGING_OWNER_NAME,
+                        {
+                            "schema_version": LIFECYCLE_SCHEMA_VERSION,
+                            "project_id": self.context.project_id,
+                            "run_id": self.context.run_id,
+                        },
+                    )
+                    # Publishing the owner-bound staging name is atomic; a
+                    # hard exit before this point leaves only a bootstrap that
+                    # never accepted user artifacts and never blocks the run.
+                    os.rename(bootstrap, staging)
+                except Exception:
+                    if bootstrap.exists():
+                        try:
+                            _remove_owned_staging_directory(
+                                bootstrap,
+                                project_id=self.context.project_id,
+                                run_id=self.context.run_id,
+                            )
+                        except (OSError, ProjectLifecycleError, ValueError):
+                            pass
+                    raise
+                self._staging = staging
+                break
+            if self._staging is None:
+                raise RunConflictError("Could not allocate a short transaction staging directory.")
             return self
         except Exception:
             self._release_lock()
@@ -657,8 +742,10 @@ class RunTransaction:
             if exc_type is None and not self._committed:
                 self.commit()
         finally:
-            self._cleanup_staging()
-            self._release_lock()
+            try:
+                self._cleanup_staging()
+            finally:
+                self._release_lock()
         return False
 
     def _ensure_active(self) -> None:
@@ -667,7 +754,11 @@ class RunTransaction:
 
     def _cleanup_staging(self) -> None:
         if self._staging is not None and self._staging.exists():
-            shutil.rmtree(self._staging)
+            _remove_owned_staging_directory(
+                self._staging,
+                project_id=self.context.project_id,
+                run_id=self.context.run_id,
+            )
         self._staging = None
 
     def _release_lock(self) -> None:
@@ -820,6 +911,143 @@ def _clear_snapshot_directories(root: Path, names: Iterable[str]) -> None:
         directory = root / name
         if directory.exists():
             shutil.rmtree(directory)
+
+
+def _staging_prefix_for(root: Path) -> str:
+    return f"{RUN_STAGING_PREFIX}{_staging_path_digest(root)}-"
+
+
+def _staging_bootstrap_prefix_for(root: Path) -> str:
+    return f"{RUN_STAGING_BOOTSTRAP_PREFIX}{_staging_path_digest(root)}-"
+
+
+def _staging_path_digest(root: Path) -> str:
+    return hashlib.sha256(
+        os.path.normcase(str(root.resolve())).encode("utf-8")
+    ).hexdigest()[:8]
+
+
+def _cleanup_owned_staging(root: Path, *, project_id: str, run_id: str) -> None:
+    """Remove only stale sibling staging trees explicitly bound to this run."""
+
+    candidates = _preflight_owned_staging(
+        root,
+        project_id=project_id,
+        run_id=run_id,
+    )
+    for staging in candidates:
+        _remove_owned_staging_directory(
+            staging,
+            project_id=project_id,
+            run_id=run_id,
+        )
+
+
+def _preflight_owned_staging(
+    root: Path, *, project_id: str, run_id: str
+) -> tuple[Path, ...]:
+    """Validate all path-bound staging trees before deleting any of them."""
+
+    prefix = _staging_prefix_for(root)
+    candidates = tuple(sorted(root.parent.glob(f"{prefix}*")))
+    for staging in candidates:
+        _validate_owned_staging_directory(
+            staging,
+            project_id=project_id,
+            run_id=run_id,
+        )
+    return candidates
+
+
+def _cleanup_bootstrap_staging(root: Path, *, project_id: str, run_id: str) -> None:
+    """Best-effort cleanup of pre-publication staging with no user artifacts."""
+
+    prefix = _staging_bootstrap_prefix_for(root)
+    for staging in sorted(root.parent.glob(f"{prefix}*")):
+        try:
+            _preflight_staging_directory(staging)
+            entries = list(staging.iterdir())
+            if not entries:
+                shutil.rmtree(staging)
+                continue
+            if any(
+                not entry.is_file()
+                or _is_link_or_reparse(entry)
+                or (
+                    entry.name != RUN_STAGING_OWNER_NAME
+                    and not entry.name.startswith(LIFECYCLE_TEMP_PREFIX)
+                )
+                for entry in entries
+            ):
+                continue
+            owner_path = staging / RUN_STAGING_OWNER_NAME
+            if owner_path.exists() or owner_path.is_symlink():
+                if _is_link_or_reparse(owner_path) or not owner_path.is_file():
+                    continue
+                owner = _load_json_object(owner_path)
+                if set(owner) != {"schema_version", "project_id", "run_id"}:
+                    continue
+                if int(owner.get("schema_version", 0)) != LIFECYCLE_SCHEMA_VERSION:
+                    continue
+                _assert_identity(owner, project_id=project_id, run_id=run_id)
+            shutil.rmtree(staging)
+        except (OSError, ProjectLifecycleError, ValueError):
+            # A malformed/linked bootstrap never contains staged user output
+            # from this implementation. Leave unknown state untouched without
+            # blocking recovery or deletion of the governed run.
+            continue
+
+
+def _validate_owned_staging_directory(
+    staging: Path, *, project_id: str, run_id: str
+) -> None:
+    _preflight_staging_directory(staging)
+    owner_path = staging / RUN_STAGING_OWNER_NAME
+    if _is_link_or_reparse(owner_path) or not owner_path.is_file():
+        raise UnsafeArtifactPath(f"Transaction staging owner is missing or unsafe: {staging}")
+    owner = _load_json_object(owner_path)
+    if set(owner) != {"schema_version", "project_id", "run_id"}:
+        raise UnsafeArtifactPath(f"Transaction staging owner fields are invalid: {staging}")
+    if int(owner.get("schema_version", 0)) != LIFECYCLE_SCHEMA_VERSION:
+        raise UnsafeArtifactPath(f"Transaction staging owner schema is invalid: {staging}")
+    _assert_identity(owner, project_id=project_id, run_id=run_id)
+
+
+def _remove_owned_staging_directory(
+    staging: Path, *, project_id: str, run_id: str
+) -> None:
+    # Revalidate immediately before removal so an externally altered tree is
+    # never recursively deleted based only on an earlier observation.
+    _validate_owned_staging_directory(
+        staging,
+        project_id=project_id,
+        run_id=run_id,
+    )
+    shutil.rmtree(staging)
+
+
+def _preflight_staging_directory(staging: Path) -> None:
+    if _is_link_or_reparse(staging) or not staging.is_dir():
+        raise UnsafeArtifactPath(f"Transaction staging path is linked or unsafe: {staging}")
+    staging_resolved = staging.resolve()
+    for current, dirnames, filenames in os.walk(staging, followlinks=False):
+        current_path = Path(current)
+        for child_name in sorted(dirnames):
+            child = current_path / child_name
+            if _is_link_or_reparse(child):
+                raise UnsafeArtifactPath(
+                    f"Links and junctions are forbidden in transaction staging: {child}"
+                )
+        for filename in sorted(filenames):
+            child = current_path / filename
+            if _is_link_or_reparse(child) or not child.is_file():
+                raise UnsafeArtifactPath(f"Unsafe transaction staging file: {child}")
+            try:
+                child.resolve().relative_to(staging_resolved)
+            except ValueError as exc:
+                raise UnsafeArtifactPath(
+                    f"Transaction staging file resolves outside its owner tree: {child}"
+                ) from exc
 
 
 def _verify_completion_artifacts(
@@ -1030,6 +1258,12 @@ def is_link_or_reparse(path: str | Path) -> bool:
     return _is_link_or_reparse(Path(path))
 
 
+def is_internal_staging_name(name: str) -> bool:
+    """Return whether a sibling directory is reserved for run staging."""
+
+    return str(name).startswith((RUN_STAGING_PREFIX, RUN_STAGING_BOOTSTRAP_PREFIX))
+
+
 def _validate_workflow_type(value: str) -> str:
     cleaned = str(value).strip()
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}", cleaned):
@@ -1063,15 +1297,29 @@ def _file_sha256(path: Path) -> str:
 
 def _atomic_write_json(path: Path, payload: dict[str, object]) -> None:
     text = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
-    temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
-    try:
-        with temporary.open("w", encoding="utf-8", newline="") as handle:
-            handle.write(text)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temporary, path)
-    finally:
-        temporary.unlink(missing_ok=True)
+    for _ in range(32):
+        temporary = path.with_name(f"{LIFECYCLE_TEMP_PREFIX}{uuid.uuid4().hex[:8]}")
+        created = False
+        try:
+            # Exclusive creation neither follows nor removes a pre-existing
+            # unknown file/link. The short random name remains MAX_PATH-safe.
+            with temporary.open("x", encoding="utf-8", newline="") as handle:
+                created = True
+                handle.write(text)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, path)
+            # The source name is no longer ours after a successful publish.
+            # Clear ownership before finally so a concurrent process that
+            # immediately reuses the short name cannot have its file removed.
+            created = False
+            return
+        except FileExistsError:
+            continue
+        finally:
+            if created:
+                temporary.unlink(missing_ok=True)
+    raise RunConflictError("Could not allocate a short lifecycle temporary file.")
 
 
 def _load_json_object(path: Path) -> dict[str, object]:

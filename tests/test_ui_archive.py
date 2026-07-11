@@ -141,6 +141,13 @@ def test_archive_rejects_reparse_or_non_child_output_directory(tmp_path, monkeyp
     with pytest.raises(ValueError, match="direct child"):
         ui._make_archive(outside)
 
+    for internal_name in (".t-deadbeef", ".b-deadbeef"):
+        staging = trusted / internal_name
+        staging.mkdir()
+        (staging / "extracted_text.md").write_text("uncommitted", encoding="utf-8")
+        with pytest.raises(ValueError, match="linked, or unsafe"):
+            ui._make_archive(staging)
+
 
 def test_delete_ui_run_is_scoped_to_run_root(tmp_path, monkeypatch):
     run_root = tmp_path / "ui_runs"

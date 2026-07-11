@@ -78,6 +78,51 @@ def test_reinitializing_project_preserves_original_created_at(tmp_path):
     assert payload["project_name"] == "renamed demo"
 
 
+def test_revision_atomic_temp_never_removes_unknown_collision(tmp_path, monkeypatch):
+    class FixedUuid:
+        hex = "deadbeef" * 4
+
+    monkeypatch.setattr(governance.uuid, "uuid4", lambda: FixedUuid())
+    unknown = tmp_path / ".g-deadbeef"
+    unknown.write_text("user-owned", encoding="utf-8")
+
+    with pytest.raises(RevisionConflictError, match="temporary file"):
+        governance._atomic_write_text(tmp_path / "project_record.json", "system")
+
+    assert unknown.read_text(encoding="utf-8") == "user-owned"
+    assert not (tmp_path / "project_record.json").exists()
+
+
+def test_colocated_lifecycle_and_revision_atomic_domains_do_not_collide(
+    tmp_path, monkeypatch
+):
+    import problem_bridge.project_lifecycle as lifecycle
+
+    class FixedUuid:
+        hex = "cafebabe" * 4
+
+    monkeypatch.setattr(governance.uuid, "uuid4", lambda: FixedUuid())
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        lifecycle_write = executor.submit(
+            lifecycle._atomic_write_json,
+            tmp_path / "run_complete.json",
+            {"schema_version": 2, "project_id": "project-a", "run_id": "run-a"},
+        )
+        revision_write = executor.submit(
+            governance._atomic_write_text,
+            tmp_path / "project_summary_log.md",
+            "# summary\n",
+        )
+        lifecycle_write.result()
+        revision_write.result()
+
+    assert json.loads((tmp_path / "run_complete.json").read_text(encoding="utf-8"))[
+        "run_id"
+    ] == "run-a"
+    assert (tmp_path / "project_summary_log.md").read_text(encoding="utf-8") == "# summary\n"
+
+
 @pytest.mark.parametrize(
     "tamper, message",
     [

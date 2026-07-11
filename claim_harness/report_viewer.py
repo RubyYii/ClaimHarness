@@ -35,13 +35,24 @@ def render_report_viewer(run_dir: str | Path, out_file: str | Path | None = None
     payload = _load_audit_package(run_path)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = output_path.with_name(f".{output_path.name}.{uuid.uuid4().hex}.tmp")
-    try:
-        with temporary.open("w", encoding="utf-8", newline="") as handle:
-            handle.write(_render_html(payload, run_path))
-        os.replace(temporary, output_path)
-    finally:
-        temporary.unlink(missing_ok=True)
+    rendered = _render_html(payload, run_path)
+    for _ in range(32):
+        temporary = output_path.with_name(f".v-{uuid.uuid4().hex[:8]}")
+        created = False
+        try:
+            with temporary.open("x", encoding="utf-8", newline="") as handle:
+                created = True
+                handle.write(rendered)
+            os.replace(temporary, output_path)
+            created = False
+            break
+        except FileExistsError:
+            continue
+        finally:
+            if created:
+                temporary.unlink(missing_ok=True)
+    else:
+        raise MissingAuditOutput("Could not allocate a short viewer temporary file.")
     return output_path
 
 

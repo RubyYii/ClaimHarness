@@ -36,6 +36,215 @@ def test_allocated_run_directories_are_unique_and_identified(tmp_path):
     assert load_run_identity(first.path)["run_id"] == first.run_id
 
 
+def test_atomic_records_and_delete_use_short_internal_names_in_deep_projects(tmp_path):
+    deep_root = tmp_path
+    segment = "n" * 10
+    while len(str(deep_root)) < 175:
+        deep_root = deep_root / segment
+    deep_root.mkdir(parents=True)
+
+    context = allocate_run_directory(
+        deep_root,
+        project_id="project-deep-path",
+        prefix="audit",
+        owned_artifacts=(),
+    )
+    with context.transaction():
+        pass
+    assert load_run_completion(context.path)["run_id"] == context.run_id
+
+    run_path = context.path
+    delete_run_directory(
+        run_path,
+        project_id=context.project_id,
+        run_id=context.run_id,
+    )
+    assert not run_path.exists()
+    assert not list(deep_root.glob(".delete-*"))
+
+
+def test_lifecycle_atomic_temp_never_removes_unknown_collision(tmp_path, monkeypatch):
+    class FixedUuid:
+        hex = "deadbeef" * 4
+
+    monkeypatch.setattr(lifecycle.uuid, "uuid4", lambda: FixedUuid())
+    unknown = tmp_path / ".l-deadbeef"
+    unknown.write_text("user-owned", encoding="utf-8")
+
+    with pytest.raises(RunConflictError, match="temporary file"):
+        lifecycle._atomic_write_json(tmp_path / "record.json", {"safe": True})
+
+    assert unknown.read_text(encoding="utf-8") == "user-owned"
+    assert not (tmp_path / "record.json").exists()
+
+
+def test_cleanup_failure_releases_lock_and_next_writer_recovers_staging(
+    tmp_path, monkeypatch
+):
+    context = prepare_run_directory(tmp_path / "run", project_id="project-alpha")
+    interrupted = context.transaction(lock_timeout=0.1)
+
+    def fail_cleanup():
+        raise OSError("simulated staging cleanup failure")
+
+    monkeypatch.setattr(interrupted, "_cleanup_staging", fail_cleanup)
+    with pytest.raises(OSError, match="cleanup failure"):
+        with interrupted:
+            raise RuntimeError("original operation failed")
+
+    stale = interrupted._staging
+    assert stale is not None and stale.is_dir()
+    with context.transaction(lock_timeout=0.1):
+        pass
+
+    assert is_run_complete(context.path)
+    assert not stale.exists()
+
+
+def test_delete_removes_only_staging_owned_by_the_same_run(tmp_path):
+    context = prepare_run_directory(tmp_path / "run", project_id="project-alpha")
+    prefix = lifecycle._staging_prefix_for(context.path)
+    staging = context.path.parent / f"{prefix}dead"
+    staging.mkdir()
+    (staging / lifecycle.RUN_STAGING_OWNER_NAME).write_text(
+        json.dumps(
+            {
+                "schema_version": lifecycle.LIFECYCLE_SCHEMA_VERSION,
+                "project_id": context.project_id,
+                "run_id": context.run_id,
+            }
+        ),
+        encoding="utf-8",
+    )
+    (staging / "sensitive-draft.md").write_text("private", encoding="utf-8")
+
+    delete_run_directory(
+        context.path,
+        project_id=context.project_id,
+        run_id=context.run_id,
+        allow_incomplete=True,
+    )
+
+    assert not context.path.exists()
+    assert not staging.exists()
+
+
+def test_replace_recovers_old_staging_before_publishing_new_identity(tmp_path):
+    first = prepare_run_directory(
+        tmp_path / "run",
+        project_id="project-alpha",
+        run_id="run-a",
+    )
+    prefix = lifecycle._staging_prefix_for(first.path)
+    stale = first.path.parent / f"{prefix}crashed"
+    stale.mkdir()
+    (stale / lifecycle.RUN_STAGING_OWNER_NAME).write_text(
+        json.dumps(
+            {
+                "schema_version": lifecycle.LIFECYCLE_SCHEMA_VERSION,
+                "project_id": first.project_id,
+                "run_id": first.run_id,
+            }
+        ),
+        encoding="utf-8",
+    )
+    (stale / "sensitive-draft.md").write_text("private", encoding="utf-8")
+
+    replacement = prepare_run_directory(
+        first.path,
+        project_id=first.project_id,
+        mode="replace",
+        expected_run_id=first.run_id,
+        run_id="run-b",
+    )
+
+    assert not stale.exists()
+    with replacement.transaction():
+        pass
+    delete_run_directory(
+        replacement.path,
+        project_id=replacement.project_id,
+        run_id=replacement.run_id,
+    )
+    assert not replacement.path.exists()
+
+
+def test_replace_staging_identity_conflict_is_zero_write(tmp_path):
+    first = prepare_run_directory(
+        tmp_path / "run",
+        project_id="project-alpha",
+        run_id="run-a",
+        owned_artifacts=OWNED,
+    )
+    (first.path / "audit_report.md").write_text("preserve", encoding="utf-8")
+    prefix = lifecycle._staging_prefix_for(first.path)
+    matching = first.path.parent / f"{prefix}matching"
+    conflicting = first.path.parent / f"{prefix}conflicting"
+    for staging, owner_run_id in ((matching, "run-a"), (conflicting, "run-other")):
+        staging.mkdir()
+        (staging / lifecycle.RUN_STAGING_OWNER_NAME).write_text(
+            json.dumps(
+                {
+                    "schema_version": lifecycle.LIFECYCLE_SCHEMA_VERSION,
+                    "project_id": first.project_id,
+                    "run_id": owner_run_id,
+                }
+            ),
+            encoding="utf-8",
+        )
+
+    with pytest.raises(ProjectIdentityMismatch, match="Run identity mismatch"):
+        prepare_run_directory(
+            first.path,
+            project_id=first.project_id,
+            mode="replace",
+            expected_run_id=first.run_id,
+            run_id="run-b",
+            owned_artifacts=OWNED,
+        )
+
+    assert load_run_identity(first.path)["run_id"] == "run-a"
+    assert (first.path / "audit_report.md").read_text(encoding="utf-8") == "preserve"
+    assert matching.is_dir()
+    assert conflicting.is_dir()
+
+
+def test_owner_bootstrap_crashes_never_block_resume_or_delete(tmp_path):
+    first = prepare_run_directory(tmp_path / "run-1", project_id="project-alpha")
+    empty_bootstrap = first.path.parent / (
+        f"{lifecycle._staging_bootstrap_prefix_for(first.path)}empty"
+    )
+    empty_bootstrap.mkdir()
+
+    with first.transaction():
+        pass
+
+    assert is_run_complete(first.path)
+    assert not empty_bootstrap.exists()
+
+    second = prepare_run_directory(tmp_path / "run-2", project_id="project-alpha")
+    partial_bootstrap = second.path.parent / (
+        f"{lifecycle._staging_bootstrap_prefix_for(second.path)}partial"
+    )
+    partial_bootstrap.mkdir()
+    (partial_bootstrap / f"{lifecycle.LIFECYCLE_TEMP_PREFIX}deadbeef").write_text(
+        '{"schema_version":2,"project_id":"project-alpha"',
+        encoding="utf-8",
+    )
+
+    delete_run_directory(
+        second.path,
+        project_id=second.project_id,
+        run_id=second.run_id,
+        allow_incomplete=True,
+    )
+
+    assert not second.path.exists()
+    assert not partial_bootstrap.exists()
+    assert lifecycle.is_internal_staging_name(empty_bootstrap.name)
+    assert lifecycle.is_internal_staging_name(partial_bootstrap.name)
+
+
 def test_new_mode_rejects_nonempty_or_previously_owned_directory(tmp_path):
     nonempty = tmp_path / "nonempty"
     nonempty.mkdir()
@@ -238,7 +447,7 @@ def test_failed_transaction_leaves_no_output_or_false_completion(tmp_path):
 
     assert not is_run_complete(context.path)
     assert not (context.path / "audit_report.md").exists()
-    assert not list(context.path.glob(".run-txn-*"))
+    assert not list(context.path.parent.glob(".t-*"))
 
 
 def test_completion_requires_every_declared_artifact(tmp_path):

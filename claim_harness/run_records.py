@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import uuid
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -201,9 +203,22 @@ def _sha256(path: Path) -> str:
 
 
 def _atomic_write(path: Path, text: str) -> None:
-    temporary = path.with_name(f".{path.name}.tmp")
-    temporary.write_text(text, encoding="utf-8")
-    temporary.replace(path)
+    for _ in range(32):
+        temporary = path.with_name(f".r-{uuid.uuid4().hex[:8]}")
+        created = False
+        try:
+            with temporary.open("x", encoding="utf-8", newline="") as handle:
+                created = True
+                handle.write(text)
+            os.replace(temporary, path)
+            created = False
+            return
+        except FileExistsError:
+            continue
+        finally:
+            if created:
+                temporary.unlink(missing_ok=True)
+    raise RuntimeError("Could not allocate a short run-record temporary file.")
 
 
 def _utc_now() -> str:

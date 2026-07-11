@@ -1377,15 +1377,24 @@ def _render_summary(metadata: dict[str, object], records: list[RevisionRecord]) 
 
 def _atomic_write_text(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
-    try:
-        with temporary.open("w", encoding="utf-8", newline="") as handle:
-            handle.write(text)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temporary, path)
-    finally:
-        temporary.unlink(missing_ok=True)
+    for _ in range(32):
+        temporary = path.with_name(f".g-{uuid.uuid4().hex[:8]}")
+        created = False
+        try:
+            with temporary.open("x", encoding="utf-8", newline="") as handle:
+                created = True
+                handle.write(text)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, path)
+            created = False
+            return
+        except FileExistsError:
+            continue
+        finally:
+            if created:
+                temporary.unlink(missing_ok=True)
+    raise RevisionConflictError("Could not allocate a short revision temporary file.")
 
 
 def _validate_identifier(value: str, field: str) -> str:
