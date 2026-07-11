@@ -1,4 +1,6 @@
 import json
+import os
+from datetime import datetime, timezone
 from io import BytesIO
 from pathlib import Path
 from zipfile import ZipFile
@@ -6,6 +8,7 @@ from zipfile import ZipFile
 import pytest
 
 import apps.problem_bridge_wizard as ui
+import problem_bridge.project_lifecycle as lifecycle
 from problem_bridge.project_lifecycle import prepare_run_directory
 
 
@@ -191,6 +194,35 @@ def test_ui_run_allocation_has_stable_project_and_unique_run_identity(tmp_path, 
     assert first_identity["project_id"] == "project-ui-test"
     assert completion["run_id"] == first.run_id
     assert "source_manifest.json" in completion["artifact_sha256"]
+
+
+def test_view_history_uses_verified_identity_time_with_legacy_mtime_fallback(
+    tmp_path, monkeypatch
+):
+    older = tmp_path / "z-random-old"
+    newer = tmp_path / "a-random-new"
+
+    monkeypatch.setattr(lifecycle, "_utc_now", lambda: "2026-07-10T08:00:00+00:00")
+    older_context = prepare_run_directory(older, project_id="project-alpha")
+    with older_context.transaction():
+        pass
+
+    monkeypatch.setattr(lifecycle, "_utc_now", lambda: "2026-07-11T08:00:00+00:00")
+    newer_context = prepare_run_directory(newer, project_id="project-alpha")
+    with newer_context.transaction():
+        pass
+
+    legacy = tmp_path / "legacy-20200101T000000Z"
+    legacy.mkdir()
+    legacy_time = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc).timestamp()
+    os.utime(legacy, (legacy_time, legacy_time))
+
+    ordered, labels = ui._sort_view_output_runs([older, legacy, newer])
+
+    assert ordered == [newer, legacy, older]
+    assert labels[newer].startswith("2026-07-11 08:00:00 UTC")
+    assert labels[older].startswith("2026-07-10 08:00:00 UTC")
+    assert labels[legacy].endswith("legacy-20200101T000000Z · legacy")
 
 
 def test_project_delete_removes_matching_complete_and_incomplete_runs_only(tmp_path, monkeypatch):

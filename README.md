@@ -351,6 +351,12 @@ When the browser opens:
 6. After the AI alignment check, click `Continue to View generated outputs` to inspect, export, or share the generated package.
 7. Download the package for an AI engineer only after checking that it contains no private material.
 
+The output-history selector shows newest runs first using the verified UTC
+`run_created_at` value from `run_identity.json`. Pre-governance folders fall
+back to their local modification time and are labelled `legacy`, so a random
+directory token or an older timestamp-style name cannot silently determine
+which result appears first.
+
 Start with synthetic examples. Do not upload private patient data, confidential manuscripts, API keys, or sensitive unpublished materials.
 
 ## Downloadable local web app package

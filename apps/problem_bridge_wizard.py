@@ -5,6 +5,7 @@ import json
 import re
 import uuid
 from dataclasses import asdict
+from datetime import datetime, timezone
 from io import BytesIO
 from zipfile import ZIP_DEFLATED, ZipFile
 from importlib import reload
@@ -38,6 +39,7 @@ from problem_bridge.question_discovery import (
 from problem_bridge.project_lifecycle import (
     RUN_DELETE_MARKER_NAME,
     RUN_IDENTITY_NAME,
+    ProjectLifecycleError,
     RunContext,
     SYSTEM_OWNED_ARTIFACTS,
     allocate_run_directory,
@@ -1809,18 +1811,15 @@ def _view_outputs() -> None:
             "还没有 UI 生成的输出。请先运行示例、文档摄取、问题发现或向导。",
         ))
         return
-    all_runs = sorted(
-        [
-            path
-            for path in resolved_run_root.iterdir()
-            if path.is_dir()
-            and not is_internal_staging_name(path.name)
-            and not is_link_or_reparse(path)
-            and path.resolve().parent == resolved_run_root
-        ],
-        reverse=True,
-    )
-    runs = [
+    all_runs = [
+        path
+        for path in resolved_run_root.iterdir()
+        if path.is_dir()
+        and not is_internal_staging_name(path.name)
+        and not is_link_or_reparse(path)
+        and path.resolve().parent == resolved_run_root
+    ]
+    viewable_runs = [
         path
         for path in all_runs
         if not (
@@ -1829,6 +1828,7 @@ def _view_outputs() -> None:
         )
         and (not (path / RUN_IDENTITY_NAME).is_file() or is_run_complete(path))
     ]
+    runs, run_labels = _sort_view_output_runs(viewable_runs)
     incomplete_count = len(all_runs) - len(runs)
     if incomplete_count:
         st.caption(
@@ -1848,9 +1848,46 @@ def _view_outputs() -> None:
         _text("Choose a generated run", "选择一个生成结果"),
         runs,
         index=_view_outputs_index_for_last_run(runs, st.session_state.get("last_output_dir", "")),
-        format_func=lambda path: path.name,
+        format_func=lambda path: run_labels[path],
     )
     _render_friendly_output(selected)
+
+
+def _sort_view_output_runs(paths: list[Path]) -> tuple[list[Path], dict[Path, str]]:
+    """Order governed runs by identity time and label legacy runs explicitly."""
+
+    entries: list[tuple[float, str, Path, str]] = []
+    for path in paths:
+        try:
+            created_at, legacy = _view_output_created_at(path)
+        except (OSError, ValueError, TypeError, OverflowError, ProjectLifecycleError):
+            # A governed run whose identity cannot be verified is not safe to
+            # present as history. Concurrently removed paths are also skipped.
+            continue
+        timestamp = created_at.timestamp()
+        safe_time = created_at.strftime("%Y-%m-%d %H:%M:%S UTC")
+        legacy_marker = " · legacy" if legacy else ""
+        label = f"{safe_time} · {path.name}{legacy_marker}"
+        entries.append((timestamp, path.name.casefold(), path, label))
+    entries.sort(key=lambda item: (item[0], item[1]), reverse=True)
+    ordered = [item[2] for item in entries]
+    return ordered, {item[2]: item[3] for item in entries}
+
+
+def _view_output_created_at(path: Path) -> tuple[datetime, bool]:
+    identity_path = path / RUN_IDENTITY_NAME
+    if identity_path.is_file():
+        identity = load_run_identity(path)
+        raw_created_at = identity.get("run_created_at") or identity.get(
+            "directory_created_at"
+        )
+        if not isinstance(raw_created_at, str) or not raw_created_at.strip():
+            raise ValueError("Governed run identity has no creation time.")
+        created_at = datetime.fromisoformat(raw_created_at.replace("Z", "+00:00"))
+        if created_at.tzinfo is None:
+            raise ValueError("Governed run creation time must include a timezone.")
+        return created_at.astimezone(timezone.utc), False
+    return datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc), True
 
 
 def _render_alignment_next_step(out: Path) -> None:
