@@ -18,6 +18,8 @@ EXPECTED_FILES = {
     "human_in_loop_plan.md",
     "implementation_routes.md",
     "alignment_trace.jsonl",
+    "project_record.json",
+    "project_summary_log.md",
 }
 
 
@@ -49,9 +51,10 @@ def test_align_rejects_unknown_provider(tmp_path):
     assert "mock" in result.output
 
 
-def test_demo_writes_problem_alignment_package(tmp_path):
+def test_demo_writes_problem_alignment_package_outside_repository_cwd(tmp_path, monkeypatch):
     runner = CliRunner()
     out = tmp_path / "demo_alignment"
+    monkeypatch.chdir(tmp_path)
 
     result = runner.invoke(app, ["demo", "--out", str(out)])
 

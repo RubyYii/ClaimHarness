@@ -32,9 +32,9 @@ Apply the workflow inside one real interdisciplinary project and document before
 
 ## Non-Goals For The Current Prototype
 
-- No PDF parsing.
-- No figure understanding.
-- No Streamlit or hosted UI.
+- No hosted service or multi-tenant deployment.
+- No automatic semantic figure understanding; document intake extracts text and tables only.
+- OCR remains optional and does not imply reliable image understanding.
 - No real clinical data.
 - No automatic literature search.
 - No clinical, legal, educational, or cultural deployment authority.

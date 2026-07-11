@@ -40,6 +40,10 @@ def _load_audit_package(run_dir: Path) -> dict[str, Any]:
     llm_review = None
     if llm_review_path.exists():
         llm_review = json.loads(llm_review_path.read_text(encoding="utf-8"))
+    summary_path = run_dir / "project_summary_log.md"
+    project_summary = (
+        summary_path.read_text(encoding="utf-8") if summary_path.is_file() else None
+    )
 
     return {
         "claims": _read_claim_rows(run_dir / "claim_table.csv"),
@@ -48,6 +52,7 @@ def _load_audit_package(run_dir: Path) -> dict[str, Any]:
         "revision_suggestions": (run_dir / "revision_suggestions.md").read_text(encoding="utf-8"),
         "trace": _read_trace(run_dir / "agent_trace.jsonl"),
         "llm_review": llm_review,
+        "project_summary": project_summary,
     }
 
 
@@ -93,7 +98,7 @@ def _render_html(payload: dict[str, Any], run_dir: Path) -> str:
             '<header class="topbar">',
             '<div class="wrap">',
             "<h1>ClaimHarness Report Viewer</h1>",
-            f"<p>{_e(str(run_dir))}</p>",
+            f"<p>{_e(run_dir.name)}</p>",
             '<p class="notice">Advisory review surface only. ClaimHarness does not guarantee factual correctness, clinical validity, or publication readiness.</p>',
             "</div>",
             "</header>",
@@ -110,6 +115,11 @@ def _render_html(payload: dict[str, Any], run_dir: Path) -> str:
             _render_claim_table(claims, payload["evidence_map"].get("claims", [])),
             _render_evidence_table(evidence),
             _render_markdown_block("Revision suggestions", payload["revision_suggestions"]),
+            (
+                _render_markdown_block("Project summary log", payload["project_summary"])
+                if payload["project_summary"] is not None
+                else ""
+            ),
             _render_llm_review(payload["llm_review"]),
             _render_trace(trace),
             "</main>",

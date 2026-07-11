@@ -165,6 +165,9 @@ ProblemBridge writes a Problem Alignment Package:
 - human-in-the-loop plan
 - implementation routes
 - alignment trace
+- `project_record.json`
+- `project_summary_log.md`
+- `revision_history.jsonl` after the first recorded revision
 
 ClaimHarness writes an audit package:
 
@@ -173,6 +176,8 @@ ClaimHarness writes an audit package:
 - `audit_report.md`
 - `revision_suggestions.md`
 - `agent_trace.jsonl`
+- `run_manifest.json`
+- `project_summary_log.md`
 - optional static `index.html` report viewer
 
 ## Run Locally
@@ -204,14 +209,14 @@ python -m venv .venv
 
 ## Safety Boundary
 
-Do not enter real patient data, confidential manuscripts, API keys, unpublished project materials, or sensitive personal information. Remote model providers are optional and advisory only. Use the default mock mode for first-round testing.
+Do not enter real patient data, confidential manuscripts, API keys, unpublished project materials, or sensitive personal information. The local Streamlit UI runs deterministic mock workflows only and does not collect or store API keys. Optional remote model providers are advisory and are available only through the ClaimHarness CLI.
 
 ## Downloadable Local Web App Package
 
 For external testing, share the generated local package:
 
 ```text
-ProblemBridge-ClaimHarness-v0.3.2-local-webapp.zip
+ProblemBridge-ClaimHarness-v0.3.3-local-webapp.zip
 ```
 
 After downloading, unzip it and double-click:
@@ -225,7 +230,7 @@ The first run creates `.venv`, installs dependencies, and opens a local browser 
 
 ClaimHarness: A Lightweight Agent Harness for Scientific Claim-Evidence Auditing
 
-ClaimHarness turns a scientific manuscript into an auditable claim-evidence package. Given a Markdown manuscript, CSV result tables, and references, it extracts scientific claims, retrieves possible evidence, verifies support levels, routes risky claims for human review, and writes a replayable audit trace.
+ClaimHarness turns a scientific manuscript into an auditable claim-evidence package. Given a Markdown manuscript, CSV result tables, and optional references, it extracts scientific claims, retrieves possible evidence, verifies support levels, routes risky claims for human review, and writes an ordered audit trace.
 
 This is not a prompt-only reviewer. It decomposes the task into task specification, context selection, claim extraction, evidence retrieval, verification, human-review routing, and trace logging.
 
@@ -341,7 +346,7 @@ Start with synthetic examples. Do not upload private patient data, confidential 
 For external testing, the repository can be shared as a local web app package:
 
 ```text
-ProblemBridge-ClaimHarness-v0.3.2-local-webapp.zip
+ProblemBridge-ClaimHarness-v0.3.3-local-webapp.zip
 ```
 
 After downloading:
@@ -470,9 +475,9 @@ The wizard includes:
 
 Do not upload private patient data, confidential manuscripts, API keys, or sensitive unpublished materials.
 
-## Optional OpenAI-Compatible Provider
+## Optional Remote Providers (ClaimHarness CLI Only)
 
-The default demo uses `--llm mock` and never needs an API key. Remote providers are optional and advisory only. Supported provider names include:
+The default demo uses `--llm mock` and never needs an API key. This section applies only to the ClaimHarness CLI; the local Streamlit UI remains deterministic mock-only and never accepts or stores API keys. Remote providers are optional and advisory only. Supported provider names include:
 
 ```text
 mock
@@ -519,7 +524,7 @@ $env:QWEN_MODEL="qwen-plus"
   --llm qwen
 ```
 
-In the local Streamlit UI, the sidebar keeps navigation visible and places advanced controls behind `Show workspace memory` and `Show API settings`. These controls can remember provider, base URL, model, model selection mode, recent output path, and draft form fields in `outputs/ui_memory/workbench_memory.json`. Changing the provider auto-fills its default base URL and model; use `Use provider defaults` to restore those values after editing them. The model field supports both a common-model dropdown and manual input for custom deployments or newer provider model names. API keys are session-only: the password field can apply the key to the current Streamlit process, but it is not saved to memory. Clear local memory before sharing the folder or zip if the drafts include sensitive workflow details.
+The local Streamlit UI intentionally runs deterministic mock workflows only. It has no provider, model, base-URL, or API-key controls and does not collect or store API keys. `Show workspace memory` can save draft fields and the most recent output path to `outputs/ui_memory/workbench_memory.json`. Clear local memory before sharing if drafts contain sensitive workflow details. Remote advisory providers are configured and run only through the ClaimHarness CLI.
 
 DeepSeek can use its own preset:
 
@@ -535,6 +540,24 @@ $env:DEEPSEEK_MODEL="deepseek-v4-flash"
 ```
 
 See [MODEL_PROVIDER_GUIDE.md](MODEL_PROVIDER_GUIDE.md) for `openai`, `qwen`, `deepseek`, `groq`, `mistral`, `openrouter`, `xai`, `ollama`, `gemini`, and `anthropic` setup.
+
+## Bounded Revision Governance
+
+ProblemBridge output packages now include `project_record.json` and `project_summary_log.md`. Revisions can be appended to `revision_history.jsonl` with `problem-bridge record-revision`. Each stable target is limited to three rounds: a third unresolved round is escalated, and the system refuses a fourth local patch until the specification, evidence, or structure has been consolidated.
+
+The repository remediation itself is recorded as a three-round worked example in [`docs/project_records/2026-07-11-remediation/project_summary_log.md`](docs/project_records/2026-07-11-remediation/project_summary_log.md).
+
+```powershell
+.venv\Scripts\python.exe -m problem_bridge record-revision `
+  --project outputs\problem_bridge_quality_inspection `
+  --target evidence-contract `
+  --diagnosis evidence_gap `
+  --summary "Clarified required source fields" `
+  --verification "Focused tests passed" `
+  --status needs_revision
+```
+
+ClaimHarness audit runs also write `run_manifest.json` and `project_summary_log.md`. The manifest records a run ID, tool version, timestamps, provider status, input/output filenames, sizes, and SHA-256 hashes without exposing absolute local paths. The Markdown summary is a navigation and provenance aid, not scientific evidence or an approval record.
 
 ## Static Report Viewer
 
@@ -565,7 +588,7 @@ The manuscript is fully synthetic and describes a human-in-the-loop workflow for
 
 ## Expected Output
 
-The mock demo writes five files:
+The mock audit writes five core audit files plus two run records. The `demo` command also writes the static viewer:
 
 ```text
 outputs/lab_report_audit_demo_run/
@@ -574,6 +597,8 @@ outputs/lab_report_audit_demo_run/
   audit_report.md
   revision_suggestions.md
   agent_trace.jsonl
+  run_manifest.json
+  project_summary_log.md
   index.html
 ```
 
@@ -586,7 +611,7 @@ C004,4,overclaimed,deployment_claim,The workflow is ready for real-world operati
 C007,8,weakly_supported,workflow_claim,The first design goal is to make every report claim traceable...
 ```
 
-`source_line` points back to the approximate manuscript line. `evidence_map.json` links claim IDs to evidence IDs and includes a match reason for each link so reviewers can inspect why a claim was classified. `agent_trace.jsonl` records each pipeline step in order, including loading, extraction, retrieval, verification, and report generation.
+`source_line` points back to the manuscript line. `evidence_map.json` links claim IDs to evidence IDs and includes a match reason for each link so reviewers can inspect why a claim was classified. A statement in the Results section is candidate context, not automatically strong evidence for itself; strong table support requires a verifiable metric/value relationship. High-risk biomedical or clinical claims default to human review unless the required external evidence is present. `agent_trace.jsonl` records each pipeline step in order, including loading, extraction, retrieval, verification, and report generation.
 
 ## Why this is an Agent Harness
 
@@ -598,7 +623,7 @@ ClaimHarness is designed as a small harness around an AI-assisted scientific rev
 - intermediate state tracking
 - verification
 - human-review routing
-- replayable audit log
+- ordered, inspectable audit log
 
 The goal is not to replace reviewers. The goal is to make scientific claims more traceable, reviewable, and evidence-aware before they enter higher-risk workflows.
 
@@ -614,6 +639,9 @@ Implemented:
 - deterministic evidence retrieval
 - source_line and match reason traceability
 - conservative mock verification
+- Results self-statements do not automatically count as strong evidence
+- high-risk clinical claims default to human review
+- run-level provenance in `run_manifest.json` and `project_summary_log.md`
 - optional OpenAI-compatible advisory review
 - static report viewer
 - GitHub Actions CI

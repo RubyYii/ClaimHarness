@@ -172,6 +172,9 @@ ProblemBridge 用在 AI 工作开始之前，输出一个 Problem Alignment Pack
 - 人工复核计划
 - 实施路线
 - 对齐过程 trace
+- `project_record.json`
+- `project_summary_log.md`
+- 首次记录修订后生成的 `revision_history.jsonl`
 
 ### ClaimHarness
 
@@ -182,6 +185,8 @@ ClaimHarness 用在文本或系统输出之后，输出一个 evidence audit pac
 - `audit_report.md`
 - `revision_suggestions.md`
 - `agent_trace.jsonl`
+- `run_manifest.json`
+- `project_summary_log.md`
 - 可选静态报告 `index.html`
 
 本地网页工作台还可以把任意生成结果目录导出为 `export_report.docx` 和 `export_report.pdf`。导出内容来自输出目录里已有的 Markdown、CSV、YAML、JSON 和 trace 文件，在本地生成，不需要 API key，也不会调用远程模型。
@@ -226,7 +231,7 @@ python -m venv .venv
 如果要分享给别人测试，可以发送本地压缩包：
 
 ```text
-ProblemBridge-ClaimHarness-v0.3.2-local-webapp.zip
+ProblemBridge-ClaimHarness-v0.3.3-local-webapp.zip
 ```
 
 对方解压后双击：
@@ -250,15 +255,19 @@ RUN_PROBLEMBRIDGE_WINDOWS.bat
 
 ## API 和模型
 
-默认使用 `mock`，不需要 API key。远程模型提供商是可选的，只用于 advisory review。当前 ClaimHarness 已准备常见接口，包括 OpenAI-compatible、Qwen / DashScope、DeepSeek、Groq、Mistral、OpenRouter、xAI、Ollama、Gemini 和 Anthropic。
+本地网页 UI 只运行确定性的 `mock` 工作流，不需要 API key，也不提供 provider、model、base URL 或 API-key 输入控件。远程模型提供商是可选的 advisory review，只能通过 ClaimHarness CLI 配置和运行。当前 CLI 支持 OpenAI-compatible、Qwen / DashScope、DeepSeek、Groq、Mistral、OpenRouter、xAI、Ollama、Gemini 和 Anthropic。
 
 使用远程模型前要确认：你输入的内容会发送给外部服务。不要上传真实患者数据、机密论文、未公开项目材料、API key 或任何敏感信息。
 
-本地网页 UI 的侧边栏默认只保留导航，高级设置放在 `显示工作台记忆` 和 `显示 API 设置` 两个折叠开关后面。你可以保存 provider、base URL、model、模型选择方式、最近输出目录，以及 Question discovery、Domain wizard、AI wizard 的草稿字段。保存文件位于 `outputs/ui_memory/workbench_memory.json`。
-
-切换 provider 时，网页会自动填入对应的默认 base URL 和 model；如果你手动改过，也可以点击 `Use provider defaults` 恢复。模型名称支持“常用模型下拉列表”和“手动输入”两种方式：普通测试者可以直接选常见模型，私有部署或新模型可以手动填写。API key 不会默认保存。网页里的 API key 输入框是 session-only，只在当前 Streamlit 进程中临时使用；保存记忆时会过滤 `api_key`、`token`、`secret`、`password` 等敏感字段。分享文件夹或 zip 前，如果草稿里有敏感工作流信息，请先清除本地记忆。
+本地网页 UI 不接收、收集或保存 API key。侧边栏的 `显示工作台记忆` 只保存草稿字段和最近输出目录，文件位于 `outputs/ui_memory/workbench_memory.json`。分享文件夹或 zip 前，如果草稿里有敏感工作流信息，请先清除本地记忆。
 
 Qwen / DashScope 可以使用 `qwen` provider：设置 `DASHSCOPE_API_KEY`，可选设置 `QWEN_BASE_URL` 和 `QWEN_MODEL`。
+
+## 三轮修订治理
+
+ProblemBridge 输出包现在包含 `project_record.json` 和 `project_summary_log.md`。可以用 `problem-bridge record-revision` 把每轮修改追加到 `revision_history.jsonl`。同一个稳定 target 最多修订三轮：第三轮仍未解决时必须升级为结构、规格或证据问题；在完成整合前，不允许继续打第四个局部补丁。
+
+ClaimHarness 每次审计都会生成 `run_manifest.json` 和 `project_summary_log.md`。manifest 记录 run ID、工具版本、时间、provider 状态，以及输入/输出文件名、大小和 SHA-256，不暴露本地绝对路径；Markdown 摘要只是导航和 provenance 辅助，不是科学证据或批准记录。
 
 ## 安全边界
 
@@ -266,6 +275,7 @@ Qwen / DashScope 可以使用 `qwen` provider：设置 `DASHSCOPE_API_KEY`，可
 - 不保证事实正确性。
 - 只检查你提供的材料。
 - biomedical 或高风险 claims 仍然需要人工复核。
+- Results 章节中的自述不会自动成为该 claim 的强证据；强表格证据必须有可核验的指标/数值关系。
 - mock mode 是确定性的演示模式，不等于完整语义理解。
 - 不要输入真实患者数据、机密论文、未公开项目材料、API key 或任何敏感内容。
 

@@ -19,6 +19,9 @@ def test_export_output_report_writes_docx_and_pdf(tmp_path):
     (out_dir / "concept_alignment_table.csv").write_text(
         "domain_concept,ai_representation\noperational readiness,deployment status\n", encoding="utf-8"
     )
+    (out_dir / "project_summary_log.md").write_text(
+        "# Project Summary Log\n\nMaximum three revision rounds per target.\n", encoding="utf-8"
+    )
 
     package = export_output_report(out_dir)
 
@@ -33,6 +36,7 @@ def test_export_output_report_writes_docx_and_pdf(tmp_path):
     assert "ProblemBridge / ClaimHarness Export Report" in document_xml
     assert "Quality inspection alignment demo" in document_xml
     assert "operational readiness" in document_xml
+    assert "Maximum three revision rounds" in document_xml
 
     pdf_bytes = package.pdf_path.read_bytes()
     assert pdf_bytes.startswith(b"%PDF-1.4")

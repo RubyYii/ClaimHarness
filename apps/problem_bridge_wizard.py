@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import shutil
 from importlib import reload
 from datetime import datetime
@@ -8,7 +7,6 @@ from pathlib import Path
 
 import streamlit as st
 
-from claim_harness.llm import PROVIDER_PRESETS
 from claim_harness.report_exporter import export_output_report
 from problem_bridge.generator import build_alignment_package
 from problem_bridge.guided import (
@@ -272,38 +270,6 @@ DOCUMENT_INTAKE_FILES = {
     "problem_seed.md": "ProblemBridge seed brief",
 }
 
-API_PROVIDER_OPTIONS = [
-    "mock",
-    "qwen",
-    "deepseek",
-    "openai",
-    "openai-compatible",
-    "openrouter",
-    "groq",
-    "mistral",
-    "xai",
-    "gemini",
-    "anthropic",
-    "ollama",
-]
-
-MODEL_MODE_COMMON = "common"
-MODEL_MODE_MANUAL = "manual"
-MODEL_OPTIONS_BY_PROVIDER = {
-    "openai": ["gpt-5.4-mini", "gpt-5.4", "gpt-5.4-nano", "gpt-4.1", "gpt-4.1-mini"],
-    "openai-compatible": ["gpt-5.4-mini", "gpt-4.1-mini", "llama-3.3-70b-versatile", "qwen-plus"],
-    "qwen": ["qwen-plus", "qwen-max", "qwen-turbo", "qwen-vl-plus", "qwen-vl-max"],
-    "deepseek": ["deepseek-v4-flash", "deepseek-chat", "deepseek-reasoner"],
-    "openrouter": ["openai/gpt-5.4-mini", "anthropic/claude-sonnet-4.5", "google/gemini-3.5-flash"],
-    "groq": ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"],
-    "mistral": ["mistral-large-latest", "mistral-small-latest", "open-mistral-nemo"],
-    "xai": ["grok-4.3", "grok-4", "grok-3-mini"],
-    "gemini": ["gemini-3.5-flash", "gemini-3.5-pro", "gemini-2.5-flash", "gemini-2.5-pro"],
-    "anthropic": ["claude-sonnet-4-5", "claude-opus-4-1", "claude-3-5-haiku-latest"],
-    "ollama": ["llama3.2", "llama3.1", "qwen2.5", "mistral"],
-    "mock": ["mock"],
-}
-
 DRAFT_KEY_GROUPS = {
     "question_discovery": [
         "question_seed_text",
@@ -469,8 +435,8 @@ def _render_memory_sidebar() -> None:
     if show_memory:
         st.sidebar.caption(
             _text(
-                f"Saved locally to `{MEMORY_PATH}` (`{MEMORY_FILE_LABEL}`). API keys are session-only and are never written to memory.",
-                f"本地保存位置：`{MEMORY_PATH}`（`{MEMORY_FILE_LABEL}`）。API 密钥只在当前会话使用，不会写入记忆文件。",
+                f"Saved locally to `{MEMORY_PATH}` (`{MEMORY_FILE_LABEL}`). This workbench does not accept or store API keys.",
+                f"本地保存位置：`{MEMORY_PATH}`（`{MEMORY_FILE_LABEL}`）。当前工作台不接收或保存 API 密钥。",
             )
         )
         st.sidebar.warning(
@@ -502,67 +468,12 @@ def _render_memory_sidebar() -> None:
                 st.session_state.pending_workbench_memory_clear = True
                 st.rerun()
 
-    show_api_settings = st.sidebar.checkbox(_text("Show API settings", "显示 API 设置"), value=False, key="show_api_settings")
-    if show_api_settings:
-        st.sidebar.selectbox(_text("Provider", "模型服务"), API_PROVIDER_OPTIONS, key="api_provider", on_change=_sync_provider_defaults)
-        provider = st.session_state.get("api_provider", "mock")
-        preset = PROVIDER_PRESETS.get(provider)
-
-        st.sidebar.text_input(_text("Base URL", "服务地址"), key="api_base_url")
-        model_mode = st.sidebar.radio(
-            _text("Model selection mode", "模型选择方式"),
-            [MODEL_MODE_COMMON, MODEL_MODE_MANUAL],
-            key="api_model_mode",
-            format_func=_model_mode_label,
-            horizontal=True,
+    st.sidebar.caption(
+        _text(
+            "This guided workbench intentionally uses deterministic mock rules. Remote advisory providers are available only through the ClaimHarness CLI until a reviewed UI integration exists.",
+            "当前引导式工作台仅使用确定性的 mock 规则。在经过审查的 UI 接入完成前，远程 advisory provider 只可通过 ClaimHarness CLI 使用。",
         )
-        if model_mode == MODEL_MODE_COMMON:
-            model_options = _model_options_for_provider(provider)
-            current_model = st.session_state.get("api_model") or _provider_defaults(provider)["model"]
-            if current_model and current_model not in model_options:
-                model_options = [current_model, *model_options]
-            selected_model = st.sidebar.selectbox(
-                _text("Common model", "常用模型"),
-                model_options,
-                index=model_options.index(current_model) if current_model in model_options else 0,
-            )
-            st.session_state.api_model = selected_model
-            st.sidebar.caption(
-                _text(
-                    "Choose from common models, or switch to manual input for a custom deployment or newer model.",
-                    "可以从常用模型中选择；如果是自定义部署或新模型，请切换到手动输入。",
-                )
-            )
-        else:
-            st.sidebar.text_input(_text("Custom model name", "自定义模型名称"), key="api_model")
-        st.sidebar.button(
-            _text("Use provider defaults", "使用服务商默认配置"),
-            key="api_use_provider_defaults",
-            on_click=_sync_provider_defaults,
-        )
-        api_key = st.sidebar.text_input(_text("API key is session-only", "API 密钥仅当前会话使用"), type="password", key="api_key_session")
-
-        if preset and preset.api_key_env:
-            st.sidebar.caption(
-                _text(
-                    f"Key env for this provider: `{preset.api_key_env}`. Provider, base URL, and model can be remembered; the key is not saved.",
-                    f"这个模型服务使用的环境变量：`{preset.api_key_env}`。可以记住服务商、服务地址和模型名称，但不会保存密钥。",
-                )
-            )
-        else:
-            st.sidebar.caption(_text("This provider does not require an API key for local testing.", "这个模型服务用于本地测试时不需要 API 密钥。"))
-
-        if st.sidebar.button(_text("Use API key this session", "本次会话使用 API 密钥"), disabled=not bool(api_key) or not preset or not preset.api_key_env):
-            os.environ[preset.api_key_env] = api_key
-            st.sidebar.success(_text(f"Applied `{preset.api_key_env}` for this session only.", f"已在本次会话应用 `{preset.api_key_env}`。"))
-
-
-def _sync_provider_defaults() -> None:
-    provider = st.session_state.get("api_provider", "mock")
-    defaults = _provider_defaults(provider)
-    st.session_state.api_base_url = defaults["base_url"]
-    st.session_state.api_model = defaults["model"]
-    st.session_state.api_model_mode = MODEL_MODE_COMMON
+    )
 
 def _ensure_memory_state() -> None:
     if "pending_workbench_memory" in st.session_state:
@@ -580,11 +491,6 @@ def _ensure_memory_state() -> None:
 
 def _apply_memory_to_session(memory: dict, clear_existing: bool) -> None:
     keys = [
-        "api_provider",
-        "api_base_url",
-        "api_model",
-        "api_model_mode",
-        "api_key_session",
         "last_output_dir",
         "last_document_intake_dir",
         "last_question_discovery_dir",
@@ -597,20 +503,6 @@ def _apply_memory_to_session(memory: dict, clear_existing: bool) -> None:
     if clear_existing:
         for key in keys:
             st.session_state.pop(key, None)
-
-    api_settings = memory.get("api_settings", {}) if isinstance(memory, dict) else {}
-    provider = api_settings.get("provider") or "mock"
-    if provider not in API_PROVIDER_OPTIONS:
-        provider = "mock"
-
-    defaults = _provider_defaults(provider)
-    model_mode = api_settings.get("model_mode") or MODEL_MODE_COMMON
-    if model_mode not in {MODEL_MODE_COMMON, MODEL_MODE_MANUAL}:
-        model_mode = MODEL_MODE_COMMON
-    st.session_state.setdefault("api_provider", provider)
-    st.session_state.setdefault("api_base_url", api_settings.get("base_url") or defaults["base_url"])
-    st.session_state.setdefault("api_model", api_settings.get("model") or defaults["model"])
-    st.session_state.setdefault("api_model_mode", model_mode)
 
     drafts = memory.get("drafts", {}) if isinstance(memory, dict) else {}
     if isinstance(drafts, dict):
@@ -627,15 +519,8 @@ def _apply_memory_to_session(memory: dict, clear_existing: bool) -> None:
 
 
 def _current_workbench_memory() -> dict:
-    provider = st.session_state.get("api_provider", "mock")
     return {
-        "schema_version": 1,
-        "api_settings": {
-            "provider": provider,
-            "base_url": st.session_state.get("api_base_url", ""),
-            "model": st.session_state.get("api_model", ""),
-            "model_mode": st.session_state.get("api_model_mode", MODEL_MODE_COMMON),
-        },
+        "schema_version": 2,
         "drafts": _drafts_from_session(),
         "last_output_dir": st.session_state.get("last_output_dir", ""),
     }
@@ -652,28 +537,6 @@ def _drafts_from_session() -> dict:
         if values:
             drafts[group] = values
     return drafts
-
-
-def _provider_defaults(provider: str) -> dict[str, str]:
-    preset = PROVIDER_PRESETS.get(provider)
-    if not preset:
-        return {"base_url": "", "model": ""}
-    return {
-        "base_url": preset.default_base_url or "",
-        "model": preset.default_model or "",
-    }
-
-
-def _model_options_for_provider(provider: str) -> list[str]:
-    defaults = _provider_defaults(provider)
-    options = [defaults["model"], *MODEL_OPTIONS_BY_PROVIDER.get(provider, [])]
-    return [option for index, option in enumerate(options) if option and option not in options[:index]]
-
-
-def _model_mode_label(mode: str) -> str:
-    if mode == MODEL_MODE_MANUAL:
-        return _text("Manual input", "手动输入")
-    return _text("Use common model list", "使用常用模型列表")
 
 
 def _inject_visual_theme() -> None:
@@ -1911,12 +1774,11 @@ def _render_report_export_buttons(out: Path) -> None:
 
 
 def _make_archive(out: Path) -> Path:
-    archive_base = out / out.name
-    archive_path = archive_base.with_suffix(".zip")
-    if archive_path.exists():
-        return archive_path
-    created = shutil.make_archive(str(archive_base), "zip", out)
-    return Path(created)
+    archive_path = out.parent / f"{out.name}.zip"
+    temporary_base = out.parent / f".{out.name}_download"
+    temporary_path = Path(shutil.make_archive(str(temporary_base), "zip", root_dir=out))
+    temporary_path.replace(archive_path)
+    return archive_path
 
 
 def _slug(value: str) -> str:

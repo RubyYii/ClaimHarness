@@ -2,11 +2,15 @@ from __future__ import annotations
 
 import csv
 import html
+import http.client
+import ipaddress
 import io
 import json
 import re
+import socket
+import ssl
+import urllib.error
 import urllib.parse
-import urllib.request
 import zlib
 import zipfile
 from dataclasses import dataclass, field
@@ -21,6 +25,9 @@ IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp"}
 SUPPORTED_EXTENSIONS = {".doc", ".docx", ".pdf", ".txt", ".md", ".csv", ".html", ".htm"} | IMAGE_EXTENSIONS
 TEXT_ENCODINGS = ("utf-8-sig", "utf-8", "gb18030", "gbk", "big5")
 OcrEngine = Callable[[Path], str]
+AddressResolver = Callable[[str, int], Iterable[str]]
+MAX_URL_RESPONSE_BYTES = 2_000_000
+MAX_URL_REDIRECTS = 3
 
 
 @dataclass(frozen=True)
@@ -85,39 +92,75 @@ def extract_document(path: str | Path, *, enable_ocr: bool = False, ocr_engine: 
     )
 
 
-def extract_url(url: str, *, fetcher: Callable[[str], bytes] | None = None) -> DocumentExtraction:
+def extract_url(
+    url: str,
+    *,
+    fetcher: Callable[[str], bytes] | None = None,
+    resolver: AddressResolver | None = None,
+) -> DocumentExtraction:
     normalized_url = url.strip()
-    parsed = urllib.parse.urlparse(normalized_url)
+    safe_url = _safe_source_url(normalized_url)
+    try:
+        parsed = urllib.parse.urlparse(normalized_url)
+    except ValueError:
+        parsed = urllib.parse.urlparse("")
     if parsed.scheme not in {"http", "https"} or not parsed.netloc:
         return DocumentExtraction(
-            source_name=normalized_url or "invalid-url",
+            source_name="invalid-url",
             file_type="url",
             text="",
             tables=[],
             warnings=["URL intake only supports public http(s) URLs."],
-            source_url=normalized_url,
+            source_url="",
         )
 
+    address_resolver = resolver or _resolve_host_addresses
     try:
-        raw = fetcher(normalized_url) if fetcher is not None else _fetch_url(normalized_url)
-    except Exception as exc:
+        validate_public_url(normalized_url, resolver=address_resolver)
+    except (OSError, ValueError) as exc:
         return DocumentExtraction(
             source_name=_url_source_name(normalized_url),
             file_type="url",
             text="",
             tables=[],
-            warnings=[f"URL could not be fetched: {exc}"],
-            source_url=normalized_url,
+            warnings=[f"URL is not a public destination: {exc}"],
+            source_url=safe_url,
         )
 
-    if isinstance(raw, str):
-        raw = raw.encode("utf-8")
+    try:
+        raw = (
+            fetcher(normalized_url)
+            if fetcher is not None
+            else _fetch_url(normalized_url, resolver=address_resolver)
+        )
+        if isinstance(raw, str):
+            raw = raw.encode("utf-8")
+        if len(raw) > MAX_URL_RESPONSE_BYTES:
+            raise ValueError(
+                f"URL response exceeds the {MAX_URL_RESPONSE_BYTES}-byte limit."
+            )
+    except Exception as exc:
+        detail = str(exc)
+        warning = (
+            f"URL could not be fetched: {detail}"
+            if detail.startswith("URL response exceeds the ")
+            else "URL could not be fetched safely. Check that it is a reachable public static http(s) page."
+        )
+        return DocumentExtraction(
+            source_name=_url_source_name(normalized_url),
+            file_type="url",
+            text="",
+            tables=[],
+            warnings=[warning],
+            source_url=safe_url,
+        )
+
     return _extract_html_bytes(
         source_name=_url_source_name(normalized_url),
         file_type="url",
         stem=_url_source_name(normalized_url),
         raw=raw,
-        source_url=normalized_url,
+        source_url=safe_url,
     )
 
 
@@ -172,20 +215,243 @@ def _extract_legacy_doc(path: Path) -> DocumentExtraction:
     )
 
 
-def _fetch_url(url: str) -> bytes:
-    request = urllib.request.Request(
-        url,
-        headers={"User-Agent": "ProblemBridge-DocumentIntake/0.3"},
+def validate_public_url(url: str, *, resolver: AddressResolver | None = None) -> None:
+    _validated_public_destination(url, resolver=resolver)
+
+
+def _validated_public_destination(
+    url: str,
+    *,
+    resolver: AddressResolver | None = None,
+) -> tuple[urllib.parse.SplitResult, int, tuple[str, ...]]:
+    try:
+        parsed = urllib.parse.urlsplit(url)
+        port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    except ValueError as exc:
+        raise ValueError("invalid URL syntax") from exc
+
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        raise ValueError("only http(s) URLs with a hostname are supported")
+    if parsed.username is not None or parsed.password is not None:
+        raise ValueError("URL credentials are not allowed")
+
+    hostname = parsed.hostname.rstrip(".").lower()
+    if hostname == "localhost":
+        raise ValueError("localhost is not a public destination")
+
+    try:
+        literal_address = ipaddress.ip_address(hostname.split("%", 1)[0])
+    except ValueError:
+        literal_address = None
+
+    address_resolver = resolver or _resolve_host_addresses
+    addresses = [str(literal_address)] if literal_address is not None else list(
+        address_resolver(parsed.hostname, port)
     )
-    with urllib.request.urlopen(request, timeout=10) as response:  # nosec B310 - public user-provided HTTP(S) intake.
-        return response.read(2_000_000)
+    if not addresses:
+        raise ValueError("hostname did not resolve to an address")
+    approved: list[str] = []
+    for address in addresses:
+        normalized = address.split("%", 1)[0]
+        try:
+            parsed_address = ipaddress.ip_address(normalized)
+        except ValueError as exc:
+            raise ValueError("hostname resolved to an invalid address") from exc
+        if not parsed_address.is_global:
+            raise ValueError(f"hostname resolves to non-public address {parsed_address}")
+        canonical = str(parsed_address)
+        if canonical not in approved:
+            approved.append(canonical)
+    return parsed, port, tuple(approved)
+
+
+def _resolve_host_addresses(hostname: str, port: int) -> Iterable[str]:
+    results = socket.getaddrinfo(hostname, port, type=socket.SOCK_STREAM)
+    return sorted({result[4][0] for result in results})
+
+
+class _PinnedHTTPConnection(http.client.HTTPConnection):
+    """Connect to an approved IP while retaining the original HTTP Host."""
+
+    def __init__(self, hostname: str, port: int, approved_ip: str, *, timeout: int):
+        super().__init__(hostname, port=port, timeout=timeout)
+        self._approved_ip = approved_ip
+
+    def connect(self) -> None:
+        self.sock = _connect_to_approved_ip(
+            self._approved_ip,
+            self.port,
+            timeout=self.timeout,
+            source_address=self.source_address,
+        )
+
+
+class _PinnedHTTPSConnection(http.client.HTTPSConnection):
+    """Pin TCP to an approved IP and keep hostname-based SNI/certificate checks."""
+
+    def __init__(self, hostname: str, port: int, approved_ip: str, *, timeout: int):
+        super().__init__(hostname, port=port, timeout=timeout)
+        self._approved_ip = approved_ip
+
+    def connect(self) -> None:
+        raw_socket = _connect_to_approved_ip(
+            self._approved_ip,
+            self.port,
+            timeout=self.timeout,
+            source_address=self.source_address,
+        )
+        try:
+            self.sock = self._context.wrap_socket(raw_socket, server_hostname=self.host)
+        except Exception:
+            raw_socket.close()
+            raise
+
+
+def _connect_to_approved_ip(
+    approved_ip: str,
+    port: int,
+    *,
+    timeout: float | object,
+    source_address: tuple[str, int] | None,
+) -> socket.socket:
+    address = ipaddress.ip_address(approved_ip)
+    if not address.is_global:
+        raise OSError("approved destination is not a public address")
+    family = socket.AF_INET6 if address.version == 6 else socket.AF_INET
+    sock = socket.socket(family, socket.SOCK_STREAM)
+    try:
+        if timeout is not socket._GLOBAL_DEFAULT_TIMEOUT:
+            sock.settimeout(timeout)
+        if source_address is not None:
+            sock.bind(source_address)
+        destination = (
+            (str(address), port, 0, 0)
+            if address.version == 6
+            else (str(address), port)
+        )
+        sock.connect(destination)
+        peer = ipaddress.ip_address(str(sock.getpeername()[0]).split("%", 1)[0])
+        if peer != address or not peer.is_global:
+            raise OSError("connected peer does not match the approved public address")
+    except Exception:
+        sock.close()
+        raise
+    return sock
+
+
+def _fetch_url(url: str, *, resolver: AddressResolver | None = None) -> bytes:
+    address_resolver = resolver or _resolve_host_addresses
+    current_url = url
+    redirect_count = 0
+
+    while True:
+        parsed, port, approved_ips = _validated_public_destination(
+            current_url,
+            resolver=address_resolver,
+        )
+        connection, response = _request_pinned(parsed, port, approved_ips)
+        try:
+            if response.status in {301, 302, 303, 307, 308}:
+                location = response.getheader("Location")
+                if not location:
+                    raise urllib.error.URLError("redirect response is missing a Location header")
+                if redirect_count >= MAX_URL_REDIRECTS:
+                    raise urllib.error.URLError(
+                        f"URL exceeded the {MAX_URL_REDIRECTS}-redirect limit"
+                    )
+                target_url = urllib.parse.urljoin(current_url, location)
+                source = urllib.parse.urlsplit(current_url)
+                target = urllib.parse.urlsplit(target_url)
+                if source.scheme == "https" and target.scheme != "https":
+                    raise urllib.error.URLError("HTTPS URL redirect downgrade is not allowed")
+                current_url = target_url
+                redirect_count += 1
+                continue
+            if response.status >= 400:
+                raise urllib.error.URLError(f"public URL returned HTTP {response.status}")
+            return _read_url_response(response)
+        finally:
+            response.close()
+            connection.close()
+
+
+def _request_pinned(
+    parsed: urllib.parse.SplitResult,
+    port: int,
+    approved_ips: tuple[str, ...],
+) -> tuple[http.client.HTTPConnection, http.client.HTTPResponse]:
+    hostname = parsed.hostname
+    if hostname is None:
+        raise ValueError("public URL is missing a hostname")
+    request_target = urllib.parse.urlunsplit(("", "", parsed.path or "/", parsed.query, ""))
+    last_error: Exception | None = None
+    for approved_ip in approved_ips:
+        connection: http.client.HTTPConnection
+        if parsed.scheme == "https":
+            connection = _PinnedHTTPSConnection(hostname, port, approved_ip, timeout=10)
+        else:
+            connection = _PinnedHTTPConnection(hostname, port, approved_ip, timeout=10)
+        try:
+            connection.request(
+                "GET",
+                request_target,
+                headers={
+                    "User-Agent": "ProblemBridge-DocumentIntake/0.3",
+                    "Accept-Encoding": "identity",
+                },
+            )
+            return connection, connection.getresponse()
+        except (OSError, ssl.SSLError, http.client.HTTPException) as exc:
+            last_error = exc
+            connection.close()
+    raise urllib.error.URLError("connection to the approved public destination failed") from last_error
+
+
+def _read_url_response(response: object) -> bytes:
+    headers = getattr(response, "headers", None)
+    content_length = headers.get("Content-Length") if headers is not None else None
+    if content_length:
+        try:
+            declared_length = int(content_length)
+        except ValueError:
+            declared_length = None
+        if declared_length is not None and declared_length > MAX_URL_RESPONSE_BYTES:
+            raise ValueError(
+                f"URL response exceeds the {MAX_URL_RESPONSE_BYTES}-byte limit."
+            )
+
+    body = response.read(MAX_URL_RESPONSE_BYTES + 1)
+    if len(body) > MAX_URL_RESPONSE_BYTES:
+        raise ValueError(f"URL response exceeds the {MAX_URL_RESPONSE_BYTES}-byte limit.")
+    return body
 
 
 def _url_source_name(url: str) -> str:
-    parsed = urllib.parse.urlparse(url)
+    safe_url = _safe_source_url(url)
+    if not safe_url:
+        return "invalid-url"
+    parsed = urllib.parse.urlparse(safe_url)
     path = parsed.path.strip("/").replace("/", "_") or "index"
     raw_name = f"{parsed.netloc}_{path}"
     return re.sub(r"[^A-Za-z0-9._-]+", "_", raw_name).strip("_") or "webpage"
+
+
+def _safe_source_url(url: str) -> str:
+    """Return a share-safe URL without credentials, query parameters, or fragments."""
+
+    try:
+        parsed = urllib.parse.urlsplit(url)
+        if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+            return ""
+        hostname = parsed.hostname or ""
+        if ":" in hostname:
+            hostname = f"[{hostname}]"
+        port = f":{parsed.port}" if parsed.port is not None else ""
+        return urllib.parse.urlunsplit(
+            (parsed.scheme, f"{hostname}{port}", parsed.path, "", "")
+        )
+    except ValueError:
+        return ""
 
 
 def _extract_html(path: Path) -> DocumentExtraction:
@@ -974,7 +1240,7 @@ def _manifest(results: list[DocumentExtraction]) -> dict[str, object]:
                 "text_length": len(result.text),
                 "table_count": len(result.tables),
                 "annotation_count": len(result.annotations),
-                "source_url": result.source_url,
+                "source_url": _safe_source_url(result.source_url),
                 "warnings": result.warnings,
             }
             for result in results

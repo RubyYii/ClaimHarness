@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from .revision_governance import initialize_project_record
 from .schemas import AlignmentPackage
 
 
@@ -11,6 +12,22 @@ TRACE_STEPS = [
     "detect_alignment_profile",
     "build_alignment_package",
     "write_outputs",
+]
+
+ALIGNMENT_ARTIFACTS = [
+    "problem_card.md",
+    "workflow_map.md",
+    "painpoint_opportunity_matrix.csv",
+    "concept_alignment_table.csv",
+    "ai_task_spec.yaml",
+    "evidence_contract.yaml",
+    "evaluation_protocol.md",
+    "misalignment_risk_report.md",
+    "human_in_loop_plan.md",
+    "implementation_routes.md",
+    "alignment_trace.jsonl",
+    "project_record.json",
+    "project_summary_log.md",
 ]
 
 
@@ -27,6 +44,13 @@ def write_alignment_package(package: AlignmentPackage, out: Path) -> None:
     _write_text(out / "human_in_loop_plan.md", _human_in_loop_plan(package))
     _write_text(out / "implementation_routes.md", _implementation_routes(package))
     _write_trace(out / "alignment_trace.jsonl", package)
+    initialize_project_record(
+        out,
+        project_name=package.project_name,
+        project_goal=package.domain_goal,
+        boundaries=[package.not_allowed_goal, *package.human_review_required],
+        artifacts=ALIGNMENT_ARTIFACTS,
+    )
 
 
 def _write_text(path: Path, text: str) -> None:
@@ -80,7 +104,7 @@ def _write_painpoint_matrix(path: Path, package: AlignmentPackage) -> None:
         )
         writer.writeheader()
         for row in package.painpoints:
-            writer.writerow(row.model_dump())
+            writer.writerow({key: _spreadsheet_safe(value) for key, value in row.model_dump().items()})
 
 
 def _write_concept_table(path: Path, package: AlignmentPackage) -> None:
@@ -96,7 +120,7 @@ def _write_concept_table(path: Path, package: AlignmentPackage) -> None:
         )
         writer.writeheader()
         for row in package.concepts:
-            writer.writerow(row.model_dump())
+            writer.writerow({key: _spreadsheet_safe(value) for key, value in row.model_dump().items()})
 
 
 def _task_spec_yaml(package: AlignmentPackage) -> str:
@@ -209,3 +233,9 @@ def _scalar(value: Any) -> str:
     if any(char in text for char in (":", "#", "\n")):
         return json.dumps(text, ensure_ascii=False)
     return text
+
+
+def _spreadsheet_safe(value: object) -> object:
+    if isinstance(value, str) and value.lstrip().startswith(("=", "+", "-", "@")):
+        return "'" + value
+    return value

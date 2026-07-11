@@ -1,10 +1,20 @@
 import csv
 import json
+import socket
+import urllib.error
 import zipfile
 from pathlib import Path
 from xml.sax.saxutils import escape
 
+import pytest
+
+import problem_bridge.document_intake as intake_module
 from problem_bridge.document_intake import (
+    MAX_URL_REDIRECTS,
+    MAX_URL_RESPONSE_BYTES,
+    _connect_to_approved_ip,
+    _fetch_url,
+    _read_url_response,
     build_problem_seed_from_intake,
     extract_document,
     extract_url,
@@ -177,7 +187,11 @@ def test_extract_url_parses_static_html_with_injected_fetcher():
         assert url == "https://example.org/workflow"
         return b"<html><head><title>Remote Guide</title></head><body><h1>Remote workflow</h1><p>Ask who owns the judgement.</p></body></html>"
 
-    result = extract_url("https://example.org/workflow", fetcher=fetcher)
+    result = extract_url(
+        "https://example.org/workflow",
+        fetcher=fetcher,
+        resolver=lambda host, port: ["8.8.8.8"],
+    )
 
     assert result.source_name == "example.org_workflow"
     assert result.file_type == "url"
@@ -193,6 +207,223 @@ def test_extract_url_rejects_non_http_urls():
     assert result.file_type == "url"
     assert result.text == ""
     assert result.warnings == ["URL intake only supports public http(s) URLs."]
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "http://localhost/workflow",
+        "http://127.0.0.1/workflow",
+        "http://[::1]/workflow",
+        "http://10.1.2.3/workflow",
+        "http://169.254.169.254/latest/meta-data",
+    ],
+)
+def test_extract_url_rejects_non_public_literal_destinations(url):
+    result = extract_url(url, fetcher=lambda value: b"<p>should not fetch</p>")
+
+    assert result.text == ""
+    assert "not a public destination" in result.warnings[0]
+
+
+def test_extract_url_rejects_hostname_if_any_resolved_address_is_private():
+    result = extract_url(
+        "https://mixed.example.test/workflow",
+        fetcher=lambda value: b"<p>should not fetch</p>",
+        resolver=lambda host, port: ["8.8.8.8", "192.168.1.10"],
+    )
+
+    assert result.text == ""
+    assert "non-public address" in result.warnings[0]
+
+
+def test_extract_url_rejects_embedded_credentials():
+    result = extract_url(
+        "https://user:secret@example.test/workflow",
+        fetcher=lambda value: b"<p>should not fetch</p>",
+        resolver=lambda host, port: ["8.8.8.8"],
+    )
+
+    assert result.text == ""
+    assert "credentials" in result.warnings[0]
+    assert "secret" not in result.source_name
+    assert "secret" not in result.source_url
+
+
+def test_extract_url_rejects_oversized_injected_response():
+    result = extract_url(
+        "https://example.test/workflow",
+        fetcher=lambda value: b"x" * (MAX_URL_RESPONSE_BYTES + 1),
+        resolver=lambda host, port: ["8.8.8.8"],
+    )
+
+    assert result.text == ""
+    assert "exceeds" in result.warnings[0]
+
+
+class _FakeURLResponse:
+    def __init__(
+        self,
+        body: bytes,
+        headers: dict[str, str] | None = None,
+        *,
+        status: int = 200,
+        location: str | None = None,
+    ):
+        self.body = body
+        self.headers = headers or {}
+        self.status = status
+        self.location = location
+        self.closed = False
+
+    def read(self, size: int = -1) -> bytes:
+        return self.body if size < 0 else self.body[:size]
+
+    def getheader(self, name: str) -> str | None:
+        return self.location if name.lower() == "location" else self.headers.get(name)
+
+    def close(self) -> None:
+        self.closed = True
+
+
+class _FakeURLConnection:
+    def __init__(self):
+        self.closed = False
+
+    def close(self) -> None:
+        self.closed = True
+
+
+def test_url_response_content_length_over_limit_is_rejected():
+    response = _FakeURLResponse(
+        b"small body",
+        {"Content-Length": str(MAX_URL_RESPONSE_BYTES + 1)},
+    )
+
+    with pytest.raises(ValueError, match="exceeds"):
+        _read_url_response(response)
+
+
+def test_pinned_fetch_rejects_private_redirect_and_https_downgrade(monkeypatch):
+    connection = _FakeURLConnection()
+    private_redirect = _FakeURLResponse(
+        b"",
+        status=302,
+        location="https://127.0.0.1/private",
+    )
+    monkeypatch.setattr(
+        intake_module,
+        "_request_pinned",
+        lambda *args: (connection, private_redirect),
+    )
+    with pytest.raises(ValueError, match="non-public"):
+        _fetch_url(
+            "https://example.test/workflow",
+            resolver=lambda host, port: ["8.8.8.8"],
+        )
+
+    downgrade = _FakeURLResponse(
+        b"",
+        status=302,
+        location="http://example.test/insecure",
+    )
+    monkeypatch.setattr(
+        intake_module,
+        "_request_pinned",
+        lambda *args: (_FakeURLConnection(), downgrade),
+    )
+    with pytest.raises(urllib.error.URLError, match="downgrade"):
+        _fetch_url(
+            "https://example.test/workflow",
+            resolver=lambda host, port: ["8.8.8.8"],
+        )
+
+
+def test_pinned_fetch_limits_redirect_chain(monkeypatch):
+    calls = 0
+
+    def redirect(*args):
+        nonlocal calls
+        calls += 1
+        return (
+            _FakeURLConnection(),
+            _FakeURLResponse(
+                b"",
+                status=302,
+                location=f"https://example.test/redirect-{calls}",
+            ),
+        )
+
+    monkeypatch.setattr(intake_module, "_request_pinned", redirect)
+    with pytest.raises(urllib.error.URLError, match="redirect limit"):
+        _fetch_url(
+            "https://example.test/start",
+            resolver=lambda host, port: ["8.8.8.8"],
+        )
+    assert calls == MAX_URL_REDIRECTS + 1
+
+
+def test_approved_ip_connection_does_not_perform_second_dns_lookup(monkeypatch):
+    approved_ip = "93.184.216.34"
+
+    class FakeSocket:
+        def __init__(self):
+            self.connected_to = None
+            self.closed = False
+
+        def settimeout(self, timeout):
+            self.timeout = timeout
+
+        def bind(self, source):
+            self.source = source
+
+        def connect(self, destination):
+            self.connected_to = destination
+
+        def getpeername(self):
+            return (approved_ip, 443)
+
+        def close(self):
+            self.closed = True
+
+    fake_socket = FakeSocket()
+    monkeypatch.setattr(socket, "socket", lambda family, kind: fake_socket)
+    monkeypatch.setattr(
+        socket,
+        "getaddrinfo",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            AssertionError("pinned connection must not resolve the hostname again")
+        ),
+    )
+
+    connected = _connect_to_approved_ip(
+        approved_ip,
+        443,
+        timeout=10,
+        source_address=None,
+    )
+
+    assert connected is fake_socket
+    assert fake_socket.connected_to == (approved_ip, 443)
+
+
+def test_url_provenance_removes_query_fragment_and_invalid_local_path(tmp_path):
+    secret = "TOPSECRET123"
+    result = extract_url(
+        f"https://example.test/workflow?token={secret}#section",
+        fetcher=lambda value: b"<p>public workflow</p>",
+        resolver=lambda host, port: ["8.8.8.8"],
+    )
+    invalid = extract_url("file:///C:/Users/Alice/private.html")
+    out = tmp_path / "intake"
+    write_intake_package([result, invalid], out)
+    persisted = (out / "source_manifest.json").read_text(encoding="utf-8")
+
+    assert result.source_url == "https://example.test/workflow"
+    assert invalid.source_url == ""
+    assert invalid.source_name == "invalid-url"
+    assert secret not in persisted
+    assert "C:/Users/Alice" not in persisted
 
 
 def test_optional_ocr_engine_extracts_image_text(tmp_path: Path):

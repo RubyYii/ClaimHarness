@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "claim-harness"
-version = "0.1.0"
+version = "0.3.3"
 description = "A lightweight Agent Harness for scientific claim-evidence auditing."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -37,7 +37,8 @@ problem-bridge = "problem_bridge.cli:main"
 include = ["claim_harness*", "problem_bridge*"]
 
 [tool.setuptools.package-data]
-claim_harness = ["prompts/*.md"]
+claim_harness = ["prompts/*.md", "demo_data/*.md", "demo_data/tables/*.csv"]
+problem_bridge = ["demo_data/*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

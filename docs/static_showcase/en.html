@@ -49,8 +49,8 @@
       <div class="grid">
         <article class="card"><h3>Document Intake Layer</h3><p>Bring in .docx, text-based PDF, TXT, Markdown, and CSV files. Outputs extracted_text.md, extracted_tables, source_manifest.json, and extraction_warnings.md.</p></article>
         <article class="card"><h3>Question Discovery Layer</h3><p>Writes a question brief, stakeholder map, expert interview guide, unknowns list, and discussion plan before solution design.</p></article>
-        <article class="card"><h3>ProblemBridge</h3><p>Workflow map, pain point matrix, concept alignment table, task specification, evidence contract, evaluation protocol, risk report, and trace log.</p></article>
-        <article class="card"><h3>ClaimHarness</h3><p>Claim table, evidence map, audit report, revision suggestions, and replayable agent trace.</p></article>
+        <article class="card"><h3>ProblemBridge</h3><p>Workflow map, task and evidence specifications, project record, human-readable summary, and a bounded three-round revision history.</p></article>
+        <article class="card"><h3>ClaimHarness</h3><p>Claim table, evidence map, audit report, revision suggestions, ordered trace, run manifest, and project summary log.</p></article>
         <article class="card"><h3>Guided Interview Engine</h3><p>Local rule-based question routing asks one question at a time, tracks understanding, and surfaces missing information before generating artifacts.</p></article><article class="card"><h3>Local-first mode</h3><p>Default mock mode is deterministic and does not require an API key or external model call.</p></article>
       </div>
     </section>
@@ -75,7 +75,7 @@ cd ClaimHarness
 
     <section class="section">
       <h2>Safety boundary</h2>
-      <div class="notice">Do not enter real patient data, confidential manuscripts, API keys, unpublished project materials, or sensitive personal information. Remote model providers are optional and advisory only.</div>
+      <div class="notice">Do not enter real patient data, confidential manuscripts, API keys, unpublished project materials, or sensitive personal information. This workbench is mock-only and does not accept API keys; remote advisory providers are ClaimHarness CLI-only.</div>
     </section>
   </main>
 </body>

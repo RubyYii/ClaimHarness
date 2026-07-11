@@ -1,6 +1,7 @@
-{"step": 1, "module": "cli", "message": "Started ClaimHarness run", "data": {"llm": "mock", "out": "docs\\sample_outputs\\claimharness_lab_report_audit_demo"}}
-{"step": 2, "module": "loader", "message": "Loaded inputs", "data": {"sections": 7, "tables": ["table1_metrics", "table2_ablation"]}}
-{"step": 3, "module": "claim_extractor", "message": "Extracted claims", "data": {"claims": 17}}
-{"step": 4, "module": "evidence_retriever", "message": "Retrieved evidence", "data": {"evidence_items": 26}}
-{"step": 5, "module": "verifier", "message": "Verified claims", "data": {"status_counts": {"supported": 14, "overclaimed": 2, "weakly_supported": 1}}}
-{"step": 6, "module": "report_generator", "message": "Wrote audit package", "data": {"out": "docs\\sample_outputs\\claimharness_lab_report_audit_demo"}}
+{"step": 1, "module": "cli", "message": "Started ClaimHarness run", "data": {"llm": "mock", "out": "claimharness_lab_report_audit_demo"}, "run_id": "44ab3e7074c14fcea5c0865ceda67595", "created_at": "2026-07-11T01:33:36+00:00"}
+{"step": 2, "module": "loader", "message": "Loaded inputs", "data": {"sections": 7, "tables": ["table1_metrics", "table2_ablation"]}, "run_id": "44ab3e7074c14fcea5c0865ceda67595", "created_at": "2026-07-11T01:33:36+00:00"}
+{"step": 3, "module": "claim_extractor", "message": "Extracted claims", "data": {"claims": 16}, "run_id": "44ab3e7074c14fcea5c0865ceda67595", "created_at": "2026-07-11T01:33:36+00:00"}
+{"step": 4, "module": "evidence_retriever", "message": "Retrieved evidence", "data": {"evidence_items": 26}, "run_id": "44ab3e7074c14fcea5c0865ceda67595", "created_at": "2026-07-11T01:33:36+00:00"}
+{"step": 5, "module": "verifier", "message": "Verified claims", "data": {"status_counts": {"weakly_supported": 10, "overclaimed": 1, "needs_human_review": 1, "unsupported": 1, "supported": 3}}, "run_id": "44ab3e7074c14fcea5c0865ceda67595", "created_at": "2026-07-11T01:33:36+00:00"}
+{"step": 6, "module": "report_generator", "message": "Wrote audit package", "data": {"out": "claimharness_lab_report_audit_demo"}, "run_id": "44ab3e7074c14fcea5c0865ceda67595", "created_at": "2026-07-11T01:33:36+00:00"}
+{"step": 7, "module": "cli", "message": "Finalized deterministic audit package", "data": {"provider_status": "not_requested"}, "run_id": "44ab3e7074c14fcea5c0865ceda67595", "created_at": "2026-07-11T01:33:36+00:00"}

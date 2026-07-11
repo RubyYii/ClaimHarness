@@ -14,11 +14,15 @@ This repository demonstrates a small, reproducible workflow for keeping domain m
 
 ProblemBridge helps reconstruct domain workflows, identify pain points, map domain concepts to AI representations, define AI task specifications, establish evidence contracts, and design evaluation protocols.
 
+Its output also records project boundaries, a human-readable project summary, and a maximum-three-round revision history so repeated edits do not silently drift across versions.
+
 It is used before model building, when the team still needs to decide what the AI task should be and what must remain human-reviewed.
 
 ## Stage 2: ClaimHarness
 
 ClaimHarness audits generated or human-written scientific claims against available manuscript, table, and reference evidence. It flags weakly supported or overclaimed statements and produces traceable audit packages.
+
+Each run includes a machine-readable manifest with run identity and SHA-256 file records plus a human-readable project summary log. Optional remote LLM review is available only through the ClaimHarness CLI and remains advisory.
 
 It is used after writing, system output, or report drafting, when the team needs to check whether claims are supported by evidence.
 

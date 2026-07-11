@@ -21,15 +21,26 @@ def test_demo_status_distribution_snapshot():
         load_references(DEMO_REFERENCES),
     )
     results = verify_claims(claims, evidence)
-    status_counts = {status: 0 for status in ("supported", "weakly_supported", "overclaimed")}
+    status_counts = {
+        status: 0
+        for status in (
+            "supported",
+            "weakly_supported",
+            "unsupported",
+            "overclaimed",
+            "needs_human_review",
+        )
+    }
     for result in results:
         if result.status in status_counts:
             status_counts[result.status] += 1
 
-    assert len(claims) == 17
+    assert len(claims) == 16
     assert len(evidence) == 26
     assert status_counts == {
-        "supported": 14,
-        "weakly_supported": 1,
-        "overclaimed": 2,
+        "supported": 3,
+        "weakly_supported": 10,
+        "unsupported": 1,
+        "overclaimed": 1,
+        "needs_human_review": 1,
     }

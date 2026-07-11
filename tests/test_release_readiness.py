@@ -1,6 +1,12 @@
-import re
-from pathlib import Path
 from importlib import resources
+import os
+from pathlib import Path
+import re
+import subprocess
+import shutil
+import zipfile
+
+import pytest
 
 
 TRACKED_TEXT_SUFFIXES = {".md", ".py", ".toml", ".csv", ".json", ".jsonl", ".txt"}
@@ -27,7 +33,14 @@ def iter_project_text_files():
         "tests",
         "superpowers",
     }
-    for path in Path(".").rglob("*"):
+    tracked = subprocess.run(
+        ["git", "ls-files"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.splitlines()
+    for relative in tracked:
+        path = Path(relative)
         if not path.is_file():
             continue
         if ignored_parts & set(path.parts):
@@ -175,6 +188,8 @@ def test_external_review_packaging_is_present():
         "evidence_contract.yaml",
         "evaluation_protocol.md",
         "misalignment_risk_report.md",
+        "project_record.json",
+        "project_summary_log.md",
     ]
     for sample_dir in (
         Path("docs/sample_outputs/quality_inspection_alignment"),
@@ -189,6 +204,8 @@ def test_external_review_packaging_is_present():
         "audit_report.md",
         "revision_suggestions.md",
         "agent_trace.jsonl",
+        "run_manifest.json",
+        "project_summary_log.md",
         "index.html",
     ]
     sample_dir = Path("docs/sample_outputs/claimharness_lab_report_audit_demo")
@@ -322,11 +339,8 @@ def test_guided_ui_has_bilingual_interface_mode():
         "问题发现",
         "领域工作流向导",
         "工作台记忆",
-        "API 设置",
         "ProblemBridge 工作台",
-        "模型服务",
-        "服务地址",
-        "使用服务商默认配置",
+        "当前工作台不接收或保存 API 密钥",
         "声明-证据审计",
         "下载结果包",
     ]:
@@ -360,47 +374,28 @@ def test_guided_ui_language_selection_is_visible_and_shareable():
     assert ui._language_query_code("中文") == "zh"
     assert ui._language_query_code("English") == "en"
 
-def test_guided_ui_has_local_memory_and_api_settings():
+def test_guided_ui_has_local_memory_without_unwired_api_settings():
     ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
     provider_guide = Path("MODEL_PROVIDER_GUIDE.md").read_text(encoding="utf-8")
 
     for phrase in [
         "Show workspace memory",
-        "Show API settings",
         "Save current workspace",
         "Clear memory",
-        "API key is session-only",
         "workbench_memory.json",
-        "qwen",
         "Privacy check before sharing",
         "Clear local memory before sharing",
-        "Use provider defaults",
-        "on_change=_sync_provider_defaults",
-        "on_click=_sync_provider_defaults",
-        "def _sync_provider_defaults",
-        "api_model_mode",
-        "model_mode",
-        "MODEL_OPTIONS_BY_PROVIDER",
-        "Model selection mode",
-        "Use common model list",
-        "Manual input",
-        "Common model",
-        "Custom model name",
+        "does not accept or store API keys",
+        "deterministic mock rules",
+        "Remote advisory providers are available only through the ClaimHarness CLI",
     ]:
         assert phrase in ui_text
 
-    import apps.problem_bridge_wizard as ui
-
-    assert ui._model_options_for_provider("qwen")[0] == "qwen-plus"
-    assert "qwen-max" in ui._model_options_for_provider("qwen")
-    assert ui._model_options_for_provider("deepseek")[0] == "deepseek-v4-flash"
-    assert "deepseek-chat" in ui._model_options_for_provider("deepseek")
-    assert ui._model_mode_label(ui.MODEL_MODE_COMMON) == "Use common model list"
-    assert ui._model_mode_label(ui.MODEL_MODE_MANUAL) == "Manual input"
-
+    assert "api_key_session" not in ui_text
+    assert "os.environ" not in ui_text
+    assert "Show API settings" not in ui_text
     assert "DASHSCOPE_API_KEY" in provider_guide
     assert "QWEN_MODEL" in provider_guide
-    assert "Use provider defaults" in Path("README.md").read_text(encoding="utf-8")
     assert "Clear local memory before sharing" in Path("README.md").read_text(encoding="utf-8")
 
 
@@ -409,7 +404,6 @@ def test_guided_ui_keeps_sidebar_advanced_settings_collapsed():
 
     for phrase in [
         "st.sidebar.checkbox(_text(\"Show workspace memory\", \"显示工作台记忆\"), value=False",
-        "st.sidebar.checkbox(_text(\"Show API settings\", \"显示 API 设置\"), value=False",
         "Local-first. Use synthetic or non-sensitive material first.",
         "本地优先。首次测试请使用合成或非敏感材料。",
     ]:
@@ -696,6 +690,8 @@ def test_question_discovery_layer_is_documented_and_in_ui():
     assert "question brief" in showcase_en
 
 def test_release_packaging_support_is_present():
+    release_version = "0.3.3"
+    package_name = f"ProblemBridge-ClaimHarness-v{release_version}-local-webapp.zip"
     required_files = [
         Path("RUN_PROBLEMBRIDGE_WINDOWS.bat"),
         Path("scripts/build_release_zip_powershell.ps1"),
@@ -714,16 +710,26 @@ def test_release_packaging_support_is_present():
     assert "pause" in launcher.lower()
 
     build_script = Path("scripts/build_release_zip_powershell.ps1").read_text(encoding="utf-8")
-    assert "ProblemBridge-ClaimHarness-v0.3.2-local-webapp.zip" in build_script
+    assert package_name in build_script
     assert "git archive" in build_script
     assert "dist" in build_script
 
     test_script = Path("scripts/test_release_zip_powershell.ps1").read_text(encoding="utf-8")
+    assert package_name in test_script
+    assert f'version = "{release_version}"' in Path("pyproject.toml").read_text(encoding="utf-8")
+    assert f'__version__ = "{release_version}"' in Path("claim_harness/__init__.py").read_text(encoding="utf-8")
+    assert f'__version__ = "{release_version}"' in Path("problem_bridge/__init__.py").read_text(encoding="utf-8")
+    assert package_name in Path("RELEASE_PACKAGE_GUIDE.md").read_text(encoding="utf-8")
     for phrase in [
         "RUN_PROBLEMBRIDGE_WINDOWS.bat",
         "apps/problem_bridge_wizard.py",
         "problem_bridge/document_intake.py",
-        "$intakePath",
+        "claim_harness/run_records.py",
+        "claim_harness/demo_data/manuscript.md",
+        "problem_bridge/revision_governance.py",
+        "problem_bridge/demo_data/problem.md",
+        "$pythonFiles",
+        "$isolatedRunner",
         "README.zh-CN.md",
         "docs/static_showcase/en.html",
         "docs/static_showcase/zh-CN.html",
@@ -731,6 +737,9 @@ def test_release_packaging_support_is_present():
     ]:
         assert phrase in test_script
     assert "streamlit run" not in test_script
+    pyproject = Path("pyproject.toml").read_text(encoding="utf-8")
+    assert '"demo_data/*.md"' in pyproject
+    assert '"demo_data/tables/*.csv"' in pyproject
 
     guide = Path("RELEASE_PACKAGE_GUIDE.md").read_text(encoding="utf-8")
     for phrase in [
@@ -871,3 +880,251 @@ def test_windows_launchers_are_robust_for_double_click_usage():
 
     assert "If the Windows launcher does not load" in readme
     assert "Static HTML is best for viewing examples only" in readme
+
+
+def _assert_immediate_native_exit_check(script_text, invocation):
+    lines = script_text.splitlines()
+    matching_indexes = [index for index, line in enumerate(lines) if invocation in line]
+
+    assert len(matching_indexes) == 1, invocation
+    invocation_index = matching_indexes[0]
+    assert lines[invocation_index + 1].strip() == 'if ($LASTEXITCODE -ne 0) {'
+    assert any("throw" in line for line in lines[invocation_index + 2 : invocation_index + 4])
+
+
+def test_powershell_native_commands_check_exit_codes_immediately():
+    launcher = Path("scripts/run_problembridge_ui_powershell.ps1").read_text(encoding="utf-8")
+    release_test = Path("scripts/test_release_zip_powershell.ps1").read_text(encoding="utf-8")
+    release_build = Path("scripts/build_release_zip_powershell.ps1").read_text(encoding="utf-8")
+
+    for invocation in [
+        "& py -3 -m venv .venv",
+        "& python -m venv .venv",
+        "& $venvPython -m pip install --upgrade pip",
+        '& $venvPython -m pip install -e ".[dev,ui]"',
+        "& $venvPython -m streamlit run",
+    ]:
+        _assert_immediate_native_exit_check(launcher, invocation)
+
+    for invocation in [
+        "& $python -m py_compile $pythonFile.FullName",
+        '& $python -c $isolatedRunner $packageDir.FullName $repoRoot "claim_harness"',
+        '& $python -c $isolatedRunner $packageDir.FullName $repoRoot "problem_bridge"',
+    ]:
+        _assert_immediate_native_exit_check(release_test, invocation)
+
+    _assert_immediate_native_exit_check(
+        release_build, "git status --porcelain --untracked-files=all"
+    )
+    _assert_immediate_native_exit_check(release_build, "git archive --format=zip")
+
+
+def _powershell_executable():
+    return shutil.which("powershell") or shutil.which("pwsh")
+
+
+def _write_release_zip_from_project(zip_path, *, omit=(), overrides=None):
+    root = Path.cwd()
+    omitted = {Path(path).as_posix() for path in omit}
+    overrides = overrides or {}
+    roots = [
+        Path("claim_harness"),
+        Path("problem_bridge"),
+        Path("apps"),
+        Path("examples/problem_bridge"),
+        Path("docs/static_showcase"),
+    ]
+    individual_files = [
+        Path("README.md"),
+        Path("README.zh-CN.md"),
+        Path("NON_AI_USER_GUIDE.md"),
+        Path("RUN_PROBLEMBRIDGE_WINDOWS.bat"),
+        Path("scripts/run_problembridge_ui_windows.bat"),
+        Path("pyproject.toml"),
+    ]
+    files = list(individual_files)
+    for source_root in roots:
+        files.extend(
+            path
+            for path in source_root.rglob("*")
+            if path.is_file() and "__pycache__" not in path.parts and path.suffix != ".pyc"
+        )
+
+    with zipfile.ZipFile(zip_path, "w") as archive:
+        for relative_path in sorted(set(files)):
+            relative = relative_path.as_posix()
+            if relative in omitted:
+                continue
+            archive_name = f"ProblemBridge-ClaimHarness-test/{relative}"
+            if relative in overrides:
+                archive.writestr(archive_name, overrides[relative])
+            else:
+                archive.write(root / relative_path, archive_name)
+
+
+def _run_release_zip_test(zip_path):
+    return subprocess.run(
+        [
+            _powershell_executable(),
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(Path("scripts/test_release_zip_powershell.ps1").resolve()),
+            "-ZipPath",
+            str(zip_path),
+        ],
+        cwd=Path.cwd(),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+@pytest.mark.skipif(_powershell_executable() is None, reason="PowerShell is not available")
+def test_release_zip_script_runs_both_packaged_demos_from_extracted_source(tmp_path):
+    zip_path = tmp_path / "valid-release.zip"
+    _write_release_zip_from_project(zip_path)
+
+    result = _run_release_zip_test(zip_path)
+
+    output = result.stdout + result.stderr
+    assert result.returncode == 0, output
+    assert "Release zip test passed" in output
+
+
+@pytest.mark.skipif(_powershell_executable() is None, reason="PowerShell is not available")
+def test_release_zip_script_rejects_invalid_python_without_success_message(tmp_path):
+    zip_path = tmp_path / "invalid-release.zip"
+    _write_release_zip_from_project(
+        zip_path,
+        overrides={"apps/problem_bridge_wizard.py": "def broken(:\n"},
+    )
+
+    result = _run_release_zip_test(zip_path)
+
+    output = result.stdout + result.stderr
+    assert result.returncode != 0
+    assert "Python syntax check failed for release file:" in output
+    assert "problem_bridge_wizard.py" in output
+    assert "Release zip test passed" not in output
+
+
+@pytest.mark.skipif(_powershell_executable() is None, reason="PowerShell is not available")
+def test_release_zip_script_rejects_missing_imported_module(tmp_path):
+    zip_path = tmp_path / "missing-module-release.zip"
+    _write_release_zip_from_project(zip_path, omit={"claim_harness/llm.py"})
+
+    result = _run_release_zip_test(zip_path)
+
+    output = result.stdout + result.stderr
+    assert result.returncode != 0
+    assert "ClaimHarness packaged demo failed" in output
+    assert "Release zip test passed" not in output
+
+
+@pytest.mark.skipif(_powershell_executable() is None, reason="PowerShell is not available")
+def test_release_zip_script_rejects_missing_packaged_demo_resource(tmp_path):
+    zip_path = tmp_path / "missing-resource-release.zip"
+    _write_release_zip_from_project(
+        zip_path,
+        omit={"claim_harness/demo_data/references.md"},
+    )
+
+    result = _run_release_zip_test(zip_path)
+
+    output = result.stdout + result.stderr
+    assert result.returncode != 0
+    assert "Missing required file in release zip: claim_harness/demo_data/references.md" in output
+    assert "Release zip test passed" not in output
+
+
+@pytest.mark.skipif(_powershell_executable() is None, reason="PowerShell is not available")
+def test_release_build_script_reports_git_status_failure(tmp_path):
+    scripts_dir = tmp_path / "scripts"
+    scripts_dir.mkdir()
+    copied_script = scripts_dir / "build_release_zip_powershell.ps1"
+    copied_script.write_text(
+        Path("scripts/build_release_zip_powershell.ps1").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    env = os.environ.copy()
+    env["GIT_DIR"] = str(tmp_path / "missing.git")
+
+    result = subprocess.run(
+        [
+            _powershell_executable(),
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(copied_script),
+            "-Version",
+            "test",
+        ],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    output = result.stdout + result.stderr
+    assert result.returncode != 0
+    assert "git status failed while checking release readiness" in output
+    assert "Release package written" not in output
+
+
+@pytest.mark.skipif(
+    _powershell_executable() is None or shutil.which("git") is None,
+    reason="PowerShell and Git are required",
+)
+def test_release_build_script_rejects_dirty_worktree(tmp_path):
+    scripts_dir = tmp_path / "scripts"
+    scripts_dir.mkdir()
+    copied_script = scripts_dir / "build_release_zip_powershell.ps1"
+    copied_script.write_text(
+        Path("scripts/build_release_zip_powershell.ps1").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "config", "user.email", "release-test@example.test"],
+        cwd=tmp_path,
+        check=True,
+    )
+    subprocess.run(
+        ["git", "config", "user.name", "Release Test"],
+        cwd=tmp_path,
+        check=True,
+    )
+    subprocess.run(["git", "add", "."], cwd=tmp_path, check=True)
+    subprocess.run(
+        ["git", "commit", "-m", "release fixture"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+    (tmp_path / "untracked-change.txt").write_text("not committed\n", encoding="utf-8")
+
+    result = subprocess.run(
+        [
+            _powershell_executable(),
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(copied_script),
+            "-Version",
+            "test",
+        ],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    output = result.stdout + result.stderr
+    assert result.returncode != 0
+    assert "Working tree is dirty" in output
+    assert "Release package written" not in output

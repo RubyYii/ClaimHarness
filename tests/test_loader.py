@@ -22,9 +22,25 @@ def test_load_manuscript_parses_markdown_headings(tmp_path):
     assert [section.name for section in sections] == ["Title", "Methods", "Results"]
     assert sections[0].text == "Opening context."
     assert sections[0].start_line == 1
+    assert sections[0].content_start_line == 3
     assert sections[1].text == "Method text."
     assert sections[1].start_line == 5
+    assert sections[1].content_start_line == 7
     assert sections[2].text == "Result text."
+    assert sections[2].content_start_line == 11
+
+
+def test_load_manuscript_preserves_headingless_text(tmp_path):
+    manuscript = tmp_path / "manuscript.md"
+    manuscript.write_text("Context.\nThe method improves score.\n", encoding="utf-8")
+
+    sections = load_manuscript(manuscript)
+
+    assert len(sections) == 1
+    assert sections[0].name == "Manuscript"
+    assert sections[0].start_line == 1
+    assert sections[0].content_start_line == 1
+    assert sections[0].text == "Context.\nThe method improves score."
 
 
 def test_load_tables_reads_all_csv_files_by_stem(tmp_path):

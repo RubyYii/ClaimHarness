@@ -1,0 +1,29 @@
+{
+  "project_name": "quality_inspection_review_alignment",
+  "project_goal": "Support reviewable inspection by preserving material quality, defect visibility, uncertainty, reviewer notes, and final human judgement.",
+  "boundaries": [
+    "autonomous pass/fail decision",
+    "Any final pass/fail suggestion",
+    "Low-confidence candidate detection",
+    "Poor visibility or ambiguous source material",
+    "Any wording that implies deployment readiness"
+  ],
+  "artifacts": [
+    "problem_card.md",
+    "workflow_map.md",
+    "painpoint_opportunity_matrix.csv",
+    "concept_alignment_table.csv",
+    "ai_task_spec.yaml",
+    "evidence_contract.yaml",
+    "evaluation_protocol.md",
+    "misalignment_risk_report.md",
+    "human_in_loop_plan.md",
+    "implementation_routes.md",
+    "alignment_trace.jsonl",
+    "project_record.json",
+    "project_summary_log.md"
+  ],
+  "created_at": "2026-07-11T00:45:18+00:00",
+  "updated_at": "2026-07-11T00:45:18+00:00",
+  "max_revision_rounds": 3
+}

@@ -75,7 +75,9 @@ ProblemBridge helps you:
 - Turn your answers into a Problem Alignment Package.
 - Give AI practitioners a clearer starting point for task design, evidence needs, evaluation, and risk boundaries.
 
-The generated package can include a workflow map, pain-point table, concept alignment table, AI task description, evidence expectations, evaluation protocol, risk report, and human-review plan.
+The generated package can include a workflow map, pain-point table, concept alignment table, AI task description, evidence expectations, evaluation protocol, risk report, human-review plan, `project_record.json`, and `project_summary_log.md`.
+
+If you revise one stable target, use `problem-bridge record-revision` to append `revision_history.jsonl`. Stop after at most three rounds: accept the result or escalate the specification, evidence, or structure instead of applying a fourth local patch.
 
 ## what it does not do
 

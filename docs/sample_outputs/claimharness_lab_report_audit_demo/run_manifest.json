@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "run_id": "44ab3e7074c14fcea5c0865ceda67595",
+  "tool": {
+    "name": "claim-harness",
+    "version": "0.3.3"
+  },
+  "started_at": "2026-07-11T01:33:36+00:00",
+  "completed_at": "2026-07-11T01:33:36+00:00",
+  "provider": {
+    "name": "mock",
+    "status": "not_requested"
+  },
+  "inputs": {
+    "manuscript": {
+      "name": "manuscript.md",
+      "size_bytes": 3242,
+      "sha256": "20bab2417f069edc3589f1cfd40d2df5e673b1ee42277292ec97b9780f57bbfc"
+    },
+    "tables": [
+      {
+        "name": "table1_metrics.csv",
+        "size_bytes": 422,
+        "sha256": "abf1f0098e4e85066b990659f9ee225d18faf66da5cfeea7baaf0949c2bd5320"
+      },
+      {
+        "name": "table2_ablation.csv",
+        "size_bytes": 475,
+        "sha256": "5b33c4a08510fe738eb8df634124e6ec7794dbc813109079fc0b8e2da9b165d8"
+      }
+    ],
+    "references": {
+      "name": "references.md",
+      "size_bytes": 901,
+      "sha256": "41a244329b38cfa6564f3c990b2dc1ceb95285350d23731393b9f3e36b6f6884"
+    }
+  },
+  "summary": {
+    "claims": 16,
+    "status_counts": {
+      "needs_human_review": 1,
+      "overclaimed": 1,
+      "supported": 3,
+      "unsupported": 1,
+      "weakly_supported": 10
+    },
+    "high_risk_claim_ids": [
+      "C003"
+    ]
+  },
+  "outputs": [
+    {
+      "name": "claim_table.csv",
+      "size_bytes": 6045,
+      "sha256": "3a43240f02b0849a54e9c5003caa52b0b4fb670bff9010f3074f4cd00d5182ee"
+    },
+    {
+      "name": "evidence_map.json",
+      "size_bytes": 63405,
+      "sha256": "4ec00ae95b87959247e92565270f1b27cba159e79bc227f2ea1fcef012589595"
+    },
+    {
+      "name": "audit_report.md",
+      "size_bytes": 7368,
+      "sha256": "1b39612dd252e2aafd497a0ccf208f68a12de4d6d0c8b840665f4fd15b8aef55"
+    },
+    {
+      "name": "revision_suggestions.md",
+      "size_bytes": 3380,
+      "sha256": "42ac3d5aaa42e2e34a8d7043b3f343215160b65a720121b2d5442d3ea1a86c4a"
+    },
+    {
+      "name": "agent_trace.jsonl",
+      "size_bytes": 1559,
+      "sha256": "2198e14e1e9eb69da57995fe680d59e1f12b9b304b4dd88a355e6293f707f2cc"
+    }
+  ]
+}

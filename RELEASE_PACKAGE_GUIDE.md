@@ -7,7 +7,7 @@ This guide explains how to package ProblemBridge + ClaimHarness for external tes
 The recommended package is:
 
 ```text
-ProblemBridge-ClaimHarness-v0.3.2-local-webapp.zip
+ProblemBridge-ClaimHarness-v0.3.3-local-webapp.zip
 ```
 
 It contains the repository source, examples, docs, guided UI, and launch scripts. After unzipping, a tester can double-click:
@@ -17,6 +17,8 @@ RUN_PROBLEMBRIDGE_WINDOWS.bat
 ```
 
 This starts the local Streamlit guided UI through the existing script in `scripts/`.
+
+The guided UI runs deterministic mock workflows only. It has no remote-provider or API-key controls and does not accept, collect, or store API keys. Optional remote providers are available only through the ClaimHarness CLI.
 
 The local web app package requires Python because it creates `.venv`, installs `.[dev,ui]`, and runs the Streamlit app locally. It is not an online deployment.
 
@@ -63,6 +65,8 @@ Python is required for:
 - Running ClaimHarness demos or audits.
 - Running tests.
 
+ProblemBridge alignment packages include `project_record.json` and `project_summary_log.md`; `revision_history.jsonl` appears after the first `record-revision` command. A stable target is limited to three revision rounds. ClaimHarness audit packages include `run_manifest.json` and `project_summary_log.md` for machine-readable and human-readable run provenance.
+
 ## what does not require Python
 
 Python is not required for:
@@ -85,7 +89,7 @@ If PowerShell blocks local scripts on your machine, run:
 powershell -ExecutionPolicy Bypass -File scripts\build_release_zip_powershell.ps1
 ```
 
-The script writes the zip under `dist/` using tracked Git files from `HEAD`.
+The script writes the zip under `dist/` using tracked Git files from `HEAD`. It refuses to build while tracked or untracked working-tree changes are present, preventing an older `HEAD` from being mislabeled as the current candidate.
 
 ## test before sharing
 
@@ -101,13 +105,7 @@ If PowerShell blocks local scripts on your machine, run:
 powershell -ExecutionPolicy Bypass -File scripts\test_release_zip_powershell.ps1
 ```
 
-This extracts the zip into a temporary folder, checks required files, and runs:
-
-```powershell
-python -m py_compile apps/problem_bridge_wizard.py
-```
-
-It does not start Streamlit automatically.
+This extracts the zip into a temporary folder, compiles every packaged Python file, then uses the already-installed local interpreter and dependencies to run both packaged demos from an unrelated working directory. Imports are pinned to the extracted package, and the gate checks the expected ClaimHarness and ProblemBridge outputs. It does not install dependencies, access the network, or start Streamlit automatically.
 
 ## do not include
 

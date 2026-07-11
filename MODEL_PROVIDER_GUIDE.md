@@ -1,6 +1,6 @@
 # Model Provider Guide
 
-ClaimHarness and ProblemBridge remain local-first. The default provider is:
+ProblemBridge CLI and the local Streamlit UI are deterministic mock-only. ClaimHarness CLI is local-first and defaults to:
 
 ```text
 mock
@@ -9,6 +9,8 @@ mock
 `mock` does not require an API key, does not call an external model, and is the recommended mode for first-round usability testing.
 
 Remote providers are advisory only. They can write `llm_review.json`, but they do not replace deterministic claim extraction, evidence matching, verification statuses, or human review.
+
+Remote providers are available only through the ClaimHarness CLI. The local Streamlit UI has no provider, model, base-URL, or API-key controls and does not collect or store API keys.
 
 Do not send private patient data, confidential manuscripts, API keys, passwords, tokens, sensitive unpublished project materials, or data that you do not have permission to share with a third-party model provider.
 
@@ -56,17 +58,10 @@ $env:QWEN_MODEL="qwen-plus"
 
 `QWEN_BASE_URL` is optional and defaults to `https://dashscope.aliyuncs.com/compatible-mode/v1`. If your DashScope workspace uses a regional endpoint, set `QWEN_BASE_URL` before running.
 
-## Local UI memory
+## Local UI boundary and memory
 
-The Streamlit workbench includes `Workspace Memory` and `API Settings` in the sidebar. `Save current workspace` writes non-sensitive settings and drafts to `outputs/ui_memory/workbench_memory.json`:
+The Streamlit workbench is mock-only. It does not expose remote-provider settings and does not accept, collect, or store API keys. `Save current workspace` writes only draft fields and the most recent output path to `outputs/ui_memory/workbench_memory.json`. Clear local memory before sharing the folder or zip if drafts contain sensitive workflow details.
 
-- provider name
-- base URL
-- model name
-- recent output path
-- Question discovery, Domain wizard, and AI wizard draft fields
-
-Changing the provider in the local UI auto-fills its default base URL and model. Use `Use provider defaults` to restore those values after editing them. The model control has two modes: `Use common model list` for provider presets such as Qwen, DeepSeek, Gemini, or Ollama, and `Manual input` for private deployments or newly released model names. API keys are session-only. The password field can set the selected provider key for the current Streamlit process, but `workbench_memory.json` filters `api_key`, `token`, `secret`, and `password` fields before saving. Clear local memory before sharing the folder or zip if the drafts include sensitive workflow details.
 ## DeepSeek example
 
 ```powershell
@@ -129,5 +124,5 @@ $env:OLLAMA_MODEL="llama3.2"
 - Use `mock` for first-time testing and non-AI user workflow validation.
 - Use remote providers only when you are comfortable sending the current inputs to that provider.
 - Provider model names change. Override the default model with the provider-specific `*_MODEL` environment variable when needed.
-- The local UI can remember provider/base URL/model, but API keys are session-only and are not written to `workbench_memory.json`.
+- The local UI does not remember provider/model settings and never accepts API keys; remote provider configuration is CLI-only.
 - The remote review is advisory only and should be read as an additional reviewer note.

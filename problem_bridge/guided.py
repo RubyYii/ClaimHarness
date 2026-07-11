@@ -17,6 +17,9 @@ FRIENDLY_FILE_LABELS = {
     "human_in_loop_plan.md": "Boundaries and human review",
     "implementation_routes.md": "下一步可以怎么做",
     "alignment_trace.jsonl": "生成过程记录",
+    "project_record.json": "项目目标与边界记录",
+    "project_summary_log.md": "项目摘要与修订回顾",
+    "revision_history.jsonl": "三轮修订历史",
 }
 
 TECHNICAL_FILE_ORDER = [
@@ -31,6 +34,9 @@ TECHNICAL_FILE_ORDER = [
     "human_in_loop_plan.md",
     "implementation_routes.md",
     "alignment_trace.jsonl",
+    "project_record.json",
+    "project_summary_log.md",
+    "revision_history.jsonl",
 ]
 
 

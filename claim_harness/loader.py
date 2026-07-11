@@ -7,20 +7,37 @@ from .schemas import ManuscriptSection
 
 def load_manuscript(path: str | Path) -> list[ManuscriptSection]:
     manuscript_path = Path(path)
-    lines = manuscript_path.read_text(encoding="utf-8").splitlines()
+    lines = manuscript_path.read_text(encoding="utf-8-sig").splitlines()
+    if not any(line.strip() for line in lines):
+        raise ValueError(f"Manuscript contains no text: {manuscript_path}")
+
     sections: list[ManuscriptSection] = []
     current_name: str | None = None
     current_start_line: int | None = None
+    current_content_base = 1
     current_lines: list[str] = []
 
-    def flush_section() -> None:
-        if current_name is None:
+    def flush_section(fallback_name: str | None = None) -> None:
+        section_name = current_name or fallback_name
+        if section_name is None:
             return
+
+        nonblank_indexes = [index for index, line in enumerate(current_lines) if line.strip()]
+        if nonblank_indexes:
+            first_index = nonblank_indexes[0]
+            last_index = nonblank_indexes[-1]
+            section_text = "\n".join(current_lines[first_index : last_index + 1])
+            content_start_line = current_content_base + first_index
+        else:
+            section_text = ""
+            content_start_line = None
+
         sections.append(
             ManuscriptSection(
-                name=current_name,
-                text="\n".join(current_lines).strip(),
-                start_line=current_start_line,
+                name=section_name,
+                text=section_text,
+                start_line=current_start_line or content_start_line,
+                content_start_line=content_start_line,
             )
         )
 
@@ -29,15 +46,22 @@ def load_manuscript(path: str | Path) -> list[ManuscriptSection]:
         if stripped.startswith("#"):
             heading = stripped.lstrip("#").strip()
             if heading:
-                flush_section()
+                if current_name is None:
+                    if any(item.strip() for item in current_lines):
+                        flush_section("Preamble")
+                else:
+                    flush_section()
                 current_name = heading
                 current_start_line = line_number
+                current_content_base = line_number + 1
                 current_lines = []
                 continue
-        if current_name is not None:
-            current_lines.append(line)
+        current_lines.append(line)
 
-    flush_section()
+    if current_name is None:
+        flush_section("Manuscript")
+    else:
+        flush_section()
     return sections
 
 

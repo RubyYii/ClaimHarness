@@ -32,9 +32,14 @@ def _write_claim_table(path: Path, claims: list[Claim], results: list[Verificati
                 "source_line",
                 "claim_type",
                 "strength",
+                "polarity",
+                "requires_evidence",
                 "status",
                 "risk_level",
                 "reason",
+                "missing_evidence",
+                "supporting_evidence_ids",
+                "contradicting_evidence_ids",
                 "suggested_revision",
             ],
         )
@@ -44,15 +49,20 @@ def _write_claim_table(path: Path, claims: list[Claim], results: list[Verificati
             writer.writerow(
                 {
                     "claim_id": claim.claim_id,
-                    "text": claim.text,
-                    "source_section": claim.source_section,
+                    "text": _spreadsheet_safe(claim.text),
+                    "source_section": _spreadsheet_safe(claim.source_section),
                     "source_line": claim.source_line,
                     "claim_type": claim.claim_type,
                     "strength": claim.strength,
+                    "polarity": claim.polarity,
+                    "requires_evidence": ";".join(claim.requires_evidence),
                     "status": result.status,
                     "risk_level": result.risk_level,
-                    "reason": result.reason,
-                    "suggested_revision": result.suggested_revision,
+                    "reason": _spreadsheet_safe(result.reason),
+                    "missing_evidence": ";".join(result.missing_evidence),
+                    "supporting_evidence_ids": ";".join(result.supporting_evidence_ids),
+                    "contradicting_evidence_ids": ";".join(result.contradicting_evidence_ids),
+                    "suggested_revision": _spreadsheet_safe(result.suggested_revision),
                 }
             )
 
@@ -63,6 +73,11 @@ def _write_evidence_map(path: Path, claims: list[Claim], evidence: list[Evidence
             {
                 "claim_id": claim.claim_id,
                 "text": claim.text,
+                "source_section": claim.source_section,
+                "source_line": claim.source_line,
+                "claim_type": claim.claim_type,
+                "polarity": claim.polarity,
+                "requires_evidence": claim.requires_evidence,
                 "evidence_ids": [
                     item.evidence_id for item in evidence if claim.claim_id in item.linked_claim_ids
                 ],
@@ -70,6 +85,8 @@ def _write_evidence_map(path: Path, claims: list[Claim], evidence: list[Evidence
                     {
                         "evidence_id": item.evidence_id,
                         "match_reason": item.claim_link_reasons.get(claim.claim_id, "linked by retrieval rule"),
+                        "relation": item.claim_link_relations.get(claim.claim_id, "related"),
+                        "locator": item.locator.model_dump(),
                     }
                     for item in evidence
                     if claim.claim_id in item.linked_claim_ids
@@ -113,10 +130,24 @@ def _write_audit_report(
                 f"- Source line: {claim.source_line if claim.source_line is not None else 'unknown'}",
                 f"- Risk level: {result.risk_level}",
                 f"- Reason: {result.reason}",
+                f"- Required evidence: {', '.join(claim.requires_evidence) or 'none'}",
+                f"- Missing evidence: {', '.join(result.missing_evidence) or 'none'}",
+                f"- Supporting evidence IDs: {', '.join(result.supporting_evidence_ids) or 'none'}",
+                f"- Contradicting evidence IDs: {', '.join(result.contradicting_evidence_ids) or 'none'}",
                 "",
             ]
         )
     path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def _spreadsheet_safe(value: object) -> object:
+    """Prevent user-controlled CSV cells from being interpreted as spreadsheet formulas."""
+
+    if not isinstance(value, str):
+        return value
+    if value.lstrip().startswith(("=", "+", "-", "@")):
+        return "'" + value
+    return value
 
 
 def _write_revision_suggestions(

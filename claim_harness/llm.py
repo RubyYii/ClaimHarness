@@ -1,13 +1,16 @@
+import ipaddress
 import json
 import os
 from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
 from typing import Any, Callable, Literal
-from urllib import request
+from urllib import parse, request
 from urllib.error import HTTPError, URLError
 
-from .schemas import Claim, VerificationResult
+from pydantic import ValidationError
+
+from .schemas import Claim, LLMAuditReview, VerificationResult
 
 
 ApiStyle = Literal["mock", "openai-chat", "gemini", "anthropic"]
@@ -16,6 +19,8 @@ JsonMode = Literal["json_schema", "json_object", "prompted_json"]
 
 DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1"
 DEFAULT_OPENAI_MODEL = "gpt-5.4-mini"
+MAX_PROVIDER_RESPONSE_BYTES = 2 * 1024 * 1024
+MAX_PROVIDER_ERROR_BYTES = 4 * 1024
 
 
 @dataclass(frozen=True)
@@ -147,31 +152,7 @@ PROVIDER_PRESETS: dict[str, ProviderPreset] = {
 }
 SUPPORTED_PROVIDERS = set(PROVIDER_PRESETS)
 
-AUDIT_REVIEW_SCHEMA: dict[str, Any] = {
-    "type": "object",
-    "properties": {
-        "summary": {"type": "string"},
-        "highest_risk_claims": {
-            "type": "array",
-            "items": {"type": "string"},
-        },
-        "recommended_next_actions": {
-            "type": "array",
-            "items": {"type": "string"},
-        },
-        "limitations": {
-            "type": "array",
-            "items": {"type": "string"},
-        },
-    },
-    "required": [
-        "summary",
-        "highest_risk_claims",
-        "recommended_next_actions",
-        "limitations",
-    ],
-    "additionalProperties": False,
-}
+AUDIT_REVIEW_SCHEMA: dict[str, Any] = LLMAuditReview.model_json_schema()
 
 
 class MissingProviderConfig(ValueError):
@@ -214,7 +195,7 @@ def resolve_provider_config(provider: str) -> LLMProviderConfig:
 
     base_url = os.getenv(preset.base_url_env or "") if preset.base_url_env else None
     model = os.getenv(preset.model_env or "") if preset.model_env else None
-    return LLMProviderConfig(
+    config = LLMProviderConfig(
         provider=normalized,
         api_key=api_key,
         base_url=(base_url or preset.default_base_url or "").rstrip("/"),
@@ -222,6 +203,50 @@ def resolve_provider_config(provider: str) -> LLMProviderConfig:
         api_style=preset.api_style,
         json_mode=preset.json_mode,
     )
+    _validate_provider_endpoint(config)
+    return config
+
+
+def _validate_provider_endpoint(config: LLMProviderConfig) -> None:
+    if config.api_style == "mock":
+        return
+    if not config.base_url:
+        raise MissingProviderConfig(f"{config.provider} provider base URL is missing.")
+
+    try:
+        parsed = parse.urlsplit(config.base_url)
+        port = parsed.port
+    except ValueError as exc:
+        raise MissingProviderConfig(f"{config.provider} provider base URL is invalid.") from exc
+
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        raise MissingProviderConfig(
+            f"{config.provider} provider base URL must be an http(s) URL."
+        )
+    if parsed.username is not None or parsed.password is not None:
+        raise MissingProviderConfig(
+            f"{config.provider} provider base URL must not contain credentials."
+        )
+    if parsed.query or parsed.fragment:
+        raise MissingProviderConfig(
+            f"{config.provider} provider base URL must not contain a query or fragment."
+        )
+    if port is not None and not 1 <= port <= 65535:
+        raise MissingProviderConfig(f"{config.provider} provider base URL has an invalid port.")
+    if parsed.scheme == "http" and not _is_loopback_host(parsed.hostname):
+        raise MissingProviderConfig(
+            f"{config.provider} provider base URL must use HTTPS unless it targets loopback."
+        )
+
+
+def _is_loopback_host(hostname: str) -> bool:
+    normalized = hostname.rstrip(".").lower()
+    if normalized == "localhost":
+        return True
+    try:
+        return ipaddress.ip_address(normalized).is_loopback
+    except ValueError:
+        return False
 
 
 def load_prompt(name: str) -> str:
@@ -243,6 +268,7 @@ def build_openai_compatible_request(
 ) -> request.Request:
     if not config.base_url or not config.model:
         raise MissingProviderConfig("OpenAI-compatible provider config is incomplete.")
+    _validate_provider_endpoint(config)
 
     payload = {
         "model": config.model,
@@ -282,6 +308,7 @@ def build_gemini_request(
 ) -> request.Request:
     if not config.api_key or not config.base_url or not config.model:
         raise MissingProviderConfig("Gemini provider config is incomplete.")
+    _validate_provider_endpoint(config)
 
     payload = {
         "system_instruction": {"parts": [{"text": system_prompt}]},
@@ -309,6 +336,7 @@ def build_anthropic_messages_request(
 ) -> request.Request:
     if not config.api_key or not config.base_url or not config.model:
         raise MissingProviderConfig("Anthropic provider config is incomplete.")
+    _validate_provider_endpoint(config)
 
     payload = {
         "model": config.model,
@@ -333,20 +361,22 @@ def parse_openai_compatible_json(response_body: bytes) -> dict[str, Any]:
     try:
         response_payload = json.loads(response_body.decode("utf-8"))
         content = response_payload["choices"][0]["message"]["content"]
-    except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
+    except (KeyError, IndexError, TypeError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise LLMProviderError("OpenAI-compatible provider returned invalid JSON content.") from exc
 
-    return _parse_json_object_text(content, "OpenAI-compatible provider")
+    return validate_audit_review(
+        _parse_json_object_text(content, "OpenAI-compatible provider")
+    )
 
 
 def parse_gemini_json(response_body: bytes) -> dict[str, Any]:
     try:
         response_payload = json.loads(response_body.decode("utf-8"))
         content = response_payload["candidates"][0]["content"]["parts"][0]["text"]
-    except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
+    except (KeyError, IndexError, TypeError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise LLMProviderError("Gemini provider returned invalid JSON content.") from exc
 
-    return _parse_json_object_text(content, "Gemini provider")
+    return validate_audit_review(_parse_json_object_text(content, "Gemini provider"))
 
 
 def parse_anthropic_json(response_body: bytes) -> dict[str, Any]:
@@ -357,16 +387,23 @@ def parse_anthropic_json(response_body: bytes) -> dict[str, Any]:
             for block in response_payload["content"]
             if block.get("type") == "text"
         )
-    except (KeyError, IndexError, TypeError, StopIteration, json.JSONDecodeError) as exc:
+    except (
+        KeyError,
+        IndexError,
+        TypeError,
+        StopIteration,
+        UnicodeDecodeError,
+        json.JSONDecodeError,
+    ) as exc:
         raise LLMProviderError("Anthropic provider returned invalid JSON content.") from exc
 
-    return _parse_json_object_text(content, "Anthropic provider")
+    return validate_audit_review(_parse_json_object_text(content, "Anthropic provider"))
 
 
 def _parse_json_object_text(content: str, provider_name: str) -> dict[str, Any]:
     try:
         parsed = json.loads(content)
-    except json.JSONDecodeError as exc:
+    except (TypeError, json.JSONDecodeError) as exc:
         raise LLMProviderError(f"{provider_name} returned non-JSON text.") from exc
 
     if not isinstance(parsed, dict):
@@ -374,22 +411,73 @@ def _parse_json_object_text(content: str, provider_name: str) -> dict[str, Any]:
     return parsed
 
 
+def validate_audit_review(payload: dict[str, Any]) -> dict[str, Any]:
+    try:
+        review = LLMAuditReview.model_validate(payload)
+    except ValidationError as exc:
+        raise LLMProviderError("Provider returned an invalid audit review schema.") from exc
+    return review.model_dump()
+
+
+class _RejectRedirectHandler(request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: ANN001
+        return None
+
+
+def _open_provider_request(api_request: request.Request, timeout: int):
+    opener = request.build_opener(_RejectRedirectHandler())
+    return opener.open(api_request, timeout=timeout)
+
+
+def _read_provider_response(response: Any) -> bytes:
+    headers = getattr(response, "headers", None)
+    content_length = headers.get("Content-Length") if headers is not None else None
+    if content_length:
+        try:
+            if int(content_length) > MAX_PROVIDER_RESPONSE_BYTES:
+                raise LLMProviderError(
+                    f"Provider response exceeds the {MAX_PROVIDER_RESPONSE_BYTES}-byte limit."
+                )
+        except ValueError:
+            pass
+
+    body = response.read(MAX_PROVIDER_RESPONSE_BYTES + 1)
+    if len(body) > MAX_PROVIDER_RESPONSE_BYTES:
+        raise LLMProviderError(
+            f"Provider response exceeds the {MAX_PROVIDER_RESPONSE_BYTES}-byte limit."
+        )
+    return body
+
+
+def _read_provider_error(exc: HTTPError) -> str:
+    raw = exc.read(MAX_PROVIDER_ERROR_BYTES + 1)
+    truncated = len(raw) > MAX_PROVIDER_ERROR_BYTES
+    text = raw[:MAX_PROVIDER_ERROR_BYTES].decode("utf-8", errors="replace")
+    compact = " ".join(text.split())
+    if truncated:
+        compact += " ...[truncated]"
+    return compact or "no response body"
+
+
 def call_openai_compatible_json(
     config: LLMProviderConfig,
     system_prompt: str,
     user_prompt: str,
-    urlopen: Callable[..., Any] = request.urlopen,
+    urlopen: Callable[..., Any] | None = None,
     timeout: int = 60,
 ) -> dict[str, Any]:
     api_request = build_openai_compatible_request(config, system_prompt, user_prompt)
+    open_request = urlopen or _open_provider_request
     try:
-        with urlopen(api_request, timeout=timeout) as response:
-            response_body = response.read()
+        with open_request(api_request, timeout=timeout) as response:
+            response_body = _read_provider_response(response)
     except HTTPError as exc:
-        detail = exc.read().decode("utf-8", errors="replace")
+        detail = _read_provider_error(exc)
         raise LLMProviderError(f"OpenAI-compatible provider HTTP {exc.code}: {detail}") from exc
     except URLError as exc:
         raise LLMProviderError(f"OpenAI-compatible provider request failed: {exc.reason}") from exc
+    except TimeoutError as exc:
+        raise LLMProviderError("OpenAI-compatible provider request timed out.") from exc
 
     return parse_openai_compatible_json(response_body)
 
@@ -398,7 +486,7 @@ def call_provider_json(
     config: LLMProviderConfig,
     system_prompt: str,
     user_prompt: str,
-    urlopen: Callable[..., Any] = request.urlopen,
+    urlopen: Callable[..., Any] | None = None,
     timeout: int = 60,
 ) -> dict[str, Any]:
     if config.api_style == "openai-chat":
@@ -413,14 +501,17 @@ def call_provider_json(
     else:
         raise LLMProviderError(f"Provider '{config.provider}' does not support remote JSON calls.")
 
+    open_request = urlopen or _open_provider_request
     try:
-        with urlopen(api_request, timeout=timeout) as response:
-            response_body = response.read()
+        with open_request(api_request, timeout=timeout) as response:
+            response_body = _read_provider_response(response)
     except HTTPError as exc:
-        detail = exc.read().decode("utf-8", errors="replace")
+        detail = _read_provider_error(exc)
         raise LLMProviderError(f"{config.provider} provider HTTP {exc.code}: {detail}") from exc
     except URLError as exc:
         raise LLMProviderError(f"{config.provider} provider request failed: {exc.reason}") from exc
+    except TimeoutError as exc:
+        raise LLMProviderError(f"{config.provider} provider request timed out.") from exc
 
     return parser(response_body)
 

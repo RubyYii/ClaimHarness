@@ -67,6 +67,10 @@ def write_sample_audit_package(path: Path, include_llm_review: bool = False) -> 
         ),
         encoding="utf-8",
     )
+    (path / "project_summary_log.md").write_text(
+        "# Project Summary Log\n\nRun ID: example-run\n",
+        encoding="utf-8",
+    )
     if include_llm_review:
         (path / "llm_review.json").write_text(
             json.dumps(
@@ -97,6 +101,9 @@ def test_render_report_viewer_writes_static_html(tmp_path):
     assert "E001" in html
     assert "Audit trace" in html
     assert "Advisory LLM review" in html
+    assert "Project summary log" in html
+    assert "example-run" in html
+    assert str(run_dir.parent) not in html
     assert "data-filter=\"weak-or-worse\"" in html
     assert "data-status=\"supported\"" in html
     assert "data-risk=\"high\"" in html
