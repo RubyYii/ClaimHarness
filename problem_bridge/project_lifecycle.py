@@ -130,8 +130,10 @@ def allocate_run_directory(
     base = Path(base_dir)
     base.mkdir(parents=True, exist_ok=True)
     for _ in range(100):
-        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-        candidate = base / f"{clean_prefix}-{stamp}-{uuid.uuid4().hex[:8]}"
+        # Creation time is already recorded in the identity. Keeping only a
+        # collision-resistant token in the directory name leaves enough of
+        # Windows' legacy path budget for nested source files in deep roots.
+        candidate = base / f"{clean_prefix}-{uuid.uuid4().hex[:12]}"
         try:
             candidate.mkdir()
         except FileExistsError:

@@ -46,12 +46,18 @@ def test_atomic_records_and_delete_use_short_internal_names_in_deep_projects(tmp
     context = allocate_run_directory(
         deep_root,
         project_id="project-deep-path",
-        prefix="audit",
+        prefix="document_intake",
         owned_artifacts=(),
+        snapshot_directories=("source_files",),
     )
+    source_dir = context.path / "source_files"
+    source_dir.mkdir()
+    nested_source = source_dir / "manual_upload_fallback.md"
+    nested_source.write_text("deep source\n", encoding="utf-8")
     with context.transaction():
         pass
     assert load_run_completion(context.path)["run_id"] == context.run_id
+    assert nested_source.read_text(encoding="utf-8") == "deep source\n"
 
     run_path = context.path
     delete_run_directory(
