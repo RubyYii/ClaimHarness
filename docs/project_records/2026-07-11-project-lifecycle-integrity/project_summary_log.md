@@ -21,6 +21,7 @@
 - round_1_verification.md
 - round_2_verification.md
 - round_3_verification.md
+- windows_deep_path_release_verification.md
 
 ## Revision History
 
@@ -78,3 +79,31 @@
   - tests/test_project_lifecycle.py
   - tests/test_revision_governance.py
   - tests/test_ui_archive.py
+
+### windows-deep-path-release-gate — round 1/3
+
+- Revision ID: 8bfa41c6-9dcb-4a39-a1b6-9013988c79fe
+- Parent revision: None
+- Time: 2026-07-11T09:29:22.118258+00:00
+- Diagnosis: local_execution_problem
+- Status: accepted
+- Change: Closed Windows deep-path atomic-write, transaction staging, run-name, history ordering, and clean-clone interpreter portability findings.
+- Verification: Main regression 329 passed/2 skipped; deep clean clone 331 passed; documented demo and strict tracked-HEAD release gate passed; Gemini and independent review found no remaining P0-P2 issue.
+- Integrity SHA-256: a780ad9b2a5bda9b586c39caefd94566118dd7711be6665e93f775b4c626a61d
+- Changed files:
+  - problem_bridge/project_lifecycle.py
+  - problem_bridge/revision_governance.py
+  - claim_harness/run_records.py
+  - claim_harness/report_viewer.py
+  - apps/problem_bridge_wizard.py
+  - scripts/test_release_zip_powershell.ps1
+  - scripts/build_and_test_release_powershell.ps1
+  - tests/test_atomic_write_safety.py
+  - tests/test_project_lifecycle.py
+  - tests/test_revision_governance.py
+  - tests/test_ui_archive.py
+  - tests/test_release_readiness.py
+  - README.md
+  - README.zh-CN.md
+  - RELEASE_PACKAGE_GUIDE.md
+  - docs/v0.4_upgrade.md
