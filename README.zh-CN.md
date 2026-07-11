@@ -190,6 +190,8 @@ ClaimHarness 用在文本或系统输出之后，输出一个 evidence audit pac
 - `evidence_map.json`
 - `audit_report.md`
 - `revision_suggestions.md`
+- `audit_diagnostics.json`
+- `human_review_queue.json`
 - `agent_trace.jsonl`
 - `run_manifest.json`
 - `project_summary_log.md`
@@ -197,6 +199,10 @@ ClaimHarness 用在文本或系统输出之后，输出一个 evidence audit pac
 - `run_complete.json`
 - 提供 `--evidence-contract` 时生成的可选 `applied_evidence_contract.json`
 - 可选静态报告 `index.html`
+
+`evidence_map.json` 中每条 claim-evidence 链接都保留匹配理由、关系和该 claim 专属的位置：仅记录可安全分享的文件名，并在上游确实提供时记录页码、原文行、从 1 开始的数据行，以及实际命中的表格单元格；基础 evidence item 仍表示完整来源行。这些 locator 用于导航，不是正式引用锚点，也不能单独证明科学支持关系。
+
+`audit_diagnostics.json` 把“存在任意关联”与“确定性支持关系”分开统计，并明确给出分子和分母；支持关系也可能属于证据要求尚未满足的 `weakly_supported` 声明。它没有 gold label，不是准确率、忠实度、幻觉率、科学有效性或安全性评分。`human_review_queue.json` 只保存状态为 `pending` 的按角色复核待办，不代表复核决定、批准或身份核验，也不会改变确定性验证状态。
 
 本地网页工作台还可以把任意生成结果目录导出为 `export_report.docx` 和 `export_report.pdf`。导出内容来自输出目录里已有的 Markdown、CSV、YAML、JSON 和 trace 文件，在本地生成，不需要 API key，也不会调用远程模型。
 

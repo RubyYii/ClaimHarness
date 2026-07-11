@@ -28,8 +28,32 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 1
+            "row": 1,
+            "cells": [
+              {
+                "column": "model",
+                "value": "baseline_rules",
+                "cell": "A2"
+              },
+              {
+                "column": "macro_f1",
+                "value": "0.79",
+                "cell": "B2"
+              },
+              {
+                "column": "recall",
+                "value": "0.74",
+                "cell": "D2"
+              },
+              {
+                "column": "notes",
+                "value": "synthetic benchmark baseline without review routing",
+                "cell": "E2"
+              }
+            ]
           }
         },
         {
@@ -39,8 +63,22 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 2
+            "row": 2,
+            "cells": [
+              {
+                "column": "macro_f1",
+                "value": "0.86",
+                "cell": "B3"
+              },
+              {
+                "column": "recall",
+                "value": "0.83",
+                "cell": "D3"
+              }
+            ]
           }
         },
         {
@@ -50,8 +88,22 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 3
+            "row": 3,
+            "cells": [
+              {
+                "column": "macro_f1",
+                "value": "0.88",
+                "cell": "B4"
+              },
+              {
+                "column": "recall",
+                "value": "0.85",
+                "cell": "D4"
+              }
+            ]
           }
         },
         {
@@ -61,8 +113,22 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 4
+            "row": 4,
+            "cells": [
+              {
+                "column": "macro_f1",
+                "value": "0.75",
+                "cell": "B5"
+              },
+              {
+                "column": "recall",
+                "value": "0.71",
+                "cell": "D5"
+              }
+            ]
           }
         },
         {
@@ -72,8 +138,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Results",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 17,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -83,8 +152,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Results",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 17,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -94,8 +166,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Results",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 17,
-            "row": null
+            "row": null,
+            "cells": []
           }
         }
       ]
@@ -127,8 +202,17 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 3
+            "row": 3,
+            "cells": [
+              {
+                "column": "notes",
+                "value": "adds human review gate for low-confidence claims",
+                "cell": "E4"
+              }
+            ]
           }
         },
         {
@@ -138,8 +222,22 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 2
+            "row": 2,
+            "cells": [
+              {
+                "column": "trace_replay",
+                "value": "enabled",
+                "cell": "D3"
+              },
+              {
+                "column": "notes",
+                "value": "records intermediate evidence but does not pause risky cases",
+                "cell": "F3"
+              }
+            ]
           }
         },
         {
@@ -149,8 +247,22 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 4
+            "row": 4,
+            "cells": [
+              {
+                "column": "trace_replay",
+                "value": "enabled",
+                "cell": "D5"
+              },
+              {
+                "column": "notes",
+                "value": "combines evidence logging human review and replayable trace",
+                "cell": "F5"
+              }
+            ]
           }
         },
         {
@@ -160,8 +272,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Methods",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 13,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -171,8 +286,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Methods",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 13,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -182,8 +300,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Methods",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 13,
-            "row": null
+            "row": null,
+            "cells": []
           }
         }
       ]
@@ -211,8 +332,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Discussion",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 21,
-            "row": null
+            "row": null,
+            "cells": []
           }
         }
       ]
@@ -240,8 +364,17 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 4
+            "row": 4,
+            "cells": [
+              {
+                "column": "notes",
+                "value": "faster but less reliable around ambiguous limitation statements",
+                "cell": "E5"
+              }
+            ]
           }
         },
         {
@@ -251,8 +384,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Results",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 17,
-            "row": null
+            "row": null,
+            "cells": []
           }
         }
       ]
@@ -279,8 +415,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Discussion",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 21,
-            "row": null
+            "row": null,
+            "cells": []
           }
         }
       ]
@@ -330,8 +469,17 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 2
+            "row": 2,
+            "cells": [
+              {
+                "column": "notes",
+                "value": "adds evidence summary and reviewer-facing confidence notes",
+                "cell": "E3"
+              }
+            ]
           }
         },
         {
@@ -341,8 +489,17 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 3
+            "row": 3,
+            "cells": [
+              {
+                "column": "notes",
+                "value": "adds human review gate for low-confidence claims",
+                "cell": "E4"
+              }
+            ]
           }
         },
         {
@@ -352,8 +509,22 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 1
+            "row": 1,
+            "cells": [
+              {
+                "column": "trace_replay",
+                "value": "disabled",
+                "cell": "D2"
+              },
+              {
+                "column": "notes",
+                "value": "no claim trace and no explicit review routing",
+                "cell": "F2"
+              }
+            ]
           }
         },
         {
@@ -363,8 +534,17 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 2
+            "row": 2,
+            "cells": [
+              {
+                "column": "trace_replay",
+                "value": "enabled",
+                "cell": "D3"
+              }
+            ]
           }
         },
         {
@@ -374,8 +554,22 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 3
+            "row": 3,
+            "cells": [
+              {
+                "column": "trace_replay",
+                "value": "disabled",
+                "cell": "D4"
+              },
+              {
+                "column": "notes",
+                "value": "routes uncertain cases but cannot replay evidence chain",
+                "cell": "F4"
+              }
+            ]
           }
         },
         {
@@ -385,8 +579,22 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 4
+            "row": 4,
+            "cells": [
+              {
+                "column": "trace_replay",
+                "value": "enabled",
+                "cell": "D5"
+              },
+              {
+                "column": "notes",
+                "value": "combines evidence logging human review and replayable trace",
+                "cell": "F5"
+              }
+            ]
           }
         },
         {
@@ -396,8 +604,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Methods",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 13,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -407,8 +618,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Results",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 17,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -418,8 +632,11 @@
           "locator": {
             "source_kind": "references",
             "source_name": "references",
+            "source_file": "references.md",
+            "page_number": null,
             "line": 3,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -429,8 +646,11 @@
           "locator": {
             "source_kind": "references",
             "source_name": "references",
+            "source_file": "references.md",
+            "page_number": null,
             "line": 6,
-            "row": null
+            "row": null,
+            "cells": []
           }
         }
       ]
@@ -457,8 +677,17 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 3
+            "row": 3,
+            "cells": [
+              {
+                "column": "notes",
+                "value": "adds human review gate for low-confidence claims",
+                "cell": "E4"
+              }
+            ]
           }
         }
       ]
@@ -493,8 +722,22 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 1
+            "row": 1,
+            "cells": [
+              {
+                "column": "trace_replay",
+                "value": "disabled",
+                "cell": "D2"
+              },
+              {
+                "column": "notes",
+                "value": "no claim trace and no explicit review routing",
+                "cell": "F2"
+              }
+            ]
           }
         },
         {
@@ -504,8 +747,17 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 2
+            "row": 2,
+            "cells": [
+              {
+                "column": "trace_replay",
+                "value": "enabled",
+                "cell": "D3"
+              }
+            ]
           }
         },
         {
@@ -515,8 +767,22 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 3
+            "row": 3,
+            "cells": [
+              {
+                "column": "trace_replay",
+                "value": "disabled",
+                "cell": "D4"
+              },
+              {
+                "column": "notes",
+                "value": "routes uncertain cases but cannot replay evidence chain",
+                "cell": "F4"
+              }
+            ]
           }
         },
         {
@@ -526,8 +792,22 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 4
+            "row": 4,
+            "cells": [
+              {
+                "column": "trace_replay",
+                "value": "enabled",
+                "cell": "D5"
+              },
+              {
+                "column": "notes",
+                "value": "combines evidence logging human review and replayable trace",
+                "cell": "F5"
+              }
+            ]
           }
         },
         {
@@ -537,8 +817,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Methods",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 13,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -548,8 +831,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Results",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 17,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -559,8 +845,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Discussion",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 21,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -570,8 +859,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Discussion",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 21,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -581,8 +873,11 @@
           "locator": {
             "source_kind": "references",
             "source_name": "references",
+            "source_file": "references.md",
+            "page_number": null,
             "line": 6,
-            "row": null
+            "row": null,
+            "cells": []
           }
         }
       ]
@@ -613,8 +908,37 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 1
+            "row": 1,
+            "cells": [
+              {
+                "column": "model",
+                "value": "baseline_rules",
+                "cell": "A2"
+              },
+              {
+                "column": "macro_f1",
+                "value": "0.79",
+                "cell": "B2"
+              },
+              {
+                "column": "precision",
+                "value": "0.84",
+                "cell": "C2"
+              },
+              {
+                "column": "recall",
+                "value": "0.74",
+                "cell": "D2"
+              },
+              {
+                "column": "notes",
+                "value": "synthetic benchmark baseline without review routing",
+                "cell": "E2"
+              }
+            ]
           }
         },
         {
@@ -624,8 +948,32 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 2
+            "row": 2,
+            "cells": [
+              {
+                "column": "model",
+                "value": "evidence_guided_reviewer_v1",
+                "cell": "A3"
+              },
+              {
+                "column": "macro_f1",
+                "value": "0.86",
+                "cell": "B3"
+              },
+              {
+                "column": "precision",
+                "value": "0.9",
+                "cell": "C3"
+              },
+              {
+                "column": "recall",
+                "value": "0.83",
+                "cell": "D3"
+              }
+            ]
           }
         },
         {
@@ -635,8 +983,32 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 3
+            "row": 3,
+            "cells": [
+              {
+                "column": "model",
+                "value": "evidence_guided_reviewer_v1_with_review",
+                "cell": "A4"
+              },
+              {
+                "column": "macro_f1",
+                "value": "0.88",
+                "cell": "B4"
+              },
+              {
+                "column": "precision",
+                "value": "0.91",
+                "cell": "C4"
+              },
+              {
+                "column": "recall",
+                "value": "0.85",
+                "cell": "D4"
+              }
+            ]
           }
         },
         {
@@ -646,8 +1018,27 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 4
+            "row": 4,
+            "cells": [
+              {
+                "column": "macro_f1",
+                "value": "0.75",
+                "cell": "B5"
+              },
+              {
+                "column": "precision",
+                "value": "0.8",
+                "cell": "C5"
+              },
+              {
+                "column": "recall",
+                "value": "0.71",
+                "cell": "D5"
+              }
+            ]
           }
         },
         {
@@ -657,8 +1048,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Results",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 17,
-            "row": null
+            "row": null,
+            "cells": []
           }
         }
       ]
@@ -689,8 +1083,22 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 1
+            "row": 1,
+            "cells": [
+              {
+                "column": "macro_f1",
+                "value": "0.79",
+                "cell": "B2"
+              },
+              {
+                "column": "recall",
+                "value": "0.74",
+                "cell": "D2"
+              }
+            ]
           }
         },
         {
@@ -700,8 +1108,22 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 2
+            "row": 2,
+            "cells": [
+              {
+                "column": "macro_f1",
+                "value": "0.86",
+                "cell": "B3"
+              },
+              {
+                "column": "recall",
+                "value": "0.83",
+                "cell": "D3"
+              }
+            ]
           }
         },
         {
@@ -711,8 +1133,27 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 3
+            "row": 3,
+            "cells": [
+              {
+                "column": "macro_f1",
+                "value": "0.88",
+                "cell": "B4"
+              },
+              {
+                "column": "recall",
+                "value": "0.85",
+                "cell": "D4"
+              },
+              {
+                "column": "notes",
+                "value": "adds human review gate for low-confidence claims",
+                "cell": "E4"
+              }
+            ]
           }
         },
         {
@@ -722,8 +1163,22 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 4
+            "row": 4,
+            "cells": [
+              {
+                "column": "macro_f1",
+                "value": "0.75",
+                "cell": "B5"
+              },
+              {
+                "column": "recall",
+                "value": "0.71",
+                "cell": "D5"
+              }
+            ]
           }
         },
         {
@@ -733,8 +1188,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Results",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 17,
-            "row": null
+            "row": null,
+            "cells": []
           }
         }
       ]
@@ -767,8 +1225,37 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 1
+            "row": 1,
+            "cells": [
+              {
+                "column": "setting",
+                "value": "answer_only",
+                "cell": "A2"
+              },
+              {
+                "column": "evidence_logging",
+                "value": "disabled",
+                "cell": "B2"
+              },
+              {
+                "column": "trace_replay",
+                "value": "disabled",
+                "cell": "D2"
+              },
+              {
+                "column": "success_rate",
+                "value": "0.7",
+                "cell": "E2"
+              },
+              {
+                "column": "notes",
+                "value": "no claim trace and no explicit review routing",
+                "cell": "F2"
+              }
+            ]
           }
         },
         {
@@ -778,8 +1265,32 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 2
+            "row": 2,
+            "cells": [
+              {
+                "column": "setting",
+                "value": "logging_only",
+                "cell": "A3"
+              },
+              {
+                "column": "evidence_logging",
+                "value": "enabled",
+                "cell": "B3"
+              },
+              {
+                "column": "trace_replay",
+                "value": "enabled",
+                "cell": "D3"
+              },
+              {
+                "column": "success_rate",
+                "value": "0.78",
+                "cell": "E3"
+              }
+            ]
           }
         },
         {
@@ -789,8 +1300,42 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 3
+            "row": 3,
+            "cells": [
+              {
+                "column": "setting",
+                "value": "review_gate_only",
+                "cell": "A4"
+              },
+              {
+                "column": "evidence_logging",
+                "value": "disabled",
+                "cell": "B4"
+              },
+              {
+                "column": "human_review_gate",
+                "value": "enabled",
+                "cell": "C4"
+              },
+              {
+                "column": "trace_replay",
+                "value": "disabled",
+                "cell": "D4"
+              },
+              {
+                "column": "success_rate",
+                "value": "0.8",
+                "cell": "E4"
+              },
+              {
+                "column": "notes",
+                "value": "routes uncertain cases but cannot replay evidence chain",
+                "cell": "F4"
+              }
+            ]
           }
         },
         {
@@ -800,8 +1345,42 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 4
+            "row": 4,
+            "cells": [
+              {
+                "column": "setting",
+                "value": "full_harness",
+                "cell": "A5"
+              },
+              {
+                "column": "evidence_logging",
+                "value": "enabled",
+                "cell": "B5"
+              },
+              {
+                "column": "human_review_gate",
+                "value": "enabled",
+                "cell": "C5"
+              },
+              {
+                "column": "trace_replay",
+                "value": "enabled",
+                "cell": "D5"
+              },
+              {
+                "column": "success_rate",
+                "value": "0.86",
+                "cell": "E5"
+              },
+              {
+                "column": "notes",
+                "value": "combines evidence logging human review and replayable trace",
+                "cell": "F5"
+              }
+            ]
           }
         },
         {
@@ -811,8 +1390,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Methods",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 13,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -822,8 +1404,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Methods",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 13,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -833,8 +1418,11 @@
           "locator": {
             "source_kind": "references",
             "source_name": "references",
+            "source_file": "references.md",
+            "page_number": null,
             "line": 6,
-            "row": null
+            "row": null,
+            "cells": []
           }
         }
       ]
@@ -861,8 +1449,22 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table1_metrics",
+            "source_file": "table1_metrics.csv",
+            "page_number": null,
             "line": null,
-            "row": 4
+            "row": 4,
+            "cells": [
+              {
+                "column": "model",
+                "value": "compact_reviewer",
+                "cell": "A5"
+              },
+              {
+                "column": "notes",
+                "value": "faster but less reliable around ambiguous limitation statements",
+                "cell": "E5"
+              }
+            ]
           }
         }
       ]
@@ -889,8 +1491,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Methods",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 13,
-            "row": null
+            "row": null,
+            "cells": []
           }
         }
       ]
@@ -917,8 +1522,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Methods",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 13,
-            "row": null
+            "row": null,
+            "cells": []
           }
         }
       ]
@@ -954,8 +1562,27 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 1
+            "row": 1,
+            "cells": [
+              {
+                "column": "evidence_logging",
+                "value": "disabled",
+                "cell": "B2"
+              },
+              {
+                "column": "trace_replay",
+                "value": "disabled",
+                "cell": "D2"
+              },
+              {
+                "column": "notes",
+                "value": "no claim trace and no explicit review routing",
+                "cell": "F2"
+              }
+            ]
           }
         },
         {
@@ -965,8 +1592,27 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 2
+            "row": 2,
+            "cells": [
+              {
+                "column": "setting",
+                "value": "logging_only",
+                "cell": "A3"
+              },
+              {
+                "column": "evidence_logging",
+                "value": "enabled",
+                "cell": "B3"
+              },
+              {
+                "column": "trace_replay",
+                "value": "enabled",
+                "cell": "D3"
+              }
+            ]
           }
         },
         {
@@ -976,8 +1622,22 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 3
+            "row": 3,
+            "cells": [
+              {
+                "column": "evidence_logging",
+                "value": "disabled",
+                "cell": "B4"
+              },
+              {
+                "column": "trace_replay",
+                "value": "disabled",
+                "cell": "D4"
+              }
+            ]
           }
         },
         {
@@ -987,8 +1647,27 @@
           "locator": {
             "source_kind": "table",
             "source_name": "table2_ablation",
+            "source_file": "table2_ablation.csv",
+            "page_number": null,
             "line": null,
-            "row": 4
+            "row": 4,
+            "cells": [
+              {
+                "column": "evidence_logging",
+                "value": "enabled",
+                "cell": "B5"
+              },
+              {
+                "column": "trace_replay",
+                "value": "enabled",
+                "cell": "D5"
+              },
+              {
+                "column": "notes",
+                "value": "combines evidence logging human review and replayable trace",
+                "cell": "F5"
+              }
+            ]
           }
         },
         {
@@ -998,8 +1677,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Methods",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 13,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -1009,8 +1691,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Methods",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 13,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -1020,8 +1705,11 @@
           "locator": {
             "source_kind": "manuscript",
             "source_name": "Results",
+            "source_file": "manuscript.md",
+            "page_number": null,
             "line": 17,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -1031,8 +1719,11 @@
           "locator": {
             "source_kind": "references",
             "source_name": "references",
+            "source_file": "references.md",
+            "page_number": null,
             "line": 4,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -1042,8 +1733,11 @@
           "locator": {
             "source_kind": "references",
             "source_name": "references",
+            "source_file": "references.md",
+            "page_number": null,
             "line": 6,
-            "row": null
+            "row": null,
+            "cells": []
           }
         },
         {
@@ -1053,8 +1747,11 @@
           "locator": {
             "source_kind": "references",
             "source_name": "references",
+            "source_file": "references.md",
+            "page_number": null,
             "line": 8,
-            "row": null
+            "row": null,
+            "cells": []
           }
         }
       ]
@@ -1067,8 +1764,37 @@
       "locator": {
         "source_kind": "table",
         "source_name": "table1_metrics",
+        "source_file": "table1_metrics.csv",
+        "page_number": null,
         "line": null,
-        "row": 1
+        "row": 1,
+        "cells": [
+          {
+            "column": "model",
+            "value": "baseline_rules",
+            "cell": "A2"
+          },
+          {
+            "column": "macro_f1",
+            "value": "0.79",
+            "cell": "B2"
+          },
+          {
+            "column": "precision",
+            "value": "0.84",
+            "cell": "C2"
+          },
+          {
+            "column": "recall",
+            "value": "0.74",
+            "cell": "D2"
+          },
+          {
+            "column": "notes",
+            "value": "synthetic benchmark baseline without review routing",
+            "cell": "E2"
+          }
+        ]
       },
       "evidence_type": "quantitative_result",
       "text": "model=baseline_rules; macro_f1=0.79; precision=0.84; recall=0.74; notes=synthetic benchmark baseline without review routing",
@@ -1111,8 +1837,37 @@
       "locator": {
         "source_kind": "table",
         "source_name": "table1_metrics",
+        "source_file": "table1_metrics.csv",
+        "page_number": null,
         "line": null,
-        "row": 2
+        "row": 2,
+        "cells": [
+          {
+            "column": "model",
+            "value": "evidence_guided_reviewer_v1",
+            "cell": "A3"
+          },
+          {
+            "column": "macro_f1",
+            "value": "0.86",
+            "cell": "B3"
+          },
+          {
+            "column": "precision",
+            "value": "0.9",
+            "cell": "C3"
+          },
+          {
+            "column": "recall",
+            "value": "0.83",
+            "cell": "D3"
+          },
+          {
+            "column": "notes",
+            "value": "adds evidence summary and reviewer-facing confidence notes",
+            "cell": "E3"
+          }
+        ]
       },
       "evidence_type": "quantitative_result",
       "text": "model=evidence_guided_reviewer_v1; macro_f1=0.86; precision=0.9; recall=0.83; notes=adds evidence summary and reviewer-facing confidence notes",
@@ -1158,8 +1913,37 @@
       "locator": {
         "source_kind": "table",
         "source_name": "table1_metrics",
+        "source_file": "table1_metrics.csv",
+        "page_number": null,
         "line": null,
-        "row": 3
+        "row": 3,
+        "cells": [
+          {
+            "column": "model",
+            "value": "evidence_guided_reviewer_v1_with_review",
+            "cell": "A4"
+          },
+          {
+            "column": "macro_f1",
+            "value": "0.88",
+            "cell": "B4"
+          },
+          {
+            "column": "precision",
+            "value": "0.91",
+            "cell": "C4"
+          },
+          {
+            "column": "recall",
+            "value": "0.85",
+            "cell": "D4"
+          },
+          {
+            "column": "notes",
+            "value": "adds human review gate for low-confidence claims",
+            "cell": "E4"
+          }
+        ]
       },
       "evidence_type": "quantitative_result",
       "text": "model=evidence_guided_reviewer_v1_with_review; macro_f1=0.88; precision=0.91; recall=0.85; notes=adds human review gate for low-confidence claims",
@@ -1211,8 +1995,37 @@
       "locator": {
         "source_kind": "table",
         "source_name": "table1_metrics",
+        "source_file": "table1_metrics.csv",
+        "page_number": null,
         "line": null,
-        "row": 4
+        "row": 4,
+        "cells": [
+          {
+            "column": "model",
+            "value": "compact_reviewer",
+            "cell": "A5"
+          },
+          {
+            "column": "macro_f1",
+            "value": "0.75",
+            "cell": "B5"
+          },
+          {
+            "column": "precision",
+            "value": "0.8",
+            "cell": "C5"
+          },
+          {
+            "column": "recall",
+            "value": "0.71",
+            "cell": "D5"
+          },
+          {
+            "column": "notes",
+            "value": "faster but less reliable around ambiguous limitation statements",
+            "cell": "E5"
+          }
+        ]
       },
       "evidence_type": "quantitative_result",
       "text": "model=compact_reviewer; macro_f1=0.75; precision=0.8; recall=0.71; notes=faster but less reliable around ambiguous limitation statements",
@@ -1261,8 +2074,42 @@
       "locator": {
         "source_kind": "table",
         "source_name": "table2_ablation",
+        "source_file": "table2_ablation.csv",
+        "page_number": null,
         "line": null,
-        "row": 1
+        "row": 1,
+        "cells": [
+          {
+            "column": "setting",
+            "value": "answer_only",
+            "cell": "A2"
+          },
+          {
+            "column": "evidence_logging",
+            "value": "disabled",
+            "cell": "B2"
+          },
+          {
+            "column": "human_review_gate",
+            "value": "disabled",
+            "cell": "C2"
+          },
+          {
+            "column": "trace_replay",
+            "value": "disabled",
+            "cell": "D2"
+          },
+          {
+            "column": "success_rate",
+            "value": "0.7",
+            "cell": "E2"
+          },
+          {
+            "column": "notes",
+            "value": "no claim trace and no explicit review routing",
+            "cell": "F2"
+          }
+        ]
       },
       "evidence_type": "ablation_result",
       "text": "setting=answer_only; evidence_logging=disabled; human_review_gate=disabled; trace_replay=disabled; success_rate=0.7; notes=no claim trace and no explicit review routing",
@@ -1310,8 +2157,42 @@
       "locator": {
         "source_kind": "table",
         "source_name": "table2_ablation",
+        "source_file": "table2_ablation.csv",
+        "page_number": null,
         "line": null,
-        "row": 2
+        "row": 2,
+        "cells": [
+          {
+            "column": "setting",
+            "value": "logging_only",
+            "cell": "A3"
+          },
+          {
+            "column": "evidence_logging",
+            "value": "enabled",
+            "cell": "B3"
+          },
+          {
+            "column": "human_review_gate",
+            "value": "disabled",
+            "cell": "C3"
+          },
+          {
+            "column": "trace_replay",
+            "value": "enabled",
+            "cell": "D3"
+          },
+          {
+            "column": "success_rate",
+            "value": "0.78",
+            "cell": "E3"
+          },
+          {
+            "column": "notes",
+            "value": "records intermediate evidence but does not pause risky cases",
+            "cell": "F3"
+          }
+        ]
       },
       "evidence_type": "ablation_result",
       "text": "setting=logging_only; evidence_logging=enabled; human_review_gate=disabled; trace_replay=enabled; success_rate=0.78; notes=records intermediate evidence but does not pause risky cases",
@@ -1362,8 +2243,42 @@
       "locator": {
         "source_kind": "table",
         "source_name": "table2_ablation",
+        "source_file": "table2_ablation.csv",
+        "page_number": null,
         "line": null,
-        "row": 3
+        "row": 3,
+        "cells": [
+          {
+            "column": "setting",
+            "value": "review_gate_only",
+            "cell": "A4"
+          },
+          {
+            "column": "evidence_logging",
+            "value": "disabled",
+            "cell": "B4"
+          },
+          {
+            "column": "human_review_gate",
+            "value": "enabled",
+            "cell": "C4"
+          },
+          {
+            "column": "trace_replay",
+            "value": "disabled",
+            "cell": "D4"
+          },
+          {
+            "column": "success_rate",
+            "value": "0.8",
+            "cell": "E4"
+          },
+          {
+            "column": "notes",
+            "value": "routes uncertain cases but cannot replay evidence chain",
+            "cell": "F4"
+          }
+        ]
       },
       "evidence_type": "ablation_result",
       "text": "setting=review_gate_only; evidence_logging=disabled; human_review_gate=enabled; trace_replay=disabled; success_rate=0.8; notes=routes uncertain cases but cannot replay evidence chain",
@@ -1411,8 +2326,42 @@
       "locator": {
         "source_kind": "table",
         "source_name": "table2_ablation",
+        "source_file": "table2_ablation.csv",
+        "page_number": null,
         "line": null,
-        "row": 4
+        "row": 4,
+        "cells": [
+          {
+            "column": "setting",
+            "value": "full_harness",
+            "cell": "A5"
+          },
+          {
+            "column": "evidence_logging",
+            "value": "enabled",
+            "cell": "B5"
+          },
+          {
+            "column": "human_review_gate",
+            "value": "enabled",
+            "cell": "C5"
+          },
+          {
+            "column": "trace_replay",
+            "value": "enabled",
+            "cell": "D5"
+          },
+          {
+            "column": "success_rate",
+            "value": "0.86",
+            "cell": "E5"
+          },
+          {
+            "column": "notes",
+            "value": "combines evidence logging human review and replayable trace",
+            "cell": "F5"
+          }
+        ]
       },
       "evidence_type": "ablation_result",
       "text": "setting=full_harness; evidence_logging=enabled; human_review_gate=enabled; trace_replay=enabled; success_rate=0.86; notes=combines evidence logging human review and replayable trace",
@@ -1463,8 +2412,11 @@
       "locator": {
         "source_kind": "manuscript",
         "source_name": "Methods",
+        "source_file": "manuscript.md",
+        "page_number": null,
         "line": 13,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "workflow_trace",
       "text": "The workflow uses an explainable evidence summary, a confidence note, and a structured trace replay for each synthetic report section.",
@@ -1497,8 +2449,11 @@
       "locator": {
         "source_kind": "manuscript",
         "source_name": "Methods",
+        "source_file": "manuscript.md",
+        "page_number": null,
         "line": 13,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "workflow_trace",
       "text": "The human review gate supports manual inspection when evidence confidence is low or when the model highlights an ambiguous claim.",
@@ -1522,8 +2477,11 @@
       "locator": {
         "source_kind": "manuscript",
         "source_name": "Methods",
+        "source_file": "manuscript.md",
+        "page_number": null,
         "line": 13,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "limitation_statement",
       "text": "Trace replay enables reviewers to see which table metrics, ablation rows, and limitation notes were available before a claim was labeled.",
@@ -1562,8 +2520,11 @@
       "locator": {
         "source_kind": "manuscript",
         "source_name": "Methods",
+        "source_file": "manuscript.md",
+        "page_number": null,
         "line": 13,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "limitation_statement",
       "text": "The synthetic benchmark is intentionally small and does not measure live operational performance.",
@@ -1581,8 +2542,11 @@
       "locator": {
         "source_kind": "manuscript",
         "source_name": "Results",
+        "source_file": "manuscript.md",
+        "page_number": null,
         "line": 17,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "result_text",
       "text": "The evidence_guided_reviewer_v1 model outperforms the baseline_rules model on macro F1, precision, and recall in the synthetic metric table.",
@@ -1609,8 +2573,11 @@
       "locator": {
         "source_kind": "manuscript",
         "source_name": "Results",
+        "source_file": "manuscript.md",
+        "page_number": null,
         "line": 17,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "result_text",
       "text": "Adding the human review gate increases macro F1 from 0.86 to 0.88 and recall from 0.83 to 0.85 in the controlled benchmark.",
@@ -1637,8 +2604,11 @@
       "locator": {
         "source_kind": "manuscript",
         "source_name": "Results",
+        "source_file": "manuscript.md",
+        "page_number": null,
         "line": 17,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "result_text",
       "text": "The full harness improves workflow success rate from 0.70 in the answer-only setting to 0.86 when evidence logging, human review, and trace replay are all enabled.",
@@ -1671,8 +2641,11 @@
       "locator": {
         "source_kind": "manuscript",
         "source_name": "Results",
+        "source_file": "manuscript.md",
+        "page_number": null,
         "line": 17,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "result_text",
       "text": "The compact reviewer is less reliable around ambiguous limitation statements despite being faster in informal synthetic checks.",
@@ -1696,8 +2669,11 @@
       "locator": {
         "source_kind": "manuscript",
         "source_name": "Discussion",
+        "source_file": "manuscript.md",
+        "page_number": null,
         "line": 21,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "workflow_trace",
       "text": "The table evidence supports claims about review metrics and workflow ablation under the synthetic benchmark.",
@@ -1721,8 +2697,11 @@
       "locator": {
         "source_kind": "manuscript",
         "source_name": "Discussion",
+        "source_file": "manuscript.md",
+        "page_number": null,
         "line": 21,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "workflow_trace",
       "text": "The workflow is robust to missing trace commentary only in the narrow sense that CSV metrics can still be inspected manually.",
@@ -1746,8 +2725,11 @@
       "locator": {
         "source_kind": "manuscript",
         "source_name": "Discussion",
+        "source_file": "manuscript.md",
+        "page_number": null,
         "line": 21,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "limitation_statement",
       "text": "The manuscript overclaims if it says the system is deployment-ready for real-world operations because no external validation, user study, or safety review is included.",
@@ -1771,8 +2753,11 @@
       "locator": {
         "source_kind": "manuscript",
         "source_name": "Discussion",
+        "source_file": "manuscript.md",
+        "page_number": null,
         "line": 21,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "limitation_statement",
       "text": "The system should not be considered a decision-making device; it is a reproducible audit harness for studying claim-evidence traceability.",
@@ -1796,8 +2781,11 @@
       "locator": {
         "source_kind": "references",
         "source_name": "references",
+        "source_file": "references.md",
+        "page_number": null,
         "line": 3,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "citation",
       "text": "1. Alvarez, M. and Chen, Y. (2024). Explainable evidence summaries for synthetic laboratory reports. Journal of Reproducible Review Workflows.",
@@ -1821,8 +2809,11 @@
       "locator": {
         "source_kind": "references",
         "source_name": "references",
+        "source_file": "references.md",
+        "page_number": null,
         "line": 4,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "citation",
       "text": "2. Banerjee, R. et al. (2023). Human-in-the-loop review gates for high-precision technical report analysis. Proceedings of the Workshop on Auditable AI Systems.",
@@ -1846,8 +2837,11 @@
       "locator": {
         "source_kind": "references",
         "source_name": "references",
+        "source_file": "references.md",
+        "page_number": null,
         "line": 5,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "citation",
       "text": "3. Ito, S. and Morgan, L. (2022). Measurement table auditing under controlled synthetic laboratory conditions. Computational Review Reports.",
@@ -1865,8 +2859,11 @@
       "locator": {
         "source_kind": "references",
         "source_name": "references",
+        "source_file": "references.md",
+        "page_number": null,
         "line": 6,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "citation",
       "text": "4. Patel, N. et al. (2025). Trace replay and evidence logging in decision-support prototypes. Transactions on Reproducible Machine Learning.",
@@ -1899,8 +2896,11 @@
       "locator": {
         "source_kind": "references",
         "source_name": "references",
+        "source_file": "references.md",
+        "page_number": null,
         "line": 7,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "citation",
       "text": "5. Rivera, G. and Novak, P. (2024). Limits of automated report review in synthetic benchmark settings. AI Safety Notes for Engineering Workflows.",
@@ -1918,8 +2918,11 @@
       "locator": {
         "source_kind": "references",
         "source_name": "references",
+        "source_file": "references.md",
+        "page_number": null,
         "line": 8,
-        "row": null
+        "row": null,
+        "cells": []
       },
       "evidence_type": "citation",
       "text": "6. Singh, A. et al. (2023). Designing conservative human-review routing for assistive laboratory software. Journal of Human-Centered Scientific Computing.",

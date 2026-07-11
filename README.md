@@ -181,6 +181,8 @@ ClaimHarness writes an audit package:
 - `evidence_map.json`
 - `audit_report.md`
 - `revision_suggestions.md`
+- `audit_diagnostics.json`
+- `human_review_queue.json`
 - `agent_trace.jsonl`
 - `run_manifest.json`
 - `project_summary_log.md`
@@ -651,7 +653,7 @@ The manuscript is fully synthetic and describes a human-in-the-loop workflow for
 
 ## Expected Output
 
-The mock audit writes five core audit files plus four provenance/lifecycle records. The `demo` command also writes the static viewer:
+The mock audit writes seven core audit files plus four provenance/lifecycle records. The `demo` command also writes the static viewer:
 
 ```text
 outputs/lab_report_audit_demo_run/
@@ -659,6 +661,8 @@ outputs/lab_report_audit_demo_run/
   evidence_map.json
   audit_report.md
   revision_suggestions.md
+  audit_diagnostics.json
+  human_review_queue.json
   agent_trace.jsonl
   run_manifest.json
   project_summary_log.md
@@ -676,7 +680,9 @@ C004,4,overclaimed,deployment_claim,The workflow is ready for real-world operati
 C007,8,weakly_supported,workflow_claim,The first design goal is to make every report claim traceable...
 ```
 
-`source_line` points back to the manuscript line. `evidence_map.json` links claim IDs to evidence IDs and includes a match reason for each link so reviewers can inspect why a claim was classified. A statement in the Results section is candidate context, not automatically strong evidence for itself; strong table support requires a verifiable metric/value relationship. High-risk biomedical or clinical claims default to human review unless the required external evidence is present. `agent_trace.jsonl` records each pipeline step in order, including loading, extraction, retrieval, verification, and report generation.
+`source_line` points back to the manuscript line. `evidence_map.json` links claim IDs to evidence IDs and includes a match reason and claim-specific locator for each link. Table locators preserve the safe source filename, one-based data row, and only the matched cells (column, value, and A1 coordinate); the base evidence item still represents the full row. Page numbers remain empty unless an upstream source explicitly provides them. A statement in the Results section is candidate context, not automatically strong evidence for itself; strong table support requires a verifiable metric/value relationship.
+
+`audit_diagnostics.json` separates any-link coverage from deterministic support-relation coverage and lists requirement gaps, contradictions, high-risk routing, and unused evidence. A support relation can still belong to a `weakly_supported` claim whose requirements remain unmet. These are structural diagnostics for one run without gold labels; they are not accuracy, faithfulness, hallucination, scientific-validity, or safety scores. `human_review_queue.json` contains deterministic `pending` work items for claims routed to bounded review. It is not an approval record, does not verify reviewer identity or qualifications, and never changes a claim status. `agent_trace.jsonl` records each pipeline step in order, including loading, extraction, retrieval, verification, and report generation.
 
 ## Why this is an Agent Harness
 
@@ -703,6 +709,9 @@ Implemented:
 - deterministic claim extraction
 - deterministic evidence retrieval
 - source_line and match reason traceability
+- claim-specific file/line/row/cell evidence locators
+- gold-label-free structural audit diagnostics with explicit interpretation boundaries
+- immutable pending human-review queue snapshots that cannot act as approval
 - conservative mock verification
 - Results self-statements do not automatically count as strong evidence
 - high-risk clinical claims default to human review
@@ -723,6 +732,8 @@ Planned or optional:
 - richer prompt templates
 - a reviewed Chinese claim-audit gold set
 - figure-aware evidence ingestion (not currently supported)
+
+The design choices absorbed from adjacent open-source and human-AI projects, along with the features deliberately not copied into this local-first v1, are recorded in [`docs/comparative_landscape.md`](docs/comparative_landscape.md).
 
 ## Limitations
 

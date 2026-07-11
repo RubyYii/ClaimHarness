@@ -9,6 +9,7 @@ class ManuscriptSection(BaseModel):
     start_line: int | None
     content_start_line: int | None = None
     source_kind: Literal["manuscript", "ocr", "derived_text"] = "manuscript"
+    source_file: str | None = None
 
 
 ClaimType = Literal[
@@ -46,11 +47,22 @@ EvidenceSourceKind = Literal[
 ]
 
 
+class EvidenceCell(BaseModel):
+    """One addressable table cell within an evidence locator."""
+
+    column: str
+    value: str
+    cell: str | None = None
+
+
 class EvidenceLocator(BaseModel):
     source_kind: EvidenceSourceKind
     source_name: str
+    source_file: str | None = None
+    page_number: int | None = Field(default=None, gt=0)
     line: int | None = Field(default=None, gt=0)
     row: int | None = Field(default=None, gt=0)
+    cells: list[EvidenceCell] = Field(default_factory=list)
 
 
 EvidenceType = Literal[
@@ -81,6 +93,7 @@ class EvidenceItem(BaseModel):
     linked_claim_ids: list[str] = Field(default_factory=list)
     claim_link_reasons: dict[str, str] = Field(default_factory=dict)
     claim_link_relations: dict[str, EvidenceRelation] = Field(default_factory=dict)
+    claim_link_locators: dict[str, EvidenceLocator] = Field(default_factory=dict)
 
 
 VerificationStatus = Literal[

@@ -41,6 +41,7 @@ def load_manuscript(path: str | Path) -> list[ManuscriptSection]:
                 start_line=current_start_line or content_start_line,
                 content_start_line=content_start_line,
                 source_kind=current_source_kind,
+                source_file=manuscript_path.name,
             )
         )
 
@@ -83,10 +84,12 @@ def load_manuscript(path: str | Path) -> list[ManuscriptSection]:
 
 def load_tables(path: str | Path) -> dict[str, pd.DataFrame]:
     tables_path = Path(path)
-    return {
-        csv_path.stem: pd.read_csv(csv_path)
-        for csv_path in sorted(tables_path.glob("*.csv"))
-    }
+    tables: dict[str, pd.DataFrame] = {}
+    for csv_path in sorted(tables_path.glob("*.csv")):
+        frame = pd.read_csv(csv_path)
+        frame.attrs["source_file"] = csv_path.name
+        tables[csv_path.stem] = frame
+    return tables
 
 
 def load_references(path: str | Path) -> str:

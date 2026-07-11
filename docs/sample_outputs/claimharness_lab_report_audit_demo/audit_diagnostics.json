@@ -1,0 +1,126 @@
+{
+  "artifact_type": "single_run_structural_diagnostics",
+  "attention": {
+    "claims_needing_human_review": [
+      "C005"
+    ],
+    "claims_with_contradictions": [
+      "C005"
+    ],
+    "claims_with_missing_requirements": [
+      "C001",
+      "C003",
+      "C004",
+      "C005",
+      "C006",
+      "C007",
+      "C008",
+      "C013",
+      "C014",
+      "C015"
+    ],
+    "claims_without_any_link": [
+      "C006"
+    ],
+    "claims_without_support_relation": [
+      "C005",
+      "C006",
+      "C008",
+      "C013"
+    ],
+    "high_risk_claims": [
+      "C003"
+    ],
+    "high_risk_not_blocked_or_reviewed": [],
+    "unlinked_evidence_items": [
+      "R003",
+      "R005",
+      "S004"
+    ]
+  },
+  "boundary": "Derived only from this run's deterministic links and verifier outputs. These structural diagnostics do not establish factual correctness, scientific validity, clinical safety, model accuracy, faithfulness, or hallucination rates.",
+  "definitions": {
+    "any_link_coverage": "Claims with at least one deterministic supports, related, or contradicts link.",
+    "high_risk_blocked_or_reviewed": "High-risk claims routed to unsupported, overclaimed, or needs_human_review.",
+    "support_relation_coverage": "Claims with at least one deterministic supports relation. This can include weakly_supported claims whose evidence requirements remain unmet.",
+    "unlinked_evidence_items": "Evidence items not linked to any claim in this run."
+  },
+  "metrics": {
+    "any_link_coverage": {
+      "denominator": 16,
+      "numerator": 15,
+      "rate": 0.9375
+    },
+    "contradiction_claims": {
+      "denominator": 16,
+      "numerator": 1,
+      "rate": 0.0625
+    },
+    "high_risk_blocked_or_reviewed": {
+      "denominator": 1,
+      "numerator": 1,
+      "rate": 1.0
+    },
+    "high_risk_claims": {
+      "denominator": 16,
+      "numerator": 1,
+      "rate": 0.0625
+    },
+    "missing_requirement_claims": {
+      "denominator": 16,
+      "numerator": 10,
+      "rate": 0.625
+    },
+    "needs_human_review": {
+      "denominator": 16,
+      "numerator": 1,
+      "rate": 0.0625
+    },
+    "no_linked_evidence": {
+      "denominator": 16,
+      "numerator": 1,
+      "rate": 0.0625
+    },
+    "no_support_relation": {
+      "denominator": 16,
+      "numerator": 4,
+      "rate": 0.25
+    },
+    "support_relation_coverage": {
+      "denominator": 16,
+      "numerator": 12,
+      "rate": 0.75
+    },
+    "unlinked_evidence_items": {
+      "denominator": 26,
+      "numerator": 3,
+      "rate": 0.115385
+    }
+  },
+  "relation_link_counts": {
+    "contradicts": 1,
+    "related": 33,
+    "supports": 33
+  },
+  "requirement_gap_counts": {
+    "citation": 1,
+    "external_validation": 1,
+    "human_review": 1,
+    "robustness_test": 3,
+    "table": 1,
+    "trace": 4
+  },
+  "schema_version": 1,
+  "status_counts": {
+    "needs_human_review": 1,
+    "overclaimed": 1,
+    "supported": 3,
+    "unsupported": 1,
+    "weakly_supported": 10
+  },
+  "totals": {
+    "claim_evidence_links": 67,
+    "claims": 16,
+    "evidence_items": 26
+  }
+}

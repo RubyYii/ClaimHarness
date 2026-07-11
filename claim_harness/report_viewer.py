@@ -87,6 +87,16 @@ def _load_audit_package(run_dir: Path) -> dict[str, Any]:
         if "project_summary_log.md" in files
         else None
     )
+    audit_diagnostics = (
+        json.loads(files["audit_diagnostics.json"].decode("utf-8"))
+        if "audit_diagnostics.json" in files
+        else None
+    )
+    human_review_queue = (
+        json.loads(files["human_review_queue.json"].decode("utf-8"))
+        if "human_review_queue.json" in files
+        else None
+    )
 
     return {
         "claims": _read_claim_rows_text(files["claim_table.csv"].decode("utf-8")),
@@ -96,6 +106,8 @@ def _load_audit_package(run_dir: Path) -> dict[str, Any]:
         "trace": _read_trace_text(files["agent_trace.jsonl"].decode("utf-8")),
         "llm_review": llm_review,
         "project_summary": project_summary,
+        "audit_diagnostics": audit_diagnostics,
+        "human_review_queue": human_review_queue,
         "integrity_status": (
             "Verified governed run: lifecycle identity and artifact hashes passed."
             if governed
@@ -188,6 +200,8 @@ def _render_html(payload: dict[str, Any], run_dir: Path) -> str:
             _metric("Trace events", len(trace)),
             "</section>",
             _render_status_breakdown(status_counts),
+            _render_diagnostics(payload["audit_diagnostics"]),
+            _render_human_review_queue(payload["human_review_queue"]),
             _render_high_risk_claims(high_risk_claims),
             _render_claim_table(claims, payload["evidence_map"].get("claims", [])),
             _render_evidence_table(evidence),
@@ -236,6 +250,7 @@ h2 { margin: 0 0 12px; font-size: 19px; letter-spacing: 0; }
 h3 { margin: 0 0 8px; font-size: 15px; letter-spacing: 0; }
 p { margin: 0 0 8px; }
 .notice { color: #dce5ef; max-width: 860px; }
+.boundary { color: var(--muted); border-left: 4px solid var(--weak); padding-left: 10px; }
 main { padding: 20px 0 36px; }
 section {
   background: var(--panel);
@@ -333,8 +348,8 @@ buttons.forEach((button) => {
 """
 
 
-def _metric(label: str, value: int) -> str:
-    return f'<div class="metric"><span>{_e(label)}</span><strong>{value}</strong></div>'
+def _metric(label: str, value: int | str) -> str:
+    return f'<div class="metric"><span>{_e(label)}</span><strong>{_e(value)}</strong></div>'
 
 
 def _render_status_breakdown(status_counts: Counter[str]) -> str:
@@ -346,6 +361,66 @@ def _render_status_breakdown(status_counts: Counter[str]) -> str:
         '<section><h2>Status breakdown</h2><div class="status-list">'
         + "".join(pills)
         + "</div></section>"
+    )
+
+
+def _render_diagnostics(diagnostics: dict[str, Any] | None) -> str:
+    if diagnostics is None:
+        return ""
+    metrics = diagnostics.get("metrics", {})
+    cards = [
+        ("Any link coverage", "any_link_coverage"),
+        ("Support relation", "support_relation_coverage"),
+        ("No support relation", "no_support_relation"),
+        ("Needs human review", "needs_human_review"),
+        ("Contradiction claims", "contradiction_claims"),
+    ]
+    rendered_cards = "".join(
+        _metric(label, _format_ratio(metrics.get(key, {}))) for label, key in cards
+    )
+    gaps = diagnostics.get("requirement_gap_counts", {})
+    gap_text = ", ".join(f"{key}: {value}" for key, value in sorted(gaps.items())) or "none"
+    return (
+        '<section><h2>Structural diagnostics</h2>'
+        f'<p class="boundary">{_e(diagnostics.get("boundary", ""))}</p>'
+        f'<div class="summary-grid">{rendered_cards}</div>'
+        f'<p><strong>Missing requirement counts:</strong> {_e(gap_text)}</p>'
+        "</section>"
+    )
+
+
+def _render_human_review_queue(queue: dict[str, Any] | None) -> str:
+    if queue is None:
+        return ""
+    items = queue.get("items", [])
+    if not items:
+        body = "<p>No pending human-review work items in this run.</p>"
+    else:
+        rows = []
+        for item in items:
+            rows.append(
+                "<tr>"
+                f'<td class="mono">{_e(item.get("review_item_id", ""))}</td>'
+                f'<td class="mono">{_e(item.get("claim_id", ""))}</td>'
+                f'<td>{_e(item.get("required_role", ""))}</td>'
+                f'<td>{_e(item.get("verification_status", ""))}</td>'
+                f'<td>{_e(item.get("risk_level", ""))}</td>'
+                f'<td>{_e(", ".join(item.get("trigger_codes", [])))}</td>'
+                f'<td>{_e(item.get("state", "pending"))}</td>'
+                "</tr>"
+            )
+        body = (
+            '<div class="table-wrap"><table>'
+            "<thead><tr><th>Review item</th><th>Claim</th><th>Required role</th>"
+            "<th>Deterministic status</th><th>Risk</th><th>Triggers</th><th>State</th></tr></thead>"
+            "<tbody>" + "".join(rows) + "</tbody></table></div>"
+        )
+    return (
+        '<section><h2>Pending human review</h2>'
+        f'<p class="boundary">{_e(queue.get("boundary", ""))}</p>'
+        f'<p>{_e(queue.get("role_boundary", ""))}</p>'
+        + body
+        + "</section>"
     )
 
 
@@ -383,6 +458,10 @@ def _render_claim_table(claims: list[dict[str, str]], evidence_links: list[dict[
         )
         if not match_reasons and evidence_ids:
             match_reasons = "Linked by retrieval rule"
+        locations = "; ".join(
+            f'{link.get("evidence_id", "")}: {_format_locator_dict(link.get("locator"))}'
+            for link in reasons_by_claim.get(claim_id, [])
+        )
         rows.append(
             f'<tr data-claim-row data-status="{_e(row.get("status", ""))}" data-risk="{_e(row.get("risk_level", ""))}">'
             f'<td class="mono">{_e(claim_id)}</td>'
@@ -392,6 +471,7 @@ def _render_claim_table(claims: list[dict[str, str]], evidence_links: list[dict[
             f'<td class="mono">{_e(row.get("source_line", ""))}</td>'
             f'<td class="claim-text">{_e(row.get("text", ""))}</td>'
             f'<td class="mono">{_e(evidence_ids)}</td>'
+            f'<td>{_e(locations)}</td>'
             f'<td>{_e(match_reasons)}</td>'
             f'<td>{_e(row.get("suggested_revision", ""))}</td>'
             "</tr>"
@@ -405,7 +485,7 @@ def _render_claim_table(claims: list[dict[str, str]], evidence_links: list[dict[
         '<button class="filter-button" type="button" data-filter="supported" aria-pressed="false">Supported</button>'
         '<button class="filter-button" type="button" data-filter="overclaimed" aria-pressed="false">Overclaimed</button>'
         '</div><div class="table-wrap"><table>'
-        "<thead><tr><th>ID</th><th>Status</th><th>Risk</th><th>Type</th><th>Line</th><th>Claim</th><th>Evidence</th><th>Match reason</th><th>Suggested revision</th></tr></thead>"
+        "<thead><tr><th>ID</th><th>Status</th><th>Risk</th><th>Type</th><th>Line</th><th>Claim</th><th>Evidence</th><th>Location</th><th>Match reason</th><th>Suggested revision</th></tr></thead>"
         "<tbody>"
         + "".join(rows)
         + "</tbody></table></div></section>"
@@ -416,11 +496,13 @@ def _render_evidence_table(evidence: list[dict[str, Any]]) -> str:
     rows = []
     for item in evidence:
         linked = ", ".join(item.get("linked_claim_ids", []))
+        location = _format_locator_dict(item.get("locator"), item.get("source", ""))
         rows.append(
             "<tr>"
             f'<td class="mono">{_e(item.get("evidence_id", ""))}</td>'
             f'<td>{_e(item.get("source", ""))}</td>'
             f'<td>{_e(item.get("evidence_type", ""))}</td>'
+            f'<td>{_e(location)}</td>'
             f'<td class="mono">{_e(linked)}</td>'
             f'<td>{_e(json.dumps(item.get("claim_link_reasons", {}), ensure_ascii=False))}</td>'
             f'<td class="claim-text">{_e(item.get("text", ""))}</td>'
@@ -428,7 +510,7 @@ def _render_evidence_table(evidence: list[dict[str, Any]]) -> str:
         )
     return (
         '<section><h2>Evidence map</h2><div class="table-wrap"><table>'
-        "<thead><tr><th>ID</th><th>Source</th><th>Type</th><th>Claims</th><th>Match reason</th><th>Evidence text</th></tr></thead>"
+        "<thead><tr><th>ID</th><th>Source</th><th>Type</th><th>Base location</th><th>Claims</th><th>Match reason</th><th>Evidence text</th></tr></thead>"
         "<tbody>"
         + "".join(rows)
         + "</tbody></table></div></section>"
@@ -474,6 +556,41 @@ def _render_trace(trace: list[dict[str, Any]]) -> str:
 def _status_class(status: str) -> str:
     safe = "".join(ch if ch.isalnum() or ch == "_" else "_" for ch in status)
     return f"status-{safe}"
+
+
+def _format_ratio(metric: dict[str, Any]) -> str:
+    numerator = metric.get("numerator", 0)
+    denominator = metric.get("denominator", 0)
+    rate = metric.get("rate")
+    if rate is None:
+        return f"{numerator}/{denominator} (n/a)"
+    return f"{numerator}/{denominator} ({float(rate) * 100:.1f}%)"
+
+
+def _format_locator_dict(
+    locator: dict[str, Any] | None,
+    fallback: str = "location unavailable",
+) -> str:
+    if not locator:
+        return fallback or "location unavailable"
+    parts = [locator.get("source_file") or locator.get("source_name") or fallback]
+    if locator.get("page_number") is not None:
+        parts.append(f'page {locator["page_number"]}')
+    if locator.get("line") is not None:
+        parts.append(f'line {locator["line"]}')
+    if locator.get("row") is not None:
+        parts.append(f'data row {locator["row"]}')
+    cells = locator.get("cells", [])
+    if cells:
+        parts.append(
+            "cells "
+            + ", ".join(
+                f'{cell.get("column", "")}={cell.get("value", "")}'
+                + (f' ({cell.get("cell")})' if cell.get("cell") else "")
+                for cell in cells
+            )
+        )
+    return ", ".join(str(part) for part in parts if part)
 
 
 def _e(value: Any) -> str:

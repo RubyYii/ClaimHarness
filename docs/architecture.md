@@ -12,7 +12,11 @@ flowchart TD
     D --> E["Evidence Retriever"]
     E --> F["Verifier"]
     F --> G["Report Generator"]
+    F --> M["Structural Diagnostics"]
+    F --> N["Pending Human-Review Queue"]
     G --> H["Audit Package"]
+    M --> H
+    N --> H
     G --> L["Run Manifest + Project Summary"]
     F --> J["Optional LLM Review"]
     J --> H
@@ -37,11 +41,15 @@ flowchart TD
 
 `claim_harness.claim_extractor` uses deterministic keyword rules with word-boundary, negation, and attribution checks to extract claim-like sentences, assign `C001`, `C002`, and later IDs, and preserve the source line for manuscript traceability.
 
-`claim_harness.evidence_retriever` converts table rows, Results text, Discussion limitations, and references into located evidence items. Results prose is candidate context and cannot automatically act as strong evidence for the same claim. Table evidence is strong only when the deterministic rules can verify a metric/value relationship; links distinguish support, contradiction, and topical relation.
+`claim_harness.evidence_retriever` converts table rows, Results text, Discussion limitations, and references into located evidence items. Results prose is candidate context and cannot automatically act as strong evidence for the same claim. Table evidence is strong only when the deterministic rules can verify a metric/value relationship; links distinguish support, contradiction, and topical relation. A base table evidence item preserves the full row while `claim_link_locators` narrows each claim link to the cells that matched that claim. Locators expose only safe basenames, never absolute paths; page numbers are not inferred when the upstream input does not provide them.
 
 `claim_harness.verifier` assigns support labels: `supported`, `weakly_supported`, `unsupported`, `overclaimed`, or `needs_human_review`. Evidence from `ocr` or `derived_text` is excluded from strong-evidence and human-approval checks; a claim extracted from derived input is always routed to `needs_human_review` with `source_inspection` outstanding.
 
 `claim_harness.report_generator` writes the audit package.
+
+`claim_harness.diagnostics` derives deterministic, gold-label-free structural diagnostics. It separates any relation from deterministic support relations and reports every ratio with its numerator and denominator. A support relation can still belong to a `weakly_supported` claim whose requirements remain unmet. The module does not calculate accuracy, faithfulness, hallucination, or scientific validity.
+
+`claim_harness.review_queue` creates an immutable snapshot of pending review work. Queue entries route claims and required roles but contain no decision field, cannot satisfy a verifier requirement, and do not establish reviewer identity, qualifications, or approval.
 
 `claim_harness.llm` isolates provider configuration, prompt loading, structured JSON request construction, and optional advisory review calls. It includes OpenAI-compatible presets plus native Gemini and Anthropic request builders. Remote providers are ClaimHarness CLI-only, run after deterministic verification, and do not change claim statuses. The local Streamlit UI is deterministic mock-only and never accepts or stores API keys. Persisted public provider provenance is restricted to provider name, API style, model, JSON mode, and endpoint origin (scheme/host/port); API keys, URL credentials, paths, and queries are excluded. A hash of the full endpoint configuration is included only inside the canonical run-specification hash, binding resume behavior without publishing the endpoint configuration.
 
@@ -66,12 +74,14 @@ The shared schemas are:
 - `ManuscriptSection`
 - `Claim`
 - `EvidenceItem`
+- `EvidenceCell`
+- `EvidenceLocator`
 - `VerificationResult`
 - `AuditEvent`
 
 These objects make intermediate state explicit. That explicit state is the main difference between this harness and a prompt-only review.
 
-`Claim.source_line` helps reviewers navigate back to the manuscript. `EvidenceItem.claim_link_reasons` records why an evidence item was attached to each linked claim.
+`Claim.source_line` helps reviewers navigate back to the manuscript. `EvidenceItem.claim_link_reasons` records why an evidence item was attached to each linked claim, while `EvidenceItem.claim_link_locators` records the claim-specific file/line or table row/cells used for that link.
 
 ## Output Package
 
@@ -81,6 +91,8 @@ The output package contains:
 - `evidence_map.json`: evidence-to-claim links.
 - `audit_report.md`: human-readable audit summary.
 - `revision_suggestions.md`: rewrite suggestions for risky or weak claims.
+- `audit_diagnostics.json`: single-run structural coverage, gap, contradiction, risk-routing, and unused-evidence diagnostics with explicit boundaries.
+- `human_review_queue.json`: pending claim-role work items; never a decision or approval artifact.
 - `agent_trace.jsonl`: ordered, inspectable step trace.
 - `run_manifest.json`: machine-readable run provenance and input/output hashes.
 - `project_summary_log.md`: human-readable run summary and revision guardrail.

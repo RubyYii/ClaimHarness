@@ -21,6 +21,8 @@ EXPECTED_OUTPUTS = [
     "evidence_map.json",
     "audit_report.md",
     "revision_suggestions.md",
+    "audit_diagnostics.json",
+    "human_review_queue.json",
     "agent_trace.jsonl",
 ]
 RUN_RECORD_OUTPUTS = ["run_manifest.json", "project_summary_log.md"]
@@ -94,6 +96,12 @@ def test_mock_cli_run_writes_required_outputs(tmp_path):
     }.issubset(statuses)
 
     evidence_map = json.loads((output_dir / "evidence_map.json").read_text(encoding="utf-8"))
+    diagnostics = json.loads(
+        (output_dir / "audit_diagnostics.json").read_text(encoding="utf-8")
+    )
+    review_queue = json.loads(
+        (output_dir / "human_review_queue.json").read_text(encoding="utf-8")
+    )
     trace_lines = (output_dir / "agent_trace.jsonl").read_text(encoding="utf-8").strip().splitlines()
     trace_events = [json.loads(line) for line in trace_lines]
     manifest = json.loads((output_dir / "run_manifest.json").read_text(encoding="utf-8"))
@@ -101,6 +109,15 @@ def test_mock_cli_run_writes_required_outputs(tmp_path):
 
     assert evidence_map["claims"]
     assert any(item.get("claim_link_reasons") for item in evidence_map["evidence"])
+    assert any(
+        link.get("locator", {}).get("cells")
+        for claim in evidence_map["claims"]
+        for link in claim.get("evidence_links", [])
+        if link.get("locator", {}).get("source_kind") == "table"
+    )
+    assert diagnostics["artifact_type"] == "single_run_structural_diagnostics"
+    assert review_queue["artifact_type"] == "pending_human_review_queue"
+    assert all(item["state"] == "pending" for item in review_queue["items"])
     assert len(trace_lines) >= 5
     assert {event["run_id"] for event in trace_events} == {manifest["run_id"]}
     assert all(event["created_at"] for event in trace_events)
@@ -109,6 +126,12 @@ def test_mock_cli_run_writes_required_outputs(tmp_path):
     output_records = {item["name"]: item for item in manifest["outputs"]}
     assert output_records["audit_report.md"]["sha256"] == hashlib.sha256(
         (output_dir / "audit_report.md").read_bytes()
+    ).hexdigest()
+    assert output_records["audit_diagnostics.json"]["sha256"] == hashlib.sha256(
+        (output_dir / "audit_diagnostics.json").read_bytes()
+    ).hexdigest()
+    assert output_records["human_review_queue.json"]["sha256"] == hashlib.sha256(
+        (output_dir / "human_review_queue.json").read_bytes()
     ).hexdigest()
     assert "at most 3 revision rounds" in summary_log
     assert manifest["run_id"] in summary_log

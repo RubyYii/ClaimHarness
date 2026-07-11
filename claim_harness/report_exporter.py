@@ -28,6 +28,8 @@ SUPPORTED_REPORT_FILES = [
     "audit_report.md",
     "revision_suggestions.md",
     "claim_table.csv",
+    "audit_diagnostics.json",
+    "human_review_queue.json",
     "project_record.json",
     "run_manifest.json",
     "source_manifest.json",

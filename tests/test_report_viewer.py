@@ -115,6 +115,85 @@ def test_render_report_viewer_writes_static_html(tmp_path):
     assert "Unverified legacy package" in html
 
 
+def test_viewer_renders_structural_diagnostics_precise_locations_and_pending_review(tmp_path):
+    run_dir = tmp_path / "enhanced-audit"
+    write_sample_audit_package(run_dir)
+    evidence_map = json.loads((run_dir / "evidence_map.json").read_text(encoding="utf-8"))
+    locator = {
+        "source_kind": "table",
+        "source_name": "metrics",
+        "source_file": "metrics.csv",
+        "page_number": None,
+        "line": None,
+        "row": 1,
+        "cells": [{"column": "score", "value": "0.91", "cell": "B2"}],
+    }
+    evidence_map["claims"][0]["evidence_links"] = [
+        {
+            "evidence_id": "E001",
+            "match_reason": "metric and value match",
+            "relation": "supports",
+            "locator": locator,
+        }
+    ]
+    evidence_map["evidence"][0]["locator"] = locator
+    (run_dir / "evidence_map.json").write_text(
+        json.dumps(evidence_map), encoding="utf-8"
+    )
+    metrics = {
+        key: {"numerator": 1, "denominator": 2, "rate": 0.5}
+        for key in (
+            "any_link_coverage",
+            "support_relation_coverage",
+            "no_support_relation",
+            "needs_human_review",
+            "contradiction_claims",
+        )
+    }
+    metrics["any_link_coverage"]["numerator"] = '<img src=x onerror="alert(1)">'
+    (run_dir / "audit_diagnostics.json").write_text(
+        json.dumps(
+            {
+                "boundary": "Structural only; not scientific validity.",
+                "metrics": metrics,
+                "requirement_gap_counts": {"human_review": 1},
+            }
+        ),
+        encoding="utf-8",
+    )
+    (run_dir / "human_review_queue.json").write_text(
+        json.dumps(
+            {
+                "boundary": "Pending work, not approval.",
+                "role_boundary": "Identity is not verified.",
+                "items": [
+                    {
+                        "review_item_id": "HR-C002-domain",
+                        "claim_id": "C002",
+                        "required_role": "<script>alert(1)</script>",
+                        "verification_status": "overclaimed",
+                        "risk_level": "high",
+                        "trigger_codes": ["high_risk_claim"],
+                        "state": "pending",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    html = render_report_viewer(run_dir).read_text(encoding="utf-8")
+
+    assert "Structural diagnostics" in html
+    assert "1/2 (50.0%)" in html
+    assert "Pending human review" in html
+    assert "metrics.csv, data row 1, cells score=0.91 (B2)" in html
+    assert "&lt;script&gt;alert(1)&lt;/script&gt;" in html
+    assert "<script>alert(1)</script>" not in html
+    assert "&lt;img src=x onerror=&quot;alert(1)&quot;&gt;/2 (50.0%)" in html
+    assert '<img src=x onerror="alert(1)">' not in html
+
+
 def test_render_report_viewer_reports_missing_required_outputs(tmp_path):
     run_dir = tmp_path / "audit"
     run_dir.mkdir()

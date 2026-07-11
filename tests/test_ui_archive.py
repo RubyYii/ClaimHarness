@@ -92,6 +92,32 @@ def test_legacy_archive_excludes_workbench_memory_and_marks_unverified(tmp_path)
     assert manifest["source_package_type"] == "document-intake"
 
 
+def test_legacy_claim_archive_includes_diagnostics_and_pending_review_queue(tmp_path):
+    out = tmp_path / "legacy-claim"
+    out.mkdir()
+    legacy_files = {
+        "claim_table.csv": "claim_id,status\nC001,needs_human_review\n",
+        "evidence_map.json": '{"claims":[],"evidence":[]}',
+        "audit_report.md": "# Audit\n",
+        "revision_suggestions.md": "# Revisions\n",
+        "agent_trace.jsonl": '{"step":1}\n',
+        "run_manifest.json": '{"schema_version":2}',
+        "audit_diagnostics.json": '{"artifact_type":"single_run_structural_diagnostics"}',
+        "human_review_queue.json": '{"items":[],"artifact_type":"pending_human_review_queue"}',
+    }
+    for filename, content in legacy_files.items():
+        (out / filename).write_text(content, encoding="utf-8")
+
+    with ZipFile(BytesIO(ui._make_archive(out))) as package:
+        names = package.namelist()
+        manifest = json.loads(package.read("share_manifest.json"))
+
+    assert "audit_diagnostics.json" in names
+    assert "human_review_queue.json" in names
+    assert manifest["verification_status"] == "legacy-unverified"
+    assert manifest["source_package_type"] == "claim-audit"
+
+
 def test_legacy_archive_refuses_mixed_or_unknown_packages(tmp_path):
     mixed = tmp_path / "mixed"
     mixed.mkdir()

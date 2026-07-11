@@ -307,6 +307,8 @@ LEGACY_CLAIM_SHARE_FILES = {
     "evidence_map.json",
     "audit_report.md",
     "revision_suggestions.md",
+    "audit_diagnostics.json",
+    "human_review_queue.json",
     "agent_trace.jsonl",
     "llm_review.json",
     "run_manifest.json",

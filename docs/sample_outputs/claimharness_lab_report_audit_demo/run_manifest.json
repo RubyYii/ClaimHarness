@@ -1,13 +1,13 @@
 {
   "schema_version": 2,
   "project_id": "sample-claimharness-lab",
-  "run_id": "run-a376bde3156c49b8a5871a02eaf4a2b4",
+  "run_id": "run-400fad3d2abc499592e3c3b362993d9c",
   "tool": {
     "name": "claim-harness",
     "version": "0.4.0"
   },
-  "started_at": "2026-07-11T07:11:49+00:00",
-  "completed_at": "2026-07-11T07:11:49+00:00",
+  "started_at": "2026-07-11T15:52:55+00:00",
+  "completed_at": "2026-07-11T15:52:55+00:00",
   "provider": {
     "name": "mock",
     "status": "not_requested",
@@ -58,28 +58,38 @@
   "outputs": [
     {
       "name": "claim_table.csv",
-      "size_bytes": 6216,
-      "sha256": "d125e0ed556055bfeb38ddd365d5826f9f7b9106bfd3ed68e60cd0081446f20a"
+      "size_bytes": 6233,
+      "sha256": "b66ef1bfbabe82519147ee70facca66b3c8f3c43041492a149e338218a0bcea9"
     },
     {
       "name": "evidence_map.json",
-      "size_bytes": 62041,
-      "sha256": "d99cf9bb8eac8264cfe25475ee4274f226d481ecad7ba1a47910608d90a732a7"
+      "size_bytes": 94099,
+      "sha256": "b56491bf7b5a3679c8afb60b48e16cdadaaacefd58dd431573ca9a32ad0a63c6"
     },
     {
       "name": "audit_report.md",
-      "size_bytes": 7563,
-      "sha256": "035739df905ee18abc89cc674f4a8c5d537ead6e9921060e161114ae29df8612"
+      "size_bytes": 11544,
+      "sha256": "e5a178351b7046c8faf404294b1c6e7ac016ca8e3f37c80482af7bf73a974bd6"
     },
     {
       "name": "revision_suggestions.md",
-      "size_bytes": 3301,
-      "sha256": "3ad09e2c193322cb1eb19c93b4d5e781c81be031dbb8e0b44126421d35717554"
+      "size_bytes": 3380,
+      "sha256": "42ac3d5aaa42e2e34a8d7043b3f343215160b65a720121b2d5442d3ea1a86c4a"
+    },
+    {
+      "name": "audit_diagnostics.json",
+      "size_bytes": 3187,
+      "sha256": "cc6a2a93fc888370e8c6044a89e2302de76b9d7541c6bcefc34f6a7b275cc5b5"
+    },
+    {
+      "name": "human_review_queue.json",
+      "size_bytes": 2250,
+      "sha256": "2f862614fffae75626b8f2e3dfdad1dd670789315682816f09cb3bbd0a2a6e10"
     },
     {
       "name": "agent_trace.jsonl",
-      "size_bytes": 1522,
-      "sha256": "1b44880ab737786e552f4d759a4296ba9a9cf7379a8fab973935dd433c2e7ae9"
+      "size_bytes": 1587,
+      "sha256": "fe00fb6182357d7e4c01140fa44fdb3b01c966f4d11e2e095d1243db5c8846ab"
     }
   ]
 }

@@ -24,7 +24,9 @@ The proposed harness improves macro F1 and recall over a baseline rules-only wor
 - Required evidence: table
 - Missing evidence: table
 - Supporting evidence IDs: E001, S005, S006, S007
+- Supporting evidence locations: E001 @ table1_metrics.csv, data row 1, cells model=baseline_rules (A2), macro_f1=0.79 (B2), recall=0.74 (D2), notes=synthetic benchmark baseline without review routing (E2); S005 @ manuscript.md, line 17; S006 @ manuscript.md, line 17; S007 @ manuscript.md, line 17
 - Contradicting evidence IDs: none
+- Contradicting evidence locations: none
 
 ### C002: weakly_supported
 
@@ -38,7 +40,9 @@ It enables auditable review by recording intermediate evidence, low-confidence s
 - Required evidence: trace
 - Missing evidence: none
 - Supporting evidence IDs: S001, S002, S003
+- Supporting evidence locations: S001 @ manuscript.md, line 13; S002 @ manuscript.md, line 13; S003 @ manuscript.md, line 13
 - Contradicting evidence IDs: none
+- Contradicting evidence locations: none
 
 ### C003: overclaimed
 
@@ -52,7 +56,9 @@ The workflow is ready for real-world operational deployment.
 - Required evidence: external_validation, human_review
 - Missing evidence: external_validation, human_review
 - Supporting evidence IDs: S011
+- Supporting evidence locations: S011 @ manuscript.md, line 21
 - Contradicting evidence IDs: none
+- Contradicting evidence locations: none
 
 ### C004: weakly_supported
 
@@ -66,7 +72,9 @@ Report review requires reliable boundaries around what a measurement table suppo
 - Required evidence: robustness_test
 - Missing evidence: robustness_test
 - Supporting evidence IDs: S008
+- Supporting evidence locations: S008 @ manuscript.md, line 17
 - Contradicting evidence IDs: none
+- Contradicting evidence locations: none
 
 ### C005: needs_human_review
 
@@ -80,7 +88,9 @@ A lightweight harness reduces the risk of opaque model output by separating the 
 - Required evidence: trace
 - Missing evidence: trace
 - Supporting evidence IDs: none
+- Supporting evidence locations: none
 - Contradicting evidence IDs: S012
+- Contradicting evidence locations: S012 @ manuscript.md, line 21
 
 ### C006: unsupported
 
@@ -94,7 +104,9 @@ The first design goal is to make every report claim traceable to a table row, a 
 - Required evidence: citation
 - Missing evidence: citation
 - Supporting evidence IDs: none
+- Supporting evidence locations: none
 - Contradicting evidence IDs: none
+- Contradicting evidence locations: none
 
 ### C007: weakly_supported
 
@@ -108,7 +120,9 @@ The workflow uses an explainable evidence summary, a confidence note, and a stru
 - Required evidence: trace
 - Missing evidence: trace
 - Supporting evidence IDs: S003, S007
+- Supporting evidence locations: S003 @ manuscript.md, line 13; S007 @ manuscript.md, line 17
 - Contradicting evidence IDs: none
+- Contradicting evidence locations: none
 
 ### C008: weakly_supported
 
@@ -122,7 +136,9 @@ The human review gate supports manual inspection when evidence confidence is low
 - Required evidence: trace
 - Missing evidence: trace
 - Supporting evidence IDs: none
+- Supporting evidence locations: none
 - Contradicting evidence IDs: none
+- Contradicting evidence locations: none
 
 ### C009: weakly_supported
 
@@ -136,7 +152,9 @@ Trace replay enables reviewers to see which table metrics, ablation rows, and li
 - Required evidence: trace
 - Missing evidence: none
 - Supporting evidence IDs: S001, S007, S009, S010
+- Supporting evidence locations: S001 @ manuscript.md, line 13; S007 @ manuscript.md, line 17; S009 @ manuscript.md, line 21; S010 @ manuscript.md, line 21
 - Contradicting evidence IDs: none
+- Contradicting evidence locations: none
 
 ### C010: supported
 
@@ -150,7 +168,9 @@ The evidence_guided_reviewer_v1 model outperforms the baseline_rules model on ma
 - Required evidence: table
 - Missing evidence: none
 - Supporting evidence IDs: E001, E002, E003, S006
+- Supporting evidence locations: E001 @ table1_metrics.csv, data row 1, cells model=baseline_rules (A2), macro_f1=0.79 (B2), precision=0.84 (C2), recall=0.74 (D2), notes=synthetic benchmark baseline without review routing (E2); E002 @ table1_metrics.csv, data row 2, cells model=evidence_guided_reviewer_v1 (A3), macro_f1=0.86 (B3), precision=0.9 (C3), recall=0.83 (D3); E003 @ table1_metrics.csv, data row 3, cells model=evidence_guided_reviewer_v1_with_review (A4), macro_f1=0.88 (B4), precision=0.91 (C4), recall=0.85 (D4); S006 @ manuscript.md, line 17
 - Contradicting evidence IDs: none
+- Contradicting evidence locations: none
 
 ### C011: supported
 
@@ -164,7 +184,9 @@ Adding the human review gate increases macro F1 from 0.86 to 0.88 and recall fro
 - Required evidence: table
 - Missing evidence: none
 - Supporting evidence IDs: E002, E003, S005
+- Supporting evidence locations: E002 @ table1_metrics.csv, data row 2, cells macro_f1=0.86 (B3), recall=0.83 (D3); E003 @ table1_metrics.csv, data row 3, cells macro_f1=0.88 (B4), recall=0.85 (D4), notes=adds human review gate for low-confidence claims (E4); S005 @ manuscript.md, line 17
 - Contradicting evidence IDs: none
+- Contradicting evidence locations: none
 
 ### C012: supported
 
@@ -178,7 +200,9 @@ The full harness improves workflow success rate from 0.70 in the answer-only set
 - Required evidence: table
 - Missing evidence: none
 - Supporting evidence IDs: E005, E006, E007, E008, S001, S003
+- Supporting evidence locations: E005 @ table2_ablation.csv, data row 1, cells setting=answer_only (A2), evidence_logging=disabled (B2), trace_replay=disabled (D2), success_rate=0.7 (E2), notes=no claim trace and no explicit review routing (F2); E006 @ table2_ablation.csv, data row 2, cells setting=logging_only (A3), evidence_logging=enabled (B3), trace_replay=enabled (D3), success_rate=0.78 (E3); E007 @ table2_ablation.csv, data row 3, cells setting=review_gate_only (A4), evidence_logging=disabled (B4), human_review_gate=enabled (C4), trace_replay=disabled (D4), success_rate=0.8 (E4), notes=routes uncertain cases but cannot replay evidence chain (F4); E008 @ table2_ablation.csv, data row 4, cells setting=full_harness (A5), evidence_logging=enabled (B5), human_review_gate=enabled (C5), trace_replay=enabled (D5), success_rate=0.86 (E5), notes=combines evidence logging human review and replayable trace (F5); S001 @ manuscript.md, line 13; S003 @ manuscript.md, line 13
 - Contradicting evidence IDs: none
+- Contradicting evidence locations: none
 
 ### C013: weakly_supported
 
@@ -192,7 +216,9 @@ The compact reviewer is less reliable around ambiguous limitation statements des
 - Required evidence: robustness_test
 - Missing evidence: robustness_test
 - Supporting evidence IDs: none
+- Supporting evidence locations: none
 - Contradicting evidence IDs: none
+- Contradicting evidence locations: none
 
 ### C014: weakly_supported
 
@@ -206,7 +232,9 @@ The table evidence supports claims about review metrics and workflow ablation un
 - Required evidence: trace
 - Missing evidence: trace
 - Supporting evidence IDs: S003
+- Supporting evidence locations: S003 @ manuscript.md, line 13
 - Contradicting evidence IDs: none
+- Contradicting evidence locations: none
 
 ### C015: weakly_supported
 
@@ -220,7 +248,9 @@ The workflow is robust to missing trace commentary only in the narrow sense that
 - Required evidence: robustness_test
 - Missing evidence: robustness_test
 - Supporting evidence IDs: S003
+- Supporting evidence locations: S003 @ manuscript.md, line 13
 - Contradicting evidence IDs: none
+- Contradicting evidence locations: none
 
 ### C016: weakly_supported
 
@@ -234,4 +264,6 @@ ClaimHarness enables a compact demonstration of claim extraction, evidence linki
 - Required evidence: trace
 - Missing evidence: none
 - Supporting evidence IDs: S001, S003, S007
+- Supporting evidence locations: S001 @ manuscript.md, line 13; S003 @ manuscript.md, line 13; S007 @ manuscript.md, line 17
 - Contradicting evidence IDs: none
+- Contradicting evidence locations: none

@@ -53,6 +53,8 @@ CORE_OUTPUTS = (
     "evidence_map.json",
     "audit_report.md",
     "revision_suggestions.md",
+    "audit_diagnostics.json",
+    "human_review_queue.json",
     "agent_trace.jsonl",
 )
 APPLIED_CONTRACT_NAME = "applied_evidence_contract.json"
@@ -286,6 +288,7 @@ def _run_audit_locked(
         context.manuscript_sections,
         context.tables,
         context.references,
+        references_file=references.name if references is not None else None,
     )
     logger.log("evidence_retriever", "Retrieved evidence", {"evidence_items": len(evidence)})
 

@@ -3,9 +3,9 @@
 ## Run
 
 - Project ID: `sample-claimharness-lab`
-- Run ID: `run-a376bde3156c49b8a5871a02eaf4a2b4`
-- Started: 2026-07-11T07:11:49+00:00
-- Completed: 2026-07-11T07:11:49+00:00
+- Run ID: `run-400fad3d2abc499592e3c3b362993d9c`
+- Started: 2026-07-11T15:52:55+00:00
+- Completed: 2026-07-11T15:52:55+00:00
 - ClaimHarness version: 0.4.0
 - Provider: mock (not_requested)
 - Manuscript: manuscript.md
@@ -44,6 +44,8 @@
 - `evidence_map.json`
 - `audit_report.md`
 - `revision_suggestions.md`
+- `audit_diagnostics.json`
+- `human_review_queue.json`
 - `agent_trace.jsonl`
 - `run_manifest.json`
 - `project_summary_log.md`

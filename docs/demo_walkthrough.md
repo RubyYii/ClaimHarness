@@ -76,6 +76,12 @@ Open `audit_report.md` next. It gives a compact review summary and claim-by-clai
 
 Open `evidence_map.json` when you want to see which evidence IDs were linked to each claim and the match reason for each link.
 
+For a table link, inspect its claim-specific locator. It records the safe CSV filename, the one-based data row, and only the cells matched to that claim. The base evidence row remains available separately. A missing page number means the source pipeline did not provide one; ClaimHarness does not guess it.
+
+Open `audit_diagnostics.json` to distinguish any linked context from deterministic support relations. A support relation can still belong to a `weakly_supported` claim whose requirements remain unmet. Every rate includes its numerator and denominator. Treat the file as a workflow diagnostic only, never as a factual-correctness, accuracy, faithfulness, hallucination, scientific-validity, or safety score.
+
+Open `human_review_queue.json` to see pending claim-role work. Every item is `pending`; the queue is not a reviewer decision, identity check, approval, or evidence item, and it does not change deterministic verification status.
+
 Open `revision_suggestions.md` to inspect the claims that need narrowing, support, or human review.
 
 Open `agent_trace.jsonl` last. It records an ordered, inspectable sequence of steps; it is not a complete execution replay without the original inputs and environment.
@@ -103,10 +109,11 @@ For a short demo, show:
 3. Run command.
 4. `index.html`.
 5. `claim_table.csv`.
-6. `audit_report.md`.
-7. `agent_trace.jsonl`.
-8. `run_manifest.json` and `project_summary_log.md`.
-9. `docs/limitations.md`.
+6. `evidence_map.json` and `audit_diagnostics.json`.
+7. `human_review_queue.json` and `audit_report.md`.
+8. `agent_trace.jsonl`.
+9. `run_manifest.json` and `project_summary_log.md`.
+10. `docs/limitations.md`.
 
 The key sentence to emphasize is:
 

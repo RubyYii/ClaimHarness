@@ -127,3 +127,30 @@
   - README.zh-CN.md
   - docs/demo_walkthrough.md
   - docs/project_records/2026-07-11-project-lifecycle-integrity/interaction_usability_verification.md
+
+### competitive-evidence-enhancement-v0.4.0 — round 1/3
+
+- Revision ID: 6319a120-af87-4f11-bb70-a1775ecc89f8
+- Parent revision: None
+- Time: 2026-07-11T15:56:53.265731+00:00
+- Diagnosis: evidence_gap
+- Status: accepted
+- Change: Added claim-specific evidence locators, structural diagnostics, pending human-review routing, viewer integration, lifecycle/share packaging, and a bounded competitor comparison.
+- Verification: Full regression 347 passed and 2 skipped; focused enhancement suite 35 passed; release/share suite 57 passed and 2 skipped; independent review findings were fixed and covered by regression tests; local file screenshot was blocked by browser policy and is recorded as missing evidence.
+- Integrity SHA-256: 99e7caaa50fac4a3193aecc70eb037cfdab6e5f9bb6679c513b941575b0f9870
+- Changed files:
+  - claim_harness/schemas.py
+  - claim_harness/evidence_retriever.py
+  - claim_harness/diagnostics.py
+  - claim_harness/review_queue.py
+  - claim_harness/report_generator.py
+  - claim_harness/report_viewer.py
+  - problem_bridge/project_lifecycle.py
+  - apps/problem_bridge_wizard.py
+  - tests/test_audit_enhancements.py
+  - tests/test_report_viewer.py
+  - tests/test_ui_archive.py
+  - README.md
+  - README.zh-CN.md
+  - docs/comparative_landscape.md
+  - docs/project_records/2026-07-11-project-lifecycle-integrity/competitive_evidence_enhancement_verification.md

@@ -4,7 +4,7 @@ from numbers import Real
 import pandas as pd
 
 from .claim_extractor import sentences_with_lines, statement_polarity
-from .schemas import Claim, EvidenceItem, EvidenceLocator, ManuscriptSection
+from .schemas import Claim, EvidenceCell, EvidenceItem, EvidenceLocator, ManuscriptSection
 
 
 STOPWORDS = {
@@ -57,21 +57,24 @@ def retrieve_evidence(
     sections: list[ManuscriptSection],
     tables: dict[str, pd.DataFrame],
     references: str,
+    *,
+    references_file: str | None = None,
 ) -> list[EvidenceItem]:
     evidence: list[EvidenceItem] = []
     evidence.extend(_table_evidence(tables))
     evidence.extend(_section_evidence(sections))
-    evidence.extend(_reference_evidence(references))
+    evidence.extend(_reference_evidence(references, references_file))
 
     for item in evidence:
         for claim in claims:
             match = _match_evidence(claim, item)
             if match is None:
                 continue
-            reason, relation = match
+            reason, relation, locator = match
             item.linked_claim_ids.append(claim.claim_id)
             item.claim_link_reasons[claim.claim_id] = reason
             item.claim_link_relations[claim.claim_id] = relation
+            item.claim_link_locators[claim.claim_id] = locator
 
     return evidence
 
@@ -86,8 +89,17 @@ def _table_evidence(tables: dict[str, pd.DataFrame]) -> list[EvidenceItem]:
             row_text = "; ".join(f"{column}={row[column]}" for column in frame.columns)
             numeric_values: dict[str, float] = {}
             categorical_values: list[str] = []
-            for column in frame.columns:
+            cells: list[EvidenceCell] = []
+            for column_index, column in enumerate(frame.columns, start=1):
                 value = row[column]
+                if not pd.isna(value):
+                    cells.append(
+                        EvidenceCell(
+                            column=str(column),
+                            value=str(value),
+                            cell=_cell_reference(column_index, row_number + 1),
+                        )
+                    )
                 numeric_value = _coerce_number(value)
                 if numeric_value is None:
                     if not pd.isna(value):
@@ -102,7 +114,9 @@ def _table_evidence(tables: dict[str, pd.DataFrame]) -> list[EvidenceItem]:
                     locator=EvidenceLocator(
                         source_kind="table",
                         source_name=table_name,
+                        source_file=_safe_source_file(frame.attrs.get("source_file")),
                         row=row_number,
+                        cells=cells,
                     ),
                     evidence_type=evidence_type,
                     text=row_text,
@@ -142,6 +156,7 @@ def _section_evidence(sections: list[ManuscriptSection]) -> list[EvidenceItem]:
                     locator=EvidenceLocator(
                         source_kind=section.source_kind,
                         source_name=section.name,
+                        source_file=_safe_source_file(section.source_file),
                         line=source_line,
                     ),
                     evidence_type=evidence_type,
@@ -152,7 +167,10 @@ def _section_evidence(sections: list[ManuscriptSection]) -> list[EvidenceItem]:
     return items
 
 
-def _reference_evidence(references: str) -> list[EvidenceItem]:
+def _reference_evidence(
+    references: str,
+    references_file: str | None = None,
+) -> list[EvidenceItem]:
     items: list[EvidenceItem] = []
     for line_number, line in enumerate(references.splitlines(), start=1):
         stripped = line.strip()
@@ -165,6 +183,7 @@ def _reference_evidence(references: str) -> list[EvidenceItem]:
                 locator=EvidenceLocator(
                     source_kind="references",
                     source_name="references",
+                    source_file=_safe_source_file(references_file),
                     line=line_number,
                 ),
                 evidence_type="citation",
@@ -196,6 +215,27 @@ def _coerce_number(value: object) -> float | None:
     if isinstance(value, str) and re.fullmatch(r"[-+]?\d+(?:\.\d+)?", value.strip()):
         return float(value)
     return None
+
+
+def _cell_reference(column_number: int, row_number: int) -> str:
+    """Return an A1-style coordinate for a one-based column and file row."""
+
+    label = ""
+    remaining = column_number
+    while remaining:
+        remaining, remainder = divmod(remaining - 1, 26)
+        label = chr(ord("A") + remainder) + label
+    return f"{label}{row_number}"
+
+
+def _safe_source_file(value: object) -> str | None:
+    """Reduce a provenance filename to a share-safe basename."""
+
+    if value is None:
+        return None
+    normalized = str(value).replace("\\", "/")
+    basename = normalized.rsplit("/", 1)[-1].strip()
+    return basename or None
 
 
 def _tokens(text: str) -> set[str]:
@@ -234,7 +274,10 @@ def _is_self_evidence(claim: Claim, item: EvidenceItem) -> bool:
     )
 
 
-def _match_evidence(claim: Claim, item: EvidenceItem) -> tuple[str, str] | None:
+def _match_evidence(
+    claim: Claim,
+    item: EvidenceItem,
+) -> tuple[str, str, EvidenceLocator] | None:
     if _is_self_evidence(claim, item):
         return None
     if item.locator.source_kind == "table":
@@ -247,13 +290,20 @@ def _match_evidence(claim: Claim, item: EvidenceItem) -> tuple[str, str] | None:
     reason = f"distinctive lexical overlap with claim tokens: {shown}"
 
     if item.evidence_type == "citation":
-        return reason, "related"
+        return reason, "related", item.locator.model_copy(deep=True)
     if item.polarity != "neutral" and item.polarity != claim.polarity:
-        return f"potential contradiction; {reason}", "contradicts"
-    return reason, "supports"
+        return (
+            f"potential contradiction; {reason}",
+            "contradicts",
+            item.locator.model_copy(deep=True),
+        )
+    return reason, "supports", item.locator.model_copy(deep=True)
 
 
-def _match_table_evidence(claim: Claim, item: EvidenceItem) -> tuple[str, str] | None:
+def _match_table_evidence(
+    claim: Claim,
+    item: EvidenceItem,
+) -> tuple[str, str, EvidenceLocator] | None:
     claim_tokens = _tokens(claim.text)
     row_tokens = _tokens(" ".join(item.categorical_values))
     metric_tokens = _tokens(" ".join(item.numeric_values))
@@ -275,12 +325,41 @@ def _match_table_evidence(claim: Claim, item: EvidenceItem) -> tuple[str, str] |
             details.append(f"row entity token(s): {', '.join(entity_overlap[:4])}")
         if matched_numbers:
             details.append(f"matching value(s): {', '.join(str(value) for value in matched_numbers[:4])}")
-        return "verifiable table-row relation; " + "; ".join(details), "supports"
+        return (
+            "verifiable table-row relation; " + "; ".join(details),
+            "supports",
+            _claim_specific_table_locator(claim, item),
+        )
 
     overlap = sorted(claim_tokens & _tokens(item.text))
     if len(overlap) >= 2:
         return (
             f"table row is topically related but lacks a verifiable metric/value relation: {', '.join(overlap[:5])}",
             "related",
+            _claim_specific_table_locator(claim, item),
         )
     return None
+
+
+def _claim_specific_table_locator(claim: Claim, item: EvidenceItem) -> EvidenceLocator:
+    """Narrow a row locator to cells actually matched for one claim.
+
+    The base evidence item remains the complete row. This claim-specific copy
+    avoids implying that unrelated cells in that row support every linked claim.
+    """
+
+    claim_tokens = _tokens(claim.text)
+    claim_numbers = _numbers(claim.text)
+    matched_cells: list[EvidenceCell] = []
+    for cell in item.locator.cells:
+        column_tokens = _tokens(cell.column)
+        value_tokens = _tokens(cell.value)
+        numeric_value = item.numeric_values.get(cell.column)
+        numeric_match = (
+            numeric_value is not None
+            and any(_numeric_equal(number, numeric_value) for number in claim_numbers)
+        )
+        if claim_tokens & column_tokens or claim_tokens & value_tokens or numeric_match:
+            matched_cells.append(cell.model_copy())
+
+    return item.locator.model_copy(update={"cells": matched_cells}, deep=True)

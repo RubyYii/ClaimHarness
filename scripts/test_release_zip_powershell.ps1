@@ -268,6 +268,8 @@ for name in samples:
         "evidence_map.json",
         "audit_report.md",
         "revision_suggestions.md",
+        "audit_diagnostics.json",
+        "human_review_queue.json",
         "agent_trace.jsonl",
         "run_manifest.json",
         "project_summary_log.md",
