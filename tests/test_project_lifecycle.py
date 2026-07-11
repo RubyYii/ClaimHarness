@@ -41,7 +41,7 @@ def test_atomic_records_and_delete_use_short_internal_names_in_deep_projects(tmp
     segment = "n" * 10
     while len(str(deep_root)) < 175:
         deep_root = deep_root / segment
-    deep_root.mkdir(parents=True)
+    deep_root.mkdir(parents=True, exist_ok=True)
 
     context = allocate_run_directory(
         deep_root,

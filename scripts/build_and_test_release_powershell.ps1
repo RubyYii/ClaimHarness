@@ -1,5 +1,6 @@
 param(
-    [string]$Version = ""
+    [string]$Version = "",
+    [string]$PythonExe = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -41,5 +42,9 @@ if (@($manifest.sample_runs).Count -ne 4) {
     throw "Release manifest does not contain provenance for all four committed sample runs."
 }
 
-& (Join-Path $PSScriptRoot "test_release_zip_powershell.ps1") -ZipPath $zipPath
+$releaseTestArgs = @{ ZipPath = $zipPath }
+if (-not [string]::IsNullOrWhiteSpace($PythonExe)) {
+    $releaseTestArgs.PythonExe = $PythonExe
+}
+& (Join-Path $PSScriptRoot "test_release_zip_powershell.ps1") @releaseTestArgs
 Write-Host "Build-and-test release gate passed for $packageName"

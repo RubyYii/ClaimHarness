@@ -1,5 +1,6 @@
 param(
-    [string]$ZipPath = ""
+    [string]$ZipPath = "",
+    [string]$PythonExe = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -26,7 +27,14 @@ $testRoot = Join-Path ([System.IO.Path]::GetTempPath()) (
 # The repository interpreter is used only to create a new venv and preflight
 # syntax. No repository-installed dependency is available to the smoke tests.
 $repoVenvPython = Join-Path $repoRoot ".venv\Scripts\python.exe"
-if (Test-Path -LiteralPath $repoVenvPython -PathType Leaf) {
+if (-not [string]::IsNullOrWhiteSpace($PythonExe)) {
+    if (-not (Test-Path -LiteralPath $PythonExe -PathType Leaf)) {
+        throw "Explicit Python executable was not found: $PythonExe"
+    }
+    $bootstrapPython = (Resolve-Path -LiteralPath $PythonExe).Path
+    $bootstrapArgs = @()
+}
+elseif (Test-Path -LiteralPath $repoVenvPython -PathType Leaf) {
     $bootstrapPython = $repoVenvPython
     $bootstrapArgs = @()
 }

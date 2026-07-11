@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import subprocess
 import shutil
+import sys
 import zipfile
 
 import pytest
@@ -1119,6 +1120,8 @@ def _run_release_zip_test(zip_path):
             str(Path("scripts/test_release_zip_powershell.ps1").resolve()),
             "-ZipPath",
             str(zip_path),
+            "-PythonExe",
+            sys.executable,
         ],
         cwd=Path.cwd(),
         capture_output=True,
