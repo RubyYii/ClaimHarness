@@ -127,6 +127,14 @@ If PowerShell blocks local scripts on your machine, run:
 powershell -ExecutionPolicy Bypass -File scripts\test_release_zip_powershell.ps1
 ```
 
+If the checkout has no repository `.venv` and neither `py` nor `python` on
+`PATH` resolves to a usable interpreter, provide an existing Python 3.10+
+executable by absolute path:
+
+```powershell
+.\scripts\test_release_zip_powershell.ps1 -PythonExe "<absolute-path-to-python.exe>"
+```
+
 This extracts the zip into a temporary folder, compiles every packaged Python file, creates a brand-new temporary venv, and installs the extracted `.[dev,ui]` package under `requirements/constraints.txt`. It verifies the constrained Typer/Click pair, runs `pip check`, validates the committed sample completion hashes, and then runs both packaged demos plus the synthetic evaluation from an unrelated working directory. The temporary venv does not inherit repository-installed packages and is deleted after the gate. Dependency installation may use the configured package index when wheels are not already cached; the gate does not start Streamlit automatically.
 
 The constraints file pins every project/build/test/UI/OCR direct dependency and the compatibility-critical Click transitive dependency. Update `pyproject.toml`, `requirements/constraints.txt`, and CI together when changing that set.
@@ -135,6 +143,12 @@ For the complete build, hash verification, and smoke test in one command, use:
 
 ```powershell
 .\scripts\build_and_test_release_powershell.ps1
+```
+
+The combined gate accepts the same explicit interpreter override:
+
+```powershell
+.\scripts\build_and_test_release_powershell.ps1 -PythonExe "<absolute-path-to-python.exe>"
 ```
 
 ## do not include

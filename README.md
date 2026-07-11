@@ -419,6 +419,16 @@ Or:
 powershell -ExecutionPolicy Bypass -File scripts\test_release_zip_powershell.ps1
 ```
 
+In a clean checkout with no repository `.venv` and no working `py` or
+`python` command on `PATH`, pass the absolute path of an existing Python
+3.10+ interpreter explicitly. The same option is available on the combined
+build-and-test gate:
+
+```powershell
+.\scripts\test_release_zip_powershell.ps1 -PythonExe "<absolute-path-to-python.exe>"
+.\scripts\build_and_test_release_powershell.ps1 -PythonExe "<absolute-path-to-python.exe>"
+```
+
 ## ProblemBridge Quickstart
 
 Run the synthetic quality-inspection alignment demo:

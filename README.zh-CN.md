@@ -251,6 +251,14 @@ RUN_PROBLEMBRIDGE_WINDOWS.bat
 
 第一次运行会创建 `.venv` 并安装依赖，然后在本地浏览器打开 UI。它不是在线服务，也不是 `.exe`。
 
+维护者测试发布 ZIP 时，如果净克隆中没有仓库 `.venv`，并且 `PATH`
+里的 `py` / `python` 也不可用，应显式传入现有 Python 3.10+ 解释器的绝对路径：
+
+```powershell
+.\scripts\test_release_zip_powershell.ps1 -PythonExe "<Python 解释器绝对路径>"
+.\scripts\build_and_test_release_powershell.ps1 -PythonExe "<Python 解释器绝对路径>"
+```
+
 ## 合成样例
 
 当前仓库包含几个合成样例：
