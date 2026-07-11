@@ -341,7 +341,7 @@ def test_guided_ui_has_visual_workbench_shell():
     for phrase in [
         "ProblemBridge Workbench",
         "visual-shell",
-        "workflow-strip",
+        "workflow_steps_container",
         "module-card",
         "Trust boundary",
         "Start here if",
@@ -385,10 +385,10 @@ def test_guided_ui_language_selection_is_visible_and_shareable():
 
     for phrase in [
         "def _render_language_switcher",
-        "language-switcher",
+        "st.radio",
         "st.query_params",
         "def _sync_language_from_query_params",
-        "def _set_language_choice",
+        "def _apply_language_control",
         "LANGUAGE_QUERY_CODES",
     ]:
         assert phrase in ui_text
@@ -621,10 +621,17 @@ def test_question_discovery_can_continue_into_domain_wizard():
     )
     out = ui._run_question_discovery(package)
     seed = ui._domain_wizard_seed_from_discovery(out)
+    interview_state = ui._interview_seed_from_discovery(out)
+    from problem_bridge.interview import summarize_understanding
+
+    understanding = summarize_understanding(interview_state)
     ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
 
     assert "review workflow" in seed["domain_draft_additional_notes"]
-    assert "question discovery" in seed["domain_draft_repeated_work"]
+    assert seed["domain_draft_repeated_work"] == "A review workflow has unclear expert judgement."
+    assert understanding.completeness == 0.2
+    assert understanding.next_question.key == "materials"
+    assert set(interview_state.answers) == {"repeated_work"}
     assert "Continue to Domain practitioner wizard" in ui_text
     assert "_continue_to_domain_wizard_from_discovery" in ui_text
 
@@ -640,11 +647,55 @@ def test_domain_alignment_can_continue_into_ai_wizard():
     ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
 
     assert "reviews reports" in seed["ai_draft_domain_problem"]
-    assert "ai_task_spec.yaml" in seed["ai_draft_candidate_task"]
-    assert "evidence_contract.yaml" in seed["ai_draft_high_risk_mistakes"]
+    assert "workflow_discovery" in seed["ai_draft_candidate_task"]
+    assert "ai_task_spec.yaml" not in seed["ai_draft_candidate_task"]
+    assert seed["ai_draft_inputs"] != seed["ai_draft_outputs"]
+    assert seed["ai_draft_user"] == ""
+    assert "final domain judgement" in seed["ai_draft_high_risk_mistakes"]
+    assert "evidence_contract.yaml" not in seed["ai_draft_high_risk_mistakes"]
     assert "Continue to AI practitioner wizard" in ui_text
     assert "_continue_to_ai_wizard_from_alignment" in ui_text
     assert "last_alignment_package_dir" in ui_text
+
+
+def test_ai_handoff_prefers_nested_repeated_work_over_source_heading(tmp_path):
+    import apps.problem_bridge_wizard as ui
+
+    (tmp_path / "problem_card.md").write_text(
+        """# Problem Card
+
+## Source Problem
+
+# Guided Interview Problem Brief
+
+## repeated_work
+A registrar checks condition records before approving an object loan.
+
+## Domain Goal
+Preserve a safe loan-review workflow.
+""",
+        encoding="utf-8",
+    )
+    (tmp_path / "ai_task_spec.yaml").write_text(
+        """domain_goal: Preserve a safe loan-review workflow.
+ai_task_type:
+  - workflow_discovery
+inputs:
+  - condition records
+outputs:
+  - review checklist
+human_review_required:
+  - registrar approval
+""",
+        encoding="utf-8",
+    )
+
+    seed = ui._ai_wizard_seed_from_alignment(tmp_path)
+
+    assert seed["ai_draft_domain_problem"] == (
+        "A registrar checks condition records before approving an object loan."
+    )
+    assert "Guided Interview Problem Brief" not in seed["ai_draft_domain_problem"]
 
 
 def test_ai_alignment_can_continue_to_view_outputs():

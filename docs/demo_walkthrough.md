@@ -21,6 +21,8 @@ This runs the mock audit and writes the static `index.html` report viewer. `new`
 
 The local Streamlit workbench and this demo path both use deterministic mock rules. The UI does not accept or store API keys. Remote advisory providers are available only through the ClaimHarness CLI.
 
+For a UI walkthrough, keep one active local project and follow Home -> Question discovery -> Domain practitioner wizard -> AI practitioner wizard -> View generated outputs. Empty required forms should show inline guidance without creating a run. Question discovery should seed the guided interview at partial completeness; the interview should remain editable before generation; and the AI form should receive separate concise fields rather than duplicated raw package files. Output history is current-project-only by default, with an explicit opt-in for all projects.
+
 Manual path:
 
 ```bash

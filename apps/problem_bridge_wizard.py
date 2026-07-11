@@ -114,7 +114,7 @@ WORKFLOW_STEPS_ZH = [
     ("02", "问题发现", "先找出该问什么、该问谁。"),
     ("03", "引导式访谈", "还原工作材料、痛点、判断边界。"),
     ("04", "ProblemBridge", "生成任务规格、证据契约和评估方案。"),
-    ("05", "ClaimHarness", "在输出或文稿产生后审计 claims。"),
+    ("05", "ClaimHarness", "导出结果包，再用 ClaimHarness CLI 审计声明与证据。"),
 ]
 
 ACTIVE_WORKFLOW_BY_PAGE_ZH = {
@@ -158,7 +158,7 @@ WORKFLOW_STEPS = [
     ("02", "Question discovery", "Find what to ask and who should answer."),
     ("03", "Guided interview", "Reconstruct work, materials, pain points, and boundaries."),
     ("04", "ProblemBridge", "Generate task specs, evidence contracts, and evaluation plans."),
-    ("05", "ClaimHarness", "Audit claims after outputs or manuscripts exist."),
+    ("05", "ClaimHarness", "Export the package for claim auditing in the ClaimHarness CLI."),
 ]
 
 ACTIVE_WORKFLOW_BY_PAGE = {
@@ -379,6 +379,20 @@ DRAFT_KEY_GROUPS = {
     ],
 }
 
+PROJECT_SCOPED_SESSION_KEYS = (
+    "last_output_dir",
+    "last_document_intake_dir",
+    "last_question_discovery_dir",
+    "last_alignment_package_dir",
+    "last_ai_alignment_dir",
+    "last_example_dir",
+    "problem_bridge_interview_state",
+    "interview_seed_source",
+    "ai_seed_source_dir",
+    "domain_input_mode",
+)
+PROJECT_SCOPED_KEY_PREFIXES = ("interview_answer_", "interview_edit_")
+
 
 def _language_code() -> str:
     choice = st.session_state.get("ui_language", "English")
@@ -408,15 +422,22 @@ def _query_language_value() -> object:
 def _sync_language_from_query_params() -> None:
     query_value = _query_language_value()
     if query_value:
-        st.session_state.ui_language = _normalize_language_choice(query_value)
+        selected = _normalize_language_choice(query_value)
+        st.session_state.ui_language = selected
+        st.session_state.language_control = selected
         return
     st.session_state.setdefault("ui_language", "English")
+    st.session_state.setdefault("language_control", st.session_state.ui_language)
 
 
 def _set_language_choice(choice: object) -> None:
     selected = _normalize_language_choice(choice)
     st.session_state.ui_language = selected
     st.query_params["lang"] = _language_query_code(selected)
+
+
+def _apply_language_control() -> None:
+    _set_language_choice(st.session_state.get("language_control", "English"))
 
 
 def _text(en: str, zh: str) -> str:
@@ -430,6 +451,65 @@ def _page_label(page: str) -> str:
 
 def _generated_message(out: Path) -> str:
     return _text(f"Generated: {out}", f"已生成：{out}")
+
+
+def _navigate_to_page(page: str) -> None:
+    if page not in PAGE_OPTIONS:
+        raise ValueError(f"Unknown workspace page: {page}")
+    st.session_state.workspace_page = page
+
+
+def _set_flash_message(kind: str, message: str) -> None:
+    st.session_state._flash_message = {"kind": kind, "message": message}
+
+
+def _render_flash_message() -> None:
+    payload = st.session_state.pop("_flash_message", None)
+    if not isinstance(payload, dict) or not payload.get("message"):
+        return
+    renderer = {
+        "success": st.success,
+        "warning": st.warning,
+        "error": st.error,
+    }.get(str(payload.get("kind")), st.info)
+    renderer(str(payload["message"]))
+
+
+def _has_form_value(value: object) -> bool:
+    if isinstance(value, (list, tuple, set, dict)):
+        return bool(value)
+    return bool(str(value or "").strip())
+
+
+def _missing_required_fields(fields: dict[str, object]) -> list[str]:
+    return [label for label, value in fields.items() if not _has_form_value(value)]
+
+
+def _render_required_fields_error(missing: list[str]) -> None:
+    if not missing:
+        return
+    st.error(
+        _text(
+            "Add the required information before generating a package: ",
+            "生成结果包前，请补充这些必填信息：",
+        )
+        + ", ".join(missing)
+    )
+
+
+def _run_ui_action(label: str, action):
+    try:
+        with st.spinner(label):
+            return action()
+    except Exception as exc:  # pragma: no cover - exercised through AppTest guards
+        st.error(
+            _text(
+                "This step could not be completed. Your inputs are still here; review the details and try again.",
+                "这一步未能完成。你的输入仍然保留；请检查下面的错误信息后重试。",
+            )
+        )
+        st.caption(f"{type(exc).__name__}: {exc}")
+        return None
 
 
 def _download_package_label(package_name: str) -> str:
@@ -461,11 +541,9 @@ def _display_missing_item(item: str) -> str:
 def main() -> None:
     st.set_page_config(page_title="ProblemBridge Workbench", layout="wide")
     _sync_language_from_query_params()
+    if "pending_workspace_page" in st.session_state:
+        st.session_state.workspace_page = st.session_state.pop("pending_workspace_page")
     _inject_visual_theme()
-
-    _render_language_switcher()
-    _render_shell_header()
-    _safety_banner()
 
     st.sidebar.markdown(f"### {_text('Workspace', '工作区')}")
     page = st.sidebar.radio(
@@ -480,7 +558,15 @@ def main() -> None:
     ))
     _render_memory_sidebar()
     _render_project_sidebar()
-    _render_workflow_strip(page)
+
+    _render_language_switcher()
+    if page == "Home":
+        _render_shell_header()
+    else:
+        _render_compact_shell_header(page)
+    _render_workflow_strip(page, compact=page != "Home")
+    _safety_banner(compact=page != "Home")
+    _render_flash_message()
 
     if page == "Home":
         _home()
@@ -537,6 +623,7 @@ def _render_memory_sidebar() -> None:
                 clear_workbench_memory(MEMORY_PATH)
                 st.session_state.pending_workbench_memory = {}
                 st.session_state.pending_workbench_memory_clear = True
+                _set_flash_message("success", _text("Local workspace memory cleared.", "本地工作台记忆已清除。"))
                 st.rerun()
 
     st.sidebar.caption(
@@ -553,6 +640,7 @@ def _render_project_sidebar() -> None:
     st.sidebar.caption(_text(f"Active project: `{project_id}`", f"当前项目：`{project_id}`"))
     if st.sidebar.button(_text("Start a new project", "开始新项目"), key="start_new_project"):
         _reset_active_project()
+        _set_flash_message("success", _text("Started a new local project.", "已开始一个新的本地项目。"))
         st.rerun()
     project_runs = _project_run_paths(project_id)
     show_project_deletion = st.sidebar.checkbox(
@@ -578,6 +666,7 @@ def _render_project_sidebar() -> None:
         ):
             _delete_ui_project(project_id)
             _reset_active_project()
+            _set_flash_message("success", _text("Project runs were permanently deleted.", "这个项目的运行记录已永久删除。"))
             st.rerun()
     _render_incomplete_run_cleanup()
 
@@ -649,19 +738,16 @@ def _ensure_memory_state() -> None:
 
 
 def _apply_memory_to_session(memory: dict, clear_existing: bool) -> None:
-    keys = [
-        "last_output_dir",
-        "last_document_intake_dir",
-        "last_question_discovery_dir",
-        "last_alignment_package_dir",
-        "last_ai_alignment_dir",
-    ]
+    keys = list(PROJECT_SCOPED_SESSION_KEYS)
     for field_keys in DRAFT_KEY_GROUPS.values():
         keys.extend(field_keys)
 
     if clear_existing:
         for key in keys:
             st.session_state.pop(key, None)
+        for key in list(st.session_state):
+            if str(key).startswith(PROJECT_SCOPED_KEY_PREFIXES):
+                del st.session_state[key]
 
     drafts = memory.get("drafts", {}) if isinstance(memory, dict) else {}
     if isinstance(drafts, dict):
@@ -699,20 +785,17 @@ def _active_project_id() -> str:
 
 
 def _reset_active_project() -> str:
-    keys = [
-        "last_output_dir",
-        "last_document_intake_dir",
-        "last_question_discovery_dir",
-        "last_alignment_package_dir",
-        "last_ai_alignment_dir",
-        "problem_bridge_interview_state",
-    ]
+    keys = list(PROJECT_SCOPED_SESSION_KEYS)
     for field_keys in DRAFT_KEY_GROUPS.values():
         keys.extend(field_keys)
     for key in keys:
         st.session_state.pop(key, None)
+    for key in list(st.session_state):
+        if str(key).startswith(PROJECT_SCOPED_KEY_PREFIXES):
+            del st.session_state[key]
     project_id = f"project-{uuid.uuid4().hex}"
     st.session_state.active_project_id = project_id
+    st.session_state.pending_workspace_page = "Home"
     return project_id
 
 
@@ -917,6 +1000,10 @@ def _inject_visual_theme() -> None:
         [data-testid="stSidebar"] [role="radiogroup"] label[data-baseweb="radio"]:hover {
           background: var(--pb-soft-teal);
         }
+        [data-testid="stSidebar"] [role="radiogroup"] label[data-baseweb="radio"]:has(input:focus-visible) {
+          outline: 3px solid #1d4ed8;
+          outline-offset: 2px;
+        }
         [data-testid="stSidebar"] [role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) {
           background: #edf8f6;
           border-color: rgba(15, 118, 110, .24);
@@ -943,38 +1030,54 @@ def _inject_visual_theme() -> None:
           box-shadow: 0 8px 20px rgba(23, 32, 42, .07);
         }
         .block-container { padding-top: 1.45rem; max-width: 1180px; }
-        .language-switcher {
+        .st-key-language_control [role="radiogroup"] {
+          display: flex;
+          flex-direction: row;
+          gap: 0;
+        }
+        .st-key-language_control label[data-baseweb="radio"] {
+          min-height: 34px;
+          padding: 6px 14px;
+          border-color: var(--pb-line) !important;
+          background: #ffffff !important;
+          color: var(--pb-ink) !important;
+        }
+        .st-key-language_control label[data-baseweb="radio"] > div:first-child {
+          position: absolute;
+          opacity: 0;
+          pointer-events: none;
+        }
+        .st-key-language_control label[data-baseweb="radio"]:has(input:checked) {
+          border-color: var(--pb-teal) !important;
+          background: var(--pb-teal) !important;
+          color: #ffffff !important;
+        }
+        .st-key-language_control label[data-baseweb="radio"] * {
+          color: inherit !important;
+        }
+        .st-key-language_control label[data-baseweb="radio"]:has(input:focus-visible) {
+          outline: 3px solid #1d4ed8 !important;
+          outline-offset: 2px;
+        }
+        .compact-shell {
           display: flex;
           align-items: center;
           justify-content: space-between;
           gap: 12px;
-          padding: 10px 12px;
-          margin-bottom: 12px;
+          padding: 10px 14px;
+          margin-bottom: 10px;
           border: 1px solid var(--pb-line);
           border-radius: 8px;
           background: #ffffff;
           color: var(--pb-muted);
-          font-size: 13px;
         }
-        .language-switcher strong { color: var(--pb-ink); }
-        .language-options { display: flex; align-items: center; gap: 7px; }
-        .language-option {
-          display: inline-flex;
-          align-items: center;
-          min-height: 34px;
-          padding: 6px 12px;
-          border: 1px solid var(--pb-line);
-          border-radius: 8px;
-          background: #ffffff;
-          color: var(--pb-ink) !important;
-          font-weight: 750;
-          text-decoration: none !important;
-        }
-        .language-option:hover { border-color: var(--pb-teal); }
-        .language-option.active {
-          border-color: var(--pb-teal);
-          background: var(--pb-teal);
-          color: #ffffff !important;
+        .compact-shell strong { color: var(--pb-ink); }
+        .compact-shell h1 {
+          margin: 0;
+          color: var(--pb-muted);
+          font-size: 15px;
+          line-height: 1.35;
+          font-weight: 700;
         }
         .visual-shell {
           padding: 28px 30px;
@@ -995,11 +1098,12 @@ def _inject_visual_theme() -> None:
           margin-bottom: 10px;
         }
         .visual-title {
-          font-size: clamp(30px, 5vw, 54px);
+          font-size: clamp(30px, 4.4vw, 46px);
           line-height: 1.04;
           font-weight: 850;
           letter-spacing: 0;
           margin: 0;
+          overflow-wrap: anywhere;
         }
         .visual-lead { max-width: 830px; color: var(--pb-muted); font-size: 18px; margin-top: 14px; }
         .metric-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
@@ -1012,11 +1116,15 @@ def _inject_visual_theme() -> None:
           font-weight: 750;
           font-size: 13px;
         }
-        .workflow-strip {
-          display: grid;
-          grid-template-columns: repeat(5, minmax(0, 1fr));
-          gap: 10px;
+        .st-key-workflow_steps_container {
           margin: 12px 0 22px;
+        }
+        .st-key-workflow_steps_container [data-testid="stHorizontalBlock"] {
+          gap: 10px;
+          align-items: stretch;
+        }
+        .st-key-workflow_steps_container [data-testid="stColumn"] {
+          min-width: 0;
         }
         .workflow-step {
           min-height: 112px;
@@ -1036,6 +1144,18 @@ def _inject_visual_theme() -> None:
           border-color: var(--pb-teal);
           background: linear-gradient(180deg, #ffffff 0%, var(--pb-soft-teal) 100%);
           box-shadow: inset 0 0 0 1px rgba(15, 118, 110, .22);
+        }
+        .workflow-step.is-compact {
+          min-height: 70px;
+          padding: 10px 12px;
+        }
+        .workflow-step.is-compact strong { margin-bottom: 0; font-size: 14px; }
+        .workflow-current {
+          display: inline-flex;
+          margin-left: 6px;
+          color: var(--pb-teal);
+          font-size: 11px;
+          font-weight: 850;
         }
         .workflow-step strong { display: block; margin: 6px 0 4px; color: var(--pb-ink); }
         .workflow-step p { margin: 0; color: var(--pb-muted); font-size: 13px; line-height: 1.45; }
@@ -1095,14 +1215,29 @@ def _inject_visual_theme() -> None:
         }
         div.stButton > button, div.stDownloadButton > button {
           border-radius: 8px;
-          border: 1px solid var(--pb-teal);
-          background: var(--pb-teal);
-          color: white;
+          border: 1px solid var(--pb-line);
+          background: #ffffff;
+          color: var(--pb-ink);
           font-weight: 800;
+        }
+        button[data-testid="stBaseButton-primary"] {
+          border-color: var(--pb-teal) !important;
+          background: var(--pb-teal) !important;
+          color: #ffffff !important;
+        }
+        div.stButton > button:hover, div.stDownloadButton > button:hover {
+          border-color: var(--pb-teal);
+          color: var(--pb-teal);
         }
         textarea, input { border-radius: 8px !important; }
         @media (max-width: 900px) {
-          .workflow-strip { grid-template-columns: 1fr; }
+          .st-key-workflow_steps_container [data-testid="stHorizontalBlock"] {
+            flex-direction: column;
+          }
+          .st-key-workflow_steps_container [data-testid="stColumn"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+          }
           .visual-shell { padding: 22px 18px; }
         }
         </style>
@@ -1112,18 +1247,12 @@ def _inject_visual_theme() -> None:
 
 
 def _render_language_switcher() -> None:
-    current_code = _language_code()
-    st.markdown(
-        f"""
-        <section class="language-switcher">
-          <span>{_text("Interface language", "界面语言")}</span>
-          <nav class="language-options" aria-label="{LANGUAGE_BADGE[current_code]}">
-            <a class="language-option{' active' if current_code == 'zh' else ''}" href="?lang=zh">中文</a>
-            <a class="language-option{' active' if current_code == 'en' else ''}" href="?lang=en">English</a>
-          </nav>
-        </section>
-        """,
-        unsafe_allow_html=True,
+    st.radio(
+        _text("Interface language", "界面语言"),
+        LANGUAGE_OPTIONS,
+        key="language_control",
+        horizontal=True,
+        on_change=_apply_language_control,
     )
 
 
@@ -1154,25 +1283,51 @@ def _render_shell_header() -> None:
     )
 
 
-def _render_workflow_strip(active_page: str) -> None:
+def _render_compact_shell_header(page: str) -> None:
+    st.markdown(
+        f"""
+        <section class="compact-shell">
+          <strong>ProblemBridge</strong>
+          <h1>{_page_label(page)} · {_text('local-first guided workflow', '本地优先引导流程')}</h1>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_workflow_strip(active_page: str, *, compact: bool = False) -> None:
     steps = WORKFLOW_STEPS_ZH if _language_code() == "zh" else WORKFLOW_STEPS
     active_map = ACTIVE_WORKFLOW_BY_PAGE_ZH if _language_code() == "zh" else ACTIVE_WORKFLOW_BY_PAGE
     active_step = active_map.get(active_page)
-    st.markdown('<div class="workflow-strip"></div>', unsafe_allow_html=True)
-    columns = st.columns(len(steps))
-    for column, (number, title, description) in zip(columns, steps):
-        css_class = "workflow-step is-active" if title == active_step else "workflow-step"
-        with column:
-            st.markdown(
-                f"""
-                <article class="{css_class}">
-                  <span class="step-num">{number}</span>
-                  <strong>{title}</strong>
-                  <p>{description}</p>
-                </article>
-                """,
-                unsafe_allow_html=True,
+    with st.container(key="workflow_steps_container"):
+        columns = st.columns(len(steps))
+        for column, (number, title, description) in zip(columns, steps):
+            is_active = title == active_step
+            css_parts = ["workflow-step"]
+            if is_active:
+                css_parts.append("is-active")
+            if compact:
+                css_parts.append("is-compact")
+            css_class = " ".join(css_parts)
+            aria_current = ' aria-current="step"' if is_active else ""
+            current_badge = (
+                f'<span class="workflow-current">{_text("Current", "当前")}</span>'
+                if is_active
+                else ""
             )
+            description_html = "" if compact else f"<p>{description}</p>"
+            with column:
+                st.markdown(
+                    f"""
+                    <article class="{css_class}"{aria_current}>
+                      <span class="step-num">{number}</span>
+                      {current_badge}
+                      <strong>{title}</strong>
+                      {description_html}
+                    </article>
+                    """,
+                    unsafe_allow_html=True,
+                )
 
 
 def _render_page_intro(title: str, body: str, trust: str, outputs: list[str]) -> None:
@@ -1214,13 +1369,15 @@ def _render_module_cards() -> None:
                 unsafe_allow_html=True,
             )
 
-def _safety_banner() -> None:
-    st.warning(
-        _text(
-            "Start with synthetic examples. Do not upload private patient data, confidential manuscripts, API keys, or sensitive unpublished materials.",
-            "请先使用合成样例。不要上传真实患者数据、机密文稿、API key 或敏感未公开材料。",
-        )
+def _safety_banner(*, compact: bool = False) -> None:
+    message = _text(
+        "Start with synthetic examples. Do not upload private patient data, confidential manuscripts, API keys, or sensitive unpublished materials.",
+        "请先使用合成样例。不要上传真实患者数据、机密文稿、API key 或敏感未公开材料。",
     )
+    if compact:
+        st.caption(f"🔒 {message}")
+    else:
+        st.warning(message)
 
 
 def _home() -> None:
@@ -1244,12 +1401,12 @@ def _home() -> None:
 
     st.subheader(_text("Recommended routes", "推荐路径"))
     route_cards = [
-        (_text("Have files?", "已有文件？"), _text("Start with Document intake, inspect extracted text and warnings, then continue to Question discovery.", "先用文档摄取，检查提取文本和警告，再进入问题发现。")),
-        (_text("Have a vague concern?", "只有模糊困惑？"), _text("Start with Question discovery to identify what to ask and which experts to involve.", "先用问题发现，明确该问什么、该找哪些专家。")),
-        (_text("Know the workflow?", "已经知道工作流？"), _text("Go to Domain practitioner wizard and generate a ProblemBridge alignment package.", "进入领域工作流向导，生成 ProblemBridge 对齐包。")),
+        (_text("Have files?", "已有文件？"), _text("Start with Document intake, inspect extracted text and warnings, then continue to Question discovery.", "先用文档摄取，检查提取文本和警告，再进入问题发现。"), "Document intake", _text("Start with files", "从文件开始")),
+        (_text("Have a vague concern?", "只有模糊困惑？"), _text("Start with Question discovery to identify what to ask and which experts to involve.", "先用问题发现，明确该问什么、该找哪些专家。"), "Question discovery", _text("Discover the question", "先发现问题")),
+        (_text("Know the workflow?", "已经知道工作流？"), _text("Go to Domain practitioner wizard and generate a ProblemBridge alignment package.", "进入领域工作流向导，生成 ProblemBridge 对齐包。"), "Domain practitioner wizard", _text("Describe the workflow", "描述工作流")),
     ]
     col1, col2, col3 = st.columns(3)
-    for column, (title, body) in zip([col1, col2, col3], route_cards):
+    for index, (column, (title, body, destination, button_label)) in enumerate(zip([col1, col2, col3], route_cards)):
         with column:
             st.markdown(f"""
             <section class="page-intro">
@@ -1257,6 +1414,14 @@ def _home() -> None:
             <p>{body}</p>
             </section>
             """, unsafe_allow_html=True)
+            st.button(
+                button_label,
+                key=f"home_route_{index}",
+                type="primary" if index == 0 else "secondary",
+                on_click=_navigate_to_page,
+                args=(destination,),
+                use_container_width=True,
+            )
 
 def _examples() -> None:
     _render_page_intro(
@@ -1279,10 +1444,25 @@ def _examples() -> None:
     problem_path = EXAMPLES[choice]
     st.text_area(_text("Example problem brief", "示例问题 brief"), problem_path.read_text(encoding="utf-8"), height=220)
 
-    if st.button(_text("Generate this example package", "生成这个示例包")):
-        out = _run_problem_text(problem_path.read_text(encoding="utf-8"), f"example_{_slug(choice)}")
-        st.success(_generated_message(out))
-        _render_friendly_output(out)
+    generated_out = None
+    if st.button(
+        _text("Generate this example package", "生成这个示例包"),
+        type="primary",
+    ):
+        generated_out = _run_ui_action(
+            _text("Generating the synthetic example…", "正在生成合成示例……"),
+            lambda: _run_problem_text(
+                problem_path.read_text(encoding="utf-8"),
+                f"example_{_slug(choice)}",
+            ),
+        )
+    display_out = generated_out or _last_output_path("last_example_dir")
+    if display_out:
+        if generated_out:
+            st.success(_generated_message(display_out))
+        else:
+            st.info(_text("Most recent example result is shown below.", "下方显示最近一次示例结果。"))
+        _render_friendly_output(display_out)
 
 
 def _question_discovery() -> None:
@@ -1327,13 +1507,29 @@ def _question_discovery() -> None:
             height=90,
             key="question_desired_change",
         )
-        submitted = st.form_submit_button(_text("Generate question discovery package", "生成问题发现包"))
+        submitted = st.form_submit_button(
+            _text("Generate question discovery package", "生成问题发现包"),
+            type="primary",
+        )
 
     if submitted:
-        package = discover_questions(seed_text, uncertainty, desired_change)
-        out = _run_question_discovery(package)
-        st.success(_generated_message(out))
-        _render_question_discovery_output(out)
+        missing = _missing_required_fields(
+            {
+                _text("what you are trying to understand", "想理解的问题"): seed_text,
+                _text("a useful first-conversation outcome", "初步沟通目标"): desired_change,
+            }
+        )
+        if missing:
+            _render_required_fields_error(missing)
+        else:
+            package = discover_questions(seed_text, uncertainty, desired_change)
+            out = _run_ui_action(
+                _text("Generating question discovery…", "正在生成问题发现结果……"),
+                lambda: _run_question_discovery(package),
+            )
+            if out:
+                st.success(_generated_message(out))
+                _render_question_discovery_output(out)
     else:
         previous_out = _last_output_path("last_question_discovery_dir")
         if previous_out:
@@ -1347,16 +1543,12 @@ def _question_discovery() -> None:
 
 
 def _render_question_discovery_output(out: Path) -> None:
-    st.subheader(_text("Questions to validate", "需要验证的问题"))
-    brief_path = out / "question_brief.md"
-    if brief_path.is_file():
-        st.markdown(brief_path.read_text(encoding="utf-8"))
-
-    st.subheader(_text("Who to ask", "应该问谁"))
-    stakeholder_path = out / "stakeholder_map.md"
-    if stakeholder_path.is_file():
-        st.markdown(stakeholder_path.read_text(encoding="utf-8"))
-
+    st.success(
+        _text(
+            "Question discovery is ready. Review the questions with domain experts before defining an AI task.",
+            "问题发现结果已生成。定义 AI 任务前，请先与领域专家核对这些问题。",
+        )
+    )
     st.subheader(_text("Next step", "下一步"))
     st.write(
         _text(
@@ -1369,7 +1561,20 @@ def _render_question_discovery_output(out: Path) -> None:
         key=f"continue_to_domain_wizard_{out.name}",
         on_click=_continue_to_domain_wizard_from_discovery,
         args=(out,),
+        type="primary",
+        use_container_width=True,
     )
+
+    with st.expander(_text("Review questions and stakeholders", "查看问题与相关人员"), expanded=True):
+        st.subheader(_text("Questions to validate", "需要验证的问题"))
+        brief_path = out / "question_brief.md"
+        if brief_path.is_file():
+            st.markdown(brief_path.read_text(encoding="utf-8"))
+
+        st.subheader(_text("Who to ask", "应该问谁"))
+        stakeholder_path = out / "stakeholder_map.md"
+        if stakeholder_path.is_file():
+            st.markdown(stakeholder_path.read_text(encoding="utf-8"))
 
     _render_share_controls(out, "question discovery")
     _render_report_export_buttons(out)
@@ -1459,17 +1664,25 @@ def _document_intake() -> None:
     pasted_text = pasted_text.strip()
 
     generated_out = None
-    if st.button(_text("Generate document intake package", "生成文档摄取包"), disabled=not uploaded_files and not urls and not pasted_text):
-        out = _run_document_intake(
-            uploaded_files or [],
-            urls=urls,
-            enable_ocr=enable_ocr,
-            ocr_language=ocr_language,
-            pasted_text=pasted_text,
+    if st.button(
+        _text("Generate document intake package", "生成文档摄取包"),
+        disabled=not uploaded_files and not urls and not pasted_text,
+        type="primary",
+    ):
+        out = _run_ui_action(
+            _text("Extracting and verifying local sources…", "正在提取并验证本地材料……"),
+            lambda: _run_document_intake(
+                uploaded_files or [],
+                urls=urls,
+                enable_ocr=enable_ocr,
+                ocr_language=ocr_language,
+                pasted_text=pasted_text,
+            ),
         )
-        st.success(_generated_message(out))
-        _render_document_intake_output(out)
-        generated_out = out
+        if out:
+            st.success(_generated_message(out))
+            _render_document_intake_output(out)
+            generated_out = out
 
     if generated_out is None:
         previous_out = _last_output_path("last_document_intake_dir")
@@ -1484,40 +1697,17 @@ def _document_intake() -> None:
 
 
 def _render_document_intake_output(out: Path) -> None:
-    st.subheader("extracted_text.md")
-    extracted_text = out / "extracted_text.md"
-    if extracted_text.is_file():
-        st.markdown(extracted_text.read_text(encoding="utf-8"))
-
-    st.subheader("source_manifest.json")
-    manifest = out / "source_manifest.json"
-    if manifest.is_file():
-        st.code(manifest.read_text(encoding="utf-8"), language="json")
-
-    annotation_map = out / "annotation_map.json"
-    if annotation_map.is_file():
-        st.subheader("annotation_map.json")
-        st.code(annotation_map.read_text(encoding="utf-8"), language="json")
-
-    comments_path = out / "comment_threads.md"
-    if comments_path.is_file():
-        st.subheader("comment_threads.md")
-        st.markdown(comments_path.read_text(encoding="utf-8"))
-
-    priority_path = out / "priority_marks.md"
-    if priority_path.is_file():
-        st.subheader("priority_marks.md")
-        st.markdown(priority_path.read_text(encoding="utf-8"))
-
-    warnings_path = out / "extraction_warnings.md"
-    if warnings_path.is_file():
-        st.subheader("extraction_warnings.md")
-        st.markdown(warnings_path.read_text(encoding="utf-8"))
-
-    problem_seed = out / "problem_seed.md"
-    if problem_seed.is_file():
-        st.subheader("problem_seed.md")
-        st.markdown(problem_seed.read_text(encoding="utf-8"))
+    st.success(
+        _text(
+            "Document extraction is complete. Check the context and warnings before continuing.",
+            "文档提取已完成。继续前请检查提取上下文和警告。",
+        )
+    )
+    warnings_text = _read_output_text(out, "extraction_warnings.md").strip()
+    if warnings_text and "No extraction warnings" not in warnings_text:
+        st.warning(warnings_text)
+    else:
+        st.caption(_text("No extraction warnings were reported.", "没有报告提取警告。"))
 
     st.subheader(_text("Next step", "下一步"))
     st.write(
@@ -1531,7 +1721,14 @@ def _render_document_intake_output(out: Path) -> None:
         key=f"continue_to_question_discovery_{out.name}",
         on_click=_continue_to_question_discovery_from_intake,
         args=(out,),
+        type="primary",
+        use_container_width=True,
     )
+
+    problem_seed = out / "problem_seed.md"
+    if problem_seed.is_file():
+        with st.expander(_text("Review extracted problem context", "检查提取的问题上下文"), expanded=True):
+            st.markdown(problem_seed.read_text(encoding="utf-8"))
 
     _render_share_controls(out, "document intake", allow_source_files=True)
     _render_report_export_buttons(out)
@@ -1593,7 +1790,41 @@ def _domain_wizard() -> None:
             )
         )
 
-    _guided_interview()
+    if st.session_state.get("interview_seed_source"):
+        st.info(
+            _text(
+                "Question discovery supplied a provisional description of the repeated work. Confirm the remaining workflow, evidence, and human-boundary questions in the interview.",
+                "问题发现仅提供了暂定的反复工作描述。请在访谈中继续确认工作流、证据材料和人工边界。",
+            )
+        )
+    mode = st.segmented_control(
+        _text("Choose an input mode", "选择填写方式"),
+        ["guided", "advanced"],
+        default="guided",
+        format_func=lambda value: (
+            _text("Guided interview", "引导式访谈")
+            if value == "guided"
+            else _text("Advanced full form", "高级完整表单")
+        ),
+        key="domain_input_mode",
+        selection_mode="single",
+        required=True,
+    )
+    if mode == "guided":
+        generated_out = _guided_interview()
+        if generated_out is None:
+            previous_out = _last_output_path("last_alignment_package_dir")
+            if previous_out:
+                st.info(
+                    _text(
+                        "Most recent workflow alignment remains available below.",
+                        "下方仍可查看最近一次工作流对齐结果。",
+                    )
+                )
+                _render_alignment_next_step(previous_out)
+                _render_friendly_output(previous_out)
+        return
+
     st.divider()
     st.subheader(_text("Advanced: full workflow form", "高级：完整工作流表单"))
     st.caption(_text(
@@ -1661,17 +1892,41 @@ def _domain_wizard() -> None:
                 ),
             }
         )
-        submitted = st.form_submit_button(_text("Generate workflow alignment package", "生成工作流对齐包"))
+        submitted = st.form_submit_button(
+            _text("Generate workflow alignment package", "生成工作流对齐包"),
+            type="primary",
+        )
 
     if submitted:
-        problem_text = build_workflow_first_problem(answers)
-        out = _run_problem_text(problem_text, "domain_practitioner")
-        st.success(_generated_message(out))
-        st.download_button(_text("Download problem.md", "下载 problem.md"), problem_text, file_name="problem.md")
-        _render_friendly_output(out)
-        _render_alignment_next_step(out)
+        missing = _missing_required_fields(
+            {
+                _text("the repeated work", "反复发生的工作"): answers["repeated_work"],
+                _text("the current task owner", "当前任务负责人"): answers["current_owner"],
+                _text("a non-automatable decision", "不可自动化的决定"): answers["never_automated"],
+            }
+        )
+        if missing:
+            _render_required_fields_error(missing)
+        else:
+            problem_text = build_workflow_first_problem(answers)
+            out = _run_ui_action(
+                _text("Generating workflow alignment…", "正在生成工作流对齐结果……"),
+                lambda: _run_problem_text(problem_text, "domain_practitioner"),
+            )
+            if out:
+                st.success(_generated_message(out))
+                st.download_button(_text("Download problem.md", "下载 problem.md"), problem_text, file_name="problem.md")
+                _render_alignment_next_step(out)
+                _render_friendly_output(out)
+    else:
+        previous_out = _last_output_path("last_alignment_package_dir")
+        if previous_out:
+            st.info(_text("Most recent workflow alignment is shown below.", "下方显示最近一次工作流对齐结果。"))
+            _render_alignment_next_step(previous_out)
+            _render_friendly_output(previous_out)
 
-def _guided_interview() -> None:
+def _guided_interview() -> Path | None:
+    generated_out: Path | None = None
     st.subheader(_text("Guided interview", "引导式访谈"))
     st.caption(
         _text(
@@ -1697,19 +1952,66 @@ def _guided_interview() -> None:
 
         if question.key != "confirmation":
             answer = st.text_area(_text("Your answer", "你的回答"), key=f"interview_answer_{question.key}")
-            if st.button(_text("Save answer and continue", "保存回答并继续"), key="interview_save_answer"):
-                st.session_state.problem_bridge_interview_state = answer_question(state, question.key, answer)
-                st.rerun()
+            if st.button(
+                _text("Save answer and continue", "保存回答并继续"),
+                key="interview_save_answer",
+                type="primary",
+            ):
+                if not answer.strip():
+                    st.error(_text("Add an answer before continuing.", "请填写回答后再继续。"))
+                else:
+                    st.session_state.problem_bridge_interview_state = answer_question(state, question.key, answer)
+                    st.rerun()
         else:
             st.success(_text(
                 "The core workflow understanding is complete enough to generate an alignment package.",
                 "核心工作流信息已经足够生成对齐包。",
             ))
+            edit_fields = [
+                ("repeated_work", _text("Repeated work", "反复发生的工作")),
+                ("materials", _text("Judgement materials", "判断材料")),
+                ("pain_points", _text("Pain points", "痛点")),
+                ("human_boundaries", _text("Human review boundaries", "人工复核边界")),
+                ("useful_support", _text("Useful support outputs", "有用的辅助输出")),
+            ]
+            with st.expander(_text("Review or edit answers", "检查或修改答案"), expanded=True):
+                with st.form("interview_edit_form"):
+                    edited_answers = {
+                        key: st.text_area(
+                            label,
+                            value=state.answers.get(key, ""),
+                            key=f"interview_edit_{key}",
+                        )
+                        for key, label in edit_fields
+                    }
+                    apply_edits = st.form_submit_button(
+                        _text("Apply answer edits", "应用答案修改")
+                    )
+                if apply_edits:
+                    missing = _missing_required_fields(
+                        {label: edited_answers[key] for key, label in edit_fields}
+                    )
+                    if missing:
+                        _render_required_fields_error(missing)
+                    else:
+                        updated = start_interview()
+                        if state.answers.get("domain"):
+                            updated = answer_question(updated, "domain", state.answers["domain"])
+                        for key, _label in edit_fields:
+                            updated = answer_question(updated, key, edited_answers[key])
+                        st.session_state.problem_bridge_interview_state = updated
+                        _set_flash_message("success", _text("Interview answers updated.", "访谈答案已更新。"))
+                        st.rerun()
 
         reset_col, generate_col = st.columns(2)
         with reset_col:
             if st.button(_text("Reset guided interview", "重置访谈"), key="interview_reset"):
                 st.session_state.problem_bridge_interview_state = start_interview()
+                st.session_state.pop("interview_seed_source", None)
+                for key in list(st.session_state):
+                    if str(key).startswith(("interview_answer_", "interview_edit_")):
+                        del st.session_state[key]
+                _set_flash_message("success", _text("Guided interview reset.", "引导式访谈已重置。"))
                 st.rerun()
         with generate_col:
             ready = is_ready_for_alignment(state)
@@ -1717,13 +2019,18 @@ def _guided_interview() -> None:
                 _text("Generate alignment package from interview", "根据访谈生成对齐包"),
                 key="interview_generate",
                 disabled=not ready,
+                type="primary",
             ):
                 problem_text = build_problem_from_interview(state)
-                out = _run_problem_text(problem_text, "guided_interview")
-                st.success(_generated_message(out))
-                st.download_button(_text("Download guided_interview_problem.md", "下载 guided_interview_problem.md"), problem_text, file_name="problem.md")
-                _render_friendly_output(out)
-                _render_alignment_next_step(out)
+                generated_out = _run_ui_action(
+                    _text("Generating workflow alignment…", "正在生成工作流对齐结果……"),
+                    lambda: _run_problem_text(problem_text, "guided_interview"),
+                )
+                if generated_out:
+                    st.success(_generated_message(generated_out))
+                    st.download_button(_text("Download guided_interview_problem.md", "下载 guided_interview_problem.md"), problem_text, file_name="problem.md")
+                    _render_alignment_next_step(generated_out)
+                    _render_friendly_output(generated_out)
             if not ready:
                 st.caption(_text("Answer the missing items before generating the package.", "请先回答缺失项，再生成结果包。"))
 
@@ -1744,6 +2051,8 @@ def _guided_interview() -> None:
         else:
             st.success(_text("No core fields missing.", "核心字段已填写完整。"))
 
+    return generated_out
+
 
 def _ai_wizard() -> None:
     _render_page_intro(
@@ -1763,6 +2072,13 @@ def _ai_wizard() -> None:
             "Evaluation protocol",
         ],
     )
+    if st.session_state.get("ai_seed_source_dir"):
+        st.info(
+            _text(
+                "This form was prefilled with a structured summary from the previous alignment package. Review each field before running the check; the original technical files remain unchanged.",
+                "此表单已使用上一步对齐包的结构化摘要预填。运行检查前请逐项确认；原始技术文件不会被修改。",
+            )
+        )
     with st.form("ai_practitioner"):
         answers = {
             "domain_problem": st.text_area(_text("What domain problem are you trying to solve?", "你想解决的领域问题是什么？"), key="ai_draft_domain_problem"),
@@ -1773,15 +2089,40 @@ def _ai_wizard() -> None:
             "user": st.text_area(_text("Who will use or review the output?", "谁会使用或复核输出？"), key="ai_draft_user"),
             "high_risk_mistakes": st.text_area(_text("Which mistakes would cause serious consequences?", "哪些错误会造成严重后果？"), key="ai_draft_high_risk_mistakes"),
         }
-        submitted = st.form_submit_button(_text("Check task alignment", "检查任务是否对齐"))
+        submitted = st.form_submit_button(
+            _text("Check task alignment", "检查任务是否对齐"),
+            type="primary",
+        )
 
     if submitted:
-        problem_text = build_ai_practitioner_problem(answers)
-        out = _run_problem_text(problem_text, "ai_practitioner")
-        st.success(_generated_message(out))
-        st.download_button(_text("Download problem.md", "下载 problem.md"), problem_text, file_name="problem.md")
-        _render_friendly_output(out)
-        _render_view_outputs_next_step(out)
+        missing = _missing_required_fields(
+            {
+                _text("the domain problem", "领域问题"): answers["domain_problem"],
+                _text("the candidate AI task", "候选 AI 任务"): answers["candidate_task"],
+                _text("the intended inputs", "预期输入"): answers["inputs"],
+                _text("the intended outputs", "预期输出"): answers["outputs"],
+                _text("high-risk mistakes", "高风险错误"): answers["high_risk_mistakes"],
+            }
+        )
+        if missing:
+            _render_required_fields_error(missing)
+        else:
+            problem_text = build_ai_practitioner_problem(answers)
+            out = _run_ui_action(
+                _text("Checking task alignment…", "正在检查任务对齐……"),
+                lambda: _run_problem_text(problem_text, "ai_practitioner"),
+            )
+            if out:
+                st.success(_generated_message(out))
+                st.download_button(_text("Download problem.md", "下载 problem.md"), problem_text, file_name="problem.md")
+                _render_view_outputs_next_step(out)
+                _render_friendly_output(out)
+    else:
+        previous_out = _last_output_path("last_ai_alignment_dir")
+        if previous_out:
+            st.info(_text("Most recent AI alignment result is shown below.", "下方显示最近一次 AI 对齐结果。"))
+            _render_view_outputs_next_step(previous_out)
+            _render_friendly_output(previous_out)
 
 def _view_outputs() -> None:
     _render_page_intro(
@@ -1828,8 +2169,7 @@ def _view_outputs() -> None:
         )
         and (not (path / RUN_IDENTITY_NAME).is_file() or is_run_complete(path))
     ]
-    runs, run_labels = _sort_view_output_runs(viewable_runs)
-    incomplete_count = len(all_runs) - len(runs)
+    incomplete_count = len(all_runs) - len(viewable_runs)
     if incomplete_count:
         st.caption(
             _text(
@@ -1837,10 +2177,34 @@ def _view_outputs() -> None:
                 f"有 {incomplete_count} 次未完成运行已隐藏，请恢复、替换或删除后再查看。",
             )
         )
+    active_project = _active_project_id()
+    show_all_projects = st.checkbox(
+        _text("Show runs from all projects", "显示所有项目的运行结果"),
+        value=False,
+        key="show_all_output_projects",
+        help=_text(
+            "Off by default to reduce the risk of opening or sharing the wrong project's output.",
+            "默认关闭，以降低打开或分享错误项目结果的风险。",
+        ),
+    )
+    scoped_runs = (
+        viewable_runs
+        if show_all_projects
+        else [path for path in viewable_runs if _run_belongs_to_project(path, active_project)]
+    )
+    runs, run_labels = _sort_view_output_runs(scoped_runs)
+    other_project_count = len(viewable_runs) - len(scoped_runs)
+    if other_project_count and not show_all_projects:
+        st.caption(
+            _text(
+                f"{other_project_count} run(s) from other or legacy projects are hidden.",
+                f"已隐藏其他项目或旧版项目的 {other_project_count} 次运行。",
+            )
+        )
     if not runs:
         st.info(_text(
-            "No UI-generated outputs yet. Run an example, document intake, question discovery, or wizard first.",
-            "还没有 UI 生成的输出。请先运行示例、文档摄取、问题发现或向导。",
+            "No completed outputs are available for the current project. Generate one, or explicitly show all projects.",
+            "当前项目还没有可查看的完整结果。请先生成结果，或显式选择显示所有项目。",
         ))
         return
 
@@ -1866,8 +2230,14 @@ def _sort_view_output_runs(paths: list[Path]) -> tuple[list[Path], dict[Path, st
             continue
         timestamp = created_at.timestamp()
         safe_time = created_at.strftime("%Y-%m-%d %H:%M:%S UTC")
+        project_id, workflow_type = _view_output_identity_details(path)
+        workflow_label = workflow_type.removeprefix("problem_bridge.").replace("_", " ")
+        project_label = project_id if len(project_id) <= 24 else f"{project_id[:12]}…"
         legacy_marker = " · legacy" if legacy else ""
-        label = f"{safe_time} · {path.name}{legacy_marker}"
+        label = (
+            f"{safe_time} · {workflow_label} · {project_label} · "
+            f"{path.name}{legacy_marker}"
+        )
         entries.append((timestamp, path.name.casefold(), path, label))
     entries.sort(key=lambda item: (item[0], item[1]), reverse=True)
     ordered = [item[2] for item in entries]
@@ -1890,6 +2260,22 @@ def _view_output_created_at(path: Path) -> tuple[datetime, bool]:
     return datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc), True
 
 
+def _view_output_identity_details(path: Path) -> tuple[str, str]:
+    identity_path = path / RUN_IDENTITY_NAME
+    if not identity_path.is_file():
+        return "unbound", "legacy"
+    identity = load_run_identity(path)
+    return str(identity["project_id"]), str(identity.get("workflow_type", "unknown"))
+
+
+def _run_belongs_to_project(path: Path, project_id: str) -> bool:
+    try:
+        actual_project_id, _workflow_type = _view_output_identity_details(path)
+    except (OSError, ValueError, TypeError, ProjectLifecycleError):
+        return False
+    return actual_project_id == project_id
+
+
 def _render_alignment_next_step(out: Path) -> None:
     st.subheader(_text("Next step", "下一步"))
     st.write(
@@ -1903,6 +2289,8 @@ def _render_alignment_next_step(out: Path) -> None:
         key=f"continue_to_ai_wizard_{out.name}",
         on_click=_continue_to_ai_wizard_from_alignment,
         args=(out,),
+        type="primary",
+        use_container_width=True,
     )
 
 
@@ -1919,6 +2307,8 @@ def _render_view_outputs_next_step(out: Path) -> None:
         key=f"continue_to_view_outputs_{out.name}",
         on_click=_continue_to_view_outputs,
         args=(out,),
+        type="primary",
+        use_container_width=True,
     )
 
 
@@ -1935,18 +2325,97 @@ def _read_output_text(out: Path, filename: str) -> str:
     return path.read_text(encoding="utf-8") if path.is_file() else ""
 
 
+def _markdown_section(text: str, title: str) -> str:
+    marker = f"## {title}".casefold()
+    lines = text.splitlines()
+    start = next(
+        (index + 1 for index, line in enumerate(lines) if line.strip().casefold() == marker),
+        None,
+    )
+    if start is None:
+        return ""
+    collected: list[str] = []
+    for line in lines[start:]:
+        if line.strip().startswith("## "):
+            break
+        collected.append(line)
+    return "\n".join(collected).strip()
+
+
+def _compact_seed_text(text: str, *, max_chars: int = 1400) -> str:
+    cleaned_lines = []
+    for raw_line in text.splitlines():
+        line = re.sub(r"^#{1,6}\s*", "", raw_line.strip())
+        line = re.sub(r"^[-*]\s+", "", line)
+        if line and line not in {"```", "---"}:
+            cleaned_lines.append(line)
+    compact = re.sub(r"\s+", " ", " ".join(cleaned_lines)).strip()
+    if len(compact) <= max_chars:
+        return compact
+    shortened = compact[: max_chars - 1].rsplit(" ", 1)[0].rstrip(" ,;:")
+    return f"{shortened}…"
+
+
+def _yaml_scalar(text: str, key: str) -> str:
+    prefix = f"{key}:"
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith(prefix):
+            return stripped[len(prefix) :].strip().strip('"\'')
+    return ""
+
+
+def _yaml_list(text: str, key: str) -> list[str]:
+    lines = text.splitlines()
+    prefix = f"{key}:"
+    for index, line in enumerate(lines):
+        if line.strip() != prefix:
+            continue
+        values: list[str] = []
+        for candidate in lines[index + 1 :]:
+            if candidate.startswith("  - "):
+                values.append(candidate[4:].strip().strip('"\''))
+                continue
+            if candidate.strip():
+                break
+        return values
+    return []
+
+
+def _markdown_bullets(text: str, *, limit: int = 8) -> list[str]:
+    return [
+        line.strip()[2:].strip()
+        for line in text.splitlines()
+        if line.strip().startswith("- ")
+    ][:limit]
+
+
+def _field_lines(values: list[str]) -> str:
+    return "\n".join(f"- {value}" for value in values if value.strip())
+
+
 def _question_discovery_seed_from_intake(out: Path) -> dict[str, str]:
-    seed_text = _read_output_text(out, "problem_seed.md") or _read_output_text(out, "extracted_text.md")
+    problem_seed = _read_output_text(out, "problem_seed.md")
+    extracted_context = _markdown_section(problem_seed, "Extracted context")
+    seed_text = _compact_seed_text(
+        extracted_context or _read_output_text(out, "extracted_text.md")
+    )
     warnings = _read_output_text(out, "extraction_warnings.md").strip()
     uncertainty_parts = [
-        "Review the extracted text, tables, annotations, and warnings to decide what needs expert validation.",
+        _text(
+            "Review the extracted text, tables, annotations, and warnings to decide what needs expert validation.",
+            "请检查提取文本、表格、批注和警告，判断哪些内容需要专家确认。",
+        ),
     ]
-    if warnings:
-        uncertainty_parts.append(warnings)
+    if warnings and "No extraction warnings" not in warnings:
+        uncertainty_parts.append(_compact_seed_text(warnings, max_chars=600))
     return {
         "question_seed_text": seed_text,
         "question_uncertainty": "\n\n".join(uncertainty_parts),
-        "question_desired_change": "Identify what to ask, who to ask, and which unknowns must be validated before proposing an AI solution.",
+        "question_desired_change": _text(
+            "Identify what to ask, who to ask, and which unknowns must be validated before proposing an AI solution.",
+            "在提出 AI 方案前，明确该问什么、该问谁，以及哪些未知项必须先验证。",
+        ),
     }
 
 
@@ -1960,11 +2429,30 @@ def _continue_to_question_discovery_from_intake(out: Path) -> None:
 
 
 def _domain_wizard_seed_from_discovery(out: Path) -> dict[str, str]:
-    seed_text = _read_output_text(out, "problem_seed.md") or _read_output_text(out, "question_brief.md")
+    problem_seed = _read_output_text(out, "problem_seed.md")
+    source_context = _compact_seed_text(
+        _markdown_section(problem_seed, "Source context")
+        or _read_output_text(out, "question_brief.md")
+    )
+    notes = _compact_seed_text(_read_output_text(out, "question_brief.md"), max_chars=1600)
     return {
-        "domain_draft_repeated_work": "Use this question discovery package to interview domain practitioners and reconstruct the repeated workflow.",
-        "domain_draft_additional_notes": seed_text,
+        "domain_draft_repeated_work": source_context,
+        "domain_draft_additional_notes": notes,
     }
+
+
+def _interview_seed_from_discovery(out: Path):
+    problem_seed = _read_output_text(out, "problem_seed.md")
+    seeded = start_interview()
+    values = {
+        "repeated_work": _compact_seed_text(
+            _markdown_section(problem_seed, "Source context"), max_chars=1000
+        ),
+    }
+    for key, value in values.items():
+        if value:
+            seeded = answer_question(seeded, key, value)
+    return seeded
 
 
 def _continue_to_domain_wizard_from_discovery(out: Path) -> None:
@@ -1972,6 +2460,11 @@ def _continue_to_domain_wizard_from_discovery(out: Path) -> None:
     seed = _domain_wizard_seed_from_discovery(out)
     for key, value in seed.items():
         st.session_state[key] = value
+    for key in list(st.session_state):
+        if str(key).startswith(("interview_answer_", "interview_edit_")):
+            del st.session_state[key]
+    st.session_state.problem_bridge_interview_state = _interview_seed_from_discovery(out)
+    st.session_state.interview_seed_source = str(out)
     st.session_state.last_question_discovery_dir = str(out)
     st.session_state.workspace_page = "Domain practitioner wizard"
 
@@ -1979,21 +2472,43 @@ def _continue_to_domain_wizard_from_discovery(out: Path) -> None:
 def _ai_wizard_seed_from_alignment(out: Path) -> dict[str, str]:
     problem_card = _read_output_text(out, "problem_card.md") or _read_output_text(out, "problem.md")
     task_spec = _read_output_text(out, "ai_task_spec.yaml")
-    evidence_contract = _read_output_text(out, "evidence_contract.yaml")
-    evaluation_protocol = _read_output_text(out, "evaluation_protocol.md")
-    human_plan = _read_output_text(out, "human_in_loop_plan.md")
     risk_report = _read_output_text(out, "misalignment_risk_report.md")
+    repeated_work = _compact_seed_text(
+        _markdown_section(problem_card, "repeated_work"), max_chars=1000
+    )
+    source_problem = _compact_seed_text(
+        _markdown_section(problem_card, "Source Problem"), max_chars=1000
+    )
+    usable_source_problem = (
+        "" if source_problem.lstrip().startswith("#") else source_problem
+    )
+    domain_goal = (
+        repeated_work
+        or usable_source_problem
+        or _yaml_scalar(task_spec, "domain_goal")
+        or _compact_seed_text(
+            _markdown_section(problem_card, "Domain Goal") or problem_card,
+            max_chars=1000,
+        )
+    )
+    not_allowed = _yaml_scalar(task_spec, "not_allowed_goal")
+    task_types = _yaml_list(task_spec, "ai_task_type")
+    inputs = _yaml_list(task_spec, "inputs")
+    outputs = _yaml_list(task_spec, "outputs")
+    evaluation = _yaml_list(task_spec, "evaluation")
+    human_review = _yaml_list(task_spec, "human_review_required")
+    risks = _markdown_bullets(risk_report)
+    high_risk_parts = list(
+        dict.fromkeys(part for part in [not_allowed, *human_review, *risks] if part)
+    )
     return {
-        "ai_draft_domain_problem": problem_card,
-        "ai_draft_candidate_task": f"From ai_task_spec.yaml:\n\n{task_spec}",
-        "ai_draft_inputs": f"Review the inputs listed in ai_task_spec.yaml:\n\n{task_spec}",
-        "ai_draft_outputs": f"Review the outputs listed in ai_task_spec.yaml:\n\n{task_spec}",
-        "ai_draft_metric": f"From evaluation_protocol.md:\n\n{evaluation_protocol}",
-        "ai_draft_user": f"From human_in_loop_plan.md:\n\n{human_plan}",
-        "ai_draft_high_risk_mistakes": (
-            "Review misalignment_risk_report.md and evidence_contract.yaml:\n\n"
-            f"{risk_report}\n\n--- evidence_contract.yaml ---\n\n{evidence_contract}"
-        ),
+        "ai_draft_domain_problem": domain_goal,
+        "ai_draft_candidate_task": _field_lines(task_types),
+        "ai_draft_inputs": _field_lines(inputs),
+        "ai_draft_outputs": _field_lines(outputs),
+        "ai_draft_metric": _field_lines(evaluation),
+        "ai_draft_user": "",
+        "ai_draft_high_risk_mistakes": _field_lines(high_risk_parts),
     }
 
 
@@ -2002,6 +2517,7 @@ def _continue_to_ai_wizard_from_alignment(out: Path) -> None:
     seed = _ai_wizard_seed_from_alignment(out)
     for key, value in seed.items():
         st.session_state[key] = value
+    st.session_state.ai_seed_source_dir = str(out)
     st.session_state.last_alignment_package_dir = str(out)
     st.session_state.last_output_dir = str(out)
     st.session_state.workspace_page = "AI practitioner wizard"
@@ -2133,6 +2649,8 @@ def _run_problem_text(problem_text: str, prefix: str) -> Path:
         st.session_state.last_alignment_package_dir = str(out)
     if prefix == "ai_practitioner":
         st.session_state.last_ai_alignment_dir = str(out)
+    if prefix.startswith("example_"):
+        st.session_state.last_example_dir = str(out)
     st.session_state.last_output_dir = str(out)
     return out
 
@@ -2286,7 +2804,7 @@ def _render_share_controls(
             key=f"delete_run_{out.name}",
         ):
             _delete_ui_run(out)
-            st.success(_text("Local run deleted.", "本地运行已删除。"))
+            _set_flash_message("success", _text("Local run permanently deleted.", "本地运行已永久删除。"))
             st.rerun()
 
 

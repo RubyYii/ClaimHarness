@@ -107,3 +107,23 @@
   - README.zh-CN.md
   - RELEASE_PACKAGE_GUIDE.md
   - docs/v0.4_upgrade.md
+
+### interaction-usability-v0.4.0 — round 1/3
+
+- Revision ID: 2a058bef-a709-45b1-b52f-c1f50162cae2
+- Parent revision: None
+- Time: 2026-07-11T10:35:30.131453+00:00
+- Diagnosis: structural_mismatch
+- Status: accepted
+- Change: Reworked the local workbench into a validated, project-scoped, action-first guided flow with provisional handoffs, editable interview state, structured AI seeds, and accessible navigation.
+- Verification: Full regression 338 passed and 2 skipped; focused interaction suite 28 passed; real browser walkthrough and three independent read-only reviews completed.
+- Integrity SHA-256: 1a15bf2cd9857438e048a84b139ae64c684817c57bb0a885ba374e8758854e29
+- Changed files:
+  - apps/problem_bridge_wizard.py
+  - tests/test_ui_smoke.py
+  - tests/test_ui_archive.py
+  - tests/test_release_readiness.py
+  - README.md
+  - README.zh-CN.md
+  - docs/demo_walkthrough.md
+  - docs/project_records/2026-07-11-project-lifecycle-integrity/interaction_usability_verification.md

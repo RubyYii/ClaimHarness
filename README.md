@@ -196,7 +196,11 @@ For non-AI users, start with the local guided app:
 .\RUN_PROBLEMBRIDGE_WINDOWS.bat
 ```
 
-The Streamlit workbench includes a bilingual English/Chinese interface switch at the top of the page. The selected language is reflected in the URL, so `?lang=zh` opens the Chinese interface and `?lang=en` opens the English interface.
+The Streamlit workbench includes a bilingual English/Chinese interface switch at the top of the page. The selected language is reflected in the URL, so `?lang=zh` opens the Chinese interface and `?lang=en` opens the English interface. Switching languages stays in the same browser tab and preserves the active local project. Current Streamlit releases still emit the outer document as `lang="en"` in Chinese mode, so screen-reader pronunciation may not switch automatically even though the language control itself exposes the correct accessible name and checked state.
+
+The guided interaction now keeps the full overview on Home and uses a compact workflow header on task pages. Required forms show inline guidance without creating an empty run. Question discovery seeds the one-question-at-a-time interview, the completed interview remains editable before generation, and the AI handoff separates the domain problem, candidate task, inputs, outputs, evaluation, and high-risk boundaries instead of copying raw YAML into several fields. The reviewer field stays blank until the user confirms a real role. Generated results keep the next action above the expanded review and collapsed technical files.
+
+`View generated outputs` is scoped to the active project by default. Turn on the explicit all-projects option only when you need to compare workspaces; each history label includes the verified UTC time, workflow, project identifier, and legacy status when applicable.
 
 If you are cloning from GitHub manually:
 

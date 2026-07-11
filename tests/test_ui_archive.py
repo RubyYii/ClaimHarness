@@ -222,7 +222,22 @@ def test_view_history_uses_verified_identity_time_with_legacy_mtime_fallback(
     assert ordered == [newer, legacy, older]
     assert labels[newer].startswith("2026-07-11 08:00:00 UTC")
     assert labels[older].startswith("2026-07-10 08:00:00 UTC")
+    assert "project-alpha" in labels[newer]
+    assert "generic" in labels[newer]
     assert labels[legacy].endswith("legacy-20200101T000000Z · legacy")
+
+
+def test_output_history_defaults_can_be_scoped_to_active_project(tmp_path):
+    alpha = prepare_run_directory(tmp_path / "alpha", project_id="project-alpha")
+    beta = prepare_run_directory(tmp_path / "beta", project_id="project-beta")
+    with alpha.transaction():
+        pass
+    with beta.transaction():
+        pass
+
+    assert ui._run_belongs_to_project(alpha.path, "project-alpha")
+    assert not ui._run_belongs_to_project(beta.path, "project-alpha")
+    assert not ui._run_belongs_to_project(tmp_path / "legacy", "project-alpha")
 
 
 def test_project_delete_removes_matching_complete_and_incomplete_runs_only(tmp_path, monkeypatch):
