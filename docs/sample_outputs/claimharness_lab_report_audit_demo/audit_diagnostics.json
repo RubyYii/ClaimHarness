@@ -2,6 +2,7 @@
   "artifact_type": "single_run_structural_diagnostics",
   "attention": {
     "claims_needing_human_review": [
+      "C003",
       "C005"
     ],
     "claims_with_contradictions": [
@@ -32,6 +33,26 @@
       "C003"
     ],
     "high_risk_not_blocked_or_reviewed": [],
+    "release_allowed_claims": [
+      "C010",
+      "C011",
+      "C012"
+    ],
+    "release_blocked_claims": [
+      "C001",
+      "C002",
+      "C003",
+      "C004",
+      "C005",
+      "C006",
+      "C007",
+      "C008",
+      "C009",
+      "C013",
+      "C014",
+      "C015",
+      "C016"
+    ],
     "unlinked_evidence_items": [
       "R003",
       "R005",
@@ -41,7 +62,9 @@
   "boundary": "Derived only from this run's deterministic links and verifier outputs. These structural diagnostics do not establish factual correctness, scientific validity, clinical safety, model accuracy, faithfulness, or hallucination rates.",
   "definitions": {
     "any_link_coverage": "Claims with at least one deterministic supports, related, or contradicts link.",
-    "high_risk_blocked_or_reviewed": "High-risk claims routed to unsupported, overclaimed, or needs_human_review.",
+    "high_risk_blocked_or_reviewed": "High-risk claims whose explicit release_allowed flag is false.",
+    "human_review_required": "Claims whose explicit verifier boundary requires pending human review.",
+    "release_allowed": "Low-risk supported claims with no human-review requirement.",
     "support_relation_coverage": "Claims with at least one deterministic supports relation. This can include weakly_supported claims whose evidence requirements remain unmet.",
     "unlinked_evidence_items": "Evidence items not linked to any claim in this run."
   },
@@ -66,6 +89,11 @@
       "numerator": 1,
       "rate": 0.0625
     },
+    "human_review_required": {
+      "denominator": 16,
+      "numerator": 2,
+      "rate": 0.125
+    },
     "missing_requirement_claims": {
       "denominator": 16,
       "numerator": 10,
@@ -86,6 +114,16 @@
       "numerator": 4,
       "rate": 0.25
     },
+    "release_allowed": {
+      "denominator": 16,
+      "numerator": 3,
+      "rate": 0.1875
+    },
+    "release_blocked": {
+      "denominator": 16,
+      "numerator": 13,
+      "rate": 0.8125
+    },
     "support_relation_coverage": {
       "denominator": 16,
       "numerator": 12,
@@ -102,6 +140,72 @@
     "related": 33,
     "supports": 33
   },
+  "release_boundary_by_claim": {
+    "C001": {
+      "human_review_required": false,
+      "release_allowed": false
+    },
+    "C002": {
+      "human_review_required": false,
+      "release_allowed": false
+    },
+    "C003": {
+      "human_review_required": true,
+      "release_allowed": false
+    },
+    "C004": {
+      "human_review_required": false,
+      "release_allowed": false
+    },
+    "C005": {
+      "human_review_required": true,
+      "release_allowed": false
+    },
+    "C006": {
+      "human_review_required": false,
+      "release_allowed": false
+    },
+    "C007": {
+      "human_review_required": false,
+      "release_allowed": false
+    },
+    "C008": {
+      "human_review_required": false,
+      "release_allowed": false
+    },
+    "C009": {
+      "human_review_required": false,
+      "release_allowed": false
+    },
+    "C010": {
+      "human_review_required": false,
+      "release_allowed": true
+    },
+    "C011": {
+      "human_review_required": false,
+      "release_allowed": true
+    },
+    "C012": {
+      "human_review_required": false,
+      "release_allowed": true
+    },
+    "C013": {
+      "human_review_required": false,
+      "release_allowed": false
+    },
+    "C014": {
+      "human_review_required": false,
+      "release_allowed": false
+    },
+    "C015": {
+      "human_review_required": false,
+      "release_allowed": false
+    },
+    "C016": {
+      "human_review_required": false,
+      "release_allowed": false
+    }
+  },
   "requirement_gap_counts": {
     "citation": 1,
     "external_validation": 1,
@@ -110,7 +214,7 @@
     "table": 1,
     "trace": 4
   },
-  "schema_version": 1,
+  "schema_version": 2,
   "status_counts": {
     "needs_human_review": 1,
     "overclaimed": 1,

@@ -6,7 +6,13 @@ import pytest
 from claim_harness.claim_extractor import extract_claims
 from claim_harness.evidence_retriever import retrieve_evidence
 from claim_harness.loader import load_manuscript
-from claim_harness.schemas import Claim, EvidenceItem, EvidenceLocator, ManuscriptSection
+from claim_harness.schemas import (
+    Claim,
+    EvidenceItem,
+    EvidenceLocator,
+    ManuscriptSection,
+    VerificationResult,
+)
 from claim_harness.verifier import verify_claims
 
 
@@ -46,6 +52,142 @@ def test_repeated_result_assertions_cannot_support_each_other():
     assert all(not item.linked_claim_ids for item in evidence)
     assert [result.status for result in results] == ["unsupported", "unsupported"]
     assert all(result.missing_evidence == ["table"] for result in results)
+
+
+def test_same_source_location_is_rejected_even_when_text_is_not_identical():
+    section = ManuscriptSection(
+        name="Results",
+        text="The Alpha system improves macro score.",
+        start_line=1,
+        content_start_line=2,
+    )
+    claim = Claim(
+        claim_id="C001",
+        text="The Alpha system improves macro score substantially.",
+        source_section="Results",
+        source_line=2,
+        claim_type="performance_claim",
+        strength="strong",
+        requires_evidence=["table"],
+    )
+
+    evidence = retrieve_evidence([claim], [section], {}, "")
+
+    assert evidence
+    assert all("C001" not in item.linked_claim_ids for item in evidence)
+
+
+def test_distinct_sentence_on_same_source_line_can_remain_candidate_evidence():
+    section = ManuscriptSection(
+        name="Results",
+        text=(
+            "The Alpha system improves macro score. "
+            "A separate ablation shows Alpha improves score without a review gate."
+        ),
+        start_line=1,
+        content_start_line=2,
+    )
+    claim = Claim(
+        claim_id="C001",
+        text="The Alpha system improves macro score.",
+        source_section="Results",
+        source_line=2,
+        claim_type="performance_claim",
+        strength="strong",
+        requires_evidence=["table"],
+    )
+
+    evidence = retrieve_evidence([claim], [section], {}, "")
+
+    linked_text = [item.text for item in evidence if "C001" in item.linked_claim_ids]
+    assert linked_text == [
+        "A separate ablation shows Alpha improves score without a review gate."
+    ]
+
+
+def test_direct_verifier_rejects_exact_claim_text_from_another_location():
+    claim = Claim(
+        claim_id="C001",
+        text="The workflow records an auditable trace.",
+        source_section="Results",
+        source_line=2,
+        claim_type="workflow_claim",
+        strength="moderate",
+        requires_evidence=["trace"],
+    )
+    duplicate = EvidenceItem(
+        evidence_id="E001",
+        source="Discussion",
+        locator=EvidenceLocator(
+            source_kind="manuscript", source_name="Discussion", line=9
+        ),
+        evidence_type="workflow_trace",
+        text=claim.text,
+        linked_claim_ids=[claim.claim_id],
+        claim_link_relations={claim.claim_id: "supports"},
+    )
+
+    result = verify_claims([claim], [duplicate])[0]
+
+    assert result.supporting_evidence_ids == []
+    assert result.missing_evidence == ["trace"]
+
+
+def test_verification_result_enforces_review_and_release_invariants():
+    high_risk = VerificationResult(
+        claim_id="C001",
+        status="supported",
+        reason="Constructed outside verify_claims.",
+        risk_level="high",
+        suggested_revision="Route to review.",
+        release_allowed=True,
+    )
+    review_status = VerificationResult(
+        claim_id="C002",
+        status="needs_human_review",
+        reason="Review required.",
+        risk_level="low",
+        suggested_revision="Review it.",
+        human_review_required=False,
+        release_allowed=True,
+    )
+
+    assert high_risk.human_review_required is True
+    assert high_risk.release_allowed is False
+    assert review_status.human_review_required is True
+    assert review_status.release_allowed is False
+
+
+def test_discussion_assertions_are_not_promoted_to_workflow_traces():
+    sections = [
+        ManuscriptSection(
+            name="Methods",
+            text="The workflow records each audit step.",
+            start_line=1,
+            content_start_line=2,
+        ),
+        ManuscriptSection(
+            name="Discussion",
+            text=(
+                "The workflow appears useful for audit teams. "
+                "It does not establish deployment readiness."
+            ),
+            start_line=3,
+            content_start_line=4,
+        ),
+    ]
+
+    evidence = retrieve_evidence([], sections, {}, "")
+    types_by_source = {
+        item.source: [entry.evidence_type for entry in evidence if entry.source == item.source]
+        for item in evidence
+    }
+
+    assert types_by_source["Methods"] == ["workflow_trace"]
+    assert types_by_source["Discussion"] == [
+        "narrative_assertion",
+        "limitation_statement",
+    ]
 
 
 def test_source_locations_preserve_original_coordinates(tmp_path: Path):
@@ -106,6 +248,8 @@ def test_verifier_enforces_required_evidence():
     assert missing_trace.status == "weakly_supported"
     assert missing_trace.missing_evidence == ["trace"]
     assert complete.status == "supported"
+    assert complete.human_review_required is False
+    assert complete.release_allowed is True
 
 
 def test_high_risk_claims_route_to_review_or_overclaim():
@@ -140,6 +284,47 @@ def test_high_risk_claims_route_to_review_or_overclaim():
 
     assert results[0].status == "needs_human_review"
     assert results[1].status == "overclaimed"
+    assert all(result.human_review_required for result in results)
+    assert all(not result.release_allowed for result in results)
+
+
+def test_high_risk_supported_claim_still_requires_review_and_blocks_release():
+    claim = Claim(
+        claim_id="C001",
+        text="The method clinically improves outcomes.",
+        source_section="Discussion",
+        source_line=1,
+        claim_type="clinical_claim",
+        strength="high",
+        requires_evidence=["external_validation", "human_review"],
+    )
+    external_validation = EvidenceItem(
+        evidence_id="E001",
+        source="independent-study",
+        locator=EvidenceLocator(
+            source_kind="external", source_name="independent-study", line=1
+        ),
+        evidence_type="external_validation",
+        text="An independent validation reports improved outcomes.",
+        linked_claim_ids=["C001"],
+        claim_link_relations={"C001": "supports"},
+    )
+    human_review = EvidenceItem(
+        evidence_id="E002",
+        source="review-record",
+        locator=EvidenceLocator(source_kind="external", source_name="review-record", line=1),
+        evidence_type="human_review",
+        text="A qualified reviewer inspected the claim boundary.",
+        linked_claim_ids=["C001"],
+        claim_link_relations={"C001": "supports"},
+    )
+
+    result = verify_claims([claim], [external_validation, human_review])[0]
+
+    assert result.status == "supported"
+    assert result.risk_level == "high"
+    assert result.human_review_required is True
+    assert result.release_allowed is False
 
 
 def test_negation_meta_language_and_word_boundaries():

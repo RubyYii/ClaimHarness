@@ -21,7 +21,7 @@
   <a href="#本地运行">本地运行</a> ·
   <a href="#谁适合使用">谁适合使用</a> ·
   <a href="docs/static_showcase/zh-CN.html">中文静态展示</a> ·
-  <a href="README.md">English</a>
+  <a href="README.md" hreflang="en" aria-label="打开英文 README">English</a>
 </p>
 
 **语言：**[English](README.md) | [简体中文](README.zh-CN.md)
@@ -29,6 +29,8 @@
 **展示页：**[English static showcase](docs/static_showcase/en.html) | [中文静态展示](docs/static_showcase/zh-CN.html)
 
 **开发复盘：**[开发经验整理](DEVELOPMENT_LESSONS.md)
+
+**外部审查对照：**[当前实现与 14 类问题状态](docs/external_review_reconciliation.md)
 
 ## 先看这里
 
@@ -82,6 +84,17 @@ ProblemBridge + ClaimHarness 是一个本地优先的跨学科 AI 原型。它�
 2. **输出后的证据审计。**ClaimHarness 检查科研文本或 AI 生成内容中的 claims 是否被已有正文、表格或参考材料支持，并标记弱证据、过度主张和需要人工复核的地方。
 
 默认演示使用 deterministic mock mode，不需要 API key，不调用外部模型，只使用合成样例。
+
+### 当前实现真相
+
+| 组件 | 当前实现 |
+| --- | --- |
+| **ProblemBridge 生成** | 确定性的 profile/template 生成，并继承引导字段；不会从任意领域材料中自动推导真实工作流。 |
+| **Claim 抽取** | English-first 的确定性规则；双语界面不等于已经验证中文 claim 抽取。 |
+| **证据检索** | 词法候选匹配，加上表格实体、指标和数值关系检查。 |
+| **验证** | 感知 evidence contract 的保守规则筛查；不是语义或事实验证。 |
+| **远程 LLM** | 只在确定性验证后生成可选 advisory summary；不会改变抽取、检索或 claim 状态。 |
+| **专业决策** | 必须由合格人员复核；pending 人工复核队列不是批准或决策记录。 |
 
 ## 文档摄取层
 
@@ -353,7 +366,7 @@ ProblemBridge 生成的证据契约可以直接交给 ClaimHarness。严格的 s
 - 这是原型，不是临床、法律或教育政策决策系统。
 - 不保证事实正确性。
 - 只检查你提供的材料。
-- biomedical 或高风险 claims 仍然需要人工复核。
+- 被当前确定性规则判定为 biomedical 或高风险的 claims 仍然需要人工复核；规则仍可能漏掉此类声明。
 - Results 章节中的自述不会自动成为该 claim 的强证据；强表格证据必须有可核验的指标/数值关系。
 - mock mode 是确定性的演示模式，不等于完整语义理解。
 - 中文界面不等于中文 claim 审计已验证；当前规则和合成 gold set 以英文为主，中文稿件必须人工复核。

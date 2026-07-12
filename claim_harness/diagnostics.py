@@ -8,7 +8,7 @@ from typing import Any
 from .schemas import Claim, EvidenceItem, VerificationResult
 
 
-DIAGNOSTICS_SCHEMA_VERSION = 1
+DIAGNOSTICS_SCHEMA_VERSION = 2
 DIAGNOSTICS_BOUNDARY = (
     "Derived only from this run's deterministic links and verifier outputs. "
     "These structural diagnostics do not establish factual correctness, scientific "
@@ -45,23 +45,33 @@ def build_audit_diagnostics(
         for result in results
         if result.claim_id in claim_ids and result.risk_level == "high"
     }
-    human_review_claim_ids = {
+    needs_human_review_status_claim_ids = {
         result.claim_id
         for result in results
         if result.claim_id in claim_ids and result.status == "needs_human_review"
     }
+    human_review_claim_ids = {
+        result.claim_id
+        for result in results
+        if result.claim_id in claim_ids and result.human_review_required
+    }
+    release_allowed_claim_ids = {
+        result.claim_id
+        for result in results
+        if result.claim_id in claim_ids and result.release_allowed
+    }
+    release_blocked_claim_ids = claim_ids - release_allowed_claim_ids
     contradiction_claim_ids = {
         result.claim_id
         for result in results
         if result.claim_id in claim_ids and result.contradicting_evidence_ids
     }
-    blocked_statuses = {"unsupported", "overclaimed", "needs_human_review"}
     high_risk_blocked_ids = {
         result.claim_id
         for result in results
         if result.claim_id in claim_ids
         and result.risk_level == "high"
-        and result.status in blocked_statuses
+        and not result.release_allowed
     }
     unlinked_evidence_ids = {
         item.evidence_id
@@ -98,7 +108,12 @@ def build_audit_diagnostics(
         "missing_requirement_claims": _ratio(
             len(missing_requirement_claim_ids), total_claims
         ),
-        "needs_human_review": _ratio(len(human_review_claim_ids), total_claims),
+        "needs_human_review": _ratio(
+            len(needs_human_review_status_claim_ids), total_claims
+        ),
+        "human_review_required": _ratio(len(human_review_claim_ids), total_claims),
+        "release_allowed": _ratio(len(release_allowed_claim_ids), total_claims),
+        "release_blocked": _ratio(len(release_blocked_claim_ids), total_claims),
         "no_support_relation": _ratio(
             total_claims - len(support_relation_claim_ids), total_claims
         ),
@@ -123,8 +138,17 @@ def build_audit_diagnostics(
         "relation_link_counts": dict(sorted(relation_counts.items())),
         "metrics": metrics,
         "requirement_gap_counts": dict(sorted(requirement_gap_counts.items())),
+        "release_boundary_by_claim": {
+            result.claim_id: {
+                "human_review_required": result.human_review_required,
+                "release_allowed": result.release_allowed,
+            }
+            for result in sorted(governed_results, key=lambda item: item.claim_id)
+        },
         "attention": {
             "claims_needing_human_review": sorted(human_review_claim_ids),
+            "release_allowed_claims": sorted(release_allowed_claim_ids),
+            "release_blocked_claims": sorted(release_blocked_claim_ids),
             "claims_with_contradictions": sorted(contradiction_claim_ids),
             "claims_with_missing_requirements": sorted(missing_requirement_claim_ids),
             "claims_without_support_relation": sorted(
@@ -146,7 +170,13 @@ def build_audit_diagnostics(
                 "Claims with at least one deterministic supports, related, or contradicts link."
             ),
             "high_risk_blocked_or_reviewed": (
-                "High-risk claims routed to unsupported, overclaimed, or needs_human_review."
+                "High-risk claims whose explicit release_allowed flag is false."
+            ),
+            "human_review_required": (
+                "Claims whose explicit verifier boundary requires pending human review."
+            ),
+            "release_allowed": (
+                "Low-risk supported claims with no human-review requirement."
             ),
             "unlinked_evidence_items": (
                 "Evidence items not linked to any claim in this run."

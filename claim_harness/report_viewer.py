@@ -141,6 +141,16 @@ def _read_claim_rows_text(text: str) -> list[dict[str, str]]:
     return [dict(row) for row in csv.DictReader(io.StringIO(text, newline=""))]
 
 
+def _claim_requires_human_review(row: dict[str, str]) -> bool:
+    explicit = row.get("human_review_required", "").strip().lower()
+    if explicit in {"true", "false"}:
+        return explicit == "true"
+    return (
+        row.get("risk_level") == "high"
+        or row.get("status") in {"overclaimed", "needs_human_review"}
+    )
+
+
 def _read_trace(path: Path) -> list[dict[str, Any]]:
     events: list[dict[str, Any]] = []
     for line in path.read_text(encoding="utf-8").splitlines():
@@ -166,10 +176,18 @@ def _render_html(payload: dict[str, Any], run_dir: Path) -> str:
         status_counts.get(status, 0)
         for status in ("weakly_supported", "unsupported", "overclaimed", "needs_human_review")
     )
+    review_required_count = sum(
+        _claim_requires_human_review(row) for row in claims
+    )
+    release_blocked_count = sum(
+        row.get("release_allowed") != "true" for row in claims
+    )
     high_risk_claims = [
         row
         for row in claims
-        if row.get("risk_level") == "high" or row.get("status") in {"overclaimed", "needs_human_review"}
+        if _claim_requires_human_review(row)
+        or row.get("risk_level") == "high"
+        or row.get("status") in {"overclaimed", "needs_human_review"}
     ]
 
     return "\n".join(
@@ -202,6 +220,8 @@ def _render_html(payload: dict[str, Any], run_dir: Path) -> str:
             _metric("Evidence items", len(evidence)),
             _metric("Supported", status_counts.get("supported", 0)),
             _metric("Weak or worse", weak_or_worse),
+            _metric("Review required", review_required_count),
+            _metric("Release blocked", release_blocked_count),
             _metric("Trace events", len(trace)),
             "</section>",
             _render_status_breakdown(status_counts),
@@ -347,7 +367,7 @@ section {
 }
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(130px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
   gap: 10px;
 }
 .metric {
@@ -484,8 +504,9 @@ function visibleForFilter(row, filter) {
   const status = row.dataset.status;
   const risk = row.dataset.risk;
   if (filter === 'all') return true;
-  if (filter === 'needs-action') return status !== 'supported';
+  if (filter === 'needs-action') return row.dataset.releaseAllowed !== 'true';
   if (filter === 'priority-review') return row.dataset.priority === 'true';
+  if (filter === 'needs_human_review') return row.dataset.reviewRequired === 'true';
   return status === filter;
 }
 function updateClaims() {
@@ -579,7 +600,8 @@ def _render_diagnostics(diagnostics: dict[str, Any] | None) -> str:
         ("Any link coverage", "any_link_coverage"),
         ("Support relation", "support_relation_coverage"),
         ("No support relation", "no_support_relation"),
-        ("Needs human review", "needs_human_review"),
+        ("Review required", "human_review_required"),
+        ("Release blocked", "release_blocked"),
         ("Contradiction claims", "contradiction_claims"),
     ]
     rendered_cards = "".join(
@@ -671,7 +693,10 @@ def _render_high_risk_claims(claims: list[dict[str, str]]) -> str:
             '<div class="risk-item">'
             f'<h3>{_e(row.get("claim_id", ""))}: <span class="{_status_class(row.get("status", ""))}">{_e(_humanize_status(row.get("status", "")))}</span></h3>'
             f'<p>{_e(row.get("text", ""))}</p>'
-            f'<p class="mono">risk={_e(row.get("risk_level", ""))} source={_e(row.get("source_section", ""))}</p>'
+            f'<p class="mono">risk={_e(row.get("risk_level", ""))} '
+            f'human_review_required={_e(row.get("human_review_required", "unknown"))} '
+            f'release_allowed={_e(row.get("release_allowed", "unknown"))} '
+            f'source={_e(row.get("source_section", ""))}</p>'
             "</div>"
         )
     return '<section id="priority" class="anchor-target"><h2>Priority review claims</h2><div class="risk-list">' + "".join(items) + "</div></section>"
@@ -703,12 +728,21 @@ def _render_claim_table(claims: list[dict[str, str]], evidence_links: list[dict[
         )
         status = row.get("status", "")
         risk = row.get("risk_level", "")
-        priority = risk == "high" or status in {"overclaimed", "needs_human_review"}
+        human_review_required = str(_claim_requires_human_review(row)).lower()
+        explicit_release = row.get("release_allowed", "").strip().lower()
+        release_allowed = explicit_release if explicit_release in {"true", "false"} else "false"
+        priority = (
+            human_review_required == "true"
+            or risk == "high"
+            or status in {"overclaimed", "needs_human_review"}
+        )
         search_text = " ".join(
             [
                 claim_id,
                 status,
                 risk,
+                human_review_required,
+                release_allowed,
                 row.get("claim_type", ""),
                 row.get("text", ""),
                 evidence_ids,
@@ -726,12 +760,16 @@ def _render_claim_table(claims: list[dict[str, str]], evidence_links: list[dict[
             f'<dt>Match reason</dt><dd>{_e(match_reasons or "no linked evidence")}</dd>'
             f'<dt>Missing evidence</dt><dd>{_e(row.get("missing_evidence", "") or "none")}</dd>'
             f'<dt>Contradictions</dt><dd class="mono">{_e(row.get("contradicting_evidence_ids", "") or "none")}</dd>'
+            f'<dt>Human review required</dt><dd>{_e(human_review_required or "unknown")}</dd>'
+            f'<dt>Release allowed</dt><dd>{_e(release_allowed or "unknown")}</dd>'
             f'<dt>Suggested revision</dt><dd>{_e(row.get("suggested_revision", ""))}</dd>'
             "</dl></details>"
         )
         rows.append(
             f'<tr id="{_claim_anchor(claim_id)}" data-claim-row data-status="{_e(status)}" '
-            f'data-risk="{_e(risk)}" data-priority="{str(priority).lower()}" data-search="{_e(search_text)}">'
+            f'data-risk="{_e(risk)}" data-review-required="{_e(human_review_required)}" '
+            f'data-release-allowed="{_e(release_allowed)}" data-priority="{str(priority).lower()}" '
+            f'data-search="{_e(search_text)}">'
             f'<td class="mono">{_e(claim_id)}</td>'
             f'<td><span class="{_status_class(status)}">{_e(_humanize_status(status))}</span></td>'
             f'<td>{_e(risk)}</td>'

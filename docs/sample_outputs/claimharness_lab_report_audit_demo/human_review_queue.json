@@ -18,16 +18,19 @@
         "source_kind": "manuscript"
       },
       "claim_text": "The workflow is ready for real-world operational deployment.",
+      "human_review_required": true,
       "missing_evidence": [
         "external_validation",
         "human_review"
       ],
+      "release_allowed": false,
       "required_role": "domain_reviewer",
       "review_item_id": "HR-C003-domain_reviewer",
       "risk_level": "high",
       "role_origin": "built_in_route",
       "state": "pending",
       "trigger_codes": [
+        "release_not_allowed",
         "high_risk_claim",
         "missing_human_review",
         "overclaim_detected"
@@ -46,15 +49,18 @@
         "source_kind": "manuscript"
       },
       "claim_text": "A lightweight harness reduces the risk of opaque model output by separating the task specification, selected context, evidence table, and review decision.",
+      "human_review_required": true,
       "missing_evidence": [
         "trace"
       ],
+      "release_allowed": false,
       "required_role": "domain_reviewer",
       "review_item_id": "HR-C005-domain_reviewer",
       "risk_level": "low",
       "role_origin": "built_in_route",
       "state": "pending",
       "trigger_codes": [
+        "release_not_allowed",
         "contradiction_detected",
         "verification_requires_human_review"
       ],
@@ -62,5 +68,5 @@
     }
   ],
   "role_boundary": "ClaimHarness routes work to named roles but does not verify a reviewer's identity, qualifications, independence, or authority.",
-  "schema_version": 1
+  "schema_version": 2
 }

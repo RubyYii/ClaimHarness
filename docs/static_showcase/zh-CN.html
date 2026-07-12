@@ -17,7 +17,7 @@
 <body id="top">
   <a class="skip-link" href="#main-content">跳到正文</a>
   <header class="top-shell">
-    <nav class="nav" aria-label="展示页导航"><div class="brand">ProblemBridge + ClaimHarness <span class="version">v0.4.0</span></div><div class="nav-links"><a href="#workflow">工作流</a><a href="#ui-convenience">新功能</a><a href="#run-locally">本地运行</a><a href="index.html">语言入口</a><a href="en.html">English</a></div></nav>
+    <nav class="nav" aria-label="展示页导航"><div class="brand">ProblemBridge + ClaimHarness <span class="version">v0.4.0</span></div><div class="nav-links"><a href="#workflow">工作流</a><a href="#ui-convenience">新功能</a><a href="#run-locally">本地运行</a><a href="index.html">语言入口</a><a href="en.html" hreflang="en" aria-label="打开英文展示页">English</a></div></nav>
   </header>
   <main id="main-content" class="shell" tabindex="-1">
     <section id="overview" class="hero">
@@ -69,8 +69,8 @@
       <h2>输出、诊断与项目记录</h2>
       <div class="grid">
         <article class="card"><h3>ProblemBridge 结果包</h3><p>工作流图、痛点矩阵、AI 任务规格、证据契约、评价协议、风险报告、人工复核计划和对齐 trace。</p><span class="kicker"><code>project_record.json</code> · 项目摘要 · <code>revision_history.jsonl</code>，每个目标最多三轮</span></article>
-        <article class="card"><h3>ClaimHarness 审计包</h3><p><code>claim_table.csv</code>、<code>evidence_map.json</code>、<code>audit_report.md</code>、<code>revision_suggestions.md</code>、<code>audit_diagnostics.json</code> 和 <code>human_review_queue.json</code>。</p><span class="kicker">待复核队列只是工作待办，不是批准</span></article>
-        <article class="card"><h3>可追溯记录</h3><p><code>agent_trace.jsonl</code>、<code>run_manifest.json</code>、<code>project_summary_log.md</code>、<code>run_identity.json</code> 和 <code>run_complete.json</code> 让完成运行可检查、可发现篡改。</p><span class="kicker">用于导航和溯源，不是科学证据</span></article>
+        <article class="card"><h3>ClaimHarness 审计包</h3><p><code>claim_table.csv</code>、<code>evidence_map.json</code>、<code>audit_report.md</code>、<code>revision_suggestions.md</code>、<code>audit_diagnostics.json</code> 和 <code>human_review_queue.json</code>。每项结果都会把确定性状态和风险，与 <code>human_review_required</code> 及受限的 <code>release_allowed</code> 门分开显示。</p><span class="kicker">待复核队列只是工作待办，不是批准或部署许可</span></article>
+        <article class="card"><h3>可追溯记录</h3><p><code>agent_trace.jsonl</code>、<code>run_manifest.json</code>、<code>project_summary_log.md</code>、<code>run_identity.json</code> 和 <code>run_complete.json</code> 让完成运行可检查。本地哈希快照可以发现已声明生成物后续发生的漂移，但不能阻止篡改。</p><span class="kicker">用于导航和溯源，不是科学证据</span></article>
       </div>
     </section>
 
@@ -98,9 +98,9 @@ cd ClaimHarness
     <section id="safety-and-limits" class="section">
       <h2>安全边界</h2>
       <div class="notice">不要输入真实患者数据、机密论文、API key、未公开项目材料或敏感个人信息。工作台仅使用 mock 且不接收 API key；远程 advisory provider 仅可通过 ClaimHarness CLI 使用。</div>
-      <ul class="clean-list"><li>文档摄取只提取文本和表格，不理解图表，也不代替专业判断。</li><li>OCR 派生文本默认不是强证据，必须人工检查原始文件。</li><li>ClaimHarness 只检查提供的材料，不保证事实或科学结论正确。</li><li>当前合成评测和确定性规则以英文为主；多语言和高风险输出必须人工复核。</li></ul>
+      <ul class="clean-list"><li>文档摄取只提取文本和表格，不理解图表，也不代替专业判断。</li><li>OCR 派生文本默认不是强证据，必须人工检查原始文件。</li><li>ClaimHarness 只检查提供的材料，不保证事实或科学结论正确。</li><li>当前合成评测和确定性规则以英文为主；被这些规则判定为高风险的输出必须人工复核，但规则仍可能漏掉高风险声明。</li></ul>
     </section>
-    <footer class="footer">继续阅读<a href="../../README.zh-CN.md">完整中文说明</a>、<a href="../demo_walkthrough.md">演示流程</a>和<a href="../limitations.md">功能边界</a>。<a href="#top">返回顶部</a>。</footer>
+    <footer class="footer">继续阅读<a href="../../README.zh-CN.md">完整中文说明</a>、<a href="../demo_walkthrough.md" hreflang="en">演示流程（英文）</a>和<a href="../limitations.md" hreflang="en">功能边界（英文）</a>。<a href="#top">返回顶部</a>。</footer>
   </main>
 </body>
 </html>

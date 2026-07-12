@@ -80,6 +80,16 @@ def write_run_records(
     )
     outputs = [_file_record(root / name) for name in artifacts]
     completed_at = _utc_now()
+    human_review_required_claim_ids = sorted(
+        result.claim_id for result in results if result.human_review_required
+    )
+    release_allowed_claim_ids = sorted(
+        result.claim_id for result in results if result.release_allowed
+    )
+    release_blocked_claim_ids = sorted(
+        result.claim_id for result in results if not result.release_allowed
+    )
+    package_release_allowed = bool(results) and not release_blocked_claim_ids
     manifest = {
         "schema_version": MANIFEST_SCHEMA_VERSION,
         "project_id": project_id,
@@ -100,6 +110,14 @@ def write_run_records(
             "high_risk_claim_ids": [
                 result.claim_id for result in results if result.risk_level == "high"
             ],
+            "human_review_required_claim_ids": human_review_required_claim_ids,
+            "release_allowed_claim_ids": release_allowed_claim_ids,
+            "release_blocked_claim_ids": release_blocked_claim_ids,
+            "release_allowed": package_release_allowed,
+            "release_boundary": (
+                "A true value is only a deterministic low-risk screening gate. "
+                "It is not professional approval, deployment permission, or factual validation."
+            ),
         },
         "outputs": outputs,
     }
@@ -113,7 +131,7 @@ def write_run_records(
     unresolved = [
         claim
         for claim in claims
-        if result_by_id[claim.claim_id].status != "supported"
+        if not result_by_id[claim.claim_id].release_allowed
     ]
     lines = [
         "# Project Summary Log",
@@ -139,6 +157,9 @@ def write_run_records(
         "## Audit Snapshot",
         "",
         f"- Claims audited: {len(claims)}",
+        f"- Human review required: {len(human_review_required_claim_ids)}",
+        f"- Release-allowed claims: {len(release_allowed_claim_ids)}",
+        f"- Audit package release allowed: {'yes' if package_release_allowed else 'no'}",
     ]
     for status in (
         "supported",
@@ -159,6 +180,8 @@ def write_run_records(
             )
             lines.append(
                 f"- {claim.claim_id} [{result.status}; {result.risk_level} risk] "
+                f"[human_review_required={str(result.human_review_required).lower()}; "
+                f"release_allowed={str(result.release_allowed).lower()}] "
                 f"{location}: {claim.text}"
             )
     else:

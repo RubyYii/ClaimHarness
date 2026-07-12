@@ -10,6 +10,7 @@ from claim_harness.evaluation import (
     evaluate_gold_set,
     evaluate_predictions,
     load_gold_records,
+    run_current_pipeline,
     write_evaluation_outputs,
 )
 
@@ -19,7 +20,8 @@ def test_default_gold_evaluation_is_deterministic_and_exposes_known_gaps():
     second = evaluate_gold_set()
 
     assert first == second
-    assert first["schema_version"] == "1.0"
+    assert first["schema_version"] == "2.0"
+    assert first["gold_schema_version"] == "1.0"
     assert first["gold_set_version"] == "1.0.0"
     assert first["record_count"] == 7
     assert first["claim_extraction"] == {
@@ -212,3 +214,88 @@ def test_high_risk_supported_prediction_counts_as_unsafe_even_when_risk_flag_is_
 
     assert metrics["risk"]["high_risk_miss_rate"] == 0.0
     assert metrics["risk"]["unsafe_high_risk_decision_rate"] == 1.0
+
+
+def test_explicit_release_gate_blocks_high_risk_supported_prediction():
+    records = [
+        {
+            "schema_version": "1.0",
+            "gold_set_version": "test",
+            "record_id": "high-risk-gated",
+            "input": {},
+            "gold_claims": [
+                {
+                    "text": "Clinical claim.",
+                    "status": "needs_human_review",
+                    "high_risk": True,
+                    "relevant_evidence": [],
+                }
+            ],
+        }
+    ]
+    predictions = {
+        "high-risk-gated": [
+            {
+                "text": "Clinical claim.",
+                "status": "supported",
+                "risk_level": "high",
+                "human_review_required": True,
+                "release_allowed": False,
+                "evidence_ranked": [],
+            }
+        ]
+    }
+
+    metrics = evaluate_predictions(records, predictions)
+
+    assert metrics["risk"]["high_risk_miss_rate"] == 0.0
+    assert metrics["risk"]["unsafe_high_risk_decision_rate"] == 0.0
+
+
+def test_release_block_without_human_review_is_still_unsafe_for_high_risk_claim():
+    records = [
+        {
+            "schema_version": "1.0",
+            "gold_set_version": "test",
+            "record_id": "high-risk-inconsistent",
+            "input": {},
+            "gold_claims": [
+                {
+                    "text": "Clinical claim.",
+                    "status": "needs_human_review",
+                    "high_risk": True,
+                    "relevant_evidence": [],
+                }
+            ],
+        }
+    ]
+    predictions = {
+        "high-risk-inconsistent": [
+            {
+                "text": "Clinical claim.",
+                "status": "supported",
+                "risk_level": "high",
+                "human_review_required": False,
+                "release_allowed": False,
+                "evidence_ranked": [],
+            }
+        ]
+    }
+
+    metrics = evaluate_predictions(records, predictions)
+
+    assert metrics["risk"]["unsafe_high_risk_decision_rate"] == 1.0
+
+
+def test_current_pipeline_projects_explicit_review_and_release_gates():
+    records = load_gold_records(default_gold_path())
+
+    predictions = run_current_pipeline(records)
+
+    assert predictions
+    assert all(
+        isinstance(prediction["human_review_required"], bool)
+        and isinstance(prediction["release_allowed"], bool)
+        for record_predictions in predictions.values()
+        for prediction in record_predictions
+    )

@@ -87,6 +87,12 @@ def test_mock_cli_run_writes_required_outputs(tmp_path):
     assert len(rows) >= 10
     assert "source_line" in rows[0]
     assert rows[0]["source_line"]
+    assert {"human_review_required", "release_allowed"}.issubset(rows[0])
+    assert all(
+        row["release_allowed"] == "false"
+        for row in rows
+        if row["risk_level"] == "high"
+    )
     assert {
         "supported",
         "weakly_supported",
@@ -116,12 +122,36 @@ def test_mock_cli_run_writes_required_outputs(tmp_path):
         if link.get("locator", {}).get("source_kind") == "table"
     )
     assert diagnostics["artifact_type"] == "single_run_structural_diagnostics"
+    assert diagnostics["release_boundary_by_claim"]
+    assert diagnostics["metrics"]["human_review_required"]["numerator"] >= 1
     assert review_queue["artifact_type"] == "pending_human_review_queue"
     assert all(item["state"] == "pending" for item in review_queue["items"])
+    assert all(item["human_review_required"] for item in review_queue["items"])
+    assert all(not item["release_allowed"] for item in review_queue["items"])
     assert len(trace_lines) >= 5
     assert {event["run_id"] for event in trace_events} == {manifest["run_id"]}
     assert all(event["created_at"] for event in trace_events)
+    verifier_event = next(event for event in trace_events if event["module"] == "verifier")
+    assert verifier_event["data"]["human_review_required_claim_ids"]
+    assert verifier_event["data"]["release_blocked_claim_ids"]
+    assert len(verifier_event["data"]["decisions"]) == len(rows)
+    assert {
+        "claim_id",
+        "status",
+        "risk_level",
+        "human_review_required",
+        "release_allowed",
+        "reason",
+        "suggested_revision",
+        "missing_evidence",
+        "supporting_evidence_ids",
+        "contradicting_evidence_ids",
+    }.issubset(verifier_event["data"]["decisions"][0])
     assert manifest["inputs"]["manuscript"]["name"] == DEMO_MANUSCRIPT.name
+    assert manifest["summary"]["release_allowed"] is False
+    assert "not professional approval" in manifest["summary"]["release_boundary"]
+    assert manifest["summary"]["human_review_required_claim_ids"]
+    assert manifest["summary"]["release_blocked_claim_ids"]
     assert str(DEMO_MANUSCRIPT.resolve().parent) not in json.dumps(manifest)
     output_records = {item["name"]: item for item in manifest["outputs"]}
     assert output_records["audit_report.md"]["sha256"] == hashlib.sha256(
@@ -150,6 +180,36 @@ def test_demo_cli_command_generates_audit_and_viewer_outside_repository_cwd(tmp_
     for filename in [*EXPECTED_OUTPUTS, *RUN_RECORD_OUTPUTS, "index.html"]:
         assert (output_dir / filename).exists(), filename
     assert "Demo audit complete" in result.output
+
+
+def test_zero_claim_run_never_reports_package_release_allowed(tmp_path):
+    manuscript = tmp_path / "notes.md"
+    manuscript.write_text("# Notes\n\nBackground material only.\n", encoding="utf-8")
+    tables = tmp_path / "tables"
+    tables.mkdir()
+    (tables / "results.csv").write_text("name,value\nalpha,1\n", encoding="utf-8")
+    output_dir = tmp_path / "empty-audit"
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "run",
+            "--manuscript",
+            str(manuscript),
+            "--tables",
+            str(tables),
+            "--out",
+            str(output_dir),
+            "--llm",
+            "mock",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "claims=0" in result.output
+    assert "package_release_allowed=false" in result.output
+    manifest = json.loads((output_dir / "run_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["summary"]["release_allowed"] is False
 
 
 def test_mock_run_replaces_owned_outputs_and_preserves_unknown_files(tmp_path):

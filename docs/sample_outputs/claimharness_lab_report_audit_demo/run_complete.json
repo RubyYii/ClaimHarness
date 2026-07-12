@@ -1,18 +1,18 @@
 {
   "artifact_sha256": {
-    "agent_trace.jsonl": "fe00fb6182357d7e4c01140fa44fdb3b01c966f4d11e2e095d1243db5c8846ab",
-    "audit_diagnostics.json": "cc6a2a93fc888370e8c6044a89e2302de76b9d7541c6bcefc34f6a7b275cc5b5",
-    "audit_report.md": "e5a178351b7046c8faf404294b1c6e7ac016ca8e3f37c80482af7bf73a974bd6",
-    "claim_table.csv": "b66ef1bfbabe82519147ee70facca66b3c8f3c43041492a149e338218a0bcea9",
-    "evidence_map.json": "b56491bf7b5a3679c8afb60b48e16cdadaaacefd58dd431573ca9a32ad0a63c6",
-    "human_review_queue.json": "2f862614fffae75626b8f2e3dfdad1dd670789315682816f09cb3bbd0a2a6e10",
-    "project_summary_log.md": "6fc2e347589a3ad264363ac89d0085808969bf388c9b44ef34c696b26be49600",
+    "agent_trace.jsonl": "6ba0ecf4fea734289a4ed71536996677258a53c337514fca0dda0b579210c1ef",
+    "audit_diagnostics.json": "ff793e2630354a5a42f57f6c7cb6e02fc244c5332891f46124b6e50db99a62cd",
+    "audit_report.md": "4fe8297824344c30a238d24bd2fd15b50e4dd688f9c4bd068feb2a435973cbe5",
+    "claim_table.csv": "d385cd517ce4d7141c3c09a57abb91a88510333a3b59f2b54508049b8df6b32e",
+    "evidence_map.json": "a9919857e608f6bce947c8252b8b82edfced8de75965f57e915d144d139a7219",
+    "human_review_queue.json": "9cf220f5ab9058fd45dacfbe5facb62ca25bbb891be890de13495daa8bf4ec62",
+    "project_summary_log.md": "f36e74eaf1c19c62bf35b69ac7034e677e0455c3a65244f0f3b880f8ef3ca107",
     "revision_suggestions.md": "42ac3d5aaa42e2e34a8d7043b3f343215160b65a720121b2d5442d3ea1a86c4a",
-    "run_manifest.json": "7c952bb4c6e4cbdf1d5db2f88d043de1465db56c9b1585cfaae2a72542210f8a"
+    "run_manifest.json": "91629aae8392b66fbe09507ab9b2390b72c57ed5c20c2d65b1025a067d1b2a5e"
   },
-  "completed_at": "2026-07-11T15:52:55.655515+00:00",
+  "completed_at": "2026-07-12T01:25:14.060746+00:00",
   "project_id": "sample-claimharness-lab",
-  "run_id": "run-400fad3d2abc499592e3c3b362993d9c",
-  "run_identity_sha256": "46bb21eda524478e9f19d82e635216355990add6ebcd643215d4430e875ea784",
+  "run_id": "run-9b3d818b701e4f35a9cd29edc2506f80",
+  "run_identity_sha256": "f548161cf34033ab10962fea85006cb9a772c03551cf07edcd5e066bfea94563",
   "schema_version": 2
 }

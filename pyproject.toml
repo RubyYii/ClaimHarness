@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "claim-harness"
 version = "0.4.0"
-description = "A lightweight Agent Harness for scientific claim-evidence auditing."
+description = "ProblemBridge + ClaimHarness: local-first deterministic workflow alignment and rule-based claim-evidence screening."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [

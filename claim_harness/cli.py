@@ -184,7 +184,7 @@ def _run_audit(
     evidence_contract: LoadedEvidenceContract | None = None,
     run_context: RunContext | None = None,
     input_records: dict[str, object] | None = None,
-) -> tuple[int, int, int]:
+) -> tuple[int, int, int, int, int]:
     if run_context is None:
         raise ValueError("run_context is required for an identity-bound audit run")
     with run_context.transaction():
@@ -208,11 +208,22 @@ def _run_audit(
         )
         raise typer.Exit(code=1) from provider_error
 
-    claim_count, supported_count, weak_or_worse = outcome
-    console.print("[green]ClaimHarness audit complete.[/green]")
+    (
+        claim_count,
+        supported_count,
+        weak_or_worse,
+        human_review_required,
+        release_blocked,
+    ) = outcome
+    console.print("[green]ClaimHarness audit outputs written.[/green]")
     console.print(f"claims={claim_count}")
     console.print(f"supported={supported_count}")
     console.print(f"weak_or_worse={weak_or_worse}")
+    console.print(f"human_review_required={human_review_required}")
+    console.print(f"release_blocked={release_blocked}")
+    console.print(
+        f"package_release_allowed={str(claim_count > 0 and release_blocked == 0).lower()}"
+    )
     console.print(f"project_id={run_context.project_id}")
     console.print(f"run_id={run_context.run_id}")
     console.print(f"mode={run_context.mode}")
@@ -230,7 +241,7 @@ def _run_audit_locked(
     evidence_contract: LoadedEvidenceContract | None,
     run_context: RunContext,
     input_records: dict[str, object] | None,
-) -> tuple[tuple[int, int, int], LLMProviderError | None]:
+) -> tuple[tuple[int, int, int, int, int], LLMProviderError | None]:
     if run_context.mode in {"resume", "replace"}:
         _remove_owned_generated_outputs(out)
     logger = AuditLogger(out / "agent_trace.jsonl", run_id=run_context.run_id)
@@ -298,7 +309,39 @@ def _run_audit_locked(
         evidence_contract.contract if evidence_contract is not None else None,
     )
     counts = Counter(result.status for result in results)
-    logger.log("verifier", "Verified claims", {"status_counts": dict(counts)})
+    logger.log(
+        "verifier",
+        "Verified claims",
+        {
+            "status_counts": dict(counts),
+            "human_review_required_claim_ids": sorted(
+                result.claim_id for result in results if result.human_review_required
+            ),
+            "release_allowed_claim_ids": sorted(
+                result.claim_id for result in results if result.release_allowed
+            ),
+            "release_blocked_claim_ids": sorted(
+                result.claim_id for result in results if not result.release_allowed
+            ),
+            "decisions": [
+                {
+                    "claim_id": result.claim_id,
+                    "status": result.status,
+                    "risk_level": result.risk_level,
+                    "human_review_required": result.human_review_required,
+                    "release_allowed": result.release_allowed,
+                    "reason": result.reason,
+                    "suggested_revision": result.suggested_revision,
+                    "missing_evidence": sorted(result.missing_evidence),
+                    "supporting_evidence_ids": sorted(result.supporting_evidence_ids),
+                    "contradicting_evidence_ids": sorted(
+                        result.contradicting_evidence_ids
+                    ),
+                }
+                for result in results
+            ],
+        },
+    )
 
     write_outputs(out, claims, evidence, results)
     logger.log("report_generator", "Wrote audit package", {"out": out.name})
@@ -357,7 +400,15 @@ def _run_audit_locked(
         counts.get(status, 0)
         for status in ("weakly_supported", "unsupported", "overclaimed", "needs_human_review")
     )
-    return (len(claims), counts.get("supported", 0), weak_or_worse), provider_error
+    human_review_required = sum(result.human_review_required for result in results)
+    release_blocked = sum(not result.release_allowed for result in results)
+    return (
+        len(claims),
+        counts.get("supported", 0),
+        weak_or_worse,
+        human_review_required,
+        release_blocked,
+    ), provider_error
 
 
 def _remove_owned_generated_outputs(out: Path) -> None:

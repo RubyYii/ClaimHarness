@@ -1,6 +1,6 @@
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class ManuscriptSection(BaseModel):
@@ -69,6 +69,7 @@ EvidenceType = Literal[
     "quantitative_result",
     "ablation_result",
     "result_text",
+    "narrative_assertion",
     "workflow_trace",
     "limitation_statement",
     "citation",
@@ -112,9 +113,35 @@ class VerificationResult(BaseModel):
     reason: str
     risk_level: RiskLevel
     suggested_revision: str
+    human_review_required: bool = False
+    release_allowed: bool = False
     missing_evidence: list[str] = Field(default_factory=list)
     supporting_evidence_ids: list[str] = Field(default_factory=list)
     contradicting_evidence_ids: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def enforce_review_and_release_boundary(self) -> "VerificationResult":
+        """Keep safety gates valid even when results bypass ``verify_claims``."""
+
+        requires_review = (
+            self.human_review_required
+            or self.risk_level == "high"
+            or self.status in {"needs_human_review", "overclaimed"}
+            or bool(self.contradicting_evidence_ids)
+            or any(
+                requirement in {"human_review", "source_inspection"}
+                or requirement.startswith("human_review_role=")
+                for requirement in self.missing_evidence
+            )
+        )
+        self.human_review_required = requires_review
+        self.release_allowed = (
+            self.release_allowed
+            and self.risk_level == "low"
+            and self.status == "supported"
+            and not requires_review
+        )
+        return self
 
 
 class AuditEvent(BaseModel):

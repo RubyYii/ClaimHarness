@@ -155,6 +155,16 @@ def test_limitations_are_conservative():
 
     for phrase in required:
         assert phrase in text
+    assert "claims classified by the deterministic rules as high-risk" in text
+    assert "`release_allowed=false`" in text
+    assert "regardless of deterministic evidence support" in text
+    assert "does not guarantee that every biomedical" in text
+    assert "does not imply complete detection" in text
+    assert "unless supported by strong external evidence" not in text
+    assert "no whole-fetch deadline across redirects" in text
+    assert "no explicit cap on the number of dns-resolved ip addresses" in text
+    assert "stable 12-hex sha-256 discriminator" in text
+    assert "a short hash is an identifier rather than a confidentiality guarantee" in text
 
 
 def test_ci_workflow_and_packaged_prompt_are_present():
@@ -968,6 +978,10 @@ def test_release_packaging_support_is_present():
         "Searchable audit viewer",
     ]:
         assert phrase in showcase_en
+    assert "Local hash snapshots can reveal later drift" in showcase_en
+    assert "they do not prevent tampering" in showcase_en
+    assert "tamper-evident" not in showcase_en
+    assert 'href="zh-CN.html" hreflang="zh-CN"' in showcase_en
 
     showcase_zh = Path("docs/static_showcase/zh-CN.html").read_text(encoding="utf-8")
     for phrase in [
@@ -989,6 +1003,10 @@ def test_release_packaging_support_is_present():
         "可搜索审计查看器",
     ]:
         assert phrase in showcase_zh
+    assert "本地哈希快照可以发现已声明生成物后续发生的漂移" in showcase_zh
+    assert "但不能阻止篡改" in showcase_zh
+    assert "可发现篡改" not in showcase_zh
+    assert 'href="en.html" hreflang="en"' in showcase_zh
 
     shared_section_ids = [
         "overview",
@@ -1033,6 +1051,49 @@ def test_release_packaging_support_is_present():
         "不会执行或替代 ClaimHarness 审计",
     ]:
         assert phrase in readme_zh
+
+
+def test_external_review_reconciliation_tracks_product_truth_and_all_issues():
+    pyproject = Path("pyproject.toml").read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+    readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
+    reconciliation = Path("docs/external_review_reconciliation.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert (
+        'description = "ProblemBridge + ClaimHarness: local-first deterministic '
+        'workflow alignment and rule-based claim-evidence screening."'
+    ) in pyproject
+    for phrase in [
+        "### Current implementation",
+        "Deterministic profile/template generation with guided-field carryover",
+        "English-first deterministic rules",
+        "Contract-aware, conservative rule screening",
+        "Optional advisory summary only",
+        "Current implementation and 14-issue status",
+    ]:
+        assert phrase in readme
+    for phrase in [
+        "### 当前实现真相",
+        "确定性的 profile/template 生成，并继承引导字段",
+        "English-first 的确定性规则",
+        "感知 evidence contract 的保守规则筛查",
+        "当前实现与 14 类问题状态",
+    ]:
+        assert phrase in readme_zh
+
+    for issue_number in range(1, 15):
+        assert re.search(rf"^\| {issue_number} \|", reconciliation, flags=re.MULTILINE)
+    for phrase in [
+        "已完成",
+        "部分完成",
+        "明确延期",
+        "bilingual UI 写成 bilingual claim-audit algorithm",
+        "Streamlit 工作台会直接运行 ClaimHarness",
+        "pending human-review queue 写成人工批准",
+    ]:
+        assert phrase in reconciliation
 
 
 def test_model_provider_guide_is_present():

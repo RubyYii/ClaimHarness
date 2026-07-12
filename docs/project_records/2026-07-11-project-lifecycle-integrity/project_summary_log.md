@@ -215,3 +215,26 @@
   - docs/static_showcase/zh-CN.html
   - tests/test_release_readiness.py
   - docs/project_records/2026-07-11-project-lifecycle-integrity/github_bilingual_presentation_verification.md
+
+### external-review-closure-v0.4.0 — round 1/3
+
+- Revision ID: 3a2d4c16-1e3f-4761-b76d-003387928f38
+- Parent revision: None
+- Time: 2026-07-12T01:40:34.708256+00:00
+- Diagnosis: version_contamination
+- Status: accepted
+- Change: Reconciled the stale external review against v0.4.0; closed decision-boundary, evaluation, viewer, URL provenance/MIME, bilingual truth, and sample-package gaps without expanding the product scope.
+- Verification: Full pytest: 386 passed, 2 skipped; final focused regression: 112 passed, 2 skipped; compileall and diff-check passed; gold evaluation, governed mock audit, desktop/mobile browser gates, and three independent read-only reviews completed.
+- Integrity SHA-256: f7c8afdd4737919559f1fb9cdba8d56343f89150f73408d636963a67c7b254ca
+- Changed files:
+  - README.md
+  - README.zh-CN.md
+  - pyproject.toml
+  - claim_harness
+  - problem_bridge\document_intake.py
+  - docs\external_review_reconciliation.md
+  - docs\limitations.md
+  - docs\demo_walkthrough.md
+  - docs\static_showcase
+  - docs\sample_outputs\claimharness_lab_report_audit_demo
+  - tests

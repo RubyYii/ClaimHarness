@@ -3,6 +3,7 @@ from collections import defaultdict
 
 from .claim_extractor import contains_term, term_is_negated
 from .evidence_contract import DERIVED_SOURCE_KINDS, EvidenceContract
+from .evidence_retriever import is_claim_self_evidence
 from .schemas import Claim, EvidenceItem, VerificationResult
 
 
@@ -63,14 +64,28 @@ def verify_claims(
         for claim_id in item.linked_claim_ids:
             evidence_by_claim[claim_id].append(item)
 
-    return [
-        _verify_claim(
+    results: list[VerificationResult] = []
+    for claim in claims:
+        result = _verify_claim(
             claim,
             evidence_by_claim.get(claim.claim_id, []),
             evidence_contract,
         )
-        for claim in claims
-    ]
+        human_review_required = result.human_review_required
+        release_allowed = (
+            result.risk_level == "low"
+            and result.status == "supported"
+            and not human_review_required
+        )
+        results.append(
+            result.model_copy(
+                update={
+                    "human_review_required": human_review_required,
+                    "release_allowed": release_allowed,
+                }
+            )
+        )
+    return results
 
 
 def _verify_claim(
@@ -81,6 +96,9 @@ def _verify_claim(
     allowed_source_kinds = (
         set(evidence_contract.source_kinds) if evidence_contract is not None else None
     )
+    evidence_items = [
+        item for item in evidence_items if not is_claim_self_evidence(claim, item)
+    ]
     supporting = [
         item
         for item in evidence_items

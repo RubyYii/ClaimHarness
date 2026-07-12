@@ -21,7 +21,7 @@
   <a href="#run-locally">Start locally</a> ·
   <a href="#for-non-ai-users">For non-AI users</a> ·
   <a href="docs/static_showcase/en.html">Static showcase</a> ·
-  <a href="README.zh-CN.md">简体中文</a>
+  <a href="README.zh-CN.md" hreflang="zh-CN" aria-label="Open the Simplified Chinese README">简体中文</a>
 </p>
 
 **Language:** [English](README.md) | [简体中文](README.zh-CN.md)
@@ -29,6 +29,8 @@
 **Showcase:** [English static showcase](docs/static_showcase/en.html) | [中文静态展示](docs/static_showcase/zh-CN.html)
 
 **Development reflection:** [Development lessons](DEVELOPMENT_LESSONS.md)
+
+**External review reconciliation (Chinese):** [Current implementation and 14-issue status](docs/external_review_reconciliation.md)
 
 ## Start Here
 
@@ -84,6 +86,17 @@ ProblemBridge + ClaimHarness is a local-first portfolio prototype for interdisci
 2. **After outputs exist:** ClaimHarness audits whether written or generated scientific claims are supported by the available manuscript, tables, and reference context.
 
 The default path is deterministic mock mode. It does not require an API key, does not call external services, and uses synthetic examples only.
+
+### Current implementation
+
+| Component | Current implementation |
+| --- | --- |
+| **ProblemBridge generation** | Deterministic profile/template generation with guided-field carryover; it does not infer arbitrary domain workflows. |
+| **Claim extraction** | English-first deterministic rules; the bilingual interface does not imply validated Chinese claim extraction. |
+| **Evidence retrieval** | Lexical candidate matching plus explicit table entity, metric, and value relations. |
+| **Verification** | Contract-aware, conservative rule screening; it is not semantic or factual verification. |
+| **Remote LLM** | Optional advisory summary only, after deterministic verification; it does not change extraction, retrieval, or claim status. |
+| **Professional decisions** | Require qualified human review; a pending review queue is not an approval or decision record. |
 
 ## Document Intake Layer
 
@@ -733,7 +746,7 @@ Implemented:
 - immutable pending human-review queue snapshots that cannot act as approval
 - conservative mock verification
 - Results self-statements do not automatically count as strong evidence
-- high-risk clinical claims default to human review
+- claims classified as high-risk or clinical by the current deterministic rules require human review; the rules may miss some such claims
 - run-level provenance in `run_manifest.json` and `project_summary_log.md`
 - project/run identity with explicit `new`, `resume`, and `replace` lifecycle controls, plus workflow/run-spec/tool-version binding
 - locked, project-bound schema-v3 revision records with an enforced three-round ceiling and explicit legacy migration

@@ -22,6 +22,8 @@ from pathlib import Path
 from typing import Callable, Iterable
 from xml.etree import ElementTree
 
+from . import __version__
+
 
 WORD_NS = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp"}
@@ -31,8 +33,12 @@ OcrEngine = Callable[[Path], str]
 AddressResolver = Callable[[str, int], Iterable[str]]
 MAX_URL_RESPONSE_BYTES = 2_000_000
 MAX_URL_REDIRECTS = 3
+SUPPORTED_URL_CONTENT_TYPES = frozenset(
+    {"text/html", "application/xhtml+xml", "text/plain"}
+)
 OCR_REPORT_SCHEMA_VERSION = "1.0"
 OCR_PROVENANCE = "derived_text/ocr"
+DOCUMENT_INTAKE_USER_AGENT = f"ProblemBridge-DocumentIntake/{__version__}"
 
 
 @dataclass(frozen=True)
@@ -182,11 +188,14 @@ def extract_url(
         )
 
     try:
-        raw = (
-            fetcher(normalized_url)
-            if fetcher is not None
-            else _fetch_url(normalized_url, resolver=address_resolver)
-        )
+        provenance_url = normalized_url
+        if fetcher is not None:
+            raw = fetcher(normalized_url)
+        else:
+            raw, provenance_url = _fetch_url_with_final_url(
+                normalized_url,
+                resolver=address_resolver,
+            )
         if isinstance(raw, str):
             raw = raw.encode("utf-8")
         if len(raw) > MAX_URL_RESPONSE_BYTES:
@@ -209,12 +218,14 @@ def extract_url(
             source_url=safe_url,
         )
 
+    final_safe_url = _safe_source_url(provenance_url)
+    final_source_name = _url_source_name(provenance_url)
     return _extract_html_bytes(
-        source_name=_url_source_name(normalized_url),
+        source_name=final_source_name,
         file_type="url",
-        stem=_url_source_name(normalized_url),
+        stem=final_source_name,
         raw=raw,
-        source_url=safe_url,
+        source_url=final_safe_url,
     )
 
 
@@ -398,6 +409,15 @@ def _connect_to_approved_ip(
 
 
 def _fetch_url(url: str, *, resolver: AddressResolver | None = None) -> bytes:
+    body, _ = _fetch_url_with_final_url(url, resolver=resolver)
+    return body
+
+
+def _fetch_url_with_final_url(
+    url: str,
+    *,
+    resolver: AddressResolver | None = None,
+) -> tuple[bytes, str]:
     address_resolver = resolver or _resolve_host_addresses
     current_url = url
     redirect_count = 0
@@ -425,9 +445,10 @@ def _fetch_url(url: str, *, resolver: AddressResolver | None = None) -> bytes:
                 current_url = target_url
                 redirect_count += 1
                 continue
-            if response.status >= 400:
+            if not 200 <= response.status < 300:
                 raise urllib.error.URLError(f"public URL returned HTTP {response.status}")
-            return _read_url_response(response)
+            _validate_url_response_content_type(response)
+            return _read_url_response(response), current_url
         finally:
             response.close()
             connection.close()
@@ -454,7 +475,7 @@ def _request_pinned(
                 "GET",
                 request_target,
                 headers={
-                    "User-Agent": "ProblemBridge-DocumentIntake/0.3",
+                    "User-Agent": DOCUMENT_INTAKE_USER_AGENT,
                     "Accept-Encoding": "identity",
                 },
             )
@@ -463,6 +484,21 @@ def _request_pinned(
             last_error = exc
             connection.close()
     raise urllib.error.URLError("connection to the approved public destination failed") from last_error
+
+
+def _validate_url_response_content_type(response: object) -> None:
+    getheader = getattr(response, "getheader", None)
+    raw_content_type = getheader("Content-Type") if callable(getheader) else None
+    if not raw_content_type:
+        raise urllib.error.URLError(
+            "public URL response is missing a Content-Type header"
+        )
+
+    media_type = str(raw_content_type).partition(";")[0].strip().lower()
+    if media_type not in SUPPORTED_URL_CONTENT_TYPES:
+        raise urllib.error.URLError(
+            "public URL response Content-Type is not supported"
+        )
 
 
 def _read_url_response(response: object) -> bytes:
@@ -489,13 +525,38 @@ def _url_source_name(url: str) -> str:
     if not safe_url:
         return "invalid-url"
     parsed = urllib.parse.urlparse(safe_url)
-    path = parsed.path.strip("/").replace("/", "_") or "index"
-    raw_name = f"{parsed.netloc}_{path}"
-    return re.sub(r"[^A-Za-z0-9._-]+", "_", raw_name).strip("_") or "webpage"
+    origin_name = (
+        re.sub(r"[^A-Za-z0-9._-]+", "_", parsed.netloc).strip("_")
+        or "webpage"
+    )
+    discriminator_input = _canonical_url_for_discriminator(url)
+    discriminator = hashlib.sha256(
+        discriminator_input.encode("utf-8")
+    ).hexdigest()[:12]
+    return f"{origin_name}_{discriminator}"
+
+
+def _canonical_url_for_discriminator(url: str) -> str:
+    """Normalize request identity for a stable, non-plaintext source suffix."""
+
+    safe_origin = _safe_source_url(url)
+    if not safe_origin:
+        return "invalid-url"
+    parsed = urllib.parse.urlsplit(url.strip())
+    origin = urllib.parse.urlsplit(safe_origin)
+    return urllib.parse.urlunsplit(
+        (
+            origin.scheme.lower(),
+            origin.netloc.lower(),
+            parsed.path or "/",
+            parsed.query,
+            "",
+        )
+    )
 
 
 def _safe_source_url(url: str) -> str:
-    """Return a share-safe URL without credentials, query parameters, or fragments."""
+    """Return only a share-safe URL origin, without credentials or request path."""
 
     try:
         parsed = urllib.parse.urlsplit(url)
@@ -506,7 +567,7 @@ def _safe_source_url(url: str) -> str:
             hostname = f"[{hostname}]"
         port = f":{parsed.port}" if parsed.port is not None else ""
         return urllib.parse.urlunsplit(
-            (parsed.scheme, f"{hostname}{port}", parsed.path, "", "")
+            (parsed.scheme, f"{hostname}{port}", "", "", "")
         )
     except ValueError:
         return ""

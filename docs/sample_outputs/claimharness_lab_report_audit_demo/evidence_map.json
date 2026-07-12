@@ -2675,7 +2675,7 @@
         "row": null,
         "cells": []
       },
-      "evidence_type": "workflow_trace",
+      "evidence_type": "narrative_assertion",
       "text": "The table evidence supports claims about review metrics and workflow ablation under the synthetic benchmark.",
       "polarity": "positive",
       "numeric_values": {},
@@ -2703,7 +2703,7 @@
         "row": null,
         "cells": []
       },
-      "evidence_type": "workflow_trace",
+      "evidence_type": "narrative_assertion",
       "text": "The workflow is robust to missing trace commentary only in the narrow sense that CSV metrics can still be inspected manually.",
       "polarity": "positive",
       "numeric_values": {},

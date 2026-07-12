@@ -4,6 +4,10 @@
 
 - Claims audited: 16
 - Evidence items collected: 26
+- Human review required: 2
+- Release allowed: 3
+- Release blocked: 13
+- Release boundary: `release_allowed` is only a deterministic low-risk screening gate; it is not professional approval, deployment permission, or factual validation.
 - needs_human_review: 1
 - overclaimed: 1
 - supported: 3
@@ -20,6 +24,8 @@ The proposed harness improves macro F1 and recall over a baseline rules-only wor
 - Source line: 5
 - Source kind: manuscript
 - Risk level: low
+- Human review required: no
+- Release allowed: no
 - Reason: Required evidence is missing: table.
 - Required evidence: table
 - Missing evidence: table
@@ -36,6 +42,8 @@ It enables auditable review by recording intermediate evidence, low-confidence s
 - Source line: 5
 - Source kind: manuscript
 - Risk level: low
+- Human review required: no
+- Release allowed: no
 - Reason: Only narrative or topically related evidence is available; no strong relation was verified.
 - Required evidence: trace
 - Missing evidence: none
@@ -52,6 +60,8 @@ The workflow is ready for real-world operational deployment.
 - Source line: 5
 - Source kind: manuscript
 - Risk level: high
+- Human review required: yes
+- Release allowed: no
 - Reason: High-risk readiness or deployment language is missing required evidence: external_validation, human_review.
 - Required evidence: external_validation, human_review
 - Missing evidence: external_validation, human_review
@@ -68,6 +78,8 @@ Report review requires reliable boundaries around what a measurement table suppo
 - Source line: 9
 - Source kind: manuscript
 - Risk level: low
+- Human review required: no
+- Release allowed: no
 - Reason: Required evidence is missing: robustness_test.
 - Required evidence: robustness_test
 - Missing evidence: robustness_test
@@ -84,6 +96,8 @@ A lightweight harness reduces the risk of opaque model output by separating the 
 - Source line: 9
 - Source kind: manuscript
 - Risk level: low
+- Human review required: yes
+- Release allowed: no
 - Reason: Provided evidence conflicts with the claim: S012.
 - Required evidence: trace
 - Missing evidence: trace
@@ -100,6 +114,8 @@ The first design goal is to make every report claim traceable to a table row, a 
 - Source line: 9
 - Source kind: manuscript
 - Risk level: low
+- Human review required: no
+- Release allowed: no
 - Reason: Required evidence is missing: citation.
 - Required evidence: citation
 - Missing evidence: citation
@@ -116,6 +132,8 @@ The workflow uses an explainable evidence summary, a confidence note, and a stru
 - Source line: 13
 - Source kind: manuscript
 - Risk level: low
+- Human review required: no
+- Release allowed: no
 - Reason: Required evidence is missing: trace.
 - Required evidence: trace
 - Missing evidence: trace
@@ -132,6 +150,8 @@ The human review gate supports manual inspection when evidence confidence is low
 - Source line: 13
 - Source kind: manuscript
 - Risk level: low
+- Human review required: no
+- Release allowed: no
 - Reason: Required evidence is missing: trace.
 - Required evidence: trace
 - Missing evidence: trace
@@ -148,6 +168,8 @@ Trace replay enables reviewers to see which table metrics, ablation rows, and li
 - Source line: 13
 - Source kind: manuscript
 - Risk level: low
+- Human review required: no
+- Release allowed: no
 - Reason: Only narrative or topically related evidence is available; no strong relation was verified.
 - Required evidence: trace
 - Missing evidence: none
@@ -164,6 +186,8 @@ The evidence_guided_reviewer_v1 model outperforms the baseline_rules model on ma
 - Source line: 17
 - Source kind: manuscript
 - Risk level: low
+- Human review required: no
+- Release allowed: yes
 - Reason: All evidence requirements are met with 3 independently verifiable strong evidence item(s).
 - Required evidence: table
 - Missing evidence: none
@@ -180,6 +204,8 @@ Adding the human review gate increases macro F1 from 0.86 to 0.88 and recall fro
 - Source line: 17
 - Source kind: manuscript
 - Risk level: low
+- Human review required: no
+- Release allowed: yes
 - Reason: All evidence requirements are met with 2 independently verifiable strong evidence item(s).
 - Required evidence: table
 - Missing evidence: none
@@ -196,6 +222,8 @@ The full harness improves workflow success rate from 0.70 in the answer-only set
 - Source line: 17
 - Source kind: manuscript
 - Risk level: low
+- Human review required: no
+- Release allowed: yes
 - Reason: All evidence requirements are met with 4 independently verifiable strong evidence item(s).
 - Required evidence: table
 - Missing evidence: none
@@ -212,6 +240,8 @@ The compact reviewer is less reliable around ambiguous limitation statements des
 - Source line: 17
 - Source kind: manuscript
 - Risk level: low
+- Human review required: no
+- Release allowed: no
 - Reason: Required evidence is missing: robustness_test.
 - Required evidence: robustness_test
 - Missing evidence: robustness_test
@@ -228,6 +258,8 @@ The table evidence supports claims about review metrics and workflow ablation un
 - Source line: 21
 - Source kind: manuscript
 - Risk level: low
+- Human review required: no
+- Release allowed: no
 - Reason: Required evidence is missing: trace.
 - Required evidence: trace
 - Missing evidence: trace
@@ -244,6 +276,8 @@ The workflow is robust to missing trace commentary only in the narrow sense that
 - Source line: 21
 - Source kind: manuscript
 - Risk level: low
+- Human review required: no
+- Release allowed: no
 - Reason: Required evidence is missing: robustness_test.
 - Required evidence: robustness_test
 - Missing evidence: robustness_test
@@ -260,6 +294,8 @@ ClaimHarness enables a compact demonstration of claim extraction, evidence linki
 - Source line: 25
 - Source kind: manuscript
 - Risk level: low
+- Human review required: no
+- Release allowed: no
 - Reason: Only narrative or topically related evidence is available; no strong relation was verified.
 - Required evidence: trace
 - Missing evidence: none

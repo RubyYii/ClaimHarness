@@ -14,9 +14,10 @@ def write_sample_audit_package(path: Path, include_llm_review: bool = False) -> 
     (path / "claim_table.csv").write_text(
         "\n".join(
             [
-                "claim_id,text,source_section,claim_type,strength,status,risk_level,reason,suggested_revision",
-                "C001,Escaped <claim>,Results,performance_claim,strong,supported,low,Table evidence,No revision needed",
-                "C002,Deployment-ready claim,Discussion,deployment_claim,high,overclaimed,high,No validation,Narrow the claim",
+                "claim_id,text,source_section,claim_type,strength,status,risk_level,human_review_required,release_allowed,reason,suggested_revision",
+                "C001,Escaped <claim>,Results,performance_claim,strong,supported,low,false,true,Table evidence,No revision needed",
+                "C002,Deployment-ready claim,Discussion,deployment_claim,high,overclaimed,high,true,false,No validation,Narrow the claim",
+                "C003,Needs more evidence,Results,general_claim,moderate,weakly_supported,low,false,false,Partial evidence,Add evidence",
             ]
         ),
         encoding="utf-8",
@@ -27,6 +28,7 @@ def write_sample_audit_package(path: Path, include_llm_review: bool = False) -> 
                 "claims": [
                     {"claim_id": "C001", "text": "Escaped <claim>", "evidence_ids": ["E001"]},
                     {"claim_id": "C002", "text": "Deployment-ready claim", "evidence_ids": []},
+                    {"claim_id": "C003", "text": "Needs more evidence", "evidence_ids": []},
                 ],
                 "evidence": [
                     {
@@ -123,18 +125,61 @@ def test_render_report_viewer_writes_static_html(tmp_path):
     assert "data-risk=\"high\"" in html
     assert (
         'id="claim-C001" data-claim-row data-status="supported" '
-        'data-risk="low" data-priority="false"'
+        'data-risk="low" data-review-required="false" '
+        'data-release-allowed="true" data-priority="false"'
     ) in html
     assert (
         'id="claim-C002" data-claim-row data-status="overclaimed" '
-        'data-risk="high" data-priority="true"'
+        'data-risk="high" data-review-required="true" '
+        'data-release-allowed="false" data-priority="true"'
     ) in html
+    assert (
+        'id="claim-C003" data-claim-row data-status="weakly_supported" '
+        'data-risk="low" data-review-required="false" '
+        'data-release-allowed="false" data-priority="false"'
+    ) in html
+    assert 'if (filter === \'needs-action\') return row.dataset.releaseAllowed !== \'true\';' in html
+    assert 'if (filter === \'needs_human_review\') return row.dataset.reviewRequired === \'true\';' in html
+    assert "Review required" in html
+    assert "Release blocked" in html
     assert "return copied;" in html
     assert "Copy failed; select the review text manually." in html
     assert "Match reason" in html
+    assert "Human review required" in html
+    assert "Release allowed" in html
     assert "Escaped &lt;claim&gt;" in html
     assert "<claim>" not in html
     assert "Unverified legacy package" in html
+
+
+def test_legacy_claim_rows_fall_back_to_risk_and_status_for_review_filters(tmp_path):
+    run_dir = tmp_path / "legacy-audit"
+    write_sample_audit_package(run_dir)
+    (run_dir / "claim_table.csv").write_text(
+        "\n".join(
+            [
+                "claim_id,text,source_section,claim_type,strength,status,risk_level,reason,suggested_revision",
+                "C001,Low-risk supported,Results,general_claim,moderate,supported,low,Supported,No revision",
+                "C002,High-risk supported,Results,clinical_claim,strong,supported,high,Legacy high risk,Review it",
+                "C003,Explicit review status,Discussion,general_claim,moderate,needs_human_review,low,Legacy review,Review it",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    html = render_report_viewer(run_dir).read_text(encoding="utf-8")
+
+    assert "Review required</span><strong>2</strong>" in html
+    assert (
+        'id="claim-C002" data-claim-row data-status="supported" '
+        'data-risk="high" data-review-required="true" '
+        'data-release-allowed="false" data-priority="true"'
+    ) in html
+    assert (
+        'id="claim-C003" data-claim-row data-status="needs_human_review" '
+        'data-risk="low" data-review-required="true" '
+        'data-release-allowed="false" data-priority="true"'
+    ) in html
 
 
 def test_viewer_renders_structural_diagnostics_precise_locations_and_pending_review(tmp_path):
@@ -168,7 +213,8 @@ def test_viewer_renders_structural_diagnostics_precise_locations_and_pending_rev
             "any_link_coverage",
             "support_relation_coverage",
             "no_support_relation",
-            "needs_human_review",
+            "human_review_required",
+            "release_blocked",
             "contradiction_claims",
         )
     }

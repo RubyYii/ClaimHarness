@@ -1,3 +1,4 @@
+import csv
 import json
 from pathlib import Path
 
@@ -59,6 +60,8 @@ def test_table_links_keep_base_row_but_narrow_each_claim_to_matched_cells(tmp_pa
 
     results = verify_claims(claims, evidence)
     write_outputs(tmp_path, claims, evidence, results)
+    with (tmp_path / "claim_table.csv").open(newline="", encoding="utf-8") as handle:
+        claim_rows = list(csv.DictReader(handle))
     payload = json.loads((tmp_path / "evidence_map.json").read_text(encoding="utf-8"))
     links = {
         entry["claim_id"]: entry["evidence_links"][0]["locator"]
@@ -67,6 +70,11 @@ def test_table_links_keep_base_row_but_narrow_each_claim_to_matched_cells(tmp_pa
     assert [cell["column"] for cell in links["C001"]["cells"]] == ["model", "score"]
     assert [cell["column"] for cell in links["C002"]["cells"]] == ["model", "recall"]
     assert "claim_link_locators" not in payload["evidence"][0]
+    assert all(row["human_review_required"] == "false" for row in claim_rows)
+    assert all(row["release_allowed"] == "true" for row in claim_rows)
+    report = (tmp_path / "audit_report.md").read_text(encoding="utf-8")
+    assert "- Human review required: no" in report
+    assert "- Release allowed: yes" in report
 
 
 def test_loader_retains_only_share_safe_input_filenames():
@@ -112,6 +120,7 @@ def test_demo_structural_diagnostics_match_the_deterministic_pipeline():
 
     diagnostics = build_audit_diagnostics(claims, evidence, results)
 
+    assert diagnostics["schema_version"] == 2
     assert diagnostics["totals"] == {
         "claims": 16,
         "evidence_items": 26,
@@ -131,6 +140,12 @@ def test_demo_structural_diagnostics_match_the_deterministic_pipeline():
         "robustness_test": 3,
         "table": 1,
         "trace": 4,
+    }
+    assert diagnostics["metrics"]["human_review_required"]["numerator"] == 2
+    assert diagnostics["metrics"]["release_allowed"]["numerator"] == 3
+    assert diagnostics["release_boundary_by_claim"]["C003"] == {
+        "human_review_required": True,
+        "release_allowed": False,
     }
     assert "do not establish factual correctness" in diagnostics["boundary"]
 
@@ -170,18 +185,45 @@ def test_review_queue_is_pending_role_specific_and_never_an_approval():
         reason="Named review is required.",
         risk_level="high",
         suggested_revision="Obtain bounded review.",
+        human_review_required=True,
+        release_allowed=False,
         missing_evidence=["human_review", "human_review_role=audit_lead"],
         supporting_evidence_ids=["E001"],
     )
 
     queue = build_human_review_queue([claim], [result])
 
+    assert queue["schema_version"] == 2
     assert queue["counts"] == {"pending_items": 1, "claims_routed": 1}
     assert queue["items"][0]["required_role"] == "audit_lead"
     assert queue["items"][0]["role_origin"] == "evidence_contract"
     assert queue["items"][0]["state"] == "pending"
+    assert queue["items"][0]["human_review_required"] is True
+    assert queue["items"][0]["release_allowed"] is False
+    assert "release_not_allowed" in queue["items"][0]["trigger_codes"]
     assert "approval" in queue["boundary"]
     assert "decision" not in queue["items"][0]
+
+
+def test_high_risk_supported_result_is_still_pending_in_review_queue():
+    claim = _claim("C001", "Alpha is clinically effective.")
+    result = VerificationResult(
+        claim_id="C001",
+        status="supported",
+        reason="Requirements are met within the supplied evidence.",
+        risk_level="high",
+        suggested_revision="No wording revision within scope.",
+        human_review_required=True,
+        release_allowed=False,
+        supporting_evidence_ids=["E001", "E002"],
+    )
+
+    queue = build_human_review_queue([claim], [result])
+
+    assert queue["counts"] == {"pending_items": 1, "claims_routed": 1}
+    assert queue["items"][0]["verification_status"] == "supported"
+    assert "high_risk_claim" in queue["items"][0]["trigger_codes"]
+    assert queue["items"][0]["release_allowed"] is False
 
 
 def test_diagnostic_and_review_artifacts_are_byte_deterministic(tmp_path):
@@ -192,6 +234,8 @@ def test_diagnostic_and_review_artifacts_are_byte_deterministic(tmp_path):
         reason="Review required.",
         risk_level="low",
         suggested_revision="Review it.",
+        human_review_required=True,
+        release_allowed=False,
     )
     first_diagnostics = tmp_path / "first-diagnostics.json"
     second_diagnostics = tmp_path / "second-diagnostics.json"

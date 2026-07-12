@@ -12,7 +12,7 @@
     "revision_suggestions.md",
     "run_manifest.json"
   ],
-  "previous_run_id": "run-205d4e871c9a4f028f600bdb5e9557de",
+  "previous_run_id": "run-2795bbd8f61e4616a7bbd2fd114cf748",
   "project_id": "sample-claimharness-lab",
   "required_artifacts": [
     "agent_trace.jsonl",
@@ -25,8 +25,8 @@
     "revision_suggestions.md",
     "run_manifest.json"
   ],
-  "run_created_at": "2026-07-11T15:52:55.568679+00:00",
-  "run_id": "run-400fad3d2abc499592e3c3b362993d9c",
+  "run_created_at": "2026-07-12T01:25:13.989479+00:00",
+  "run_id": "run-9b3d818b701e4f35a9cd29edc2506f80",
   "run_spec_sha256": "b88ccf93aa0a22cd9d102565780dd545260a92cb315df71ba8d5363e08b34fd3",
   "schema_version": 2,
   "snapshot_directories": [],

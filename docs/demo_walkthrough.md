@@ -96,7 +96,7 @@ Open `index.html` when you want a browser-friendly overview. Use the sticky navi
 
 Before destructive UI actions, verify the two-stage behavior: the first `Start a new project` or `Reset guided interview` click must preserve current state and show confirmation. `Cancel` keeps the state; confirmation performs the reset. `Clear memory` deletes the saved memory file but must keep current on-screen draft fields. To test identity-safe recovery, save project A's drafts, start project B, then load the saved memory: the active ID must return to A, and an output path must be restored only when its completed run identity also belongs to A.
 
-When reading evidence, remember that a Results sentence does not automatically provide strong evidence for itself. Strong table support requires a verifiable metric/value relationship, and high-risk biomedical or clinical claims default to human review unless the required external evidence is present.
+When reading evidence, remember that a Results sentence does not automatically provide strong evidence for itself. Strong table support requires a verifiable metric/value relationship. Claims classified by the deterministic rules as high-risk biomedical or clinical always remain routed to human review and release-blocked, even when external evidence is supplied; the rules may still fail to detect some such claims.
 
 ## Record A Bounded ProblemBridge Revision
 

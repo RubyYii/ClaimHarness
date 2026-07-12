@@ -27,6 +27,13 @@ from problem_bridge.document_intake import (
 )
 
 
+def _assert_hashed_url_source_name(source_name: str, origin_name: str) -> None:
+    prefix, discriminator = source_name.rsplit("_", 1)
+    assert prefix == origin_name
+    assert len(discriminator) == 12
+    assert set(discriminator) <= set("0123456789abcdef")
+
+
 def test_extracts_docx_paragraphs_and_tables(tmp_path: Path):
     docx_path = tmp_path / "workflow.docx"
     _write_minimal_docx(
@@ -243,9 +250,9 @@ def test_extract_url_parses_static_html_with_injected_fetcher():
         resolver=lambda host, port: ["8.8.8.8"],
     )
 
-    assert result.source_name == "example.org_workflow"
+    _assert_hashed_url_source_name(result.source_name, "example.org")
     assert result.file_type == "url"
-    assert result.source_url == "https://example.org/workflow"
+    assert result.source_url == "https://example.org"
     assert "Title: Remote Guide" in result.text
     assert "Remote workflow" in result.text
     assert result.warnings == []
@@ -354,6 +361,187 @@ def test_url_response_content_length_over_limit_is_rejected():
         _read_url_response(response)
 
 
+@pytest.mark.parametrize(
+    "content_type",
+    [
+        "text/html",
+        "Text/HTML; Charset=UTF-8",
+        "application/xhtml+xml; charset=utf-8",
+        "text/plain; charset=gb18030",
+    ],
+)
+def test_pinned_fetch_accepts_supported_final_content_types(monkeypatch, content_type):
+    response = _FakeURLResponse(
+        b"<p>public workflow</p>",
+        {"Content-Type": content_type},
+    )
+    monkeypatch.setattr(
+        intake_module,
+        "_request_pinned",
+        lambda *args: (_FakeURLConnection(), response),
+    )
+
+    assert _fetch_url(
+        "https://example.test/workflow",
+        resolver=lambda host, port: ["8.8.8.8"],
+    ) == b"<p>public workflow</p>"
+
+
+def test_pinned_fetch_rejects_unsupported_final_content_type(monkeypatch):
+    response = _FakeURLResponse(
+        b"binary payload",
+        {"Content-Type": "application/octet-stream"},
+    )
+    monkeypatch.setattr(
+        intake_module,
+        "_request_pinned",
+        lambda *args: (_FakeURLConnection(), response),
+    )
+
+    secret = "do-not-log"
+    with pytest.raises(
+        urllib.error.URLError,
+        match="Content-Type is not supported",
+    ) as exc_info:
+        _fetch_url(
+            f"https://example.test/workflow?access_token={secret}",
+            resolver=lambda host, port: ["8.8.8.8"],
+        )
+    assert secret not in str(exc_info.value)
+
+
+def test_pinned_fetch_rejects_missing_final_content_type(monkeypatch):
+    response = _FakeURLResponse(b"untyped payload")
+    monkeypatch.setattr(
+        intake_module,
+        "_request_pinned",
+        lambda *args: (_FakeURLConnection(), response),
+    )
+
+    with pytest.raises(urllib.error.URLError, match="missing a Content-Type"):
+        _fetch_url(
+            "https://example.test/workflow",
+            resolver=lambda host, port: ["8.8.8.8"],
+        )
+
+
+def test_pinned_fetch_checks_content_type_only_after_redirect(monkeypatch):
+    responses = iter(
+        [
+            _FakeURLResponse(
+                b"redirect body is ignored",
+                status=302,
+                location="https://example.test/final",
+            ),
+            _FakeURLResponse(
+                b"plain final body",
+                {"Content-Type": "text/plain; charset=utf-8"},
+            ),
+        ]
+    )
+    monkeypatch.setattr(
+        intake_module,
+        "_request_pinned",
+        lambda *args: (_FakeURLConnection(), next(responses)),
+    )
+
+    assert _fetch_url(
+        "https://example.test/start",
+        resolver=lambda host, port: ["8.8.8.8"],
+    ) == b"plain final body"
+
+
+def test_extract_url_attributes_cross_host_redirect_to_final_origin_without_path_leak(
+    monkeypatch,
+    tmp_path,
+):
+    start_path_token = "START_PATH_TOKEN_81F2"
+    final_path_token = "FINAL_PATH_TOKEN_39A4"
+    query_token = "REDIRECT_QUERY_SECRET_62C8"
+    responses = iter(
+        [
+            _FakeURLResponse(
+                b"",
+                status=302,
+                location=(
+                    f"https://final.example/{final_path_token}/page"
+                    f"?token={query_token}#section"
+                ),
+            ),
+            _FakeURLResponse(
+                b"<html><body><p>Final public content</p></body></html>",
+                {"Content-Type": "text/html; charset=utf-8"},
+            ),
+        ]
+    )
+    requested_hosts: list[str] = []
+
+    def request_pinned(parsed, port, approved_ips):
+        requested_hosts.append(parsed.hostname)
+        return _FakeURLConnection(), next(responses)
+
+    monkeypatch.setattr(intake_module, "_request_pinned", request_pinned)
+    result = extract_url(
+        f"https://start.example/{start_path_token}/begin",
+        resolver=lambda host, port: ["8.8.8.8"],
+    )
+    out = tmp_path / "redirect-intake"
+    write_intake_package([result], out)
+    persisted = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in out.iterdir()
+        if path.is_file()
+    )
+
+    assert requested_hosts == ["start.example", "final.example"]
+    _assert_hashed_url_source_name(result.source_name, "final.example")
+    assert result.source_url == "https://final.example"
+    assert "Final public content" in result.text
+    assert start_path_token not in persisted
+    assert final_path_token not in persisted
+    assert query_token not in persisted
+
+
+def test_pinned_request_uses_current_document_intake_user_agent(monkeypatch):
+    captured: dict[str, object] = {}
+    response = object()
+
+    class FakePinnedHTTPSConnection:
+        def __init__(self, hostname, port, approved_ip, *, timeout):
+            captured["connection"] = (hostname, port, approved_ip, timeout)
+
+        def request(self, method, target, headers):
+            captured["request"] = (method, target, headers)
+
+        def getresponse(self):
+            return response
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(
+        intake_module,
+        "_PinnedHTTPSConnection",
+        FakePinnedHTTPSConnection,
+    )
+    parsed = intake_module.urllib.parse.urlsplit(
+        "https://example.test/private-path?request_token=secret"
+    )
+
+    connection, actual_response = intake_module._request_pinned(
+        parsed,
+        443,
+        ("8.8.8.8",),
+    )
+
+    assert connection is not None
+    assert actual_response is response
+    assert captured["request"][2]["User-Agent"] == intake_module.DOCUMENT_INTAKE_USER_AGENT
+    assert intake_module.DOCUMENT_INTAKE_USER_AGENT.endswith(
+        f"/{intake_module.__version__}"
+    )
+
+
 def test_pinned_fetch_rejects_private_redirect_and_https_downgrade(monkeypatch):
     connection = _FakeURLConnection()
     private_redirect = _FakeURLResponse(
@@ -458,10 +646,11 @@ def test_approved_ip_connection_does_not_perform_second_dns_lookup(monkeypatch):
 
 
 def test_url_provenance_removes_query_fragment_and_invalid_local_path(tmp_path):
+    path_token = "PRIVATE_PATH_TOKEN_7A91"
     secret = "TOPSECRET123"
     result = extract_url(
-        f"https://example.test/workflow?token={secret}#section",
-        fetcher=lambda value: b"<p>public workflow</p>",
+        f"https://example.test/{path_token}/page?token={secret}#section",
+        fetcher=lambda value: b"<p>public content</p>",
         resolver=lambda host, port: ["8.8.8.8"],
     )
     invalid = extract_url("file:///C:/Users/Alice/private.html")
@@ -469,11 +658,90 @@ def test_url_provenance_removes_query_fragment_and_invalid_local_path(tmp_path):
     write_intake_package([result, invalid], out)
     persisted = (out / "source_manifest.json").read_text(encoding="utf-8")
 
-    assert result.source_url == "https://example.test/workflow"
+    _assert_hashed_url_source_name(result.source_name, "example.test")
+    assert result.source_url == "https://example.test"
     assert invalid.source_url == ""
     assert invalid.source_name == "invalid-url"
+    assert path_token not in persisted
     assert secret not in persisted
     assert "C:/Users/Alice" not in persisted
+
+
+def test_same_origin_urls_use_distinct_hashed_source_names_and_table_files(tmp_path):
+    path_tokens = ("PATH_TOKEN_ALPHA_42D1", "PATH_TOKEN_BETA_73C9")
+    query_tokens = ("QUERY_TOKEN_ALPHA_81A5", "QUERY_TOKEN_BETA_26F4")
+    urls = [
+        f"https://same.example/{path_tokens[0]}/report?token={query_tokens[0]}",
+        f"https://same.example/{path_tokens[1]}/report?token={query_tokens[1]}",
+    ]
+
+    def fetcher(url: str) -> bytes:
+        label = "alpha" if path_tokens[0] in url else "beta"
+        return (
+            f"<html><body><table><tr><th>source</th></tr>"
+            f"<tr><td>{label}</td></tr></table></body></html>"
+        ).encode("utf-8")
+
+    results = [
+        extract_url(
+            url,
+            fetcher=fetcher,
+            resolver=lambda host, port: ["8.8.8.8"],
+        )
+        for url in urls
+    ]
+    repeated = extract_url(
+        urls[0],
+        fetcher=fetcher,
+        resolver=lambda host, port: ["8.8.8.8"],
+    )
+    out = tmp_path / "same-origin-intake"
+    write_intake_package(results, out)
+    table_files = sorted((out / "extracted_tables").glob("*.csv"))
+    manifest = json.loads((out / "source_manifest.json").read_text(encoding="utf-8"))
+    persisted = "\n".join(
+        [str(path.relative_to(out)) for path in out.rglob("*") if path.is_file()]
+        + [
+            path.read_text(encoding="utf-8")
+            for path in out.rglob("*")
+            if path.is_file()
+        ]
+    )
+
+    assert results[0].source_name != results[1].source_name
+    assert repeated.source_name == results[0].source_name
+    for result in results:
+        _assert_hashed_url_source_name(result.source_name, "same.example")
+        assert result.source_url == "https://same.example"
+    assert len(table_files) == 2
+    assert table_files[0].name != table_files[1].name
+    assert {path.read_text(encoding="utf-8").strip() for path in table_files} == {
+        "source\nalpha",
+        "source\nbeta",
+    }
+    assert len({source["source_name"] for source in manifest["sources"]}) == 2
+    for token in (*path_tokens, *query_tokens):
+        assert token not in persisted
+
+
+def test_url_provenance_does_not_persist_path_tokens_after_fetch_failure(tmp_path):
+    path_token = "FAILED_PATH_TOKEN_5C2D"
+    result = extract_url(
+        f"https://example.test/{path_token}/report",
+        fetcher=lambda value: (_ for _ in ()).throw(RuntimeError("fetch failed")),
+        resolver=lambda host, port: ["8.8.8.8"],
+    )
+    out = tmp_path / "failed-intake"
+    write_intake_package([result], out)
+    persisted = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in out.iterdir()
+        if path.is_file()
+    )
+
+    _assert_hashed_url_source_name(result.source_name, "example.test")
+    assert result.source_url == "https://example.test"
+    assert path_token not in persisted
 
 
 def test_optional_ocr_engine_extracts_image_text(tmp_path: Path):

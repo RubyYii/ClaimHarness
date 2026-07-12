@@ -21,7 +21,8 @@ from .schemas import EvidenceItem, ManuscriptSection
 from .verifier import verify_claims
 
 
-EVALUATION_SCHEMA_VERSION = "1.0"
+GOLD_SET_SCHEMA_VERSION = "1.0"
+EVALUATION_REPORT_SCHEMA_VERSION = "2.0"
 STATUS_LABELS = (
     "supported",
     "weakly_supported",
@@ -52,7 +53,7 @@ def load_gold_records(path: str | Path | None = None) -> list[dict[str, object]]
             raise ValueError(f"Invalid JSON on gold-set line {line_number}: {exc}") from exc
         if not isinstance(record, dict):
             raise ValueError(f"Gold-set line {line_number} must contain a JSON object.")
-        if record.get("schema_version") != EVALUATION_SCHEMA_VERSION:
+        if record.get("schema_version") != GOLD_SET_SCHEMA_VERSION:
             raise ValueError(
                 f"Unsupported gold-set schema_version on line {line_number}: "
                 f"{record.get('schema_version')!r}."
@@ -114,6 +115,10 @@ def run_current_pipeline(records: Iterable[dict[str, object]]) -> dict[str, list
                 "text": claim.text,
                 "status": verification_by_claim[claim.claim_id].status,
                 "risk_level": verification_by_claim[claim.claim_id].risk_level,
+                "human_review_required": verification_by_claim[
+                    claim.claim_id
+                ].human_review_required,
+                "release_allowed": verification_by_claim[claim.claim_id].release_allowed,
                 "evidence_ranked": _ranked_evidence_keys(claim.claim_id, evidence),
             }
             for claim in claims
@@ -185,10 +190,9 @@ def evaluate_predictions(
                 high_risk_total += 1
                 if prediction is None or prediction.get("risk_level") != "high":
                     high_risk_misses += 1
-                if prediction is not None and prediction.get("status") in {
-                    "supported",
-                    "weakly_supported",
-                }:
+                if prediction is not None and _is_unsafe_high_risk_prediction(
+                    prediction
+                ):
                     unsafe_high_risk_decisions += 1
 
             relevant = gold.get("relevant_evidence", [])
@@ -220,7 +224,8 @@ def evaluate_predictions(
 
     gold_version = str(record_list[0]["gold_set_version"]) if record_list else "unknown"
     return {
-        "schema_version": EVALUATION_SCHEMA_VERSION,
+        "schema_version": EVALUATION_REPORT_SCHEMA_VERSION,
+        "gold_schema_version": GOLD_SET_SCHEMA_VERSION,
         "gold_set_version": gold_version,
         "record_count": len(record_list),
         "claim_extraction": {
@@ -259,11 +264,21 @@ def evaluate_predictions(
         },
         "definitions": {
             "high_risk_miss": "A gold high-risk claim was not extracted or was not assigned risk_level=high.",
-            "unsafe_high_risk_decision": "A gold high-risk claim was automatically labelled supported or weakly_supported instead of being blocked, overclaimed, or sent to human review.",
+            "unsafe_high_risk_decision": "A gold high-risk claim was not explicitly routed to human review and release-blocked, or used a legacy supported/weakly_supported prediction without explicit gates.",
             "abstention": "A predicted claim was assigned needs_human_review.",
             "evidence_recall_at_k": "Mean fraction of each gold claim's relevant evidence found in its first k linked evidence items.",
         },
     }
+
+
+def _is_unsafe_high_risk_prediction(prediction: dict[str, object]) -> bool:
+    release_allowed = prediction.get("release_allowed")
+    human_review_required = prediction.get("human_review_required")
+    if isinstance(release_allowed, bool) or isinstance(human_review_required, bool):
+        return not (
+            release_allowed is False and human_review_required is True
+        )
+    return prediction.get("status") in {"supported", "weakly_supported"}
 
 
 def evaluate_gold_set(

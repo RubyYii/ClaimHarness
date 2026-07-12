@@ -144,6 +144,8 @@ def _section_evidence(sections: list[ManuscriptSection]) -> list[EvidenceItem]:
                 for phrase in ("limitation", "not ", "no external", "should not", "cannot")
             ):
                 evidence_type = "limitation_statement"
+            elif section_role == "discussion":
+                evidence_type = "narrative_assertion"
             else:
                 evidence_type = "workflow_trace"
 
@@ -267,18 +269,37 @@ def _numeric_equal(left: float, right: float) -> bool:
     return abs(left - right) <= 1e-9 * max(1.0, abs(left), abs(right))
 
 
-def _is_self_evidence(claim: Claim, item: EvidenceItem) -> bool:
-    return (
-        item.locator.source_kind in {"manuscript", "ocr", "derived_text"}
-        and " ".join(item.text.split()).casefold() == " ".join(claim.text.split()).casefold()
+def is_claim_self_evidence(claim: Claim, item: EvidenceItem) -> bool:
+    """Identify the claim's own source span without discarding distinct same-line text."""
+
+    if item.locator.source_kind not in {"manuscript", "ocr", "derived_text"}:
+        return False
+    claim_text = " ".join(claim.text.split()).casefold()
+    evidence_text = " ".join(item.text.split()).casefold()
+    if evidence_text == claim_text:
+        return True
+    same_location = (
+        item.locator.source_kind == claim.source_kind
+        and item.locator.source_name == claim.source_section
+        and claim.source_line is not None
+        and item.locator.line == claim.source_line
     )
+    if not same_location:
+        return False
+    if claim_text in evidence_text or evidence_text in claim_text:
+        return True
+    claim_tokens = _tokens(claim.text)
+    evidence_tokens = _tokens(item.text)
+    union = claim_tokens | evidence_tokens
+    similarity = len(claim_tokens & evidence_tokens) / len(union) if union else 0.0
+    return similarity >= 0.8
 
 
 def _match_evidence(
     claim: Claim,
     item: EvidenceItem,
 ) -> tuple[str, str, EvidenceLocator] | None:
-    if _is_self_evidence(claim, item):
+    if is_claim_self_evidence(claim, item):
         return None
     if item.locator.source_kind == "table":
         return _match_table_evidence(claim, item)

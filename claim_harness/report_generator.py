@@ -46,6 +46,8 @@ def _write_claim_table(path: Path, claims: list[Claim], results: list[Verificati
                 "requires_evidence",
                 "status",
                 "risk_level",
+                "human_review_required",
+                "release_allowed",
                 "reason",
                 "missing_evidence",
                 "supporting_evidence_ids",
@@ -69,6 +71,8 @@ def _write_claim_table(path: Path, claims: list[Claim], results: list[Verificati
                     "requires_evidence": ";".join(claim.requires_evidence),
                     "status": result.status,
                     "risk_level": result.risk_level,
+                    "human_review_required": str(result.human_review_required).lower(),
+                    "release_allowed": str(result.release_allowed).lower(),
                     "reason": _spreadsheet_safe(result.reason),
                     "missing_evidence": ";".join(result.missing_evidence),
                     "supporting_evidence_ids": ";".join(result.supporting_evidence_ids),
@@ -122,6 +126,10 @@ def _write_audit_report(
     results: list[VerificationResult],
 ) -> None:
     counts = Counter(result.status for result in results)
+    human_review_required_count = sum(
+        result.human_review_required for result in results
+    )
+    release_allowed_count = sum(result.release_allowed for result in results)
     lines = [
         "# ClaimHarness Audit Report",
         "",
@@ -129,6 +137,10 @@ def _write_audit_report(
         "",
         f"- Claims audited: {len(claims)}",
         f"- Evidence items collected: {len(evidence)}",
+        f"- Human review required: {human_review_required_count}",
+        f"- Release allowed: {release_allowed_count}",
+        f"- Release blocked: {len(results) - release_allowed_count}",
+        "- Release boundary: `release_allowed` is only a deterministic low-risk screening gate; it is not professional approval, deployment permission, or factual validation.",
     ]
     for status, count in sorted(counts.items()):
         lines.append(f"- {status}: {count}")
@@ -153,6 +165,8 @@ def _write_audit_report(
                 f"- Source line: {claim.source_line if claim.source_line is not None else 'unknown'}",
                 f"- Source kind: {claim.source_kind}",
                 f"- Risk level: {result.risk_level}",
+                f"- Human review required: {'yes' if result.human_review_required else 'no'}",
+                f"- Release allowed: {'yes' if result.release_allowed else 'no'}",
                 f"- Reason: {result.reason}",
                 f"- Required evidence: {', '.join(claim.requires_evidence) or 'none'}",
                 f"- Missing evidence: {', '.join(result.missing_evidence) or 'none'}",

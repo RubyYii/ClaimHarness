@@ -7,7 +7,7 @@ from typing import Any
 from .schemas import Claim, VerificationResult
 
 
-REVIEW_QUEUE_SCHEMA_VERSION = 1
+REVIEW_QUEUE_SCHEMA_VERSION = 2
 REVIEW_QUEUE_BOUNDARY = (
     "Every item is pending. This artifact is a deterministic review-work snapshot, "
     "not a reviewer identity check, decision, approval, scientific evidence, or permission "
@@ -46,6 +46,8 @@ def build_human_review_queue(
                     "trigger_codes": triggers,
                     "verification_status": result.status,
                     "risk_level": result.risk_level,
+                    "human_review_required": result.human_review_required,
+                    "release_allowed": result.release_allowed,
                     "claim_text": claim.text,
                     "claim_source": {
                         "section": claim.source_section,
@@ -92,16 +94,7 @@ def write_human_review_queue(
 
 
 def _requires_review_work(result: VerificationResult) -> bool:
-    return (
-        result.status in {"needs_human_review", "overclaimed"}
-        or bool(result.contradicting_evidence_ids)
-        or any(
-            requirement == "human_review"
-            or requirement == "source_inspection"
-            or requirement.startswith("human_review_role=")
-            for requirement in result.missing_evidence
-        )
-    )
+    return result.human_review_required
 
 
 def _trigger_codes(
@@ -109,6 +102,8 @@ def _trigger_codes(
     has_contract_role: bool,
 ) -> list[str]:
     codes: list[str] = []
+    if not result.release_allowed:
+        codes.append("release_not_allowed")
     if has_contract_role:
         codes.append("contract_role_required")
     if result.contradicting_evidence_ids:
