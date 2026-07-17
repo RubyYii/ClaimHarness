@@ -15,7 +15,13 @@ from pathlib import Path
 import streamlit as st
 
 from claim_harness.report_exporter import export_output_report
+from claim_harness.llm import resolve_provider_config
 from problem_bridge import __version__ as problem_bridge_version
+from problem_bridge.build_contract import (
+    BUILD_CONTRACT_RUN_ARTIFACTS,
+    BUILD_CONTRACT_SNAPSHOT_DIRECTORIES,
+    generate_evidence_gated_build,
+)
 from problem_bridge.generator import build_alignment_package
 from problem_bridge.guided import (
     FRIENDLY_FILE_LABELS,
@@ -43,6 +49,7 @@ from problem_bridge.project_lifecycle import (
     ProjectLifecycleError,
     RunContext,
     SYSTEM_OWNED_ARTIFACTS,
+    SYSTEM_SNAPSHOT_DIRECTORIES,
     allocate_run_directory,
     delete_run_directory,
     is_run_complete,
@@ -91,6 +98,7 @@ PAGE_OPTIONS = [
     "Question discovery",
     "Domain practitioner wizard",
     "AI practitioner wizard",
+    "Evidence-gated build",
     "View generated outputs",
 ]
 
@@ -99,6 +107,7 @@ WORKSPACE_FLOW_PAGES = [
     "Question discovery",
     "Domain practitioner wizard",
     "AI practitioner wizard",
+    "Evidence-gated build",
     "View generated outputs",
 ]
 
@@ -115,6 +124,7 @@ PAGE_LABELS = {
     "Question discovery": {"en": "Question discovery", "zh": "问题发现"},
     "Domain practitioner wizard": {"en": "Domain practitioner wizard", "zh": "领域工作流向导"},
     "AI practitioner wizard": {"en": "AI practitioner wizard", "zh": "AI 任务对齐向导"},
+    "Evidence-gated build": {"en": "Evidence-gated build", "zh": "证据门控构建"},
     "View generated outputs": {"en": "View generated outputs", "zh": "查看生成结果"},
 }
 
@@ -123,7 +133,8 @@ WORKFLOW_STEPS_ZH = [
     ("02", "问题发现", "先找出该问什么、该问谁。"),
     ("03", "引导式访谈", "还原工作材料、痛点、判断边界。"),
     ("04", "ProblemBridge", "生成任务规格、证据契约和评估方案。"),
-    ("05", "ClaimHarness", "导出结果包，再用 ClaimHarness CLI 审计声明与证据。"),
+    ("05", "证据门控", "生成候选能力声明，由 ClaimHarness 保留、降级或拒绝。"),
+    ("06", "交付与复核", "导出 Codex 项目包、运行记录和可审计结果。"),
 ]
 
 ACTIVE_WORKFLOW_BY_PAGE_ZH = {
@@ -131,8 +142,9 @@ ACTIVE_WORKFLOW_BY_PAGE_ZH = {
     "Question discovery": "问题发现",
     "Domain practitioner wizard": "引导式访谈",
     "AI practitioner wizard": "ProblemBridge",
+    "Evidence-gated build": "证据门控",
     "Explore examples": "ProblemBridge",
-    "View generated outputs": "ProblemBridge",
+    "View generated outputs": "交付与复核",
 }
 
 MODULE_CARDS_ZH = [
@@ -160,6 +172,12 @@ MODULE_CARDS_ZH = [
         "start_if": "你已经有候选 AI 任务，需要检查它是否偏离领域问题。",
         "what_you_get": "错位风险、任务规格、证据契约、评价协议。",
     },
+    {
+        "title": "证据门控构建",
+        "stage": "开始实现之前",
+        "start_if": "你已有对齐包，需要一份有证据边界、可测试的构建契约。",
+        "what_you_get": "声明决策、GPT-5.6 运行记录、可重放轨迹和 Codex 交接包。",
+    },
 ]
 
 WORKFLOW_STEPS = [
@@ -167,7 +185,8 @@ WORKFLOW_STEPS = [
     ("02", "Question discovery", "Find what to ask and who should answer."),
     ("03", "Guided interview", "Reconstruct work, materials, pain points, and boundaries."),
     ("04", "ProblemBridge", "Generate task specs, evidence contracts, and evaluation plans."),
-    ("05", "ClaimHarness", "Export the package for claim auditing in the ClaimHarness CLI."),
+    ("05", "Evidence gate", "Generate capability claims, then retain, downgrade, or reject them."),
+    ("06", "Handoff & review", "Export the Codex pack, runtime record, and auditable results."),
 ]
 
 ACTIVE_WORKFLOW_BY_PAGE = {
@@ -175,8 +194,9 @@ ACTIVE_WORKFLOW_BY_PAGE = {
     "Question discovery": "Question discovery",
     "Domain practitioner wizard": "Guided interview",
     "AI practitioner wizard": "ProblemBridge",
+    "Evidence-gated build": "Evidence gate",
     "Explore examples": "ProblemBridge",
-    "View generated outputs": "ProblemBridge",
+    "View generated outputs": "Handoff & review",
 }
 
 MODULE_CARDS = [
@@ -203,6 +223,12 @@ MODULE_CARDS = [
         "stage": "Task sanity check",
         "start_if": "You already have a candidate AI task and need to check drift.",
         "what_you_get": "misalignment risks, task spec, evidence contract, evaluation protocol.",
+    },
+    {
+        "title": "Evidence-gated build",
+        "stage": "Before implementation",
+        "start_if": "You have an alignment package and need a bounded, testable build contract.",
+        "what_you_get": "claim decisions, GPT-5.6 runtime record, replay trace, and Codex Handoff Pack.",
     },
 ]
 
@@ -397,6 +423,7 @@ PROJECT_SCOPED_SESSION_KEYS = (
     "last_question_discovery_dir",
     "last_alignment_package_dir",
     "last_ai_alignment_dir",
+    "last_build_contract_dir",
     "last_example_dir",
     "problem_bridge_interview_state",
     "interview_seed_source",
@@ -595,6 +622,8 @@ def main() -> None:
         _domain_wizard()
     elif page == "AI practitioner wizard":
         _ai_wizard()
+    elif page == "Evidence-gated build":
+        _evidence_gated_build()
     else:
         _view_outputs()
 
@@ -649,8 +678,8 @@ def _render_memory_sidebar() -> None:
 
     st.sidebar.caption(
         _text(
-            "This guided workbench intentionally uses deterministic mock rules. Remote advisory providers are available only through the ClaimHarness CLI until a reviewed UI integration exists.",
-            "当前引导式工作台仅使用确定性的 mock 规则。在经过审查的 UI 接入完成前，远程 advisory provider 只可通过 ClaimHarness CLI 使用。",
+            "The guided flow is deterministic by default. Evidence-Gated Build can optionally use GPT-5.6 through an OPENAI_API_KEY environment variable; the UI never accepts or stores the key.",
+            "引导流程默认使用确定性 mock。证据门控构建可通过 OPENAI_API_KEY 环境变量选择 GPT-5.6；界面不会接收或保存密钥。",
         )
     )
 
@@ -2267,7 +2296,7 @@ def _ai_wizard() -> None:
             if out:
                 st.success(_generated_message(out))
                 st.download_button(_text("Download problem.md", "下载 problem.md"), problem_text, file_name="problem.md")
-                _render_view_outputs_next_step(out)
+                _render_evidence_gate_next_step(out)
                 _render_friendly_output(out)
     else:
         previous_out = _last_output_path("last_ai_alignment_dir")
@@ -2278,6 +2307,99 @@ def _ai_wizard() -> None:
                 key_suffix="ai-alignment",
                 label=_text("AI alignment result", "AI 对齐结果"),
             )
+
+def _evidence_gated_build() -> None:
+    _render_page_intro(
+        _text("Evidence-gated build", "证据门控构建"),
+        _text(
+            "Turn a completed alignment package into candidate capability claims, gate every claim against approved workflow evidence, and export a Codex-ready implementation contract.",
+            "把已完成的对齐包转成候选能力声明，逐条对照获准的工作流证据进行门控，再导出可交给 Codex 的实现契约。",
+        ),
+        _text(
+            "Workflow evidence supports bounded design intent, not real-world accuracy. Remote mode sends the selected synthetic or non-sensitive problem brief to OpenAI; the API key stays in the environment and is never saved.",
+            "工作流证据只能支持有边界的设计意图，不能证明真实准确率。远程模式会把所选的合成或非敏感问题 brief 发送给 OpenAI；API 密钥只保留在环境变量中，绝不会写入文件。",
+        ),
+        [
+            "claim_decisions.csv",
+            "build_contract.md",
+            "gpt_5_6_runtime.json",
+            "build_record.jsonl",
+            "codex_handoff/",
+        ],
+    )
+    candidates = [
+        path
+        for path in _project_run_paths(_active_project_id())
+        if is_run_complete(path)
+        and (path / "problem.md").is_file()
+        and (path / "evidence_contract.yaml").is_file()
+        and not (path / "build_contract.json").is_file()
+    ]
+    if not candidates:
+        st.info(
+            _text(
+                "Generate a ProblemBridge alignment package first, then return here.",
+                "请先生成 ProblemBridge 对齐包，然后回到这里。",
+            )
+        )
+        return
+
+    candidates = sorted(candidates, key=lambda path: path.stat().st_mtime, reverse=True)
+    source = st.selectbox(
+        _text("Alignment package", "对齐包"),
+        candidates,
+        format_func=lambda path: path.name,
+        key="build_contract_source",
+    )
+    problem_text = (source / "problem.md").read_text(encoding="utf-8")
+    with st.expander(_text("Review source problem", "检查源问题")):
+        st.code(problem_text, language="markdown")
+
+    provider = st.radio(
+        _text("Proposal runtime", "候选声明运行方式"),
+        ["mock", "openai"],
+        format_func=lambda value: (
+            _text("Deterministic mock — no API key", "确定性 mock——不需要 API 密钥")
+            if value == "mock"
+            else _text("OpenAI GPT-5.6 — OPENAI_API_KEY required", "OpenAI GPT-5.6——需要 OPENAI_API_KEY")
+        ),
+        horizontal=True,
+        key="build_contract_provider",
+    )
+    if provider == "openai":
+        st.warning(
+            _text(
+                "Remote call: confirm this brief contains no patient data, confidential manuscript text, credentials, or unpublished private material.",
+                "远程调用：请确认该 brief 不包含患者数据、保密稿件、凭据或未公开的私密材料。",
+            )
+        )
+        st.caption(
+            _text(
+                "The competition path uses the OpenAI Responses API with strict structured output and records non-secret model metadata.",
+                "参赛路径使用 OpenAI Responses API 的严格结构化输出，并记录不含密钥的模型元数据。",
+            )
+        )
+
+    generated_out = None
+    if st.button(
+        _text("Generate evidence-gated build contract", "生成证据门控构建契约"),
+        type="primary",
+        key="generate_evidence_gated_build",
+        use_container_width=True,
+    ):
+        generated_out = _run_ui_action(
+            _text("Generating and gating capability claims…", "正在生成并门控能力声明……"),
+            lambda: _run_evidence_gated_build(source, provider),
+        )
+
+    display_out = generated_out or _last_output_path("last_build_contract_dir")
+    if display_out:
+        if generated_out:
+            st.success(_generated_message(display_out))
+        else:
+            st.info(_text("Most recent build contract is shown below.", "下方显示最近一次构建契约。"))
+        _render_build_contract_output(display_out)
+
 
 def _view_outputs() -> None:
     _render_page_intro(
@@ -2384,6 +2506,8 @@ def _output_kind(out: Path) -> str:
             return "question-discovery"
         if suffix in {"claim_audit", "claim-harness", "audit"} or workflow_type == "claim_harness.audit":
             return "claim-audit"
+        if suffix == "build_contract":
+            return "build-contract"
         return "alignment"
     return _detect_legacy_package_type(out)
 
@@ -2420,8 +2544,73 @@ def _render_output_for_run(out: Path) -> None:
         _render_question_discovery_output(out)
     elif kind == "claim-audit":
         _render_claim_audit_output(out)
+    elif kind == "build-contract":
+        _render_build_contract_output(out)
     else:
         _render_friendly_output(out)
+
+
+def _render_build_contract_output(out: Path) -> None:
+    st.subheader(_text("Evidence-gated build summary", "证据门控构建摘要"))
+    runtime = _read_optional_json_object(
+        out / "gpt_5_6_runtime.json", _text("runtime record", "运行记录")
+    )
+    decisions: list[dict[str, str]] = []
+    decisions_path = out / "claim_decisions.csv"
+    if decisions_path.is_file():
+        try:
+            with decisions_path.open(newline="", encoding="utf-8") as handle:
+                decisions = list(csv.DictReader(handle))
+        except (OSError, UnicodeError, csv.Error) as exc:
+            st.warning(str(exc))
+
+    counts: dict[str, int] = {}
+    for row in decisions:
+        status = row.get("status", "unknown")
+        counts[status] = counts.get(status, 0) + 1
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric(_text("Claims", "声明数"), len(decisions))
+    col2.metric(_text("Supported", "已支持"), counts.get("supported", 0))
+    col3.metric(_text("Downgraded", "已降级"), sum(row.get("action") == "downgrade" for row in decisions))
+    col4.metric(
+        "GPT-5.6",
+        _text("Verified", "已验证") if runtime.get("gpt_5_6_used") else _text("Mock / not called", "Mock／未调用"),
+    )
+    st.caption(
+        _text(
+            f"Provider: {runtime.get('provider', 'unknown')} · Model: {runtime.get('model', 'unknown')}",
+            f"Provider：{runtime.get('provider', 'unknown')} · 模型：{runtime.get('model', 'unknown')}",
+        )
+    )
+    if decisions:
+        st.dataframe(
+            decisions,
+            use_container_width=True,
+            hide_index=True,
+            column_order=[
+                "claim_id",
+                "status",
+                "action",
+                "original_statement",
+                "final_statement",
+                "accepted_evidence_refs",
+            ],
+        )
+    contract_path = out / "build_contract.md"
+    if contract_path.is_file():
+        st.markdown(contract_path.read_text(encoding="utf-8"))
+    handoff = out / "codex_handoff"
+    if handoff.is_dir():
+        with st.expander(_text("Codex Handoff Pack", "Codex 交接包"), expanded=True):
+            st.write(
+                _text(
+                    "These files are ready to copy into a new implementation workspace.",
+                    "这些文件可以直接复制到新的实现工作区。",
+                )
+            )
+            for name in sorted(path.name for path in handoff.iterdir() if path.is_file()):
+                st.code(name, language="text")
+    _render_share_controls(out, "Evidence-Gated Build")
 
 
 def _render_claim_audit_output(out: Path) -> None:
@@ -2624,18 +2813,18 @@ def _render_workflow_alignment_result(out: Path) -> None:
     _render_friendly_output(out)
 
 
-def _render_view_outputs_next_step(out: Path) -> None:
+def _render_evidence_gate_next_step(out: Path) -> None:
     st.subheader(_text("Next step", "下一步"))
     st.write(
         _text(
-            "Open the generated package in View generated outputs to inspect, export, or share the technical files.",
-            "进入查看生成结果，检查、导出或分享这个结果包里的技术文件。",
+            "Generate bounded capability claims, inspect how ClaimHarness retains or downgrades them, and export a Codex Handoff Pack.",
+            "生成有边界的能力声明，检查 ClaimHarness 如何保留或降级它们，再导出 Codex 交接包。",
         )
     )
     st.button(
-        _text("Continue to View generated outputs", "继续到查看生成结果"),
-        key=f"continue_to_view_outputs_{out.name}",
-        on_click=_continue_to_view_outputs,
+        _text("Continue to Evidence-gated build", "继续到证据门控构建"),
+        key=f"continue_to_evidence_gate_{out.name}",
+        on_click=_continue_to_evidence_gate,
         args=(out,),
         type="primary",
         use_container_width=True,
@@ -2643,7 +2832,7 @@ def _render_view_outputs_next_step(out: Path) -> None:
 
 
 def _render_ai_alignment_result(out: Path) -> None:
-    _render_view_outputs_next_step(out)
+    _render_evidence_gate_next_step(out)
     _render_friendly_output(out)
 
 
@@ -2895,11 +3084,11 @@ def _continue_to_ai_wizard_from_alignment(out: Path) -> None:
     st.session_state.workspace_page = "AI practitioner wizard"
 
 
-def _continue_to_view_outputs(out: Path) -> None:
+def _continue_to_evidence_gate(out: Path) -> None:
     _adopt_project_from_run(out)
     st.session_state.last_ai_alignment_dir = str(out)
     st.session_state.last_output_dir = str(out)
-    st.session_state.workspace_page = "View generated outputs"
+    st.session_state.workspace_page = "Evidence-gated build"
 
 
 def _view_outputs_index_for_last_run(runs: list[Path], last_output_dir: str) -> int:
@@ -3023,6 +3212,53 @@ def _run_problem_text(problem_text: str, prefix: str) -> Path:
         st.session_state.last_ai_alignment_dir = str(out)
     if prefix.startswith("example_"):
         st.session_state.last_example_dir = str(out)
+    st.session_state.last_output_dir = str(out)
+    return out
+
+
+def _run_evidence_gated_build(source_out: Path, provider: str) -> Path:
+    source = _validated_project_output_path(source_out, _active_project_id())
+    if source is None or not (source / "problem.md").is_file():
+        raise ValueError("A completed current-project alignment package is required.")
+    problem_text = (source / "problem.md").read_text(encoding="utf-8")
+    provider_config = resolve_provider_config(provider)
+    package = build_alignment_package(problem_text)
+    source_identity = load_run_identity(source)
+    required = tuple(
+        [
+            *ALIGNMENT_RUN_ARTIFACTS,
+            *BUILD_CONTRACT_RUN_ARTIFACTS,
+            "problem.md",
+        ]
+    )
+    context = _allocate_ui_run(
+        "build_contract",
+        owned_artifacts=tuple(
+            [*ALIGNMENT_RUN_ARTIFACTS, *BUILD_CONTRACT_RUN_ARTIFACTS]
+        ),
+        required_artifacts=required,
+        snapshot_directories=BUILD_CONTRACT_SNAPSHOT_DIRECTORIES,
+        run_spec={
+            "source_run_id": source_identity["run_id"],
+            "problem_text_sha256": hashlib.sha256(
+                problem_text.encode("utf-8")
+            ).hexdigest(),
+            "provider": provider_config.provider,
+            "api_style": provider_config.api_style,
+            "model": provider_config.model,
+        },
+    )
+    out = context.path
+    with context.transaction():
+        (out / "problem.md").write_text(problem_text, encoding="utf-8")
+        write_alignment_package(package, out, project_id=context.project_id)
+        generate_evidence_gated_build(
+            package,
+            out,
+            provider_config=provider_config,
+            project_id=context.project_id,
+        )
+    st.session_state.last_build_contract_dir = str(out)
     st.session_state.last_output_dir = str(out)
     return out
 
@@ -3317,7 +3553,7 @@ def _make_archive(out: Path, *, include_source_files: bool = False) -> bytes:
     excluded_unknown_count = sum(
         1
         for path in out.iterdir()
-        if path.name not in {"source_files", "extracted_tables"}
+        if path.name not in SYSTEM_SNAPSHOT_DIRECTORIES
         and path.name not in files
     )
     included: list[dict[str, object]] = []

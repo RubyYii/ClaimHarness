@@ -1,5 +1,47 @@
 # ProblemBridge + ClaimHarness
 
+## OpenAI Build Week 2026 参赛版本
+
+**赛道：** Work and Productivity
+
+**项目名：** *ProblemBridge: From Fuzzy Workflows to Evidence-Gated AI Build Contracts*
+
+本次新增闭环为：
+
+```text
+工作流描述
+  -> GPT-5.6 生成结构化候选构建方案
+  -> ClaimHarness 逐条门控能力声明
+  -> 保留 / 降级 / 删除 / 弃答
+  -> Codex 交接包 + 可重放构建记录
+```
+
+评委无需 API 密钥即可运行完整 mock 演示：
+
+```powershell
+.venv\Scripts\python.exe -m problem_bridge build-week-demo `
+  --out outputs/build_week_quality_inspection_demo `
+  --llm mock
+```
+
+真实 GPT-5.6 参赛演示使用 OpenAI Responses API：
+
+```powershell
+$env:OPENAI_API_KEY = Read-Host "OPENAI_API_KEY"
+$env:OPENAI_MODEL = "gpt-5.6"
+.venv\Scripts\python.exe -m problem_bridge build-week-demo `
+  --out outputs/build_week_gpt56_demo `
+  --llm openai
+```
+
+密钥只从环境变量读取，不会写入 UI、输出包或运行记录。Mock 运行会明确记录
+`gpt_5_6_used: false`，不能冒充真实模型调用。参见：
+
+- [赛前基线与本周新增内容](BUILD_WEEK_DELTA.md)
+- [提交与评委运行指南](BUILD_WEEK_SUBMISSION.md)
+- [三分钟参赛演示脚本](DEMO_SCRIPT_BUILD_WEEK_3MIN.md)
+
+
 <p align="center">
   <img src="docs/figures/github-hero-flat-comic.png" alt="ProblemBridge + ClaimHarness：本地优先的问题对齐与证据审计工作流" width="100%">
 </p>
@@ -58,7 +100,7 @@ ProblemBridge 要做的第一件事，不是马上给方案，而是把这种模
 | --- | --- |
 | **从模糊感觉开始** | 把“我觉得这里不太对”转成具体问题、该问的人、证据需求和复核边界。 |
 | **默认不需要 API** | 首轮测试使用本地 deterministic mock mode，不调用外部模型。 |
-| **引导式工作流** | 从文档摄取到问题发现、工作流对齐、AI 任务检查和结果查看，逐步继承上下文。 |
+| **引导式工作流** | 从文档摄取到问题发现、工作流对齐、AI 任务检查、证据门控构建和交付复核，逐步继承上下文。 |
 | **ProblemBridge** | 把领域工作流转成 AI 任务规格、证据契约、评价协议和人工复核边界。 |
 | **ClaimHarness** | 检查文本或系统输出中的 claims 是否有证据支撑，并保留审计 trace。 |
 | **复核界面** | 搜索和筛选声明、展开证据详情，并把有边界的待办交给人工复核。 |
@@ -71,10 +113,10 @@ ProblemBridge 要做的第一件事，不是马上给方案，而是把这种模
 ### 三步开始使用
 
 1. 双击 `RUN_PROBLEMBRIDGE_WINDOWS.bat`，从本地文件、一个模糊问题或一段反复发生的工作流开始。
-2. 按中文工作台依次完成“文档摄取 → 问题发现 → 引导式访谈 → ProblemBridge → 查看生成结果”。
+2. 按中文工作台依次完成“文档摄取 → 问题发现 → 引导式访谈 → ProblemBridge → 证据门控构建 → 查看生成结果”。
 3. 当稿件或系统输出已经存在时，通过 CLI 运行 ClaimHarness，再用可搜索的静态报告查看器检查完成的审计包。
 
-工作台可以查看已有的 ClaimHarness 审计包，但不会执行或替代 ClaimHarness 审计。审计执行、证据契约选择和远程 advisory provider 仍然属于 CLI 操作。
+工作台可以通过 deterministic mock 或官方 OpenAI GPT-5.6 Responses API 生成 Build Week 证据门控合同，也可以查看已有的 ClaimHarness 审计包。它不会执行或替代 ClaimHarness 审计；完整的论文审计仍通过 CLI 执行。
 
 ## 项目定位
 
@@ -93,6 +135,7 @@ ProblemBridge + ClaimHarness 是一个本地优先的跨学科 AI 原型。它�
 | **Claim 抽取** | English-first 的确定性规则；双语界面不等于已经验证中文 claim 抽取。 |
 | **证据检索** | 词法候选匹配，加上表格实体、指标和数值关系检查。 |
 | **验证** | 感知 evidence contract 的保守规则筛查；不是语义或事实验证。 |
+| **证据门控构建** | mock 或 GPT-5.6 先提出有界能力声明，再由 ClaimHarness 根据证据白名单保留、降级、删除或拒答，并记录 GPT-5.6 是否真实运行。 |
 | **远程 LLM** | 只在确定性验证后生成可选 advisory summary；不会改变抽取、检索或 claim 状态。 |
 | **专业决策** | 必须由合格人员复核；pending 人工复核队列不是批准或决策记录。 |
 
@@ -239,11 +282,11 @@ ClaimHarness 用在文本或系统输出之后，输出一个 evidence audit pac
 
 本地网页 UI 支持中英双语界面。页面顶部可以选择 `English` 或 `中文`，语言会同步到 URL：`?lang=zh` 直接打开中文界面，`?lang=en` 直接打开英文界面。切换语言不会打开新标签页，也不会丢失当前本地项目。当前 Streamlit 版本在中文模式下仍把最外层文档声明为 `lang="en"`，因此屏幕阅读器可能不会自动切换中文发音；语言控件本身已有正确的可访问名称和选中状态。
 
-交互流程现在只在首页展示完整总览，进入任务后改用紧凑流程头，并提供“上一步 / 当前步骤 / 下一步”快捷导航；窄屏下五步卡片改为横向滑动，避免堆成长页面。必填表单会就地提示，不会先创建空运行；问题发现结果会直接预填“一次一问”的引导式访谈；访谈完成后仍可修改答案再生成；进入 AI 向导时，领域问题、候选任务、输入、输出、评价和高风险边界会分别预填，不再把整段 YAML 重复塞进多个字段。复核者字段会保持空白，等待用户确认真实角色。生成结果会保留直接的下一步操作，历史结果默认折叠并明确说明不包含当前表单修改，技术文件也默认折叠。
+交互流程现在只在首页展示完整总览，进入任务后改用紧凑流程头，并提供“上一步 / 当前步骤 / 下一步”快捷导航；窄屏下六步卡片改为横向滑动，避免堆成长页面。必填表单会就地提示，不会先创建空运行；问题发现结果会直接预填“一次一问”的引导式访谈；访谈完成后仍可修改答案再生成；进入 AI 向导时，领域问题、候选任务、输入、输出、评价和高风险边界会分别预填，不再把整段 YAML 重复塞进多个字段。复核者字段会保持空白，等待用户确认真实角色。AI 对齐后可进入证据门控构建，逐条查看能力声明的保留、降级、删除或拒答决定；历史结果默认折叠并明确说明不包含当前表单修改，技术文件也默认折叠。
 
 `查看生成结果` 默认只显示当前项目。只有需要跨项目比较时才打开“显示所有项目”；历史标签会写明经过校验的 UTC 时间、工作流、项目标识，以及适用时的 `legacy` 状态。文档摄取、问题发现、ProblemBridge 对齐和 ClaimHarness 审计会进入各自的结果视图，不再统一误用对齐摘要。旧审计包缺少新版诊断文件时会显示“不可用”，不会把缺失值误报成零。
 
-工作台可以用审计专属视图检查已有的 ClaimHarness 结果包，但不会执行审计。请先通过 CLI 运行 ClaimHarness，再在“查看生成结果”或静态 `index.html` 查看器中打开完成的结果包。
+工作台可以生成证据门控构建合同，也可以用审计专属视图检查已有的 ClaimHarness 结果包，但不会执行完整论文审计。请先通过 CLI 运行 ClaimHarness，再在“查看生成结果”或静态 `index.html` 查看器中打开完成的审计包。
 
 如果你是从 GitHub clone：
 
@@ -308,11 +351,11 @@ RUN_PROBLEMBRIDGE_WINDOWS.bat
 
 ## API 和模型
 
-本地网页 UI 只运行确定性的 `mock` 工作流，不需要 API key，也不提供 provider、model、base URL 或 API-key 输入控件。远程模型提供商是可选的 advisory review，只能通过 ClaimHarness CLI 配置和运行。当前 CLI 支持 OpenAI-compatible、Qwen / DashScope、DeepSeek、Groq、Mistral、OpenRouter、xAI、Ollama、Gemini 和 Anthropic。
+本地网页 UI 的大多数步骤运行确定性的 `mock` 工作流。证据门控构建只提供两个有界选择：本地 `mock`，或官方 OpenAI `gpt-5.6`。UI 不提供 API-key 输入框或任意 base URL；只有用户明确选择远程路径后，才从进程环境读取 `OPENAI_API_KEY`。ClaimHarness CLI 还支持 OpenAI-compatible、Qwen / DashScope、DeepSeek、Groq、Mistral、OpenRouter、xAI、Ollama、Gemini 和 Anthropic 的 advisory review。
 
 使用远程模型前要确认：你输入的内容会发送给外部服务。不要上传真实患者数据、机密论文、未公开项目材料、API key 或任何敏感信息。
 
-本地网页 UI 不接收、收集或保存 API key。侧边栏的 `显示工作台记忆` 只保存草稿字段和最近输出目录，文件位于 `outputs/ui_memory/workbench_memory.json`。加载记忆时会恢复它原来的项目 ID；只有完整且确实属于该项目的受治理运行才会恢复为最近输出，避免把旧项目草稿和新项目身份混在一起。`清除记忆` 只删除磁盘上的记忆文件，当前页面里尚未保存的草稿会保留；“开始新项目”才会在二次确认后清除项目草稿，并提供“先保存草稿再开始”的选项。分享文件夹或 zip 前，如果草稿里有敏感工作流信息，请先清除本地记忆。
+本地网页 UI 不接收、收集或保存 API key。证据门控构建的远程选项会先提示数据将发送到 OpenAI，并且只从进程环境读取密钥。侧边栏的 `显示工作台记忆` 只保存草稿字段和最近输出目录，文件位于 `outputs/ui_memory/workbench_memory.json`。加载记忆时会恢复它原来的项目 ID；只有完整且确实属于该项目的受治理运行才会恢复为最近输出，避免把旧项目草稿和新项目身份混在一起。`清除记忆` 只删除磁盘上的记忆文件，当前页面里尚未保存的草稿会保留；“开始新项目”才会在二次确认后清除项目草稿，并提供“先保存草稿再开始”的选项。分享文件夹或 zip 前，如果草稿里有敏感工作流信息，请先清除本地记忆。
 
 静态 `index.html` 审计查看器现在提供粘性区段导航、声明搜索、组合筛选、实时结果数、待复核项到声明的直接跳转、可复制复核摘要，以及“核心列 + 展开证据详情”的声明表。证据全集和审计轨迹默认折叠；宽表可通过键盘聚焦并横向滚动，也包含跳转正文、清晰焦点、减少动画和窄屏布局。复制失败会明确提示，不会伪装成成功。
 

@@ -108,6 +108,18 @@ def test_guided_interview_and_ai_check_reject_blank_inputs(isolated_app_file):
     assert any("required information" in error.value for error in app.error)
 
 
+def test_evidence_gated_build_route_requires_completed_alignment(isolated_app_file):
+    app = AppTest.from_file(isolated_app_file).run(timeout=30)
+
+    app.sidebar.radio[0].set_value("Evidence-gated build").run(timeout=30)
+
+    assert not app.exception
+    assert any(
+        "Generate a ProblemBridge alignment package first" in message.value
+        for message in app.info
+    )
+
+
 def test_question_discovery_success_continues_with_provisional_interview_seed(isolated_app_file):
     app = AppTest.from_file(isolated_app_file).run(timeout=30)
     app.sidebar.radio[0].set_value("Question discovery").run(timeout=30)

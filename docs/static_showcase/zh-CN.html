@@ -48,7 +48,8 @@
         <article class="step"><div class="num">2</div><strong>问题发现</strong><p>生成问题简报、利益相关者图、访谈指南和待验证未知项。</p></article>
         <article class="step"><div class="num">3</div><strong>引导式访谈</strong><p>还原真实工作、材料、痛点、判断方式和人工边界。</p></article>
         <article class="step"><div class="num">4</div><strong>ProblemBridge</strong><p>生成 AI 任务规格、证据契约、评价协议和风险计划。</p></article>
-        <article class="step"><div class="num">5</div><strong>ClaimHarness CLI 审计</strong><p>审计完成文本，再在静态报告查看器中打开受治理结果包。</p></article>
+        <article class="step"><div class="num">5</div><strong>证据门控构建</strong><p>根据证据白名单门控每条候选能力声明，并导出 Codex 交接包。</p></article>
+        <article class="step"><div class="num">6</div><strong>ClaimHarness CLI 审计</strong><p>审计完成文本，再在静态报告查看器中打开受治理结果包。</p></article>
       </div>
     </section>
 
@@ -56,7 +57,7 @@
       <h2>当前已更新的功能</h2>
       <p class="section-intro">新版工作台缩短了步骤之间的路径，同时明确保留项目身份、草稿状态和有风险的操作。</p>
       <div class="grid">
-        <article class="card"><h3>紧凑步骤导航</h3><p>“上一步 / 当前步骤 / 下一步”在同一个项目会话中切换；窄屏时五步总览横向滑动。</p></article>
+        <article class="card"><h3>紧凑步骤导航</h3><p>“上一步 / 当前步骤 / 下一步”在同一个项目会话中切换；窄屏时六步总览横向滑动。</p></article>
         <article class="card"><h3>清楚区分新旧结果</h3><p>历史结果默认折叠，并说明不包含尚未生成的表单修改；摄取、问题发现、对齐和审计分别使用专属视图。</p></article>
         <article class="card"><h3>更安全的重置</h3><p>开始新项目或重置访谈都需要二次确认；开始新项目前可以先保存草稿。</p></article>
         <article class="card"><h3>项目身份安全的记忆</h3><p>加载记忆会恢复原项目身份；“清除记忆”只删除磁盘快照，当前页面草稿仍保留。</p></article>
@@ -80,7 +81,7 @@
       <pre><code>git clone https://github.com/RubyYii/ClaimHarness.git
 cd ClaimHarness
 .\scripts\run_problembridge_ui_powershell.ps1</code></pre>
-      <p class="section-intro">引导式 UI 只运行确定性的 mock 工作流。工作台可以查看已有的 ClaimHarness 审计包，但不会执行或替代审计；证据契约选择和远程 advisory provider 也仍然只通过 CLI 操作。</p>
+      <p class="section-intro">大多数引导式工作流是确定性的。证据门控构建可以显式选择官方 OpenAI GPT-5.6，逐条核对候选能力声明，并记录 GPT-5.6 是否真实运行。工作台可以查看已有的 ClaimHarness 审计包，但不会替代完整论文审计。</p>
       <pre><code>.venv\Scripts\python.exe -m claim_harness demo --out outputs\my_demo_audit
 .venv\Scripts\python.exe -m claim_harness view --run outputs\my_demo_audit</code></pre>
     </section>
@@ -97,7 +98,7 @@ cd ClaimHarness
 
     <section id="safety-and-limits" class="section">
       <h2>安全边界</h2>
-      <div class="notice">不要输入真实患者数据、机密论文、API key、未公开项目材料或敏感个人信息。工作台仅使用 mock 且不接收 API key；远程 advisory provider 仅可通过 ClaimHarness CLI 使用。</div>
+      <div class="notice">不要输入真实患者数据、机密论文、API key、未公开项目材料或敏感个人信息。工作台不接收或保存 API key；可选 GPT-5.6 路径只从进程环境读取 OPENAI_API_KEY，并在远程发送前显示提示。</div>
       <ul class="clean-list"><li>文档摄取只提取文本和表格，不理解图表，也不代替专业判断。</li><li>OCR 派生文本默认不是强证据，必须人工检查原始文件。</li><li>ClaimHarness 只检查提供的材料，不保证事实或科学结论正确。</li><li>当前合成评测和确定性规则以英文为主；被这些规则判定为高风险的输出必须人工复核，但规则仍可能漏掉高风险声明。</li></ul>
     </section>
     <footer class="footer">继续阅读<a href="../../README.zh-CN.md">完整中文说明</a>、<a href="../demo_walkthrough.md" hreflang="en">演示流程（英文）</a>和<a href="../limitations.md" hreflang="en">功能边界（英文）</a>。<a href="#top">返回顶部</a>。</footer>

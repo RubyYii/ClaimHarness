@@ -14,9 +14,11 @@ from claim_harness.llm import (
     build_anthropic_messages_request,
     build_gemini_request,
     build_openai_compatible_request,
+    build_openai_responses_request,
     call_provider_json,
     load_prompt,
     parse_openai_compatible_json,
+    parse_openai_responses_json,
     parse_anthropic_json,
     parse_gemini_json,
     resolve_provider_config,
@@ -54,6 +56,78 @@ def test_resolve_provider_config_uses_env_and_defaults(monkeypatch):
     assert config.api_key == "test-key"
     assert config.base_url == "https://api.openai.com/v1"
     assert config.model == "gpt-5.4-mini"
+
+
+def test_resolve_openai_provider_uses_gpt56_responses_api(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.delenv("OPENAI_BASE_URL", raising=False)
+    monkeypatch.delenv("OPENAI_MODEL", raising=False)
+
+    config = resolve_provider_config("openai")
+
+    assert config.api_style == "openai-responses"
+    assert config.model == "gpt-5.6"
+
+
+def test_build_openai_responses_request_uses_strict_text_format():
+    config = LLMProviderConfig(
+        provider="openai",
+        api_key="test-key",
+        base_url="https://api.openai.com/v1",
+        model="gpt-5.6",
+        api_style="openai-responses",
+    )
+
+    built = build_openai_responses_request(config, "System", "User")
+    payload = json.loads(built.data.decode("utf-8"))
+
+    assert built.full_url == "https://api.openai.com/v1/responses"
+    assert payload["model"] == "gpt-5.6"
+    assert payload["instructions"] == "System"
+    assert payload["input"] == "User"
+    assert payload["text"]["format"]["type"] == "json_schema"
+    assert payload["text"]["format"]["strict"] is True
+
+
+def test_parse_openai_responses_json_reads_typed_output_and_metadata():
+    review = {
+        "summary": "Review summary",
+        "highest_risk_claims": ["C004"],
+        "recommended_next_actions": ["Human review"],
+        "limitations": ["Synthetic demo only"],
+    }
+    response = {
+        "id": "resp_test",
+        "model": "gpt-5.6-sol",
+        "output": [
+            {
+                "type": "message",
+                "content": [{"type": "output_text", "text": json.dumps(review)}],
+            }
+        ],
+    }
+
+    parsed = parse_openai_responses_json(json.dumps(response).encode("utf-8"))
+
+    assert parsed.payload == review
+    assert parsed.response_id == "resp_test"
+    assert parsed.model == "gpt-5.6-sol"
+
+
+def test_parse_openai_responses_json_rejects_incomplete_response():
+    response = {
+        "id": "resp_incomplete",
+        "status": "incomplete",
+        "output": [
+            {
+                "type": "message",
+                "content": [{"type": "output_text", "text": "{}"}],
+            }
+        ],
+    }
+
+    with pytest.raises(LLMProviderError, match="did not complete"):
+        parse_openai_responses_json(json.dumps(response).encode("utf-8"))
 
 
 def test_resolve_provider_config_uses_deepseek_preset(monkeypatch):

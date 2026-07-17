@@ -14,7 +14,10 @@ ClaimHarness is a small engineering demo, not a scientific review authority.
 - Evidence match reasons explain retrieval heuristics; they are not proof that the evidence scientifically supports the claim.
 - The verifier is conservative but rule-based.
 - Optional LLM review output may be wrong and is advisory only.
-- Remote providers are available only through the ClaimHarness CLI. The local Streamlit UI is mock-only and does not accept, collect, or store API keys. Public provenance omits API keys, URL credentials, endpoint paths, and query strings, but it intentionally reveals the provider/model/API style and endpoint origin (scheme/host/port). This sanitization does not prevent `llm_review.json` or the submitted inputs from containing sensitive project text.
+- Evidence-Gated Build can call GPT-5.6 from the CLI or its dedicated UI page, but the output is still advisory and must pass deterministic schema validation and claim gating. The UI reads credentials only from the launch environment and does not accept, collect, display, or store API keys.
+- A `supported` capability claim means that a bounded design statement is traceable to supplied workflow artifacts. It does not prove accuracy, generalisation, safety, usability, impact, or deployment readiness.
+- `gpt_5_6_runtime.json` is application-level provenance, not cryptographic attestation from OpenAI. It records the returned model string and response ID but cannot independently prove account ownership or rule compliance.
+- Public provenance omits API keys, URL credentials, endpoint paths, and query strings, but any text deliberately sent to a remote provider is still disclosed to that provider. Do not use private or confidential material.
 - The Streamlit workbench can display an existing ClaimHarness package, but it does not execute a ClaimHarness audit. Audit execution, evidence-contract selection, and remote advisory providers remain CLI operations.
 - The static viewer search, filters, anchors, and copy helper run only in the local browser and do not change audit files or verification status. Clipboard access can be blocked by browser policy; the viewer reports failure but cannot grant clipboard permission.
 - `run_manifest.json` and `project_summary_log.md` provide provenance and navigation; they are not scientific evidence, peer review, or approval records.
@@ -43,3 +46,8 @@ The demo shows how to turn a manuscript review task into an auditable episode pa
 The demo should not be presented as a medical device, clinical review tool, diagnostic system, or publication-quality scientific reviewer. Any claim classified by the deterministic rules as biomedical, clinical, high-risk, or deployment-related must remain routed to human review and release-blocked, regardless of deterministic evidence support. This does not imply complete detection of such claims.
 
 If a remote `--llm` provider is used through the ClaimHarness CLI, `llm_review.json` should be treated as an extra reviewer note. It does not override deterministic claim statuses, evidence links, or the need for human scientific review. Remote provider calls may send the current audit inputs to the selected third-party service, so they should not be used with private or confidential material.
+
+If GPT-5.6 is used through Evidence-Gated Build, the structured proposal must be
+treated as a candidate specification only. The final implementation contract is
+the post-gate artifact, and even that contract still requires evaluation and
+qualified human review before deployment.

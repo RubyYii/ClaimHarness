@@ -2,6 +2,33 @@
 
 ClaimHarness is a CLI-first Agent Harness for scientific claim-evidence auditing. It keeps the first implementation small, deterministic, and auditable.
 
+## Build Week evidence-gated build pipeline
+
+```mermaid
+flowchart LR
+    A["ProblemBridge alignment package"] --> B["Mock or GPT-5.6 structured proposal"]
+    B --> C["Capability claims + cited workflow evidence"]
+    C --> D["ClaimHarness capability gate"]
+    D --> E["Retain / downgrade / remove / abstain"]
+    E --> F["AI Build Contract"]
+    F --> G["Codex Handoff Pack"]
+    D --> H["Replayable build record"]
+    B --> I["Non-secret runtime evidence"]
+```
+
+`problem_bridge.build_contract` owns the Build Week orchestration and export
+surface. It accepts a previously constructed `AlignmentPackage`, uses a
+deterministic proposal in mock mode or GPT-5.6 strict Structured Outputs in
+OpenAI mode, invokes `claim_harness.capability_gate`, and writes the final
+contract, decision table, runtime record, trace, and handoff directory.
+
+`claim_harness.capability_gate` is deliberately deterministic. It validates
+evidence references against an allow-list, detects autonomous authority and
+guarantee language, routes high-stakes claims to human review, and preserves the
+same five evidence statuses used by manuscript auditing. In this path,
+`supported` means supported as a bounded workflow-design requirement; it does
+not mean empirically validated performance.
+
 ## Pipeline
 
 ```mermaid
@@ -51,7 +78,7 @@ flowchart TD
 
 `claim_harness.review_queue` creates an immutable snapshot of pending review work. Queue entries route claims and required roles but contain no decision field, cannot satisfy a verifier requirement, and do not establish reviewer identity, qualifications, or approval.
 
-`claim_harness.llm` isolates provider configuration, prompt loading, structured JSON request construction, and optional advisory review calls. It includes OpenAI-compatible presets plus native Gemini and Anthropic request builders. Remote providers are ClaimHarness CLI-only, run after deterministic verification, and do not change claim statuses. The local Streamlit UI is deterministic mock-only and never accepts or stores API keys. Persisted public provider provenance is restricted to provider name, API style, model, JSON mode, and endpoint origin (scheme/host/port); API keys, URL credentials, paths, and queries are excluded. A hash of the full endpoint configuration is included only inside the canonical run-specification hash, binding resume behavior without publishing the endpoint configuration.
+`claim_harness.llm` isolates provider configuration, prompt loading, structured JSON request construction, and optional advisory review calls. The official `openai` preset uses the Responses API and defaults to `gpt-5.6`; the separate `openai-compatible` preset retains Chat Completions compatibility. Native Gemini and Anthropic request builders remain available for ClaimHarness advisory summaries. The Evidence-Gated Build page may invoke the official OpenAI path, but it reads the key only from the launch environment and never accepts or stores credentials. Persisted public provider provenance is restricted to non-secret provider/model/API metadata and hashes.
 
 `claim_harness.report_viewer` renders an existing audit package as a static `index.html` file. It is a read-only presentation layer and does not run a server or change audit results.
 
@@ -65,7 +92,7 @@ flowchart TD
 
 `problem_bridge.project_lifecycle` provides identity-bound `new`, `resume`, and `replace` modes, allow-listed cleanup, cross-process locking, staged flat-file writes, artifact hashes, and a completion marker published last. `run_identity.json` records the workflow type and canonical run-specification hash; the ClaimHarness and ProblemBridge CLI specifications include the tool version, so `resume` rejects workflow, input/configuration, or version drift. Both `resume` and `replace` require the caller to provide `project_id` and `expected_run_id` independently of the editable identity file.
 
-`run_complete.json` binds the identity-file hash to the exact governed artifact set. Document-intake runs additionally register `extracted_tables/` and `source_files/` as allow-listed snapshot directories; every nested non-symlink file is hashed, and later additions, removals, or byte changes invalidate completion. `replace` preflights and clears both the old and requested run-owned snapshot trees so stale nested files cannot enter the next run. Unknown root files are outside the governed set. The local UI allocates unique runs, hides incomplete or deletion-pending governed runs, builds share ZIPs from verified generated-artifact snapshots, rejects linked/junction run roots, excludes originals and unknown files by default, and offers project-level deletion only after exact project-ID confirmation. Deletion binds the marker to the live identity and atomically renames the authorized run before recursive cleanup, so a newly created run at the old path is not removed by delayed cleanup.
+`run_complete.json` binds the identity-file hash to the exact governed artifact set. Document-intake runs additionally register `extracted_tables/` and `source_files/` as allow-listed snapshot directories; Evidence-Gated Build registers `codex_handoff/`. Every nested non-symlink file is hashed, and later additions, removals, or byte changes invalidate completion. `replace` preflights and clears both the old and requested run-owned snapshot trees so stale nested files cannot enter the next run. Unknown root files are outside the governed set. The local UI allocates unique runs, hides incomplete or deletion-pending governed runs, builds share ZIPs from verified generated-artifact snapshots, rejects linked/junction run roots, excludes originals and unknown files by default, and offers project-level deletion only after exact project-ID confirmation. Deletion binds the marker to the live identity and atomically renames the authorized run before recursive cleanup, so a newly created run at the old path is not removed by delayed cleanup.
 
 ## Data Objects
 

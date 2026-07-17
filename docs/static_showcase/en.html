@@ -48,7 +48,8 @@
         <article class="step"><div class="num">2</div><strong>Question discovery</strong><p>Produce a question brief, stakeholder map, interview guide, and unknowns list.</p></article>
         <article class="step"><div class="num">3</div><strong>Guided interview</strong><p>Reconstruct the real workflow, materials, pain points, judgement, and human boundaries.</p></article>
         <article class="step"><div class="num">4</div><strong>ProblemBridge</strong><p>Generate the AI task spec, evidence contract, evaluation protocol, and risk plan.</p></article>
-        <article class="step"><div class="num">5</div><strong>ClaimHarness CLI audit</strong><p>Audit completed text and open the governed package in the static report viewer.</p></article>
+        <article class="step"><div class="num">5</div><strong>Evidence-gated build</strong><p>Propose bounded capabilities, gate each claim against evidence, and export a Codex Handoff Pack.</p></article>
+        <article class="step"><div class="num">6</div><strong>ClaimHarness CLI audit</strong><p>Audit completed text and open the governed package in the static report viewer.</p></article>
       </div>
     </section>
 
@@ -56,7 +57,7 @@
       <h2>Features now available</h2>
       <p class="section-intro">The latest workbench shortens the path between stages while keeping project identity, draft state, and destructive actions explicit.</p>
       <div class="grid">
-        <article class="card"><h3>Compact step navigation</h3><p>Previous/current/next controls preserve one project session; the five-step overview scrolls horizontally on narrow screens.</p></article>
+        <article class="card"><h3>Compact step navigation</h3><p>Previous/current/next controls preserve one project session; the six-step overview scrolls horizontally on narrow screens.</p></article>
         <article class="card"><h3>Clear result context</h3><p>Previous results stay collapsed and say they do not contain unfinished form edits. Intake, discovery, alignment, and audit packages use their own views.</p></article>
         <article class="card"><h3>Safer resets</h3><p>Starting a project or resetting an interview requires confirmation. Users can save drafts before starting a new project.</p></article>
         <article class="card"><h3>Identity-safe memory</h3><p>Saved memory restores its original project identity. Clear memory removes the disk snapshot while retaining current on-screen drafts.</p></article>
@@ -80,7 +81,7 @@
       <pre><code>git clone https://github.com/RubyYii/ClaimHarness.git
 cd ClaimHarness
 .\scripts\run_problembridge_ui_powershell.ps1</code></pre>
-      <p class="section-intro">The guided UI runs deterministic mock workflows only. The workbench can inspect existing ClaimHarness audit packages, but it does not execute or replace an audit. Evidence-contract selection and remote advisory providers also remain CLI-only.</p>
+      <p class="section-intro">Most guided workflows are deterministic. Evidence-gated build adds an explicit official OpenAI GPT-5.6 path, validates proposed claims against the evidence allow-list, and records whether GPT-5.6 actually ran. The workbench can inspect existing ClaimHarness audit packages, but it does not replace a full manuscript audit.</p>
       <pre><code>.venv\Scripts\python.exe -m claim_harness demo --out outputs\my_demo_audit
 .venv\Scripts\python.exe -m claim_harness view --run outputs\my_demo_audit</code></pre>
     </section>
@@ -97,7 +98,7 @@ cd ClaimHarness
 
     <section id="safety-and-limits" class="section">
       <h2>Safety boundary</h2>
-      <div class="notice">Do not enter real patient data, confidential manuscripts, API keys, unpublished project materials, or sensitive personal information. The workbench is mock-only and does not accept API keys; remote advisory providers are ClaimHarness CLI-only.</div>
+      <div class="notice">Do not enter real patient data, confidential manuscripts, API keys, unpublished project materials, or sensitive personal information. The workbench never accepts or stores API keys; the optional GPT-5.6 path reads OPENAI_API_KEY from the process environment and warns before remote transmission.</div>
       <ul class="clean-list"><li>Document intake extracts text and tables; it does not understand figures or make professional judgements.</li><li>OCR-derived text is not strong evidence by default and requires inspection of the original source.</li><li>ClaimHarness checks only the supplied material and does not guarantee factual or scientific correctness.</li><li>The current synthetic evaluation and deterministic rules are English-first; outputs classified by those rules as high-risk require human review, but the rules may miss high-risk claims.</li></ul>
     </section>
     <footer class="footer">Read the <a href="../../README.md">full README</a>, <a href="../demo_walkthrough.md">demo walkthrough</a>, and <a href="../limitations.md">limitations</a>. <a href="#top">Back to top</a>.</footer>

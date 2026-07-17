@@ -42,6 +42,11 @@ SYSTEM_OWNED_ARTIFACTS = frozenset(
         "annotation_map.json",
         "audit_diagnostics.json",
         "audit_report.md",
+        "build_contract.json",
+        "build_contract.md",
+        "build_record.jsonl",
+        "capability_claims.json",
+        "claim_decisions.csv",
         "claim_table.csv",
         "comment_threads.md",
         "concept_alignment_table.csv",
@@ -68,6 +73,7 @@ SYSTEM_OWNED_ARTIFACTS = frozenset(
         "run_manifest.json",
         "source_manifest.json",
         "stakeholder_map.md",
+        "gpt_5_6_runtime.json",
         "unknowns_to_validate.md",
         "workflow_map.md",
         "workbench_memory.json",
@@ -77,7 +83,9 @@ SYSTEM_OWNED_ARTIFACTS = frozenset(
 # These directory names are narrow, project-owned snapshot boundaries. They
 # are never accepted from arbitrary user input, and the lifecycle layer never
 # follows symlinks while hashing them.
-SYSTEM_SNAPSHOT_DIRECTORIES = frozenset({"extracted_tables", "source_files"})
+SYSTEM_SNAPSHOT_DIRECTORIES = frozenset(
+    {"codex_handoff", "extracted_tables", "source_files"}
+)
 
 
 class ProjectLifecycleError(RuntimeError):

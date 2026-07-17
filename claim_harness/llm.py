@@ -13,12 +13,19 @@ from pydantic import ValidationError
 from .schemas import Claim, LLMAuditReview, VerificationResult
 
 
-ApiStyle = Literal["mock", "openai-chat", "gemini", "anthropic"]
+ApiStyle = Literal[
+    "mock",
+    "openai-responses",
+    "openai-chat",
+    "gemini",
+    "anthropic",
+]
 JsonMode = Literal["json_schema", "json_object", "prompted_json"]
 
 
 DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1"
-DEFAULT_OPENAI_MODEL = "gpt-5.4-mini"
+DEFAULT_OPENAI_MODEL = "gpt-5.6"
+DEFAULT_OPENAI_COMPATIBLE_MODEL = "gpt-5.4-mini"
 MAX_PROVIDER_RESPONSE_BYTES = 2 * 1024 * 1024
 MAX_PROVIDER_ERROR_BYTES = 4 * 1024
 
@@ -40,7 +47,7 @@ PROVIDER_PRESETS: dict[str, ProviderPreset] = {
     "mock": ProviderPreset(provider="mock", api_style="mock", requires_api_key=False),
     "openai": ProviderPreset(
         provider="openai",
-        api_style="openai-chat",
+        api_style="openai-responses",
         api_key_env="OPENAI_API_KEY",
         base_url_env="OPENAI_BASE_URL",
         model_env="OPENAI_MODEL",
@@ -55,7 +62,7 @@ PROVIDER_PRESETS: dict[str, ProviderPreset] = {
         base_url_env="OPENAI_BASE_URL",
         model_env="OPENAI_MODEL",
         default_base_url=DEFAULT_OPENAI_BASE_URL,
-        default_model=DEFAULT_OPENAI_MODEL,
+        default_model=DEFAULT_OPENAI_COMPATIBLE_MODEL,
         json_mode="json_schema",
     ),
     "deepseek": ProviderPreset(
@@ -171,6 +178,15 @@ class LLMProviderConfig:
     model: str | None = None
     api_style: ApiStyle = "mock"
     json_mode: JsonMode = "json_schema"
+
+
+@dataclass(frozen=True)
+class StructuredProviderResult:
+    payload: dict[str, Any]
+    provider: str
+    api_style: ApiStyle
+    model: str | None
+    response_id: str | None = None
 
 
 def validate_provider(provider: str) -> str:
@@ -301,6 +317,48 @@ def build_openai_compatible_request(
     )
 
 
+def build_openai_responses_request(
+    config: LLMProviderConfig,
+    system_prompt: str,
+    user_prompt: str,
+    *,
+    json_schema: dict[str, Any] = AUDIT_REVIEW_SCHEMA,
+    schema_name: str = "claimharness_audit_review",
+) -> request.Request:
+    """Build an OpenAI Responses API request with strict structured output."""
+
+    if not config.api_key or not config.base_url or not config.model:
+        raise MissingProviderConfig("OpenAI Responses provider config is incomplete.")
+    if config.provider != "openai" or config.api_style != "openai-responses":
+        raise MissingProviderConfig(
+            "The OpenAI Responses request builder requires the openai provider."
+        )
+    _validate_provider_endpoint(config)
+
+    payload = {
+        "model": config.model,
+        "instructions": system_prompt,
+        "input": user_prompt,
+        "text": {
+            "format": {
+                "type": "json_schema",
+                "name": schema_name,
+                "strict": True,
+                "schema": json_schema,
+            }
+        },
+    }
+    return request.Request(
+        f"{config.base_url.rstrip('/')}/responses",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {config.api_key}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+
+
 def build_gemini_request(
     config: LLMProviderConfig,
     system_prompt: str,
@@ -366,6 +424,55 @@ def parse_openai_compatible_json(response_body: bytes) -> dict[str, Any]:
 
     return validate_audit_review(
         _parse_json_object_text(content, "OpenAI-compatible provider")
+    )
+
+
+def parse_openai_responses_json(response_body: bytes) -> StructuredProviderResult:
+    """Read strict JSON text from the typed Responses API output array."""
+
+    try:
+        response_payload = json.loads(response_body.decode("utf-8"))
+        output = response_payload["output"]
+        response_id = response_payload.get("id")
+        model = response_payload.get("model")
+    except (KeyError, TypeError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise LLMProviderError("OpenAI Responses API returned invalid JSON content.") from exc
+
+    if not isinstance(output, list):
+        raise LLMProviderError("OpenAI Responses API returned an invalid output array.")
+    status = response_payload.get("status")
+    if status is not None and status != "completed":
+        raise LLMProviderError(
+            f"OpenAI Responses API did not complete the structured request (status={status})."
+        )
+
+    text_content: str | None = None
+    for item in output:
+        if not isinstance(item, dict) or item.get("type") != "message":
+            continue
+        content = item.get("content")
+        if not isinstance(content, list):
+            continue
+        for part in content:
+            if not isinstance(part, dict):
+                continue
+            if part.get("type") == "refusal":
+                raise LLMProviderError("OpenAI Responses API refused the structured request.")
+            if part.get("type") == "output_text" and isinstance(part.get("text"), str):
+                text_content = part["text"]
+                break
+        if text_content is not None:
+            break
+
+    if text_content is None:
+        raise LLMProviderError("OpenAI Responses API returned no structured output text.")
+
+    return StructuredProviderResult(
+        payload=_parse_json_object_text(text_content, "OpenAI Responses API"),
+        provider="openai",
+        api_style="openai-responses",
+        model=model if isinstance(model, str) else None,
+        response_id=response_id if isinstance(response_id, str) else None,
     )
 
 
@@ -489,7 +596,14 @@ def call_provider_json(
     urlopen: Callable[..., Any] | None = None,
     timeout: int = 60,
 ) -> dict[str, Any]:
-    if config.api_style == "openai-chat":
+    if config.api_style == "openai-responses":
+        api_request = build_openai_responses_request(
+            config,
+            system_prompt,
+            user_prompt,
+        )
+        parser = parse_openai_responses_json
+    elif config.api_style == "openai-chat":
         api_request = build_openai_compatible_request(config, system_prompt, user_prompt)
         parser = parse_openai_compatible_json
     elif config.api_style == "gemini":
@@ -513,7 +627,47 @@ def call_provider_json(
     except TimeoutError as exc:
         raise LLMProviderError(f"{config.provider} provider request timed out.") from exc
 
-    return parser(response_body)
+    parsed = parser(response_body)
+    if isinstance(parsed, StructuredProviderResult):
+        return validate_audit_review(parsed.payload)
+    return parsed
+
+
+def call_structured_provider_json(
+    config: LLMProviderConfig,
+    system_prompt: str,
+    user_prompt: str,
+    *,
+    json_schema: dict[str, Any],
+    schema_name: str,
+    urlopen: Callable[..., Any] | None = None,
+    timeout: int = 60,
+) -> StructuredProviderResult:
+    """Call GPT-5.6 through Responses API for a caller-defined JSON schema."""
+
+    if config.api_style != "openai-responses":
+        raise LLMProviderError(
+            "Caller-defined structured output currently requires the openai provider."
+        )
+    api_request = build_openai_responses_request(
+        config,
+        system_prompt,
+        user_prompt,
+        json_schema=json_schema,
+        schema_name=schema_name,
+    )
+    open_request = urlopen or _open_provider_request
+    try:
+        with open_request(api_request, timeout=timeout) as response:
+            response_body = _read_provider_response(response)
+    except HTTPError as exc:
+        detail = _read_provider_error(exc)
+        raise LLMProviderError(f"openai provider HTTP {exc.code}: {detail}") from exc
+    except URLError as exc:
+        raise LLMProviderError(f"openai provider request failed: {exc.reason}") from exc
+    except TimeoutError as exc:
+        raise LLMProviderError("openai provider request timed out.") from exc
+    return parse_openai_responses_json(response_body)
 
 
 def summarize_audit_with_llm(

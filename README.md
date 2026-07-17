@@ -14,6 +14,8 @@
   <img alt="Default API requirement" src="https://img.shields.io/badge/default-no%20API%20key-2563eb">
   <img alt="ProblemBridge" src="https://img.shields.io/badge/ProblemBridge-problem%20alignment-c2410c">
   <img alt="ClaimHarness" src="https://img.shields.io/badge/ClaimHarness-evidence%20audit-374151">
+  <img alt="GPT-5.6" src="https://img.shields.io/badge/GPT--5.6-Responses%20API-7c3aed">
+  <img alt="Build Week" src="https://img.shields.io/badge/OpenAI%20Build%20Week-2026-111827">
 </p>
 
 <p align="center">
@@ -31,6 +33,74 @@
 **Development reflection:** [Development lessons](DEVELOPMENT_LESSONS.md)
 
 **External review reconciliation (Chinese):** [Current implementation and 14-issue status](docs/external_review_reconciliation.md)
+
+## OpenAI Build Week 2026
+
+**Track:** Work and Productivity
+
+**Submission name:** *ProblemBridge: From Fuzzy Workflows to Evidence-Gated AI Build Contracts*
+
+> ProblemBridge turns an expert's informal workflow into a testable AI build
+> contract, while ClaimHarness prevents unsupported capability claims from
+> entering implementation.
+
+The Build Week extension adds one continuous product loop:
+
+```text
+Workflow description
+  -> GPT-5.6 structured build proposal
+  -> ClaimHarness capability-claim gate
+  -> retain / downgrade / remove / abstain
+  -> Codex Handoff Pack + replayable build record
+```
+
+The deterministic judge path needs no API key:
+
+```powershell
+.venv\Scripts\python.exe -m problem_bridge build-week-demo `
+  --out outputs/build_week_quality_inspection_demo `
+  --llm mock
+```
+
+It writes the normal ProblemBridge alignment artifacts plus:
+
+- `problem.md` as the exact traceable source brief
+- `build_contract.json` and `build_contract.md`
+- `capability_claims.json` and `claim_decisions.csv`
+- `gpt_5_6_runtime.json`
+- `build_record.jsonl`
+- `codex_handoff/AGENTS.md`
+- `codex_handoff/SPEC.md`
+- `codex_handoff/TASKS.md`
+- `codex_handoff/acceptance_tests.yaml`
+- `codex_handoff/evidence_contract.yaml`
+- `codex_handoff/risk_register.md`
+- `codex_handoff/demo_scenario.md`
+
+For the competition runtime path, provide a key through the environment and
+explicitly select OpenAI. The UI never accepts or stores the key.
+
+```powershell
+$env:OPENAI_API_KEY = Read-Host "OPENAI_API_KEY"
+$env:OPENAI_MODEL = "gpt-5.6"
+.venv\Scripts\python.exe -m problem_bridge build-week-demo `
+  --out outputs/build_week_gpt56_demo `
+  --llm openai
+```
+
+Remote mode is locked to the official OpenAI `/v1/responses` endpoint and a
+GPT-5.6-family model, with strict Structured Outputs.
+`gpt_5_6_runtime.json` records the non-secret model name, response ID, input
+hash, output hash, and whether a GPT-5.6-family response was actually received.
+Mock mode records `gpt_5_6_used: false` and must not be presented as a real
+model call.
+
+Competition documentation:
+
+- [Pre-existing baseline and Build Week delta](BUILD_WEEK_DELTA.md)
+- [Submission and judge guide](BUILD_WEEK_SUBMISSION.md)
+- [Three-minute Build Week demo script](DEMO_SCRIPT_BUILD_WEEK_3MIN.md)
+- [Model provider and data-safety guide](MODEL_PROVIDER_GUIDE.md)
 
 ## Start Here
 
@@ -68,15 +138,15 @@ You do not need AI vocabulary to start. Describe the repeated work, the material
   <img src="docs/figures/github-workflow.svg" alt="Guided workflow from document intake to evidence audit" width="100%">
 </p>
 
-**Guided workflow:** Document intake -> Question discovery -> Workflow alignment -> AI task check -> Evidence audit.
+**Guided workflow:** Document intake -> Question discovery -> Workflow alignment -> AI task check -> Evidence-gated build -> Handoff and review.
 
 ### Use it in three steps
 
 1. Double-click `RUN_PROBLEMBRIDGE_WINDOWS.bat` and begin with files, a vague concern, or a repeated workflow.
-2. Follow the bilingual workbench through Document intake -> Question discovery -> Guided interview -> ProblemBridge -> View generated outputs.
+2. Follow the bilingual workbench through Document intake -> Question discovery -> Guided interview -> ProblemBridge -> Evidence-gated build -> View generated outputs.
 3. When a manuscript or system output exists, run ClaimHarness through the CLI and open its completed package in the searchable static report viewer.
 
-The workbench can inspect existing ClaimHarness audit packages, but it does not execute or replace a ClaimHarness audit. Audit execution, evidence-contract selection, and remote advisory providers remain CLI operations.
+The workbench can generate the Build Week evidence-gated contract with the deterministic mock path or the official OpenAI GPT-5.6 Responses API path, then inspect existing ClaimHarness audit packages. It does not execute or replace a ClaimHarness audit; the full manuscript audit remains a CLI operation.
 
 ## Overview
 
@@ -250,7 +320,7 @@ python -m venv .venv
 
 ## Safety Boundary
 
-Do not enter real patient data, confidential manuscripts, API keys, unpublished project materials, or sensitive personal information. The local Streamlit UI runs deterministic mock workflows only and does not collect or store API keys. Optional remote model providers are advisory and are available only through the ClaimHarness CLI.
+Do not enter real patient data, confidential manuscripts, API keys, unpublished project materials, or sensitive personal information. Most local Streamlit steps are deterministic; the optional Evidence-gated build can call GPT-5.6 only when the API key is supplied through the process environment. The UI never asks for or stores an API key, and it displays a remote-data warning before that choice.
 
 ## Downloadable Local Web App Package
 
@@ -381,8 +451,9 @@ When the browser opens:
 3. Use `Document intake` first when you have Word, PDF, webpage, image/OCR, or pasted text material; then click `Continue to Question discovery`.
 4. Use `Domain practitioner wizard` to describe a repeated workflow, not an AI task.
 5. After the workflow alignment package is generated, click `Continue to AI practitioner wizard` to check the candidate AI task against the domain problem, evidence contract, evaluation protocol, and human-review boundaries.
-6. After the AI alignment check, click `Continue to View generated outputs` to inspect, export, or share the generated package.
-7. Download the package for an AI engineer only after checking that it contains no private material.
+6. After the AI alignment check, click `Continue to Evidence-gated build`, choose the deterministic mock path or the explicit GPT-5.6 path, and inspect every retain/downgrade/remove/abstain decision.
+7. Continue to `View generated outputs` to inspect, export, or share the build contract and Codex Handoff Pack.
+8. Download the package for an AI engineer only after checking that it contains no private material.
 
 The output-history selector shows newest runs first using the verified UTC
 `run_created_at` value from `run_identity.json`. Pre-governance folders fall
@@ -537,7 +608,7 @@ The wizard includes:
 - Advanced technical file view and cached local report downloads
 - Downloadable alignment package
 
-Starting a new project and resetting a guided interview now require an explicit confirmation; starting a project can save the current drafts first. Clearing saved workspace memory removes the file on disk but keeps the current on-screen drafts. On narrow screens, the five-step overview scrolls horizontally instead of expanding into a long stack. Generated packages keep their direct next-step action, while the compact navigation provides a shortcut between workflow pages without changing the active project.
+Starting a new project and resetting a guided interview now require an explicit confirmation; starting a project can save the current drafts first. Clearing saved workspace memory removes the file on disk but keeps the current on-screen drafts. On narrow screens, the six-step overview scrolls horizontally instead of expanding into a long stack. Generated packages keep their direct next-step action, while the compact navigation provides a shortcut between workflow pages without changing the active project.
 
 Each UI project has a stable project ID and every generated run has a unique run ID. Incomplete governed runs are not shown as completed outputs. A governed identity records the workflow type and a run-specification SHA-256; the CLI run specification includes the tool version, inputs, and provider configuration, so `resume` rejects a different workflow, specification, or tool version. CLI `resume` and `replace` both require an independently supplied `--project-id` and `--expected-run-id`.
 
@@ -545,9 +616,9 @@ Each UI project has a stable project ID and every generated run has a unique run
 
 Do not upload private patient data, confidential manuscripts, API keys, or sensitive unpublished materials.
 
-## Optional Remote Providers (ClaimHarness CLI Only)
+## Optional Remote Providers
 
-The default demo uses `--llm mock` and never needs an API key. This section applies only to the ClaimHarness CLI; the local Streamlit UI remains deterministic mock-only and never accepts or stores API keys. Remote providers are optional and advisory only. Supported provider names include:
+The default demo uses `--llm mock` and never needs an API key. Remote providers are optional. The Evidence-gated build uses the official OpenAI Responses API only; ClaimHarness audit summaries can also use the compatible providers below. The UI never accepts or stores API keys: it reads an OpenAI key from the process environment only after the user explicitly selects the remote path.
 
 ```text
 mock
@@ -594,7 +665,7 @@ $env:QWEN_MODEL="qwen-plus"
   --llm qwen
 ```
 
-The local Streamlit UI intentionally runs deterministic mock workflows only. It has no provider, model, base-URL, or API-key controls and does not collect or store API keys. `Show workspace memory` can save draft fields and the most recent output path to `outputs/ui_memory/workbench_memory.json`. Loading that memory restores its original project ID and restores a recent output only when the governed run is complete and belongs to that project. `Clear memory` deletes the saved file while retaining the current unsaved form values; starting a new project is the separate action that clears project-scoped drafts after confirmation. Clear local memory before sharing if drafts contain sensitive workflow details. Remote advisory providers are configured and run only through the ClaimHarness CLI.
+Most Streamlit workflows are deterministic. Evidence-gated build exposes only two bounded choices: local `mock`, or official OpenAI `gpt-5.6` with a key read from `OPENAI_API_KEY` in the process environment. There is no API-key field, no arbitrary base URL, and no persisted credential. `Show workspace memory` can save draft fields and the most recent output path to `outputs/ui_memory/workbench_memory.json`. Loading that memory restores its original project ID and restores a recent output only when the governed run is complete and belongs to that project. `Clear memory` deletes the saved file while retaining the current unsaved form values; starting a new project is the separate action that clears project-scoped drafts after confirmation. Clear local memory before sharing if drafts contain sensitive workflow details.
 
 DeepSeek can use its own preset:
 

@@ -19,9 +19,25 @@ Fast path:
 
 This runs the mock audit and writes the static `index.html` report viewer. `new` is the default lifecycle mode, so the output directory must be empty or absent. Use a fresh output name for a separate run.
 
-The local Streamlit workbench and this demo path both use deterministic mock rules. The UI does not accept or store API keys. Remote advisory providers are available only through the ClaimHarness CLI.
+The local Streamlit workbench is deterministic by default. Its dedicated
+Evidence-Gated Build step may explicitly use GPT-5.6 after `OPENAI_API_KEY` is
+set in the launch environment; the UI has no key field and does not store the
+credential.
 
-For a UI walkthrough, keep one active local project and follow Home -> Document intake -> Question discovery -> Domain practitioner wizard -> AI practitioner wizard -> View generated outputs. The compact previous/next controls should move between those pages without changing the project ID; on a narrow screen, the five-step strip should scroll horizontally. Empty required forms should show inline guidance without creating a run. Question discovery should seed the guided interview at partial completeness; the interview should remain editable before generation; and the AI form should receive separate concise fields rather than duplicated raw package files. Previous results stay collapsed until requested and explicitly exclude unsaved edits in the current form. Output history is current-project-only by default, with an explicit opt-in for all projects and package-specific renderers for intake, discovery, alignment, and audits.
+For a UI walkthrough, keep one active local project and follow Home -> Document intake -> Question discovery -> Domain practitioner wizard -> AI practitioner wizard -> Evidence-gated build -> View generated outputs. The compact previous/next controls should move between those pages without changing the project ID; on a narrow screen, the six-step strip should scroll horizontally. Empty required forms should show inline guidance without creating a run. Question discovery should seed the guided interview at partial completeness; the interview should remain editable before generation; and the AI form should receive separate concise fields rather than duplicated raw package files. Evidence-Gated Build should show each proposed claim, status, action, final statement, and runtime truth flag. Previous results stay collapsed until requested and explicitly exclude unsaved edits in the current form. Output history is current-project-only by default, with an explicit opt-in for all projects and package-specific renderers for intake, discovery, alignment, build-contract, and audit packages.
+
+## Build Week judge path
+
+```powershell
+.venv\Scripts\python.exe -m problem_bridge build-week-demo `
+  --out outputs/build_week_quality_inspection_demo `
+  --llm mock
+```
+
+Inspect `claim_decisions.csv`, `build_contract.md`, `build_record.jsonl`, and
+`codex_handoff/`. For a real GPT-5.6 demonstration, set `OPENAI_API_KEY`, set
+`OPENAI_MODEL=gpt-5.6`, and change the command to `--llm openai`. Only the latter
+may produce `gpt_5_6_used: true`.
 
 Manual path:
 

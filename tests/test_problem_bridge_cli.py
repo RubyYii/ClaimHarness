@@ -69,6 +69,34 @@ def test_demo_writes_problem_alignment_package_outside_repository_cwd(tmp_path, 
     assert EXPECTED_FILES == {path.name for path in out.iterdir()}
 
 
+def test_build_week_demo_writes_complete_evidence_gated_package(tmp_path):
+    runner = CliRunner()
+    out = tmp_path / "build_week_demo"
+
+    result = runner.invoke(
+        app,
+        ["build-week-demo", "--out", str(out), "--llm", "mock"],
+    )
+
+    assert result.exit_code == 0
+    assert "Evidence-gated build contract complete" in result.output
+    assert is_run_complete(out)
+    assert (out / "problem.md").is_file()
+    assert (out / "claim_decisions.csv").is_file()
+    runtime = json.loads((out / "gpt_5_6_runtime.json").read_text(encoding="utf-8"))
+    assert runtime["gpt_5_6_used"] is False
+    assert runtime["contains_api_key"] is False
+    assert {
+        "AGENTS.md",
+        "SPEC.md",
+        "TASKS.md",
+        "acceptance_tests.yaml",
+        "evidence_contract.yaml",
+        "risk_register.md",
+        "demo_scenario.md",
+    } == {path.name for path in (out / "codex_handoff").iterdir()}
+
+
 def test_align_writes_deterministic_quality_inspection_package(tmp_path):
     runner = CliRunner()
     out = tmp_path / "quality_inspection_alignment"

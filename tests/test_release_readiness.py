@@ -128,7 +128,7 @@ def test_github_landing_page_has_visual_portfolio_header():
         "Guided workflow",
         "Start locally",
         "No API by default",
-        "Document intake -> Question discovery -> Workflow alignment -> AI task check -> Evidence audit",
+        "Document intake -> Question discovery -> Workflow alignment -> AI task check -> Evidence-gated build -> Handoff and review",
     ]:
         assert phrase in readme
 
@@ -416,7 +416,7 @@ def test_guided_ui_language_selection_is_visible_and_shareable():
     assert ui._language_query_code("中文") == "zh"
     assert ui._language_query_code("English") == "en"
 
-def test_guided_ui_has_local_memory_without_unwired_api_settings():
+def test_guided_ui_has_local_memory_and_environment_only_gpt56_settings():
     ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
     provider_guide = Path("MODEL_PROVIDER_GUIDE.md").read_text(encoding="utf-8")
 
@@ -428,8 +428,8 @@ def test_guided_ui_has_local_memory_without_unwired_api_settings():
         "Privacy check before sharing",
         "Clear local memory before sharing",
         "does not accept or store API keys",
-        "deterministic mock rules",
-        "Remote advisory providers are available only through the ClaimHarness CLI",
+        "Evidence-Gated Build can optionally use GPT-5.6",
+        "the UI never accepts or stores the key",
     ]:
         assert phrase in ui_text
 
@@ -712,7 +712,7 @@ human_review_required:
     assert "Guided Interview Problem Brief" not in seed["ai_draft_domain_problem"]
 
 
-def test_ai_alignment_can_continue_to_view_outputs():
+def test_ai_alignment_can_continue_to_evidence_gate():
     import apps.problem_bridge_wizard as ui
 
     out = ui._run_problem_text(
@@ -723,8 +723,8 @@ def test_ai_alignment_can_continue_to_view_outputs():
 
     assert ui._view_outputs_index_for_last_run([Path("older"), out], str(out)) == 1
     assert ui._view_outputs_index_for_last_run([Path("older"), out], "") == 0
-    assert "Continue to View generated outputs" in ui_text
-    assert "_continue_to_view_outputs" in ui_text
+    assert "Continue to Evidence-gated build" in ui_text
+    assert "_continue_to_evidence_gate" in ui_text
     assert "last_ai_alignment_dir" in ui_text
 
 
@@ -1022,7 +1022,7 @@ def test_release_packaging_support_is_present():
     for page in (showcase_en, showcase_zh):
         assert '<main id="main-content"' in page
         assert section_pattern.findall(page) == shared_section_ids
-        assert page.count('<article class="step">') == 5
+        assert page.count('<article class="step">') == 6
 
     readme = Path("README.md").read_text(encoding="utf-8")
     assert "[English](README.md)" in readme

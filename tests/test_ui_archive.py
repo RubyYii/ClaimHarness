@@ -73,6 +73,30 @@ def test_download_archive_includes_original_sources_only_by_explicit_choice(tmp_
     assert manifest["excluded_original_source_file_count"] == 0
 
 
+def test_governed_build_archive_includes_handoff_without_unknown_directory(tmp_path):
+    out = tmp_path / "build-run"
+    context = prepare_run_directory(
+        out,
+        project_id="project-build-archive",
+        owned_artifacts=("build_contract.json",),
+        required_artifacts=("build_contract.json",),
+        snapshot_directories=("codex_handoff",),
+        workflow_type="problem_bridge.build_contract",
+    )
+    with context.transaction():
+        (out / "build_contract.json").write_text('{"schema_version":1}\n', encoding="utf-8")
+        handoff = out / "codex_handoff"
+        handoff.mkdir()
+        (handoff / "SPEC.md").write_text("# Bounded build spec\n", encoding="utf-8")
+
+    with ZipFile(BytesIO(ui._make_archive(out))) as package:
+        names = package.namelist()
+        manifest = json.loads(package.read("share_manifest.json"))
+
+    assert "codex_handoff/SPEC.md" in names
+    assert manifest["excluded_unknown_entry_count"] == 0
+
+
 def test_legacy_archive_excludes_workbench_memory_and_marks_unverified(tmp_path):
     out = tmp_path / "legacy-intake"
     out.mkdir()

@@ -47,7 +47,7 @@ claim_harness = [
   "demo_data/tables/*.csv",
   "eval_data/*.jsonl",
 ]
-problem_bridge = ["demo_data/*.md"]
+problem_bridge = ["demo_data/*.md", "prompts/*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

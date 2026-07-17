@@ -1,6 +1,6 @@
 # Model Provider Guide
 
-ProblemBridge CLI and the local Streamlit UI are deterministic mock-only. ClaimHarness CLI is local-first and defaults to:
+ProblemBridge and ClaimHarness remain local-first and default to:
 
 ```text
 mock
@@ -8,9 +8,14 @@ mock
 
 `mock` does not require an API key, does not call an external model, and is the recommended mode for first-round usability testing.
 
-Remote providers are advisory only. They can write `llm_review.json`, but they do not replace deterministic claim extraction, evidence matching, verification statuses, or human review.
+Remote providers are advisory only. ClaimHarness audit runs can write
+`llm_review.json`; Evidence-Gated Build can use GPT-5.6 to create a strict
+structured proposal. Neither path replaces deterministic evidence checks,
+verification statuses, or human review.
 
-Remote providers are available only through the ClaimHarness CLI. The local Streamlit UI has no provider, model, base-URL, or API-key controls and does not collect or store API keys.
+The Evidence-Gated Build page offers a `mock` / `openai` runtime choice but has
+no API-key input. OpenAI credentials and model overrides are read from the
+launch environment and are never stored in workspace memory or output files.
 
 Do not send private patient data, confidential manuscripts, API keys, passwords, tokens, sensitive unpublished project materials, or data that you do not have permission to share with a third-party model provider.
 
@@ -30,7 +35,7 @@ Use these values with:
 | Provider | API style | Required key | Optional overrides | Default base URL | Default model |
 | --- | --- | --- | --- | --- | --- |
 | `mock` | local deterministic | none | none | none | none |
-| `openai` | OpenAI chat completions | `OPENAI_API_KEY` | `OPENAI_BASE_URL`, `OPENAI_MODEL` | `https://api.openai.com/v1` | `gpt-5.4-mini` |
+| `openai` | OpenAI Responses API + strict Structured Outputs | `OPENAI_API_KEY` | `OPENAI_BASE_URL`, `OPENAI_MODEL` | `https://api.openai.com/v1` | `gpt-5.6` |
 | `openai-compatible` | OpenAI-compatible chat completions | `OPENAI_API_KEY` | `OPENAI_BASE_URL`, `OPENAI_MODEL` | `https://api.openai.com/v1` | `gpt-5.4-mini` |
 | `qwen` | DashScope Qwen OpenAI-compatible chat completions | `DASHSCOPE_API_KEY` | `QWEN_BASE_URL`, `QWEN_MODEL` | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `qwen-plus` |
 | `deepseek` | OpenAI-compatible chat completions | `DEEPSEEK_API_KEY` | `DEEPSEEK_BASE_URL`, `DEEPSEEK_MODEL` | `https://api.deepseek.com` | `deepseek-v4-flash` |
@@ -41,6 +46,22 @@ Use these values with:
 | `ollama` | local OpenAI-compatible chat completions | none | `OLLAMA_BASE_URL`, `OLLAMA_MODEL`, `OLLAMA_API_KEY` | `http://localhost:11434/v1` | `llama3.2` |
 | `gemini` | Gemini native generateContent | `GEMINI_API_KEY` | `GEMINI_BASE_URL`, `GEMINI_MODEL` | `https://generativelanguage.googleapis.com/v1beta` | `gemini-3.5-flash` |
 | `anthropic` | Anthropic Messages API | `ANTHROPIC_API_KEY` | `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL` | `https://api.anthropic.com/v1` | `claude-sonnet-4-5` |
+
+## GPT-5.6 Evidence-Gated Build example
+
+```powershell
+$env:OPENAI_API_KEY = Read-Host "OPENAI_API_KEY"
+$env:OPENAI_MODEL = "gpt-5.6"
+
+.venv\Scripts\python.exe -m problem_bridge build-week-demo `
+  --out outputs/build_week_gpt56_demo `
+  --llm openai
+```
+
+This competition path only accepts the official `openai` provider, the exact
+`https://api.openai.com/v1` base endpoint, and a model name in the GPT-5.6
+family; endpoint overrides are rejected for this path. It writes non-secret runtime evidence to
+`gpt_5_6_runtime.json`. A mock run writes `gpt_5_6_used: false`.
 
 ## Qwen / DashScope example
 
@@ -60,7 +81,12 @@ $env:QWEN_MODEL="qwen-plus"
 
 ## Local UI boundary and memory
 
-The Streamlit workbench is mock-only. It does not expose remote-provider settings and does not accept, collect, or store API keys. `Save current workspace` writes only draft fields and the most recent output path to `outputs/ui_memory/workbench_memory.json`. Clear local memory before sharing the folder or zip if drafts contain sensitive workflow details.
+Most Streamlit steps use deterministic local workflows. Evidence-Gated Build can
+explicitly select OpenAI GPT-5.6 after the key is configured in the environment.
+The workbench does not accept, collect, display, or store API keys. `Save current
+workspace` writes only draft fields and the most recent output path to
+`outputs/ui_memory/workbench_memory.json`. Clear local memory before sharing the
+folder or zip if drafts contain sensitive workflow details.
 
 ## DeepSeek example
 
@@ -124,5 +150,5 @@ $env:OLLAMA_MODEL="llama3.2"
 - Use `mock` for first-time testing and non-AI user workflow validation.
 - Use remote providers only when you are comfortable sending the current inputs to that provider.
 - Provider model names change. Override the default model with the provider-specific `*_MODEL` environment variable when needed.
-- The local UI does not remember provider/model settings and never accepts API keys; remote provider configuration is CLI-only.
+- The local UI does not remember provider/model settings and never accepts API keys; OpenAI configuration remains environment-only.
 - The remote review is advisory only and should be read as an additional reviewer note.
