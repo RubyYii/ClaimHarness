@@ -40,6 +40,7 @@ $env:OPENAI_MODEL = "gpt-5.6"
 - [赛前基线与本周新增内容](BUILD_WEEK_DELTA.md)
 - [提交与评委运行指南](BUILD_WEEK_SUBMISSION.md)
 - [三分钟参赛演示脚本](DEMO_SCRIPT_BUILD_WEEK_3MIN.md)
+- [评委快速入口](JUDGE_START_HERE.md)
 
 
 <p align="center">
@@ -337,6 +338,24 @@ RUN_PROBLEMBRIDGE_WINDOWS.bat
 .\scripts\test_release_zip_powershell.ps1 -PythonExe "<Python 解释器绝对路径>"
 .\scripts\build_and_test_release_powershell.ps1 -PythonExe "<Python 解释器绝对路径>"
 ```
+
+Build Week 最终建议生成一个单独的评委包：
+
+```powershell
+.\scripts\build_build_week_judge_bundle_powershell.ps1
+```
+
+完成真实的合成 GPT-5.6 运行后，再把受限的非密钥运行证据加入评委包：
+
+```powershell
+.\scripts\build_build_week_judge_bundle_powershell.ps1 `
+  -Gpt56RunPath "outputs\build_week_gpt56_demo"
+```
+
+脚本会把经过测试的本地应用 ZIP、mock 结果、参赛说明、内容 manifest
+和 SHA-256 放到 `dist/`，不会复制工作区临时文件。具体结构参见
+[`JUDGE_START_HERE.md`](JUDGE_START_HERE.md) 和
+[`RELEASE_PACKAGE_GUIDE.md`](RELEASE_PACKAGE_GUIDE.md)。
 
 ## 合成样例
 

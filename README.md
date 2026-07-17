@@ -97,6 +97,7 @@ model call.
 
 Competition documentation:
 
+- [Judge start here](JUDGE_START_HERE.md)
 - [Pre-existing baseline and Build Week delta](BUILD_WEEK_DELTA.md)
 - [Submission and judge guide](BUILD_WEEK_SUBMISSION.md)
 - [Three-minute Build Week demo script](DEMO_SCRIPT_BUILD_WEEK_3MIN.md)
@@ -532,6 +533,26 @@ build-and-test gate:
 .\scripts\test_release_zip_powershell.ps1 -PythonExe "<absolute-path-to-python.exe>"
 .\scripts\build_and_test_release_powershell.ps1 -PythonExe "<absolute-path-to-python.exe>"
 ```
+
+For Build Week, wrap the verified local application and a pre-generated mock
+package in the judge bundle:
+
+```powershell
+.\scripts\build_build_week_judge_bundle_powershell.ps1
+```
+
+After completing the real synthetic GPT-5.6 run, rebuild with its narrow,
+non-secret runtime evidence:
+
+```powershell
+.\scripts\build_build_week_judge_bundle_powershell.ps1 `
+  -Gpt56RunPath "outputs\build_week_gpt56_demo"
+```
+
+This writes the judge ZIP, manifest, and SHA-256 under `dist/`. See
+[JUDGE_START_HERE.md](JUDGE_START_HERE.md) and
+[RELEASE_PACKAGE_GUIDE.md](RELEASE_PACKAGE_GUIDE.md) for the exact contents and
+upload boundary.
 
 ## ProblemBridge Quickstart
 

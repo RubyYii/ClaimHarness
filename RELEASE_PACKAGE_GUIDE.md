@@ -18,9 +18,52 @@ RUN_PROBLEMBRIDGE_WINDOWS.bat
 
 This starts the local Streamlit guided UI through the existing script in `scripts/`.
 
-The guided UI runs deterministic mock workflows only. It has no remote-provider or API-key controls and does not accept, collect, or store API keys. Optional remote providers are available only through the ClaimHarness CLI.
+Most guided UI steps use deterministic local workflows. The dedicated
+Evidence-Gated Build page can explicitly select either local `mock` or the
+official OpenAI GPT-5.6 path. The UI has no API-key field and does not accept,
+collect, display, or store credentials; remote mode reads `OPENAI_API_KEY` only
+from the launch environment and warns before transmission.
 
 The local web app package requires Python because its first-run setup creates `.venv`, installs the tested `.[dev,ui]` set under `requirements/constraints.txt`, and runs the Streamlit app locally. Normal daily launches reuse that environment and do not reinstall dependencies. It is not an online deployment.
+
+## Build Week judge bundle
+
+For the competition, use a judge bundle around the verified local application
+package:
+
+```text
+ProblemBridge-ClaimHarness-v0.4.0-build-week-2026-judge-bundle.zip
+```
+
+It contains:
+
+- `START_HERE.md`
+- the tested local application ZIP, manifest, and SHA-256 under `release/`
+- a pre-generated deterministic package under `mock_demo_output/`
+- submission, delta, demo, and provider documents under `documents/`
+- `BUNDLE_CONTENT_MANIFEST.json` with per-file SHA-256 values
+- optional, deliberately narrow non-secret evidence from a real synthetic
+  GPT-5.6 run under `gpt56_runtime_evidence/`
+
+Build it from a clean committed checkout:
+
+```powershell
+.\scripts\build_build_week_judge_bundle_powershell.ps1
+```
+
+After completing a real synthetic GPT-5.6 run, add only its bounded runtime
+evidence:
+
+```powershell
+.\scripts\build_build_week_judge_bundle_powershell.ps1 `
+  -Gpt56RunPath "outputs\build_week_gpt56_demo"
+```
+
+The script first runs the normal build-and-test release gate. It refuses a dirty
+tree through that gate, generates the bundled mock output locally, verifies that
+the mock record says `gpt_5_6_used: false`, and accepts optional GPT-5.6
+evidence only when the record identifies the official OpenAI provider, a
+GPT-5.6-family response, and `contains_api_key: false`.
 
 ## static showcase package
 
@@ -135,7 +178,7 @@ executable by absolute path:
 .\scripts\test_release_zip_powershell.ps1 -PythonExe "<absolute-path-to-python.exe>"
 ```
 
-This extracts the zip into a temporary folder, compiles every packaged Python file, creates a brand-new temporary venv, and installs the extracted `.[dev,ui]` package under `requirements/constraints.txt`. It verifies the constrained Typer/Click pair, runs `pip check`, validates the committed sample completion hashes, and then runs both packaged demos plus the synthetic evaluation from an unrelated working directory. The temporary venv does not inherit repository-installed packages and is deleted after the gate. Dependency installation may use the configured package index when wheels are not already cached; the gate does not start Streamlit automatically.
+This extracts the zip into a temporary folder, compiles every packaged Python file, creates a brand-new temporary venv, and installs the extracted `.[dev,ui]` package under `requirements/constraints.txt`. It verifies the constrained Typer/Click pair, runs `pip check`, validates the committed sample completion hashes, and then runs the ClaimHarness demo, ProblemBridge demo, Build Week mock demo, and synthetic evaluation from an unrelated working directory. The Build Week smoke also checks the Codex handoff and no-key runtime truth boundary. The temporary venv does not inherit repository-installed packages and is deleted after the gate. Dependency installation may use the configured package index when wheels are not already cached; the gate does not start Streamlit automatically.
 
 The constraints file pins every project/build/test/UI/OCR direct dependency and the compatibility-critical Click transitive dependency. Update `pyproject.toml`, `requirements/constraints.txt`, and CI together when changing that set.
 

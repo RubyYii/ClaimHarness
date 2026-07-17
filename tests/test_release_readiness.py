@@ -826,11 +826,13 @@ def test_release_packaging_support_is_present():
         Path("scripts/build_release_zip_powershell.ps1"),
         Path("scripts/test_release_zip_powershell.ps1"),
         Path("scripts/build_and_test_release_powershell.ps1"),
+        Path("scripts/build_build_week_judge_bundle_powershell.ps1"),
         Path("scripts/setup_problembridge_windows.ps1"),
         Path("scripts/setup_problembridge_windows.bat"),
         Path("requirements/constraints.txt"),
         Path(".gitattributes"),
         Path("RELEASE_PACKAGE_GUIDE.md"),
+        Path("JUDGE_START_HERE.md"),
         Path("README.zh-CN.md"),
         Path("docs/static_showcase/index.html"),
         Path("docs/static_showcase/en.html"),
@@ -862,6 +864,22 @@ def test_release_packaging_support_is_present():
     assert "--no-build-isolation" in test_script
     assert "PIP_REQUIRE_VIRTUALENV" in test_script
     assert "$sampleGate" in test_script
+    assert "problem_bridge build-week-demo" in test_script
+    assert "gpt_5_6_runtime.json" in test_script
+    assert "codex_handoff/AGENTS.md" in test_script
+
+    bundle_script = Path(
+        "scripts/build_build_week_judge_bundle_powershell.ps1"
+    ).read_text(encoding="utf-8")
+    for phrase in [
+        "build_and_test_release_powershell.ps1",
+        "mock_demo_output",
+        "gpt56_runtime_evidence",
+        "BUNDLE_CONTENT_MANIFEST.json",
+        "gpt56_runtime_evidence_included",
+        "Assert-SafeTemporaryPath",
+    ]:
+        assert phrase in bundle_script
     assert f'version = "{release_version}"' in Path("pyproject.toml").read_text(encoding="utf-8")
     assert f'__version__ = "{release_version}"' in Path("claim_harness/__init__.py").read_text(encoding="utf-8")
     assert f'__version__ = "{release_version}"' in Path("problem_bridge/__init__.py").read_text(encoding="utf-8")
@@ -1231,6 +1249,10 @@ def _write_release_zip_from_project(zip_path, *, omit=(), overrides=None):
         Path(".gitattributes"),
         Path("README.md"),
         Path("README.zh-CN.md"),
+        Path("JUDGE_START_HERE.md"),
+        Path("BUILD_WEEK_DELTA.md"),
+        Path("BUILD_WEEK_SUBMISSION.md"),
+        Path("DEMO_SCRIPT_BUILD_WEEK_3MIN.md"),
         Path("NON_AI_USER_GUIDE.md"),
         Path("RUN_PROBLEMBRIDGE_WINDOWS.bat"),
         Path("scripts/run_problembridge_ui_windows.bat"),

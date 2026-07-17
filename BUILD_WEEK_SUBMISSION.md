@@ -144,6 +144,33 @@ The first command must produce the five original required files:
   professional judgement.
 - A mock run must never be described as a GPT-5.6 API run.
 
+## Final judge package
+
+Do not upload an arbitrary workspace ZIP. From a clean committed checkout,
+build the verified judge bundle:
+
+```powershell
+.\scripts\build_build_week_judge_bundle_powershell.ps1
+```
+
+After the required real synthetic GPT-5.6 run exists, include its deliberately
+narrow non-secret evidence subset:
+
+```powershell
+.\scripts\build_build_week_judge_bundle_powershell.ps1 `
+  -Gpt56RunPath "outputs\build_week_gpt56_demo"
+```
+
+Share these three sibling files from `dist/`:
+
+- `ProblemBridge-ClaimHarness-v0.4.0-build-week-2026-judge-bundle.zip`
+- the matching `.manifest.json`
+- the matching `.sha256`
+
+The public Git repository remains the source/history submission. The judge
+bundle is the fast local review/download path; it does not replace the
+repository, public video, live/demo URL, or Codex Session ID.
+
 ## Owner checklist before Devpost submission
 
 - [ ] Choose and add the repository licence appropriate to the owner's intent.

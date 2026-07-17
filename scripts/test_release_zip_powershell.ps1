@@ -66,6 +66,10 @@ try {
         ".gitattributes",
         "README.md",
         "README.zh-CN.md",
+        "JUDGE_START_HERE.md",
+        "BUILD_WEEK_DELTA.md",
+        "BUILD_WEEK_SUBMISSION.md",
+        "DEMO_SCRIPT_BUILD_WEEK_3MIN.md",
         "NON_AI_USER_GUIDE.md",
         "RUN_PROBLEMBRIDGE_WINDOWS.bat",
         "scripts/run_problembridge_ui_windows.bat",
@@ -75,6 +79,7 @@ try {
         "claim_harness/cli.py",
         "claim_harness/run_records.py",
         "claim_harness/evidence_contract.py",
+        "claim_harness/capability_gate.py",
         "claim_harness/evaluation.py",
         "claim_harness/eval_data/gold_claims.jsonl",
         "claim_harness/prompts/audit_summary.md",
@@ -85,6 +90,8 @@ try {
         "problem_bridge/__init__.py",
         "problem_bridge/__main__.py",
         "problem_bridge/cli.py",
+        "problem_bridge/build_contract.py",
+        "problem_bridge/prompts/evidence_gated_build.md",
         "problem_bridge/document_intake.py",
         "problem_bridge/revision_governance.py",
         "problem_bridge/project_lifecycle.py",
@@ -239,6 +246,7 @@ for name in samples:
     $smokeRoot = Join-Path $testRoot "unrelated-smoke-cwd"
     $claimOut = Join-Path $smokeRoot "claim-harness-demo"
     $problemOut = Join-Path $smokeRoot "problem-bridge-demo"
+    $buildWeekOut = Join-Path $smokeRoot "build-week-demo"
     $evaluationOut = Join-Path $smokeRoot "synthetic-evaluation"
     New-Item -ItemType Directory -Force $smokeRoot | Out-Null
 
@@ -252,6 +260,11 @@ for name in samples:
         & $venvPython -m problem_bridge demo --out $problemOut
         if ($LASTEXITCODE -ne 0) {
             throw "ProblemBridge packaged demo failed (exit code $LASTEXITCODE)."
+        }
+
+        & $venvPython -m problem_bridge build-week-demo --out $buildWeekOut --llm mock
+        if ($LASTEXITCODE -ne 0) {
+            throw "Build Week packaged demo failed (exit code $LASTEXITCODE)."
         }
 
         & $venvPython (Join-Path $packageDir.FullName "scripts\evaluate_gold_set.py") --out $evaluationOut
@@ -304,6 +317,36 @@ for name in samples:
         if (-not (Test-Path -LiteralPath (Join-Path $problemOut $relative) -PathType Leaf)) {
             throw "ProblemBridge packaged demo did not produce: $relative"
         }
+    }
+
+    $buildWeekOutputs = @(
+        "problem.md",
+        "build_contract.json",
+        "build_contract.md",
+        "capability_claims.json",
+        "claim_decisions.csv",
+        "gpt_5_6_runtime.json",
+        "build_record.jsonl",
+        "run_identity.json",
+        "run_complete.json",
+        "codex_handoff/AGENTS.md",
+        "codex_handoff/SPEC.md",
+        "codex_handoff/TASKS.md",
+        "codex_handoff/acceptance_tests.yaml",
+        "codex_handoff/evidence_contract.yaml",
+        "codex_handoff/risk_register.md",
+        "codex_handoff/demo_scenario.md"
+    )
+    foreach ($relative in $buildWeekOutputs) {
+        if (-not (Test-Path -LiteralPath (Join-Path $buildWeekOut $relative) -PathType Leaf)) {
+            throw "Build Week packaged demo did not produce: $relative"
+        }
+    }
+    $buildWeekRuntime = Get-Content `
+        -LiteralPath (Join-Path $buildWeekOut "gpt_5_6_runtime.json") `
+        -Raw | ConvertFrom-Json
+    if ([bool]$buildWeekRuntime.gpt_5_6_used -or [bool]$buildWeekRuntime.contains_api_key) {
+        throw "Packaged mock demo runtime record violates the no-key truth boundary."
     }
 
     foreach ($relative in @("evaluation_metrics.json", "evaluation_report.md")) {
