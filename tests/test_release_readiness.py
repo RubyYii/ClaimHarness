@@ -236,7 +236,7 @@ def test_external_review_packaging_is_present():
 
 
 def test_committed_sample_runs_have_verifiable_completion_provenance():
-    from problem_bridge.project_lifecycle import load_run_completion
+    from problem_bridge.project_lifecycle import is_run_complete, load_run_completion
 
     sample_root = Path("docs/sample_outputs")
     sample_names = [
@@ -253,6 +253,7 @@ def test_committed_sample_runs_have_verifiable_completion_provenance():
         assert completion["project_id"] == identity["project_id"]
         assert completion["run_id"] == identity["run_id"]
         assert completion["artifact_sha256"]
+        assert is_run_complete(sample)
 
 
 def test_guided_ui_is_documented_for_non_ai_users():
