@@ -1,3 +1,4 @@
+from dataclasses import replace
 from io import BytesIO
 import json
 from urllib.error import HTTPError
@@ -36,6 +37,10 @@ def test_validate_provider_accepts_common_provider_presets():
     assert validate_provider("xai") == "xai"
     assert validate_provider("ollama") == "ollama"
     assert validate_provider("Qwen") == "qwen"
+    assert validate_provider("Kimi") == "kimi"
+    assert validate_provider("Codex") == "codex"
+    assert validate_provider("Claude-CLI") == "claude-cli"
+    assert validate_provider("Qwen-CLI") == "qwen-cli"
     assert validate_provider("gemini") == "gemini"
     assert validate_provider("anthropic") == "anthropic"
 
@@ -160,6 +165,37 @@ def test_resolve_provider_config_uses_qwen_preset(monkeypatch):
     assert config.json_mode == "json_object"
 
 
+def test_resolve_provider_config_uses_kimi_preset(monkeypatch):
+    monkeypatch.setenv("KIMI_API_KEY", "kimi-key")
+    monkeypatch.delenv("KIMI_BASE_URL", raising=False)
+    monkeypatch.delenv("KIMI_MODEL_NAME", raising=False)
+
+    config = resolve_provider_config("kimi")
+
+    assert config.provider == "kimi"
+    assert config.api_style == "openai-chat"
+    assert config.api_key == "kimi-key"
+    assert config.base_url == "https://api.moonshot.ai/v1"
+    assert config.model == "kimi-k3"
+    assert config.json_mode == "json_object"
+    assert config.temperature is None
+
+
+def test_kimi_request_uses_json_mode_without_explicit_fixed_temperature(monkeypatch):
+    monkeypatch.setenv("KIMI_API_KEY", "kimi-key")
+    monkeypatch.delenv("KIMI_BASE_URL", raising=False)
+    monkeypatch.delenv("KIMI_MODEL_NAME", raising=False)
+    config = resolve_provider_config("kimi")
+
+    built = build_openai_compatible_request(config, "Return JSON", "Audit data")
+    payload = json.loads(built.data.decode("utf-8"))
+
+    assert built.full_url == "https://api.moonshot.ai/v1/chat/completions"
+    assert payload["model"] == "kimi-k3"
+    assert payload["response_format"] == {"type": "json_object"}
+    assert "temperature" not in payload
+
+
 def test_resolve_provider_config_allows_ollama_without_api_key(monkeypatch):
     monkeypatch.delenv("OLLAMA_API_KEY", raising=False)
     monkeypatch.delenv("OLLAMA_BASE_URL", raising=False)
@@ -220,6 +256,13 @@ def test_resolve_provider_config_requires_dashscope_key_for_qwen(monkeypatch):
 
     with pytest.raises(MissingProviderConfig, match="DASHSCOPE_API_KEY"):
         resolve_provider_config("qwen")
+
+
+def test_resolve_provider_config_rejects_blank_kimi_key(monkeypatch):
+    monkeypatch.setenv("KIMI_API_KEY", "   ")
+
+    with pytest.raises(MissingProviderConfig, match="KIMI_API_KEY"):
+        resolve_provider_config("kimi")
 
 
 def test_load_prompt_reads_packaged_prompt():
@@ -570,6 +613,37 @@ def test_provider_timeout_is_reported_as_provider_error():
 
     with pytest.raises(LLMProviderError, match="timed out"):
         call_provider_json(_remote_config(), "System", "User", urlopen=timeout)
+
+
+def test_provider_uses_timeout_bound_to_provider_config():
+    review = {
+        "summary": "Review summary",
+        "highest_risk_claims": [],
+        "recommended_next_actions": [],
+        "limitations": [],
+    }
+    response = _FakeResponse(
+        json.dumps(
+            {"choices": [{"message": {"content": json.dumps(review)}}]}
+        ).encode("utf-8")
+    )
+    observed = {}
+
+    def open_request(api_request, timeout):
+        observed["timeout"] = timeout
+        return response
+
+    config = replace(_remote_config(), timeout_seconds=123)
+
+    assert call_provider_json(config, "System", "User", urlopen=open_request) == review
+    assert observed["timeout"] == 123
+
+
+def test_provider_rejects_non_positive_timeout_before_transport():
+    config = replace(_remote_config(), timeout_seconds=0)
+
+    with pytest.raises(LLMProviderError, match="greater than zero"):
+        call_provider_json(config, "System", "User")
 
 
 def test_default_provider_transport_rejects_redirects(monkeypatch):

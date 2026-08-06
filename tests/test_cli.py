@@ -49,6 +49,7 @@ def test_run_help_command():
     assert "Run a ClaimHarness audit" in result.output
     assert "--manuscript" in result.output
     assert "--llm" in result.output
+    assert "--llm-timeout" in result.output
     assert "--mode" in result.output
     assert "--project-id" in result.output
 
@@ -59,9 +60,23 @@ def test_run_help_documents_common_provider_presets():
 
     assert result.exit_code == 0
     assert "openai-compatible" in result.output
+    assert "codex" in result.output
+    assert "claude-cli" in result.output
+    assert "qwen-cli" in result.output
+    assert "kimi" in result.output
     assert "deepseek" in result.output
     assert "gemini" in result.output
     assert "anthropic" in result.output
+
+
+def test_providers_help_documents_explicit_probe_confirmation():
+    result = CliRunner().invoke(app, ["providers", "--help"])
+    compact_output = "".join(result.output.split())
+
+    assert result.exit_code == 0
+    assert "--probe" in compact_output
+    assert "--confirm-call" in compact_output
+    assert "--probe-timeout" in compact_output
 
 
 def test_run_subcommand_requires_inputs():
@@ -92,10 +107,22 @@ def test_deepseek_provider_requires_deepseek_api_key(monkeypatch):
     assert "DEEPSEEK_API_KEY" in result.output
 
 
+def test_kimi_provider_requires_kimi_api_key(monkeypatch):
+    monkeypatch.delenv("KIMI_API_KEY", raising=False)
+    runner = CliRunner()
+
+    result = runner.invoke(app, ["run", "--llm", "kimi"])
+
+    assert result.exit_code != 0
+    assert "KIMI_API_KEY" in result.output
+
+
 def test_remote_provider_failure_is_reported_without_internal_traceback(monkeypatch, tmp_path):
     monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    observed = {}
 
-    def fail_review(*args, **kwargs):
+    def fail_review(config, *args, **kwargs):
+        observed["timeout_seconds"] = config.timeout_seconds
         raise LLMProviderError("provider unavailable")
 
     monkeypatch.setattr(cli_module, "summarize_audit_with_llm", fail_review)
@@ -115,6 +142,8 @@ def test_remote_provider_failure_is_reported_without_internal_traceback(monkeypa
             str(output_dir),
             "--llm",
             "openai-compatible",
+            "--llm-timeout",
+            "123",
         ],
     )
 
@@ -131,12 +160,21 @@ def test_remote_provider_failure_is_reported_without_internal_traceback(monkeypa
         (output_dir / "run_manifest.json").read_text(encoding="utf-8")
     )
     assert manifest["provider"]["status"] == "failed"
+    assert manifest["provider"]["timeout_seconds"] == 123
+    assert observed["timeout_seconds"] == 123
     assert manifest["project_id"]
     assert manifest["run_id"] == json.loads(
         (output_dir / "run_identity.json").read_text(encoding="utf-8")
     )["run_id"]
     assert (output_dir / "run_complete.json").is_file()
     assert not (output_dir / "llm_review.json").exists()
+
+
+def test_run_rejects_provider_timeout_outside_bounded_range():
+    result = CliRunner().invoke(app, ["run", "--llm-timeout", "601"])
+
+    assert result.exit_code != 0
+    assert "600" in result.output
 
 
 def test_run_requires_explicit_identity_guard_before_replacing_outputs(tmp_path):

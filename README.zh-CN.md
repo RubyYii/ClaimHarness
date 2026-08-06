@@ -370,17 +370,57 @@ Build Week 最终建议生成一个单独的评委包：
 
 ## API 和模型
 
-本地网页 UI 的大多数步骤运行确定性的 `mock` 工作流。证据门控构建只提供两个有界选择：本地 `mock`，或官方 OpenAI `gpt-5.6`。UI 不提供 API-key 输入框或任意 base URL；只有用户明确选择远程路径后，才从进程环境读取 `OPENAI_API_KEY`。ClaimHarness CLI 还支持 OpenAI-compatible、Qwen / DashScope、DeepSeek、Groq、Mistral、OpenRouter、xAI、Ollama、Gemini 和 Anthropic 的 advisory review。
+本地网页 UI 的大多数步骤运行确定性的 `mock` 工作流。证据门控构建只提供两个有界选择：本地 `mock`，或官方 OpenAI `gpt-5.6`。UI 不提供 API-key 输入框或任意 base URL；只有用户明确选择远程路径后，才从进程环境读取 `OPENAI_API_KEY`。ClaimHarness CLI 除了支持 OpenAI-compatible、Qwen / DashScope、Kimi、DeepSeek、Groq、Mistral、OpenRouter、xAI、Ollama、Gemini 和 Anthropic 的 API provider，现在也支持复用已经安装并登录或配置好的 Codex、Claude Code 和 Qwen Code 客户端。
 
 使用远程模型前要确认：你输入的内容会发送给外部服务。不要上传真实患者数据、机密论文、未公开项目材料、API key 或任何敏感信息。
+
+先运行离线可用性检查：
+
+```powershell
+.venv\Scripts\python.exe -m claim_harness providers
+```
+
+需要机器可读结果时加 `--json`。该命令只检查环境变量是否存在，并静态查找已知可执行文件；不会运行任何客户端，也不会联系模型 endpoint，更不会输出密钥、完整 endpoint 或可执行文件绝对路径。因此 `installed` 不代表已经登录，`configured` 也不代表 key、quota、endpoint 和模型一定可用。
+
+如果确实需要测试真实可用性，只对一个 provider 使用纯合成数据探测：
+
+```powershell
+.venv\Scripts\python.exe -m claim_harness providers `
+  --probe codex `
+  --confirm-call `
+  --probe-timeout 60
+```
+
+探测默认关闭；缺少确认开关时命令会拒绝执行。探测不会发送论文、表格、参考文献或证据包，但可能联系云服务、消耗账号额度或计费，或者占用本地算力。输出会隐藏上游诊断细节，并且只说明这一次结构化请求是否成功，不能保证后续审计一定可用。
+
+非 mock 调用默认等待 60 秒。受信任的慢速本地模型可以显式增加 `--llm-timeout 300`，允许范围为 1-600 秒。该值会进入公开 provider provenance 与运行规格哈希；延长等待时间不等于健康检查，也不会改变确定性 verifier。
+
+复用 Codex 客户端的示例：
+
+```powershell
+.venv\Scripts\python.exe -m claim_harness run `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --out outputs/lab_report_audit_demo_codex `
+  --llm codex
+```
+
+Claude Code 和 Qwen Code 分别使用 `--llm claude-cli` 与 `--llm qwen-cli`。ClaimHarness 不会在这些模式下要求或保存 API key，而是复用客户端当前的认证和模型配置。这里的“本地客户端”不等于离线或免费：Codex、Claude Code 可能使用订阅登录或客户端已有凭据；Qwen Code 可能使用 Coding Plan、API key、自定义 provider 或本地后端。因此 `qwen-cli` 只表示复用现有 Qwen Code 配置，并不承诺 Qwen 本身免 key 或免计费。
+
+三个适配器都在隔离的临时目录运行，通过 stdin 接收审计内容，限制或禁用工具，并发地把 stdout/stderr 读入固定大小的内存缓冲区；一旦超出大小或时间上限就立即终止整个进程树，并在写入 `llm_review.json` 前再次使用 ClaimHarness schema 校验 JSON。可选模型变量为 `CLAIMHARNESS_CODEX_MODEL`、`CLAIMHARNESS_CLAUDE_MODEL`、`CLAIMHARNESS_QWEN_MODEL`；模型 ID 必须是长度受限的安全字符集，空格、控制字符和 shell 元字符会在进程启动前被拒绝。客户端不在 `PATH` 时，可分别用 `CLAIMHARNESS_CODEX_BIN`、`CLAIMHARNESS_CLAUDE_BIN`、`CLAIMHARNESS_QWEN_BIN` 指定可执行文件；覆盖值必须解析到支持的可执行文件，否则显示 `invalid_config`。系统不接受任意 shell 命令模板。
 
 本地网页 UI 不接收、收集或保存 API key。证据门控构建的远程选项会先提示数据将发送到 OpenAI，并且只从进程环境读取密钥。侧边栏的 `显示工作台记忆` 只保存草稿字段和最近输出目录，文件位于 `outputs/ui_memory/workbench_memory.json`。加载记忆时会恢复它原来的项目 ID；只有完整且确实属于该项目的受治理运行才会恢复为最近输出，避免把旧项目草稿和新项目身份混在一起。`清除记忆` 只删除磁盘上的记忆文件，当前页面里尚未保存的草稿会保留；“开始新项目”才会在二次确认后清除项目草稿，并提供“先保存草稿再开始”的选项。分享文件夹或 zip 前，如果草稿里有敏感工作流信息，请先清除本地记忆。
 
 静态 `index.html` 审计查看器现在提供粘性区段导航、声明搜索、组合筛选、实时结果数、待复核项到声明的直接跳转、可复制复核摘要，以及“核心列 + 展开证据详情”的声明表。证据全集和审计轨迹默认折叠；宽表可通过键盘聚焦并横向滚动，也包含跳转正文、清晰焦点、减少动画和窄屏布局。复制失败会明确提示，不会伪装成成功。
 
-远程 provider 的公共 provenance 只保存 provider 名称、API style、模型、JSON mode 和 endpoint origin（协议、主机、端口），不保存 API key、URL 凭据、endpoint 路径或 query。完整 endpoint 配置只通过 `run_spec_sha256` 间接绑定，用于发现配置漂移，而不会把完整 URL 或凭据写进运行包。
+远程 provider 的公共 provenance 只保存 provider 名称、API style、模型、temperature、timeout、JSON mode 和 endpoint origin（协议、主机、端口），不保存 API key、URL 凭据、endpoint 路径或 query。完整 endpoint 配置只通过 `run_spec_sha256` 间接绑定，用于发现配置漂移，而不会把完整 URL 或凭据写进运行包。
 
 Qwen / DashScope 可以使用 `qwen` provider：设置 `DASHSCOPE_API_KEY`，可选设置 `QWEN_BASE_URL` 和 `QWEN_MODEL`。
+
+Kimi API 使用 `--llm kimi`：设置 `KIMI_API_KEY`，可选设置 `KIMI_BASE_URL` 和 `KIMI_MODEL_NAME`；默认 endpoint 为 `https://api.moonshot.ai/v1`，默认模型为 `kimi-k3`。ClaimHarness 使用 JSON mode，不显式发送 `temperature`，由所选 Kimi 模型应用其固定值或默认采样约定。这里要求的是 Kimi / Moonshot 开发者平台 API key，消费端会员或 Kimi Code 订阅不会自动变成 API key。
+
+官方 Kimi Code CLI 会出现在 `providers` 的检测结果中，但目前标记为不可选择：它现有的安全非交互接口还没有同时满足 stdin 长文本输入、稳定的严格 schema 输出和非实验工具隔离，因此 ClaimHarness 不会把论文内容放进命令行参数，也不会放宽工具边界。DeepSeek 的直接 API 仍使用 `--llm deepseek`；第三方 Deep Code / DeepSeek TUI 只检测是否存在，不会执行。也可以把受信任的 Claude/Qwen 客户端配置为 DeepSeek，或通过 `--llm ollama` 使用本地 OpenAI-compatible endpoint，但实际认证、模型与计费仍由上游配置决定。
 
 ## 三轮修订治理
 

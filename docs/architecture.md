@@ -58,7 +58,7 @@ flowchart TD
 
 ## Modules
 
-`claim_harness.cli` orchestrates the `run`, `view`, and `demo` commands. It validates `--llm mock` or one of the optional remote provider presets, loads inputs, calls the pipeline modules, writes outputs, and prints a concise summary.
+`claim_harness.cli` orchestrates the `run`, `view`, `demo`, and `providers` commands. It validates `--llm mock`, an allow-listed installed-client adapter, or an optional direct provider preset; loads inputs; calls the pipeline modules; writes outputs; and prints a concise summary. `providers` is a passive inventory by default. A real synthetic request is possible only when one provider is named with `--probe` and the separate `--confirm-call` consent flag is present.
 
 `claim_harness.loader` reads Markdown manuscript sections, CSV tables, and references.
 
@@ -78,7 +78,13 @@ flowchart TD
 
 `claim_harness.review_queue` creates an immutable snapshot of pending review work. Queue entries route claims and required roles but contain no decision field, cannot satisfy a verifier requirement, and do not establish reviewer identity, qualifications, or approval.
 
-`claim_harness.llm` isolates provider configuration, prompt loading, structured JSON request construction, and optional advisory review calls. The official `openai` preset uses the Responses API and defaults to `gpt-5.6`; the separate `openai-compatible` preset retains Chat Completions compatibility. Native Gemini and Anthropic request builders remain available for ClaimHarness advisory summaries. The Evidence-Gated Build page may invoke the official OpenAI path, but it reads the key only from the launch environment and never accepts or stores credentials. Persisted public provider provenance is restricted to non-secret provider/model/API metadata and hashes.
+`claim_harness.llm` isolates provider configuration, prompt loading, structured JSON request construction, bounded timeout selection, and optional advisory review calls. The official `openai` preset uses the Responses API and defaults to `gpt-5.6`; the separate `openai-compatible` preset retains Chat Completions compatibility. Qwen, Kimi, and DeepSeek have named direct-API presets; Kimi defaults to the OpenAI-compatible Moonshot endpoint, `kimi-k3`, and JSON mode while omitting an explicit temperature so the provider can enforce the selected model's fixed/default sampling contract. Native Gemini and Anthropic request builders remain available for ClaimHarness advisory summaries. Installed-client presets route through `local-agent-cli` and still pass their returned object through the same strict `LLMAuditReview` validation. The Evidence-Gated Build page may invoke the official OpenAI path, but it reads the key only from the launch environment and never accepts or stores credentials. Persisted public provider provenance is restricted to non-secret provider/model/API metadata, the 1-600 second timeout, and hashes.
+
+`claim_harness.provider_status` produces sanitized offline availability rows. It checks only environment-variable presence, normal configuration syntax, and executable discovery via static path lookup. It does not call an endpoint, run a discovered command, read an app's credential store, or expose credential values, configured URLs, and executable paths. Its separate probe helper sends only fixed synthetic prompts, accepts one provider and a bounded timeout, and returns generic diagnostics; the CLI will not call it without explicit confirmation. Supported options and detection-only candidate clients are deliberately separate states.
+
+`claim_harness.local_agent_cli` is a narrow process boundary for the allow-listed `codex`, `claude-cli`, and `qwen-cli` providers. It resolves only the expected executable (or one executable-only environment override), validates executable files and bounded model identifiers before launch, sends audit data over stdin, runs in a temporary working directory, and applies each client's documented non-interactive structured-output and tool-restriction flags. Concurrent readers retain only fixed-size stdout/stderr buffers and terminate the process tree immediately on overflow; timeouts receive the same process-tree cleanup. The adapter strips terminal control sequences and rejects non-object JSON. It does not automate desktop GUI windows or accept arbitrary shell templates. Authentication remains owned by the selected client, so this layer cannot attest whether a subscription, API key, Coding Plan, custom provider, or local backend was used.
+
+Kimi Code, Deep Code, and DeepSeek TUI remain outside that execution allow-list. The inventory may detect their command names, but they are not selectable until a reviewed contract provides bounded stdin input, reliable strict structured output, and non-experimental tool isolation. Deep Code and DeepSeek TUI are third-party clients; detection does not imply endorsement.
 
 `claim_harness.report_viewer` renders an existing audit package as a static `index.html` file. It is a read-only presentation layer and does not run a server or change audit results.
 
@@ -126,7 +132,7 @@ The output package contains:
 - `run_identity.json`: stable project/run identity, lifecycle mode, workflow type, run-specification hash, owned/required artifacts, and allow-listed snapshot directories.
 - `run_complete.json`: identity hash plus the exact governed artifact hashes, including nested table/original files for document-intake runs; published last.
 - `applied_evidence_contract.json`: optional normalized snapshot of the exact validated contract executed for this audit; present and governed only when `--evidence-contract` is supplied.
-- `llm_review.json`: optional advisory review when a remote `--llm` provider is selected.
+- `llm_review.json`: optional advisory review when any non-mock `--llm` provider or installed-client adapter is selected.
 - `index.html`: optional static report viewer generated by `claim_harness view`.
 
 ## Bounded Revision Governance

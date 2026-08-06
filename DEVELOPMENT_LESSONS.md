@@ -85,15 +85,18 @@ OCR is useful, but it adds installation friction and quality uncertainty. Keepin
 
 The docs need to be visual and practical because OCR setup is where non-technical users often get stuck.
 
-### 7. Remote provider support should stay behind a reviewed boundary
+### 7. Model-provider support should stay behind a reviewed boundary
 
 An early UI experiment exposed provider and API-key controls. That widened the workbench trust boundary without a complete consent, secret-lifecycle, endpoint-validation, and failure-handling design, so the controls were removed. The current pattern is:
 
 - deterministic mock-only behavior in the Streamlit workbench
-- remote advisory provider presets through the ClaimHarness CLI only
+- direct advisory provider presets and allow-listed installed-client adapters through the ClaimHarness CLI only
 - environment-variable configuration rather than UI key collection
 - HTTPS for public endpoints, bounded responses, and rejected redirects
-- a clear warning that remote providers receive the current inputs
+- isolated temporary working directories, disabled or bounded agent tools, stdin transport, structured-output validation, and live fixed-size process-output buffers that terminate the process tree on overflow or timeout
+- a passive provider inventory that never executes detected clients, contacts endpoints, or prints secrets and absolute executable paths; real synthetic probes require a separate provider selection and confirmation flag
+- detection-only labels for clients such as Kimi Code or third-party DeepSeek tools that do not yet meet the reviewed stdin, tool-isolation, and strict-output contract
+- a clear warning that direct providers and cloud-backed installed clients receive the current inputs
 
 ### 8. Examples should be generic enough to travel
 

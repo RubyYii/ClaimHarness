@@ -637,15 +637,19 @@ Each UI project has a stable project ID and every generated run has a unique run
 
 Do not upload private patient data, confidential manuscripts, API keys, or sensitive unpublished materials.
 
-## Optional Remote Providers
+## Optional Model Providers
 
-The default demo uses `--llm mock` and never needs an API key. Remote providers are optional. The Evidence-gated build uses the official OpenAI Responses API only; ClaimHarness audit summaries can also use the compatible providers below. The UI never accepts or stores API keys: it reads an OpenAI key from the process environment only after the user explicitly selects the remote path.
+The default demo uses `--llm mock` and never needs an API key. Non-mock providers are optional. In addition to direct API presets (including Qwen, Kimi, and DeepSeek), the ClaimHarness CLI can invoke an already installed Codex, Claude Code, or Qwen Code command-line client and reuse that client's current authentication. The Evidence-gated build uses the official OpenAI Responses API only. The UI never accepts or stores API keys: it reads an OpenAI key from the process environment only after the user explicitly selects the remote path.
 
 ```text
 mock
+codex
+claude-cli
+qwen-cli
 openai
 openai-compatible
 qwen
+kimi
 deepseek
 groq
 mistral
@@ -656,7 +660,50 @@ gemini
 anthropic
 ```
 
-Use `mock` for first-round usability testing. Use remote providers only when you are comfortable sending the current inputs to that external service.
+Use `mock` for first-round usability testing. An installed CLI is usually still a cloud client, so use every non-mock option only when you are comfortable sending the current inputs under that client's provider and billing rules.
+
+Check which options are present before a run:
+
+```powershell
+.venv\Scripts\python.exe -m claim_harness providers
+```
+
+Use `--json` for automation. This is deliberately offline: it checks environment-variable presence and statically locates known executables, but never executes a client or contacts a model endpoint. It never prints a credential, configured endpoint, or absolute executable path. Consequently, `installed` does not prove login and `configured` does not prove that a key, endpoint, quota, or model works.
+
+To test real usability, explicitly probe exactly one provider with synthetic data:
+
+```powershell
+.venv\Scripts\python.exe -m claim_harness providers `
+  --probe codex `
+  --confirm-call `
+  --probe-timeout 60
+```
+
+The probe is disabled by default and refuses to run without the confirmation flag.
+It never sends a manuscript, table, reference, or evidence package, but it can contact
+a cloud service, consume account quota or billing, or use local compute. Its sanitized
+result covers only that single structured-output request and does not guarantee that a
+later audit will work.
+
+Non-mock calls have a 60-second default timeout. For a trusted slower local model,
+set `--llm-timeout 300` (accepted range: 1-600). The value is included in public
+provider provenance and the run-specification hash; increasing it is not a live
+health check and does not change the deterministic verifier.
+
+To reuse an installed Codex client, first confirm that `codex` works and is signed in, then run:
+
+```powershell
+.venv\Scripts\python.exe -m claim_harness run `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --out outputs/lab_report_audit_demo_codex `
+  --llm codex
+```
+
+Use `--llm claude-cli` or `--llm qwen-cli` for the other installed clients. ClaimHarness does not request or save a key for these modes; the selected client decides whether it uses a subscription login, API/Coding Plan credential, custom provider, or local backend. In particular, `qwen-cli` reuses Qwen Code's existing provider configuration and is not a promise of keyless or free Qwen access. The adapters run in an isolated temporary directory, disable or tightly constrain agent tools, pipe audit data over stdin, read stdout and stderr concurrently into fixed-size memory buffers, terminate the process tree as soon as a limit or timeout is reached, and revalidate structured JSON before writing `llm_review.json`.
+
+Optional model overrides are `CLAIMHARNESS_CODEX_MODEL`, `CLAIMHARNESS_CLAUDE_MODEL`, and `CLAIMHARNESS_QWEN_MODEL`. They accept only bounded model identifiers and reject whitespace, control characters, and shell metacharacters before a process starts. If a client is not on `PATH`, set its executable-only override: `CLAIMHARNESS_CODEX_BIN`, `CLAIMHARNESS_CLAUDE_BIN`, or `CLAIMHARNESS_QWEN_BIN`. The override must resolve to a supported executable file; invalid overrides are reported as `invalid_config`. Arbitrary shell command templates are not accepted.
 
 For OpenAI or a generic OpenAI-compatible endpoint, set environment variables and choose `openai-compatible`:
 
@@ -671,7 +718,7 @@ $env:OPENAI_MODEL="gpt-5.4-mini"
   --llm openai-compatible
 ```
 
-`OPENAI_BASE_URL` is optional and defaults to `https://api.openai.com/v1`. The provider writes `llm_review.json` as an advisory artifact; it does not replace deterministic verification or human review. Public run provenance records only the provider name, API style, model, JSON mode, and endpoint origin (scheme/host/port). It does not persist API keys, URL credentials, endpoint paths, or query strings. The full endpoint configuration is bound indirectly through `run_spec_sha256`, so configuration drift can be detected without disclosing the full endpoint path/query or credentials.
+`OPENAI_BASE_URL` is optional and defaults to `https://api.openai.com/v1`. The provider writes `llm_review.json` as an advisory artifact; it does not replace deterministic verification or human review. Public run provenance records only the provider name, API style, model, temperature, timeout, JSON mode, and endpoint origin (scheme/host/port). It does not persist API keys, URL credentials, endpoint paths, or query strings. The full endpoint configuration is bound indirectly through `run_spec_sha256`, so configuration drift can be detected without disclosing the full endpoint path/query or credentials.
 
 Qwen / DashScope has its own preset:
 
@@ -685,6 +732,21 @@ $env:QWEN_MODEL="qwen-plus"
   --out outputs/lab_report_audit_demo_qwen `
   --llm qwen
 ```
+
+Kimi has a separate direct API preset:
+
+```powershell
+$env:KIMI_API_KEY = Read-Host "KIMI_API_KEY"
+$env:KIMI_MODEL_NAME="kimi-k3"
+.venv\Scripts\python.exe -m claim_harness run `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --out outputs/lab_report_audit_demo_kimi `
+  --llm kimi
+```
+
+The endpoint defaults to `https://api.moonshot.ai/v1`; the Kimi/Moonshot developer key is distinct from a consumer-app or Kimi Code subscription. ClaimHarness uses JSON mode and omits an explicit `temperature`, allowing the selected Kimi model to enforce its fixed/default sampling contract. The official Kimi CLI is included in `providers` as detection-only for now: its current safe structured print-mode contract does not offer the same stdin and stable tool-free boundary used by the supported client adapters. Deep Code and DeepSeek TUI are likewise labelled third-party, detection-only clients; DeepSeek remains available through the direct `deepseek` API preset, a supported client configured with DeepSeek, or an Ollama-compatible local endpoint.
 
 Most Streamlit workflows are deterministic. Evidence-gated build exposes only two bounded choices: local `mock`, or official OpenAI `gpt-5.6` with a key read from `OPENAI_API_KEY` in the process environment. There is no API-key field, no arbitrary base URL, and no persisted credential. `Show workspace memory` can save draft fields and the most recent output path to `outputs/ui_memory/workbench_memory.json`. Loading that memory restores its original project ID and restores a recent output only when the governed run is complete and belongs to that project. `Clear memory` deletes the saved file while retaining the current unsaved form values; starting a new project is the separate action that clears project-scoped drafts after confirmation. Clear local memory before sharing if drafts contain sensitive workflow details.
 
@@ -701,7 +763,7 @@ $env:DEEPSEEK_MODEL="deepseek-v4-flash"
   --llm deepseek
 ```
 
-See [MODEL_PROVIDER_GUIDE.md](MODEL_PROVIDER_GUIDE.md) for `openai`, `qwen`, `deepseek`, `groq`, `mistral`, `openrouter`, `xai`, `ollama`, `gemini`, and `anthropic` setup.
+See [MODEL_PROVIDER_GUIDE.md](MODEL_PROVIDER_GUIDE.md) for the offline availability check, installed-client setup (`codex`, `claude-cli`, `qwen-cli`), Kimi/DeepSeek client boundaries, and direct provider setup (`openai`, `qwen`, `kimi`, `deepseek`, `groq`, `mistral`, `openrouter`, `xai`, `ollama`, `gemini`, `anthropic`).
 
 ## Bounded Revision Governance
 

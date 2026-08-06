@@ -1123,8 +1123,13 @@ def test_model_provider_guide_is_present():
 
     for provider in [
         "mock",
+        "codex",
+        "claude-cli",
+        "qwen-cli",
         "openai",
         "openai-compatible",
+        "qwen",
+        "kimi",
         "deepseek",
         "groq",
         "mistral",
@@ -1138,6 +1143,11 @@ def test_model_provider_guide_is_present():
         assert provider in readme
 
     for env_name in [
+        "CLAIMHARNESS_CODEX_BIN",
+        "CLAIMHARNESS_CLAUDE_BIN",
+        "CLAIMHARNESS_QWEN_BIN",
+        "KIMI_API_KEY",
+        "KIMI_MODEL_NAME",
         "DEEPSEEK_API_KEY",
         "GEMINI_API_KEY",
         "ANTHROPIC_API_KEY",
@@ -1148,6 +1158,9 @@ def test_model_provider_guide_is_present():
 
     assert "advisory only" in guide
     assert "Do not send private patient data" in guide
+    assert "claim_harness providers" in guide
+    assert "does not execute a discovered client" in guide
+    assert "--llm-timeout" in guide
 
 
 def test_windows_launchers_are_robust_for_double_click_usage():

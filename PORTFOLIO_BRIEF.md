@@ -22,7 +22,7 @@ It is used before model building, when the team still needs to decide what the A
 
 ClaimHarness audits generated or human-written scientific claims against available manuscript, table, and reference evidence. It flags weakly supported or overclaimed statements and produces traceable audit packages.
 
-Each run includes a machine-readable manifest with run identity and SHA-256 file records plus a human-readable project summary log. Optional remote LLM review is available only through the ClaimHarness CLI and remains advisory.
+Each run includes a machine-readable manifest with run identity and SHA-256 file records plus a human-readable project summary log. Optional advisory LLM review is available only through the ClaimHarness CLI, either through a direct provider preset (including Qwen, Kimi, and DeepSeek) or an allow-listed installed Codex, Claude Code, or Qwen Code client adapter. A separate offline inventory reports configuration and executable presence without executing clients or contacting providers; unsupported Kimi/DeepSeek client surfaces remain detection-only.
 
 It is used after writing, system output, or report drafting, when the team needs to check whether claims are supported by evidence.
 

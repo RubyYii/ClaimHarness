@@ -1,6 +1,7 @@
 import hashlib
 import json
 from collections import Counter
+from dataclasses import replace
 from importlib import resources
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -9,6 +10,7 @@ from urllib.parse import urlsplit
 
 import typer
 from rich.console import Console
+from rich.table import Table
 
 from problem_bridge.project_lifecycle import (
     ProjectLifecycleError,
@@ -34,6 +36,7 @@ from .llm import (
     validate_provider,
 )
 from .loader import load_manuscript, load_references, load_tables
+from .provider_status import inspect_provider_availability, probe_provider_availability
 from .report_generator import write_outputs
 from .report_viewer import MissingAuditOutput, render_report_viewer
 from .run_records import (
@@ -76,6 +79,132 @@ def callback() -> None:
 
 
 @app.command()
+def providers(
+    json_output: bool = typer.Option(
+        False,
+        "--json",
+        help="Write sanitized machine-readable JSON instead of a table.",
+    ),
+    probe: Optional[str] = typer.Option(
+        None,
+        "--probe",
+        metavar="PROVIDER",
+        help=(
+            "Send one synthetic structured-output call to one provider. This may use "
+            "network access, account quota, or local compute."
+        ),
+    ),
+    confirm_provider_call: bool = typer.Option(
+        False,
+        "--confirm-call",
+        help="Required with --probe to prevent accidental provider calls.",
+    ),
+    probe_timeout: int = typer.Option(
+        60,
+        "--probe-timeout",
+        min=1,
+        max=600,
+        help="Synthetic provider probe timeout in seconds (1-600).",
+    ),
+) -> None:
+    """Inspect providers offline, with an optional explicitly confirmed synthetic probe."""
+
+    if probe is None and confirm_provider_call:
+        raise typer.BadParameter(
+            "--confirm-call requires --probe PROVIDER.",
+            param_hint="--confirm-call",
+        )
+    if probe is not None and not confirm_provider_call:
+        raise typer.BadParameter(
+            "--probe can contact a service or use quota. Re-run with "
+            "--confirm-call after reviewing the selected provider.",
+            param_hint="--confirm-call",
+        )
+
+    probe_result = None
+    if probe is not None:
+        try:
+            normalized_probe = validate_provider(probe)
+        except ValueError as exc:
+            raise typer.BadParameter(str(exc), param_hint="--probe") from exc
+        if normalized_probe == "mock":
+            raise typer.BadParameter(
+                "mock is already deterministic and local; it does not need a provider probe.",
+                param_hint="--probe",
+            )
+        probe_result = probe_provider_availability(
+            normalized_probe,
+            timeout_seconds=probe_timeout,
+        )
+
+    statuses = inspect_provider_availability()
+    if json_output:
+        payload: dict[str, object] = {
+            "offline_check": probe_result is None,
+            "inventory_offline": True,
+            "provider_call_performed": bool(
+                probe_result is not None and probe_result.attempted
+            ),
+            "providers": [status.to_dict() for status in statuses],
+        }
+        if probe_result is not None:
+            payload["probe"] = probe_result.to_dict()
+        typer.echo(
+            json.dumps(
+                payload,
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+    else:
+        table = Table(title="ClaimHarness providers (offline check / inventory)")
+        table.add_column("Provider")
+        table.add_column("Mode")
+        table.add_column("Selectable")
+        table.add_column("State")
+        table.add_column("Model")
+        table.add_column("Detail")
+        for status in statuses:
+            table.add_row(
+                status.provider,
+                status.mode,
+                "yes" if status.selectable else "no",
+                status.state,
+                status.model or "-",
+                status.detail,
+            )
+        console.print(table)
+        if probe_result is None:
+            console.print(
+                "Offline only: no client was executed and no credential, endpoint, or "
+                "model was contacted."
+            )
+        else:
+            console.print(
+                "The inventory above was offline. The explicitly confirmed probe used "
+                "synthetic data only and may have used network access, quota, billing, "
+                "or local compute."
+            )
+            probe_table = Table(title="Synthetic provider probe")
+            probe_table.add_column("Provider")
+            probe_table.add_column("State")
+            probe_table.add_column("Attempted")
+            probe_table.add_column("Timeout")
+            probe_table.add_column("Detail")
+            probe_table.add_row(
+                probe_result.provider,
+                probe_result.state,
+                "yes" if probe_result.attempted else "no",
+                f"{probe_result.timeout_seconds}s",
+                probe_result.detail,
+            )
+            console.print(probe_table)
+
+    if probe_result is not None and probe_result.state != "ready":
+        raise typer.Exit(code=1)
+
+
+@app.command()
 def run(
     manuscript: Optional[Path] = typer.Option(None, help="Path to manuscript.md."),
     tables: Optional[Path] = typer.Option(None, help="Path to a folder of CSV tables."),
@@ -95,16 +224,28 @@ def run(
     llm: str = typer.Option(
         "mock",
         help=(
-            "LLM provider: mock, openai, openai-compatible, qwen, deepseek, groq, "
-            "mistral, openrouter, xai, ollama, gemini, or anthropic. "
+            "LLM provider: mock; installed-client adapters codex, claude-cli, or "
+            "qwen-cli; or API providers openai, openai-compatible, qwen, kimi, deepseek, "
+            "groq, mistral, openrouter, xai, ollama, gemini, or anthropic. "
             "mock is deterministic and local."
         ),
+    ),
+    llm_timeout: int = typer.Option(
+        60,
+        min=1,
+        max=600,
+        help="Advisory provider timeout in seconds (1-600); ignored by mock.",
     ),
 ) -> None:
     """Run a ClaimHarness audit."""
     try:
         provider = validate_provider(llm)
         provider_config = resolve_provider_config(provider)
+        if provider_config.api_style != "mock":
+            provider_config = replace(
+                provider_config,
+                timeout_seconds=llm_timeout,
+            )
     except MissingProviderConfig as exc:
         raise typer.BadParameter(str(exc), param_hint="--llm") from exc
     except ValueError as exc:
@@ -590,6 +731,8 @@ def _provider_public_details(provider_config) -> dict[str, object]:
         "endpoint_origin": endpoint_origin,
         "json_mode": provider_config.json_mode,
         "model": provider_config.model,
+        "temperature": provider_config.temperature,
+        "timeout_seconds": provider_config.timeout_seconds,
     }
 
 

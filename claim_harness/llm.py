@@ -10,6 +10,12 @@ from urllib.error import HTTPError, URLError
 
 from pydantic import ValidationError
 
+from .local_agent_cli import (
+    LocalAgentCLIError,
+    resolve_local_agent_executable,
+    run_local_agent_cli,
+    validate_local_agent_model,
+)
 from .schemas import Claim, LLMAuditReview, VerificationResult
 
 
@@ -19,6 +25,7 @@ ApiStyle = Literal[
     "openai-chat",
     "gemini",
     "anthropic",
+    "local-agent-cli",
 ]
 JsonMode = Literal["json_schema", "json_object", "prompted_json"]
 
@@ -41,10 +48,16 @@ class ProviderPreset:
     default_model: str | None = None
     json_mode: JsonMode = "json_schema"
     requires_api_key: bool = True
+    temperature: float | None = 0.0
 
 
 PROVIDER_PRESETS: dict[str, ProviderPreset] = {
-    "mock": ProviderPreset(provider="mock", api_style="mock", requires_api_key=False),
+    "mock": ProviderPreset(
+        provider="mock",
+        api_style="mock",
+        requires_api_key=False,
+        temperature=None,
+    ),
     "openai": ProviderPreset(
         provider="openai",
         api_style="openai-responses",
@@ -54,6 +67,7 @@ PROVIDER_PRESETS: dict[str, ProviderPreset] = {
         default_base_url=DEFAULT_OPENAI_BASE_URL,
         default_model=DEFAULT_OPENAI_MODEL,
         json_mode="json_schema",
+        temperature=None,
     ),
     "openai-compatible": ProviderPreset(
         provider="openai-compatible",
@@ -136,6 +150,17 @@ PROVIDER_PRESETS: dict[str, ProviderPreset] = {
         default_model="qwen-plus",
         json_mode="json_object",
     ),
+    "kimi": ProviderPreset(
+        provider="kimi",
+        api_style="openai-chat",
+        api_key_env="KIMI_API_KEY",
+        base_url_env="KIMI_BASE_URL",
+        model_env="KIMI_MODEL_NAME",
+        default_base_url="https://api.moonshot.ai/v1",
+        default_model="kimi-k3",
+        json_mode="json_object",
+        temperature=None,
+    ),
     "gemini": ProviderPreset(
         provider="gemini",
         api_style="gemini",
@@ -155,6 +180,27 @@ PROVIDER_PRESETS: dict[str, ProviderPreset] = {
         default_base_url="https://api.anthropic.com/v1",
         default_model="claude-sonnet-4-5",
         json_mode="prompted_json",
+    ),
+    "codex": ProviderPreset(
+        provider="codex",
+        api_style="local-agent-cli",
+        model_env="CLAIMHARNESS_CODEX_MODEL",
+        requires_api_key=False,
+        temperature=None,
+    ),
+    "claude-cli": ProviderPreset(
+        provider="claude-cli",
+        api_style="local-agent-cli",
+        model_env="CLAIMHARNESS_CLAUDE_MODEL",
+        requires_api_key=False,
+        temperature=None,
+    ),
+    "qwen-cli": ProviderPreset(
+        provider="qwen-cli",
+        api_style="local-agent-cli",
+        model_env="CLAIMHARNESS_QWEN_MODEL",
+        requires_api_key=False,
+        temperature=None,
     ),
 }
 SUPPORTED_PROVIDERS = set(PROVIDER_PRESETS)
@@ -178,6 +224,9 @@ class LLMProviderConfig:
     model: str | None = None
     api_style: ApiStyle = "mock"
     json_mode: JsonMode = "json_schema"
+    executable: str | None = None
+    temperature: float | None = 0.0
+    timeout_seconds: int | None = 60
 
 
 @dataclass(frozen=True)
@@ -201,16 +250,37 @@ def resolve_provider_config(provider: str) -> LLMProviderConfig:
     normalized = validate_provider(provider)
     preset = PROVIDER_PRESETS[normalized]
     if preset.api_style == "mock":
-        return LLMProviderConfig(provider="mock", api_style="mock")
+        return LLMProviderConfig(
+            provider="mock",
+            api_style="mock",
+            temperature=None,
+            timeout_seconds=None,
+        )
+    if preset.api_style == "local-agent-cli":
+        try:
+            executable = resolve_local_agent_executable(normalized)
+            model = _read_optional_env(preset.model_env)
+            validate_local_agent_model(model)
+        except LocalAgentCLIError as exc:
+            raise MissingProviderConfig(str(exc)) from exc
+        return LLMProviderConfig(
+            provider=normalized,
+            model=model or None,
+            api_style="local-agent-cli",
+            json_mode="json_schema",
+            executable=executable,
+            temperature=None,
+            timeout_seconds=60,
+        )
 
-    api_key = os.getenv(preset.api_key_env or "") if preset.api_key_env else None
+    api_key = _read_optional_env(preset.api_key_env)
     if preset.requires_api_key and not api_key:
         raise MissingProviderConfig(
             f"{preset.api_key_env} is required when --llm {normalized} is selected."
         )
 
-    base_url = os.getenv(preset.base_url_env or "") if preset.base_url_env else None
-    model = os.getenv(preset.model_env or "") if preset.model_env else None
+    base_url = _read_optional_env(preset.base_url_env)
+    model = _read_optional_env(preset.model_env)
     config = LLMProviderConfig(
         provider=normalized,
         api_key=api_key,
@@ -218,13 +288,26 @@ def resolve_provider_config(provider: str) -> LLMProviderConfig:
         model=model or preset.default_model,
         api_style=preset.api_style,
         json_mode=preset.json_mode,
+        temperature=preset.temperature,
+        timeout_seconds=60,
     )
     _validate_provider_endpoint(config)
     return config
 
 
+def _read_optional_env(name: str | None) -> str | None:
+    """Return a trimmed, non-empty environment value without logging it."""
+
+    if not name:
+        return None
+    value = os.getenv(name)
+    if value is None:
+        return None
+    return value.strip() or None
+
+
 def _validate_provider_endpoint(config: LLMProviderConfig) -> None:
-    if config.api_style == "mock":
+    if config.api_style in {"mock", "local-agent-cli"}:
         return
     if not config.base_url:
         raise MissingProviderConfig(f"{config.provider} provider base URL is missing.")
@@ -292,8 +375,9 @@ def build_openai_compatible_request(
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ],
-        "temperature": 0,
     }
+    if config.temperature is not None:
+        payload["temperature"] = config.temperature
     if config.json_mode == "json_schema":
         payload["response_format"] = {
             "type": "json_schema",
@@ -594,8 +678,33 @@ def call_provider_json(
     system_prompt: str,
     user_prompt: str,
     urlopen: Callable[..., Any] | None = None,
-    timeout: int = 60,
+    timeout: int | None = None,
 ) -> dict[str, Any]:
+    effective_timeout = timeout if timeout is not None else config.timeout_seconds
+    if effective_timeout is None:
+        effective_timeout = 60
+    if effective_timeout <= 0:
+        raise LLMProviderError("Provider timeout must be greater than zero.")
+
+    if config.api_style == "local-agent-cli":
+        if not config.executable:
+            raise LLMProviderError(
+                f"{config.provider} local agent CLI configuration is incomplete."
+            )
+        try:
+            payload = run_local_agent_cli(
+                config.provider,
+                executable=config.executable,
+                model=config.model,
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                json_schema=AUDIT_REVIEW_SCHEMA,
+                timeout=effective_timeout,
+            )
+        except LocalAgentCLIError as exc:
+            raise LLMProviderError(str(exc)) from exc
+        return validate_audit_review(payload)
+
     if config.api_style == "openai-responses":
         api_request = build_openai_responses_request(
             config,
@@ -617,7 +726,7 @@ def call_provider_json(
 
     open_request = urlopen or _open_provider_request
     try:
-        with open_request(api_request, timeout=timeout) as response:
+        with open_request(api_request, timeout=effective_timeout) as response:
             response_body = _read_provider_response(response)
     except HTTPError as exc:
         detail = _read_provider_error(exc)
