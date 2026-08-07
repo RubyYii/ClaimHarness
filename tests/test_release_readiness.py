@@ -565,9 +565,10 @@ def test_guided_ui_recovers_from_stale_document_intake_module_cache():
         sys.modules.pop("apps.problem_bridge_wizard", None)
 
 
-def test_document_intake_accepts_manual_upload_fallback_text():
+def test_document_intake_accepts_manual_upload_fallback_text(tmp_path, monkeypatch):
     import apps.problem_bridge_wizard as ui
 
+    monkeypatch.setattr(ui, "RUN_ROOT", tmp_path / "ui_runs")
     out = ui._run_document_intake([], pasted_text="Manual fallback workflow text")
 
     assert (out / "source_files" / "manual_upload_fallback.md").is_file()
@@ -611,9 +612,10 @@ def test_document_intake_never_overwrites_duplicate_upload_names_or_fallback(tmp
     assert "source_files/notes__2.md" in completion["artifact_sha256"]
 
 
-def test_document_intake_can_continue_into_question_discovery():
+def test_document_intake_can_continue_into_question_discovery(tmp_path, monkeypatch):
     import apps.problem_bridge_wizard as ui
 
+    monkeypatch.setattr(ui, "RUN_ROOT", tmp_path / "ui_runs")
     out = ui._run_document_intake([], pasted_text="A repeated review workflow with unclear expert judgement.")
     seed = ui._question_discovery_seed_from_intake(out)
     ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
@@ -625,10 +627,11 @@ def test_document_intake_can_continue_into_question_discovery():
     assert "workspace_page" in ui_text
 
 
-def test_question_discovery_can_continue_into_domain_wizard():
+def test_question_discovery_can_continue_into_domain_wizard(tmp_path, monkeypatch):
     import apps.problem_bridge_wizard as ui
     from problem_bridge.question_discovery import discover_questions
 
+    monkeypatch.setattr(ui, "RUN_ROOT", tmp_path / "ui_runs")
     package = discover_questions(
         "A review workflow has unclear expert judgement.",
         uncertainty="We do not know which expert to ask first.",
@@ -651,9 +654,10 @@ def test_question_discovery_can_continue_into_domain_wizard():
     assert "_continue_to_domain_wizard_from_discovery" in ui_text
 
 
-def test_domain_alignment_can_continue_into_ai_wizard():
+def test_domain_alignment_can_continue_into_ai_wizard(tmp_path, monkeypatch):
     import apps.problem_bridge_wizard as ui
 
+    monkeypatch.setattr(ui, "RUN_ROOT", tmp_path / "ui_runs")
     out = ui._run_problem_text(
         "A team repeatedly reviews reports, compares evidence, and needs human review boundaries.",
         "domain_practitioner",
@@ -713,9 +717,10 @@ human_review_required:
     assert "Guided Interview Problem Brief" not in seed["ai_draft_domain_problem"]
 
 
-def test_ai_alignment_can_continue_to_evidence_gate():
+def test_ai_alignment_can_continue_to_evidence_gate(tmp_path, monkeypatch):
     import apps.problem_bridge_wizard as ui
 
+    monkeypatch.setattr(ui, "RUN_ROOT", tmp_path / "ui_runs")
     out = ui._run_problem_text(
         "The candidate AI task summarizes reports, but users need evidence boundaries and review routing.",
         "ai_practitioner",
@@ -851,7 +856,7 @@ def test_release_packaging_support_is_present():
     assert '$derivedVersion = "v$projectVersion"' in build_script
     assert "Requested release version" in build_script
     assert "git archive" in build_script
-    assert "Get-FileHash" in build_script
+    assert "Get-Sha256Hex" in build_script
     assert "manifest.json" in build_script
     assert "sample_runs" in build_script
     assert "archive_entry_count" in build_script
@@ -928,7 +933,7 @@ def test_release_packaging_support_is_present():
         "build==1.2.2.post1",
         "setuptools==75.6.0",
         "wheel==0.45.1",
-        "streamlit==1.41.1",
+        "streamlit==1.58.0",
         "pytesseract==0.3.13",
         "pdf2image==1.17.0",
         "Pillow==11.0.0",
@@ -939,6 +944,7 @@ def test_release_packaging_support_is_present():
     ]:
         assert pinned_requirement in constraints
     assert '"click>=8.1.7,<8.2"' in pyproject
+    assert '"streamlit>=1.58,<2"' in pyproject
 
     attributes = Path(".gitattributes").read_text(encoding="utf-8")
     assert "* text=auto eol=lf" in attributes
@@ -1462,7 +1468,9 @@ def test_release_zip_script_rejects_missing_packaged_demo_resource(tmp_path):
 
     output = result.stdout + result.stderr
     assert result.returncode != 0
-    assert "Missing required file in release zip: claim_harness/demo_data/references.md" in output
+    plain_output = re.sub(r"\x1b(?:\[[0-?]*[ -/]*[@-~]|[@-Z\\-_])", "", output)
+    assert "Missing required file in release zip:" in plain_output
+    assert "claim_harness/demo_data/references.md" in plain_output
     assert "Release zip test passed" not in output
 
 

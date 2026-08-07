@@ -609,6 +609,8 @@ Install the optional UI dependencies:
 .venv\Scripts\python.exe -m pip install -c requirements\constraints.txt -e ".[dev,ui]"
 ```
 
+The constrained setup pins Streamlit 1.58.0. This version supplies the required-selection control and AppTest behavior used by the guided interview, so older environments should be upgraded with the command above before launching the UI.
+
 Run the local Streamlit wizard:
 
 ```powershell

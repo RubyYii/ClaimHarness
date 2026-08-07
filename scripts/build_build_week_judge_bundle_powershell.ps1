@@ -6,6 +6,26 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Get-Sha256Hex {
+    param([Parameter(Mandatory = $true)][string]$LiteralPath)
+
+    $resolvedPath = (Resolve-Path -LiteralPath $LiteralPath).Path
+    $stream = [System.IO.File]::OpenRead($resolvedPath)
+    try {
+        $sha256 = [System.Security.Cryptography.SHA256]::Create()
+        try {
+            $bytes = $sha256.ComputeHash($stream)
+            return ([System.BitConverter]::ToString($bytes)).Replace("-", "").ToLowerInvariant()
+        }
+        finally {
+            $sha256.Dispose()
+        }
+    }
+    finally {
+        $stream.Dispose()
+    }
+}
+
 function Resolve-BundlePython {
     param(
         [string]$RepositoryRoot,
@@ -216,7 +236,7 @@ try {
             [ordered]@{
                 path = $_.FullName.Substring($bundleRootPrefix.Length).Replace("\", "/")
                 size_bytes = $_.Length
-                sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+                sha256 = Get-Sha256Hex -LiteralPath $_.FullName
             }
         }
     )
@@ -249,9 +269,7 @@ try {
         throw "Judge bundle ZIP was not created."
     }
 
-    $bundleHash = (
-        Get-FileHash -LiteralPath $bundleZip -Algorithm SHA256
-    ).Hash.ToLowerInvariant()
+    $bundleHash = Get-Sha256Hex -LiteralPath $bundleZip
     $outerManifest = [ordered]@{
         schema_version = 1
         package = [System.IO.Path]::GetFileName($bundleZip)

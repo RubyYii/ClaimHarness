@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+from click.utils import strip_ansi
 from typer.testing import CliRunner
 
 import claim_harness
@@ -44,14 +45,15 @@ def test_provider_public_provenance_strips_credentials_but_hash_spec_binds_full_
 def test_run_help_command():
     runner = CliRunner()
     result = runner.invoke(app, ["run", "--help"])
+    output = strip_ansi(result.output)
 
     assert result.exit_code == 0
-    assert "Run a ClaimHarness audit" in result.output
-    assert "--manuscript" in result.output
-    assert "--llm" in result.output
-    assert "--llm-timeout" in result.output
-    assert "--mode" in result.output
-    assert "--project-id" in result.output
+    assert "Run a ClaimHarness audit" in output
+    assert "--manuscript" in output
+    assert "--llm" in output
+    assert "--llm-timeout" in output
+    assert "--mode" in output
+    assert "--project-id" in output
 
 
 def test_run_help_documents_common_provider_presets():
@@ -71,7 +73,7 @@ def test_run_help_documents_common_provider_presets():
 
 def test_providers_help_documents_explicit_probe_confirmation():
     result = CliRunner().invoke(app, ["providers", "--help"])
-    compact_output = "".join(result.output.split())
+    compact_output = "".join(strip_ansi(result.output).split())
 
     assert result.exit_code == 0
     assert "--probe" in compact_output
@@ -84,7 +86,7 @@ def test_run_subcommand_requires_inputs():
     result = runner.invoke(app, ["run"])
 
     assert result.exit_code != 0
-    assert "--manuscript" in result.output
+    assert "--manuscript" in strip_ansi(result.output)
 
 
 def test_openai_compatible_provider_requires_api_key(monkeypatch):
@@ -219,7 +221,7 @@ def test_run_requires_explicit_identity_guard_before_replacing_outputs(tmp_path)
     assert second.exit_code != 0
     assert "new mode requires an empty directory" in second.output.lower()
     assert missing_guard.exit_code != 0
-    assert "expected-run-id" in missing_guard.output.lower()
+    assert "expected-run-id" in strip_ansi(missing_guard.output).lower()
     assert wrong_guard.exit_code != 0
     assert "mismatch" in wrong_guard.output.lower()
     assert replaced.exit_code == 0, replaced.output

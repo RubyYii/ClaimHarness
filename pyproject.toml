@@ -25,7 +25,7 @@ dev = [
   "build>=1.2,<2",
 ]
 ui = [
-  "streamlit>=1.35,<2",
+  "streamlit>=1.58,<2",
 ]
 ocr = [
   "pytesseract>=0.3.10,<1",

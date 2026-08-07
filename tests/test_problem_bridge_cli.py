@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+from click.utils import strip_ansi
 from typer.testing import CliRunner
 
 import problem_bridge
@@ -34,13 +35,14 @@ def test_problem_bridge_package_imports():
 def test_align_help_documents_problem_alignment_cli():
     runner = CliRunner()
     result = runner.invoke(app, ["align", "--help"])
+    output = strip_ansi(result.output)
 
     assert result.exit_code == 0
-    assert "Generate a Problem Alignment Package" in result.output
-    assert "--brief" in result.output
-    assert "--llm" in result.output
-    assert "--mode" in result.output
-    assert "--project-id" in result.output
+    assert "Generate a Problem Alignment Package" in output
+    assert "--brief" in output
+    assert "--llm" in output
+    assert "--mode" in output
+    assert "--project-id" in output
 
 
 def test_align_rejects_unknown_provider(tmp_path):
@@ -159,7 +161,7 @@ def test_align_refuses_implicit_overwrite_and_requires_explicit_replace(tmp_path
     assert second.exit_code != 0
     assert "new mode requires an empty directory" in second.output.lower()
     assert missing_guard.exit_code != 0
-    assert "expected-run-id" in missing_guard.output.lower()
+    assert "expected-run-id" in strip_ansi(missing_guard.output).lower()
     assert wrong.exit_code != 0
     assert "mismatch" in wrong.output.lower()
     assert replaced.exit_code == 0

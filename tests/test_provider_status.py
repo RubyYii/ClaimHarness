@@ -1,7 +1,9 @@
 import json
+import os
 import socket
 import subprocess
 
+from click.utils import strip_ansi
 from typer.testing import CliRunner
 
 import claim_harness.cli as cli_module
@@ -41,7 +43,9 @@ def test_provider_status_reports_selectable_and_detection_only_options(monkeypat
     monkeypatch.setattr(
         provider_status.shutil,
         "which",
-        lambda command: "C:/private/kimi.cmd" if command == "kimi.cmd" else None,
+        lambda command: (
+            "C:/private/kimi.cmd" if command in {"kimi", "kimi.cmd"} else None
+        ),
     )
 
     statuses = _by_name(provider_status.inspect_provider_availability())
@@ -74,9 +78,12 @@ def test_provider_status_distinguishes_invalid_executable_override(monkeypatch):
 
 def test_providers_json_omits_secrets_urls_and_executable_paths(monkeypatch, tmp_path):
     secret = "do-not-print-this-kimi-key"
-    private_executable = tmp_path / "private-codex-location" / "codex.cmd"
+    executable_name = "codex.cmd" if os.name == "nt" else "codex"
+    private_executable = tmp_path / "private-codex-location" / executable_name
     private_executable.parent.mkdir()
     private_executable.write_text("@echo off\n", encoding="utf-8")
+    if os.name != "nt":
+        private_executable.chmod(0o700)
     monkeypatch.setenv("KIMI_API_KEY", secret)
     monkeypatch.setenv("KIMI_BASE_URL", "https://private.example.test/v1")
     monkeypatch.setenv("CLAIMHARNESS_CODEX_BIN", str(private_executable))
@@ -132,7 +139,7 @@ def test_provider_probe_requires_explicit_confirmation(monkeypatch):
     result = CliRunner().invoke(app, ["providers", "--probe", "codex"])
 
     assert result.exit_code != 0
-    assert "confirm-call" in result.output
+    assert "confirm-call" in strip_ansi(result.output)
 
 
 def test_provider_probe_rejects_confirmation_without_selected_provider(monkeypatch):

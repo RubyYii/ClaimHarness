@@ -3,6 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 
+from click.utils import strip_ansi
 from typer.testing import CliRunner
 
 from claim_harness.claim_extractor import extract_claims
@@ -165,8 +166,9 @@ def test_mock_cli_run_writes_required_outputs(tmp_path):
     ).hexdigest()
     assert "at most 3 revision rounds" in summary_log
     assert manifest["run_id"] in summary_log
-    assert "claims" in result.output.lower()
-    assert str(output_dir) in result.output
+    output = strip_ansi(result.output)
+    assert "claims" in output.lower()
+    assert str(output_dir) in output
 
 
 def test_demo_cli_command_generates_audit_and_viewer_outside_repository_cwd(tmp_path, monkeypatch):
@@ -206,8 +208,9 @@ def test_zero_claim_run_never_reports_package_release_allowed(tmp_path):
     )
 
     assert result.exit_code == 0, result.output
-    assert "claims=0" in result.output
-    assert "package_release_allowed=false" in result.output
+    output = strip_ansi(result.output)
+    assert "claims=0" in output
+    assert "package_release_allowed=false" in output
     manifest = json.loads((output_dir / "run_manifest.json").read_text(encoding="utf-8"))
     assert manifest["summary"]["release_allowed"] is False
 

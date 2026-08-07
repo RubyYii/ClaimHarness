@@ -3,6 +3,7 @@ import json
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
+from click.utils import strip_ansi
 import pytest
 from typer.testing import CliRunner
 
@@ -826,7 +827,7 @@ def test_cli_migrates_legacy_history_only_with_matching_project_id(tmp_path):
         ],
     )
     assert result.exit_code == 0, result.output
-    assert "schema=v3" in result.output
+    assert "schema=v3" in strip_ansi(result.output)
     assert verify_revision_history(tmp_path) is True
 
 

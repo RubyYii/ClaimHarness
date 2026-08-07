@@ -4,6 +4,26 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Get-Sha256Hex {
+    param([Parameter(Mandatory = $true)][string]$LiteralPath)
+
+    $resolvedPath = (Resolve-Path -LiteralPath $LiteralPath).Path
+    $stream = [System.IO.File]::OpenRead($resolvedPath)
+    try {
+        $sha256 = [System.Security.Cryptography.SHA256]::Create()
+        try {
+            $bytes = $sha256.ComputeHash($stream)
+            return ([System.BitConverter]::ToString($bytes)).Replace("-", "").ToLowerInvariant()
+        }
+        finally {
+            $sha256.Dispose()
+        }
+    }
+    finally {
+        $stream.Dispose()
+    }
+}
+
 function Read-ReleaseVersion {
     param(
         [string]$Path,
@@ -166,7 +186,7 @@ try {
             $identity.run_id -ne $completion.run_id) {
             throw "Sample project/run identity mismatch in release archive: $samplePath"
         }
-        $identityHash = (Get-FileHash -LiteralPath $identityPath -Algorithm SHA256).Hash.ToLowerInvariant()
+        $identityHash = Get-Sha256Hex -LiteralPath $identityPath
         if ($identityHash -ne [string]$completion.run_identity_sha256) {
             throw "Sample run identity SHA-256 mismatch in release archive: $samplePath"
         }
@@ -183,7 +203,7 @@ try {
             if (-not (Test-Path -LiteralPath $artifactPath -PathType Leaf)) {
                 throw "Sample completion artifact is missing from archive: $samplePath/$artifactName"
             }
-            $artifactHash = (Get-FileHash -LiteralPath $artifactPath -Algorithm SHA256).Hash.ToLowerInvariant()
+            $artifactHash = Get-Sha256Hex -LiteralPath $artifactPath
             if ($artifactHash -ne [string]$artifact.Value) {
                 throw "Sample completion SHA-256 mismatch: $samplePath/$artifactName"
             }
@@ -193,7 +213,7 @@ try {
             project_id = [string]$identity.project_id
             run_id = [string]$identity.run_id
             identity_sha256 = $identityHash
-            completion_sha256 = (Get-FileHash -LiteralPath $completionPath -Algorithm SHA256).Hash.ToLowerInvariant()
+            completion_sha256 = Get-Sha256Hex -LiteralPath $completionPath
             artifact_count = $artifactProperties.Count
         }
     }
@@ -204,7 +224,7 @@ finally {
     }
 }
 
-$hash = (Get-FileHash -LiteralPath $outputPath -Algorithm SHA256).Hash.ToLowerInvariant()
+$hash = Get-Sha256Hex -LiteralPath $outputPath
 $manifestPath = "$outputPath.manifest.json"
 $shaPath = "$outputPath.sha256"
 $manifest = [ordered]@{
