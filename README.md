@@ -485,7 +485,7 @@ This is not an online service and not a standalone `.exe`. It runs locally throu
 
 If the Windows launcher does not load:
 
-1. Make sure Python 3.10 or newer is installed.
+1. Make sure Python 3.10, 3.11, 3.12, or 3.13 is installed for the constrained Windows setup.
 2. Re-run from a terminal so the error remains visible:
 
 ```powershell
@@ -524,9 +524,9 @@ Or:
 powershell -ExecutionPolicy Bypass -File scripts\test_release_zip_powershell.ps1
 ```
 
-In a clean checkout with no repository `.venv` and no working `py` or
+In a clean checkout with no repository `.venv` and no working supported `py` or
 `python` command on `PATH`, pass the absolute path of an existing Python
-3.10+ interpreter explicitly. The same option is available on the combined
+3.10-3.13 interpreter explicitly. The same option is available on the combined
 build-and-test gate:
 
 ```powershell

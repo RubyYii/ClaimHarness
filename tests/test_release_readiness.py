@@ -175,6 +175,7 @@ def test_ci_workflow_and_packaged_prompt_are_present():
     assert "pytest" in workflow_text
     assert "python-version" in workflow_text
     assert workflow_text.count('-e ".[dev,ui]"') == 2
+    assert "-PythonExe (Get-Command python).Source" in workflow_text
 
     prompt = resources.files("claim_harness").joinpath("prompts/audit_summary.md")
     assert prompt.is_file()
@@ -869,6 +870,9 @@ def test_release_packaging_support_is_present():
     assert '-c $constraints ".[dev,ui]"' in test_script
     assert "--only-binary=:all:" in test_script
     assert "--no-build-isolation" in test_script
+    assert "Test-SupportedPython" in test_script
+    assert '("3.13", "3.12", "3.11", "3.10")' in test_script
+    assert "sys.version_info[:2] < (3, 14)" in test_script
     assert "PIP_REQUIRE_VIRTUALENV" in test_script
     assert "$sampleGate" in test_script
     assert "problem_bridge build-week-demo" in test_script
@@ -1193,6 +1197,9 @@ def test_windows_launchers_are_robust_for_double_click_usage():
 
     assert "Get-Command py" in setup
     assert "Get-Command python" in setup
+    assert "Test-SupportedPython" in setup
+    assert '("3.13", "3.12", "3.11", "3.10")' in setup
+    assert "sys.version_info[:2] < (3, 14)" in setup
     assert "requirements\\constraints.txt" in setup
     assert '-c $constraints -e ".[dev,ui]"' in setup
 
@@ -1217,8 +1224,7 @@ def test_powershell_native_commands_check_exit_codes_immediately():
     release_build = Path("scripts/build_release_zip_powershell.ps1").read_text(encoding="utf-8")
 
     for invocation in [
-        "& py -3 -m venv .venv",
-        "& python -m venv .venv",
+        "& $bootstrapPython @bootstrapArgs -m venv .venv",
         '& $venvPython -m pip install "pip==25.0.1"',
         '& $venvPython -m pip install --only-binary=:all: -c $constraints -e ".[dev,ui]"',
     ]:

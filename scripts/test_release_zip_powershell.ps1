@@ -5,6 +5,42 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Test-SupportedPython {
+    param(
+        [Parameter(Mandatory = $true)][string]$Command,
+        [string[]]$Arguments = @()
+    )
+
+    try {
+        & $Command @Arguments -c "import sys; raise SystemExit(0 if (3, 10) <= sys.version_info[:2] < (3, 14) else 1)" *> $null
+        return $LASTEXITCODE -eq 0
+    }
+    catch {
+        return $false
+    }
+}
+
+function Find-SupportedPython {
+    $pythonCommand = Get-Command python -CommandType Application -ErrorAction SilentlyContinue |
+        Select-Object -First 1
+    if (($null -ne $pythonCommand) -and (Test-SupportedPython -Command $pythonCommand.Source)) {
+        return @{ Command = $pythonCommand.Source; Arguments = @() }
+    }
+
+    $pyCommand = Get-Command py -CommandType Application -ErrorAction SilentlyContinue |
+        Select-Object -First 1
+    if ($null -ne $pyCommand) {
+        foreach ($version in @("3.13", "3.12", "3.11", "3.10")) {
+            $arguments = @("-$version")
+            if (Test-SupportedPython -Command $pyCommand.Source -Arguments $arguments) {
+                return @{ Command = $pyCommand.Source; Arguments = $arguments }
+            }
+        }
+    }
+
+    return $null
+}
+
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 Set-Location $repoRoot
 
@@ -38,16 +74,17 @@ elseif (Test-Path -LiteralPath $repoVenvPython -PathType Leaf) {
     $bootstrapPython = $repoVenvPython
     $bootstrapArgs = @()
 }
-elseif (Get-Command py -ErrorAction SilentlyContinue) {
-    $bootstrapPython = "py"
-    $bootstrapArgs = @("-3")
-}
-elseif (Get-Command python -ErrorAction SilentlyContinue) {
-    $bootstrapPython = "python"
-    $bootstrapArgs = @()
-}
 else {
-    throw "Python 3.10+ is required to test the release ZIP."
+    $pythonSelection = Find-SupportedPython
+    if ($null -eq $pythonSelection) {
+        throw "Python 3.10 through 3.13 is required to test the constrained release ZIP."
+    }
+    $bootstrapPython = $pythonSelection.Command
+    $bootstrapArgs = @($pythonSelection.Arguments)
+}
+
+if (-not (Test-SupportedPython -Command $bootstrapPython -Arguments $bootstrapArgs)) {
+    throw "The selected release-test interpreter must be Python 3.10 through 3.13: $bootstrapPython"
 }
 
 $oldNoUserSite = $env:PYTHONNOUSERSITE

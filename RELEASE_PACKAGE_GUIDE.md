@@ -86,7 +86,7 @@ Static HTML is best for viewing examples only. Use the local web app package whe
 
 ## if the Windows launcher does not load
 
-Check that Python 3.10 or newer is installed. If the launcher window closes too quickly, run it from a terminal:
+Check that Python 3.10, 3.11, 3.12, or 3.13 is installed for the constrained local setup. If the launcher window closes too quickly, run it from a terminal:
 
 ```powershell
 .\RUN_PROBLEMBRIDGE_WINDOWS.bat
@@ -171,14 +171,14 @@ powershell -ExecutionPolicy Bypass -File scripts\test_release_zip_powershell.ps1
 ```
 
 If the checkout has no repository `.venv` and neither `py` nor `python` on
-`PATH` resolves to a usable interpreter, provide an existing Python 3.10+
+`PATH` resolves to a usable interpreter, provide an existing Python 3.10-3.13
 executable by absolute path:
 
 ```powershell
 .\scripts\test_release_zip_powershell.ps1 -PythonExe "<absolute-path-to-python.exe>"
 ```
 
-This extracts the zip into a temporary folder, compiles every packaged Python file, creates a brand-new temporary venv, and installs the extracted `.[dev,ui]` package under `requirements/constraints.txt`. The local package is built without isolation from the explicitly installed build tools, while every indexed third-party dependency must resolve to a prebuilt wheel. This prevents an index inconsistency from silently starting a compiler toolchain; a missing wheel fails the gate with a package-index/platform diagnostic. It verifies the constrained Typer/Click pair, runs `pip check`, validates the committed sample completion hashes, and then runs the ClaimHarness demo, ProblemBridge demo, Build Week mock demo, and synthetic evaluation from an unrelated working directory. The Build Week smoke also checks the Codex handoff and no-key runtime truth boundary. The temporary venv does not inherit repository-installed packages and is deleted after the gate. Dependency installation may use the configured package index when wheels are not already cached; the gate does not start Streamlit automatically.
+This extracts the zip into a temporary folder, compiles every packaged Python file, creates a brand-new temporary venv, and installs the extracted `.[dev,ui]` package under `requirements/constraints.txt`. The local package is built without isolation from the explicitly installed build tools, while every indexed third-party dependency must resolve to a prebuilt wheel. This prevents an index inconsistency from silently starting a compiler toolchain; a missing wheel fails the gate with a package-index/platform diagnostic. Automatic interpreter selection accepts Python 3.10 through 3.13, prefers a supported `python` on `PATH`, and asks the Windows launcher for a specific supported version instead of allowing `py -3` to select an incompatible newer installation. It verifies the constrained Typer/Click pair, runs `pip check`, validates the committed sample completion hashes, and then runs the ClaimHarness demo, ProblemBridge demo, Build Week mock demo, and synthetic evaluation from an unrelated working directory. The Build Week smoke also checks the Codex handoff and no-key runtime truth boundary. The temporary venv does not inherit repository-installed packages and is deleted after the gate. Dependency installation may use the configured package index when wheels are not already cached; the gate does not start Streamlit automatically.
 
 The constraints file pins every project/build/test/UI/OCR direct dependency and the compatibility-critical Click transitive dependency. Update `pyproject.toml`, `requirements/constraints.txt`, and CI together when changing that set.
 

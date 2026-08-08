@@ -4,6 +4,42 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Test-SupportedPython {
+    param(
+        [Parameter(Mandatory = $true)][string]$Command,
+        [string[]]$Arguments = @()
+    )
+
+    try {
+        & $Command @Arguments -c "import sys; raise SystemExit(0 if (3, 10) <= sys.version_info[:2] < (3, 14) else 1)" *> $null
+        return $LASTEXITCODE -eq 0
+    }
+    catch {
+        return $false
+    }
+}
+
+function Find-SupportedPython {
+    $pythonCommand = Get-Command python -CommandType Application -ErrorAction SilentlyContinue |
+        Select-Object -First 1
+    if (($null -ne $pythonCommand) -and (Test-SupportedPython -Command $pythonCommand.Source)) {
+        return @{ Command = $pythonCommand.Source; Arguments = @() }
+    }
+
+    $pyCommand = Get-Command py -CommandType Application -ErrorAction SilentlyContinue |
+        Select-Object -First 1
+    if ($null -ne $pyCommand) {
+        foreach ($version in @("3.13", "3.12", "3.11", "3.10")) {
+            $arguments = @("-$version")
+            if (Test-SupportedPython -Command $pyCommand.Source -Arguments $arguments) {
+                return @{ Command = $pyCommand.Source; Arguments = $arguments }
+            }
+        }
+    }
+
+    return $null
+}
+
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 Set-Location $repoRoot
 
@@ -11,32 +47,35 @@ $venvPython = Join-Path $repoRoot ".venv\Scripts\python.exe"
 $setupMarker = Join-Path $repoRoot ".venv\.claimharness_setup_v0.4.0"
 $constraints = Join-Path $repoRoot "requirements\constraints.txt"
 
-if ((Test-Path $venvPython) -and (Test-Path $setupMarker) -and -not $Force) {
-    Write-Host "ProblemBridge v0.4.0 environment is already prepared."
-    exit 0
+if (Test-Path -LiteralPath $venvPython -PathType Leaf) {
+    if (-not (Test-SupportedPython -Command $venvPython)) {
+        throw "The existing .venv must use Python 3.10 through 3.13. Remove it or recreate it with a supported interpreter."
+    }
+    if ((Test-Path $setupMarker) -and -not $Force) {
+        Write-Host "ProblemBridge v0.4.0 environment is already prepared."
+        exit 0
+    }
 }
 
 if (-not (Test-Path $venvPython)) {
     Write-Host "Creating local Python environment..."
-    if (Get-Command py -ErrorAction SilentlyContinue) {
-        & py -3 -m venv .venv
-        if ($LASTEXITCODE -ne 0) {
-            throw "Failed to create the local Python environment with the py launcher (exit code $LASTEXITCODE)."
-        }
+    $pythonSelection = Find-SupportedPython
+    if ($null -eq $pythonSelection) {
+        throw 'Python 3.10 through 3.13 was not found. Install a supported version and enable "Add python.exe to PATH".'
     }
-    elseif (Get-Command python -ErrorAction SilentlyContinue) {
-        & python -m venv .venv
-        if ($LASTEXITCODE -ne 0) {
-            throw "Failed to create the local Python environment with python (exit code $LASTEXITCODE)."
-        }
-    }
-    else {
-        throw 'Python 3.10 or newer was not found. Install Python and enable "Add python.exe to PATH".'
+    $bootstrapPython = $pythonSelection.Command
+    $bootstrapArgs = @($pythonSelection.Arguments)
+    & $bootstrapPython @bootstrapArgs -m venv .venv
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to create the local Python environment (exit code $LASTEXITCODE)."
     }
 }
 
 if (-not (Test-Path $venvPython)) {
     throw "The local Python environment could not be created."
+}
+if (-not (Test-SupportedPython -Command $venvPython)) {
+    throw "The local Python environment must use Python 3.10 through 3.13."
 }
 if (-not (Test-Path $constraints)) {
     throw "Dependency constraints are missing: $constraints"

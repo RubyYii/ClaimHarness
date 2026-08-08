@@ -51,4 +51,4 @@ jobs:
 
       - name: Build and smoke-test local release ZIP
         shell: powershell
-        run: .\scripts\build_and_test_release_powershell.ps1
+        run: .\scripts\build_and_test_release_powershell.ps1 -PythonExe (Get-Command python).Source
