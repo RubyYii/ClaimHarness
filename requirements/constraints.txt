@@ -1,0 +1,34 @@
+# Reproducible direct-dependency set used by CI and the Windows first-run setup.
+# These versions support Python 3.10+. Compatibility-critical CLI, validation,
+# numeric, and build transitives are pinned below; other platform-specific
+# transitive wheels remain resolved by pip. Update this file intentionally
+# together with pyproject.toml.
+pip==25.0.1
+pydantic==2.10.6
+pandas==2.2.3
+pypdf==5.1.0
+typer==0.15.1
+# Typer 0.15.1 is not compatible with Click 8.2+'s metavar API.
+click==8.1.8
+rich==13.9.4
+pytest==8.3.4
+build==1.2.2.post1
+setuptools==75.6.0
+wheel==0.45.1
+streamlit==1.58.0
+pytesseract==0.3.13
+pdf2image==1.17.0
+Pillow==11.0.0
+
+# Compatibility-critical transitives.
+pydantic-core==2.27.2
+annotated-types==0.7.0
+typing-extensions==4.12.2
+numpy==2.2.1
+python-dateutil==2.9.0.post0
+pytz==2024.2
+tzdata==2024.2
+packaging==24.2
+pyproject-hooks==1.2.0
+tomli==2.2.1 ; python_version < "3.11"
+colorama==0.4.6 ; sys_platform == "win32"

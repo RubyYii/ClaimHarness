@@ -1,0 +1,18 @@
+{
+  "project_name": "ClaimHarness repository remediation",
+  "project_goal": "Repair evidence semantics, local security boundaries, revision governance, provenance, packaging, and user-facing project history without expanding the v1 scope.",
+  "boundaries": [
+    "Deterministic mock remains the default.",
+    "Remote providers remain advisory and ClaimHarness CLI-only.",
+    "No private, clinical, confidential, or unpublished data is used.",
+    "One stable revision target is limited to three rounds; no fourth local patch."
+  ],
+  "artifacts": [
+    "project_record.json",
+    "revision_history.jsonl",
+    "project_summary_log.md"
+  ],
+  "created_at": "2026-07-11T00:00:00+00:00",
+  "updated_at": "2026-07-11T03:00:00+00:00",
+  "max_revision_rounds": 3
+}

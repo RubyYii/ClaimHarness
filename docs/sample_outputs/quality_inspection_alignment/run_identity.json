@@ -1,0 +1,38 @@
+{
+  "directory_created_at": "2026-07-11T07:11:48.897370+00:00",
+  "mode": "new",
+  "owned_artifacts": [
+    "ai_task_spec.yaml",
+    "alignment_trace.jsonl",
+    "concept_alignment_table.csv",
+    "evaluation_protocol.md",
+    "evidence_contract.yaml",
+    "human_in_loop_plan.md",
+    "implementation_routes.md",
+    "misalignment_risk_report.md",
+    "painpoint_opportunity_matrix.csv",
+    "problem_card.md",
+    "workflow_map.md"
+  ],
+  "previous_run_id": null,
+  "project_id": "sample-quality-inspection",
+  "required_artifacts": [
+    "ai_task_spec.yaml",
+    "alignment_trace.jsonl",
+    "concept_alignment_table.csv",
+    "evaluation_protocol.md",
+    "evidence_contract.yaml",
+    "human_in_loop_plan.md",
+    "implementation_routes.md",
+    "misalignment_risk_report.md",
+    "painpoint_opportunity_matrix.csv",
+    "problem_card.md",
+    "workflow_map.md"
+  ],
+  "run_created_at": "2026-07-11T07:11:48.897370+00:00",
+  "run_id": "run-d245ae332e8f4552a33c5c7f5f9692c8",
+  "run_spec_sha256": "91cb06036eebd89174cebdb821f165b4f5a3c3226535fc3dc1c82233c325213e",
+  "schema_version": 2,
+  "snapshot_directories": [],
+  "workflow_type": "problem_bridge.alignment"
+}

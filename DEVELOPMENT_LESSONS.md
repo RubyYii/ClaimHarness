@@ -20,7 +20,7 @@ The strongest lesson is that many interdisciplinary AI projects do not fail firs
 | v0.1 ClaimHarness | Built a deterministic claim-evidence audit pipeline with traceable outputs. | Start with a narrow, testable harness before adding UI or providers. |
 | v0.2 ProblemBridge | Added pre-model workflow discovery, task specification, evidence contracts, and evaluation protocols. | The upstream problem-alignment step is as important as the downstream audit step. |
 | v0.3 Guided interaction | Added a local web workbench for non-AI users. | Do not ask non-AI users to describe an AI task; ask about repeated work, judgement materials, pain points, and boundaries. |
-| v0.3.2 Document intake and handoffs | Added document intake, question discovery, workflow handoff buttons, API settings, memory, exports, and optional OCR documentation. | A useful prototype needs continuity between steps, not isolated forms. |
+| v0.3.2 Document intake and handoffs | Added document intake, question discovery, workflow handoff buttons, memory, exports, and optional OCR documentation. An API-settings UI experiment was later removed. | A useful prototype needs continuity between steps, but trust-boundary experiments must be retired when they are not fully reviewed. |
 | Review packaging | Added portfolio brief, sample outputs, demo script, roadmap, release package, and GitHub visuals. | External users need to understand the project in minutes before they invest time running it. |
 
 ## Product Lessons
@@ -85,16 +85,18 @@ OCR is useful, but it adds installation friction and quality uncertainty. Keepin
 
 The docs need to be visual and practical because OCR setup is where non-technical users often get stuck.
 
-### 7. Provider support needs defaults and manual escape hatches
+### 7. Model-provider support should stay behind a reviewed boundary
 
-A model dropdown helps ordinary testers. Manual model input helps advanced users, private deployments, and new provider models. The best pattern was:
+An early UI experiment exposed provider and API-key controls. That widened the workbench trust boundary without a complete consent, secret-lifecycle, endpoint-validation, and failure-handling design, so the controls were removed. The current pattern is:
 
-- provider presets for common services
-- default base URL and model
-- "use provider defaults" reset
-- manual model name input
-- session-only API key handling
-- clear warning that remote providers receive the current inputs
+- deterministic mock-only behavior in the Streamlit workbench
+- direct advisory provider presets and allow-listed installed-client adapters through the ClaimHarness CLI only
+- environment-variable configuration rather than UI key collection
+- HTTPS for public endpoints, bounded responses, and rejected redirects
+- isolated temporary working directories, disabled or bounded agent tools, stdin transport, structured-output validation, and live fixed-size process-output buffers that terminate the process tree on overflow or timeout
+- a passive provider inventory that never executes detected clients, contacts endpoints, or prints secrets and absolute executable paths; real synthetic probes require a separate provider selection and confirmation flag
+- detection-only labels for clients such as Kimi Code or third-party DeepSeek tools that do not yet meet the reviewed stdin, tool-isolation, and strict-output contract
+- a clear warning that direct providers and cloud-backed installed clients receive the current inputs
 
 ### 8. Examples should be generic enough to travel
 
@@ -167,7 +169,7 @@ The fix was not to hide these issues, but to document fallback paths clearly.
 
 ### 5. UI state needs memory, but memory needs privacy boundaries
 
-Saving provider, model, output path, and draft form fields improves usability. But API keys, tokens, passwords, and secrets should stay session-only and should not be written to local memory.
+Saving the recent output path and draft form fields improves usability. Provider settings and API keys do not belong in the current UI memory; API keys, tokens, passwords, and secrets must not be written there.
 
 The memory feature also needs a "clear before sharing" warning because drafts may contain sensitive workflow details.
 
@@ -191,7 +193,7 @@ These are small features, but they matter because they protect the user's first 
 | Workflow steps felt isolated. | Added continuation buttons and state handoffs. |
 | Bilingual UI looked odd when shown as mixed text. | Moved toward separate English and Chinese interfaces. |
 | File upload failures blocked users. | Added manual paste fallback and clearer document intake outputs. |
-| API settings could overwhelm the sidebar. | Collapsed advanced settings and added provider defaults. |
+| Unreviewed API settings expanded the UI trust boundary. | Removed them; remote providers remain ClaimHarness CLI-only. |
 | OCR expectations were too broad. | Made OCR optional and documented installation and limits. |
 | README visuals were too 3D and product-like. | Replaced them with a flatter comic workflow image. |
 | GitHub alone did not equal usability. | Added local release zip packaging and test scripts. |

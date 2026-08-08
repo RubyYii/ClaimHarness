@@ -1,7 +1,9 @@
 import csv
+import hashlib
 import json
 from pathlib import Path
 
+from click.utils import strip_ansi
 from typer.testing import CliRunner
 
 from claim_harness.claim_extractor import extract_claims
@@ -20,8 +22,11 @@ EXPECTED_OUTPUTS = [
     "evidence_map.json",
     "audit_report.md",
     "revision_suggestions.md",
+    "audit_diagnostics.json",
+    "human_review_queue.json",
     "agent_trace.jsonl",
 ]
+RUN_RECORD_OUTPUTS = ["run_manifest.json", "project_summary_log.md"]
 
 
 def test_deterministic_modules_produce_claims_evidence_and_statuses():
@@ -42,7 +47,13 @@ def test_deterministic_modules_produce_claims_evidence_and_statuses():
     assert any(item.evidence_type == "quantitative_result" for item in evidence)
     assert any(item.linked_claim_ids for item in evidence)
     assert any(item.claim_link_reasons for item in evidence)
-    assert {"supported", "weakly_supported", "overclaimed"}.issubset(statuses)
+    assert {
+        "supported",
+        "weakly_supported",
+        "unsupported",
+        "overclaimed",
+        "needs_human_review",
+    }.issubset(statuses)
 
 
 def test_mock_cli_run_writes_required_outputs(tmp_path):
@@ -67,7 +78,7 @@ def test_mock_cli_run_writes_required_outputs(tmp_path):
     )
 
     assert result.exit_code == 0, result.output
-    for filename in EXPECTED_OUTPUTS:
+    for filename in [*EXPECTED_OUTPUTS, *RUN_RECORD_OUTPUTS]:
         assert (output_dir / filename).exists(), filename
 
     with (output_dir / "claim_table.csv").open(newline="", encoding="utf-8") as handle:
@@ -77,28 +88,205 @@ def test_mock_cli_run_writes_required_outputs(tmp_path):
     assert len(rows) >= 10
     assert "source_line" in rows[0]
     assert rows[0]["source_line"]
-    assert {"supported", "weakly_supported", "overclaimed"}.issubset(statuses)
+    assert {"human_review_required", "release_allowed"}.issubset(rows[0])
+    assert all(
+        row["release_allowed"] == "false"
+        for row in rows
+        if row["risk_level"] == "high"
+    )
+    assert {
+        "supported",
+        "weakly_supported",
+        "unsupported",
+        "overclaimed",
+        "needs_human_review",
+    }.issubset(statuses)
 
     evidence_map = json.loads((output_dir / "evidence_map.json").read_text(encoding="utf-8"))
+    diagnostics = json.loads(
+        (output_dir / "audit_diagnostics.json").read_text(encoding="utf-8")
+    )
+    review_queue = json.loads(
+        (output_dir / "human_review_queue.json").read_text(encoding="utf-8")
+    )
     trace_lines = (output_dir / "agent_trace.jsonl").read_text(encoding="utf-8").strip().splitlines()
+    trace_events = [json.loads(line) for line in trace_lines]
+    manifest = json.loads((output_dir / "run_manifest.json").read_text(encoding="utf-8"))
+    summary_log = (output_dir / "project_summary_log.md").read_text(encoding="utf-8")
 
     assert evidence_map["claims"]
     assert any(item.get("claim_link_reasons") for item in evidence_map["evidence"])
+    assert any(
+        link.get("locator", {}).get("cells")
+        for claim in evidence_map["claims"]
+        for link in claim.get("evidence_links", [])
+        if link.get("locator", {}).get("source_kind") == "table"
+    )
+    assert diagnostics["artifact_type"] == "single_run_structural_diagnostics"
+    assert diagnostics["release_boundary_by_claim"]
+    assert diagnostics["metrics"]["human_review_required"]["numerator"] >= 1
+    assert review_queue["artifact_type"] == "pending_human_review_queue"
+    assert all(item["state"] == "pending" for item in review_queue["items"])
+    assert all(item["human_review_required"] for item in review_queue["items"])
+    assert all(not item["release_allowed"] for item in review_queue["items"])
     assert len(trace_lines) >= 5
-    assert "claims" in result.output.lower()
-    assert str(output_dir) in result.output
+    assert {event["run_id"] for event in trace_events} == {manifest["run_id"]}
+    assert all(event["created_at"] for event in trace_events)
+    verifier_event = next(event for event in trace_events if event["module"] == "verifier")
+    assert verifier_event["data"]["human_review_required_claim_ids"]
+    assert verifier_event["data"]["release_blocked_claim_ids"]
+    assert len(verifier_event["data"]["decisions"]) == len(rows)
+    assert {
+        "claim_id",
+        "status",
+        "risk_level",
+        "human_review_required",
+        "release_allowed",
+        "reason",
+        "suggested_revision",
+        "missing_evidence",
+        "supporting_evidence_ids",
+        "contradicting_evidence_ids",
+    }.issubset(verifier_event["data"]["decisions"][0])
+    assert manifest["inputs"]["manuscript"]["name"] == DEMO_MANUSCRIPT.name
+    assert manifest["summary"]["release_allowed"] is False
+    assert "not professional approval" in manifest["summary"]["release_boundary"]
+    assert manifest["summary"]["human_review_required_claim_ids"]
+    assert manifest["summary"]["release_blocked_claim_ids"]
+    assert str(DEMO_MANUSCRIPT.resolve().parent) not in json.dumps(manifest)
+    output_records = {item["name"]: item for item in manifest["outputs"]}
+    assert output_records["audit_report.md"]["sha256"] == hashlib.sha256(
+        (output_dir / "audit_report.md").read_bytes()
+    ).hexdigest()
+    assert output_records["audit_diagnostics.json"]["sha256"] == hashlib.sha256(
+        (output_dir / "audit_diagnostics.json").read_bytes()
+    ).hexdigest()
+    assert output_records["human_review_queue.json"]["sha256"] == hashlib.sha256(
+        (output_dir / "human_review_queue.json").read_bytes()
+    ).hexdigest()
+    assert "at most 3 revision rounds" in summary_log
+    assert manifest["run_id"] in summary_log
+    output = strip_ansi(result.output)
+    assert "claims" in output.lower()
+    assert str(output_dir) in output
 
 
-def test_demo_cli_command_generates_audit_and_viewer(tmp_path):
+def test_demo_cli_command_generates_audit_and_viewer_outside_repository_cwd(tmp_path, monkeypatch):
     output_dir = tmp_path / "demo_run"
     runner = CliRunner()
+    monkeypatch.chdir(tmp_path)
 
     result = runner.invoke(app, ["demo", "--out", str(output_dir)])
 
     assert result.exit_code == 0, result.output
-    for filename in [*EXPECTED_OUTPUTS, "index.html"]:
+    for filename in [*EXPECTED_OUTPUTS, *RUN_RECORD_OUTPUTS, "index.html"]:
         assert (output_dir / filename).exists(), filename
     assert "Demo audit complete" in result.output
+
+
+def test_zero_claim_run_never_reports_package_release_allowed(tmp_path):
+    manuscript = tmp_path / "notes.md"
+    manuscript.write_text("# Notes\n\nBackground material only.\n", encoding="utf-8")
+    tables = tmp_path / "tables"
+    tables.mkdir()
+    (tables / "results.csv").write_text("name,value\nalpha,1\n", encoding="utf-8")
+    output_dir = tmp_path / "empty-audit"
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "run",
+            "--manuscript",
+            str(manuscript),
+            "--tables",
+            str(tables),
+            "--out",
+            str(output_dir),
+            "--llm",
+            "mock",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    output = strip_ansi(result.output)
+    assert "claims=0" in output
+    assert "package_release_allowed=false" in output
+    manifest = json.loads((output_dir / "run_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["summary"]["release_allowed"] is False
+
+
+def test_mock_run_replaces_owned_outputs_and_preserves_unknown_files(tmp_path):
+    output_dir = tmp_path / "reused_run"
+    runner = CliRunner()
+    base_command = [
+        "run",
+        "--manuscript",
+        str(DEMO_MANUSCRIPT),
+        "--tables",
+        str(DEMO_TABLES),
+        "--references",
+        str(DEMO_REFERENCES),
+        "--out",
+        str(output_dir),
+        "--llm",
+        "mock",
+        "--project-id",
+        "project-replace-test",
+    ]
+    first = runner.invoke(app, base_command)
+    assert first.exit_code == 0, first.output
+    identity = json.loads((output_dir / "run_identity.json").read_text(encoding="utf-8"))
+
+    (output_dir / "llm_review.json").write_text('{"summary": "stale"}', encoding="utf-8")
+    (output_dir / "index.html").write_text("stale viewer", encoding="utf-8")
+    (output_dir / "audit_report.md").write_text("stale audit", encoding="utf-8")
+    (output_dir / "project_summary_log.md").write_text("stale summary", encoding="utf-8")
+    (output_dir / "keep.txt").write_text("user-owned", encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        [
+            *base_command,
+            "--mode",
+            "replace",
+            "--expected-run-id",
+            identity["run_id"],
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert not (output_dir / "llm_review.json").exists()
+    assert not (output_dir / "index.html").exists()
+    assert "stale audit" not in (output_dir / "audit_report.md").read_text(encoding="utf-8")
+    assert "stale summary" not in (output_dir / "project_summary_log.md").read_text(encoding="utf-8")
+    assert (output_dir / "keep.txt").read_text(encoding="utf-8") == "user-owned"
+
+
+def test_references_are_optional_for_a_local_mock_run(tmp_path):
+    output_dir = tmp_path / "without_references"
+    runner = CliRunner()
+
+    result = runner.invoke(
+        app,
+        [
+            "run",
+            "--manuscript",
+            str(DEMO_MANUSCRIPT),
+            "--tables",
+            str(DEMO_TABLES),
+            "--out",
+            str(output_dir),
+            "--llm",
+            "mock",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    manifest = json.loads((output_dir / "run_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["inputs"]["references"] is None
+    assert "References: not supplied" in (
+        output_dir / "project_summary_log.md"
+    ).read_text(encoding="utf-8")
 
 
 def test_verifier_flags_generic_deployment_overclaims():

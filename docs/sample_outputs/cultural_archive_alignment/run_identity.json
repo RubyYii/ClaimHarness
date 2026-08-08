@@ -1,0 +1,38 @@
+{
+  "directory_created_at": "2026-07-11T07:11:48.210129+00:00",
+  "mode": "new",
+  "owned_artifacts": [
+    "ai_task_spec.yaml",
+    "alignment_trace.jsonl",
+    "concept_alignment_table.csv",
+    "evaluation_protocol.md",
+    "evidence_contract.yaml",
+    "human_in_loop_plan.md",
+    "implementation_routes.md",
+    "misalignment_risk_report.md",
+    "painpoint_opportunity_matrix.csv",
+    "problem_card.md",
+    "workflow_map.md"
+  ],
+  "previous_run_id": null,
+  "project_id": "sample-cultural-archive",
+  "required_artifacts": [
+    "ai_task_spec.yaml",
+    "alignment_trace.jsonl",
+    "concept_alignment_table.csv",
+    "evaluation_protocol.md",
+    "evidence_contract.yaml",
+    "human_in_loop_plan.md",
+    "implementation_routes.md",
+    "misalignment_risk_report.md",
+    "painpoint_opportunity_matrix.csv",
+    "problem_card.md",
+    "workflow_map.md"
+  ],
+  "run_created_at": "2026-07-11T07:11:48.210129+00:00",
+  "run_id": "run-77584e7042034eeb9294115331ce9875",
+  "run_spec_sha256": "3357d3df43c933ba0fe5291abb86667b19f27c125547cdcf3aab2c884aa8a25a",
+  "schema_version": 2,
+  "snapshot_directories": [],
+  "workflow_type": "problem_bridge.alignment"
+}

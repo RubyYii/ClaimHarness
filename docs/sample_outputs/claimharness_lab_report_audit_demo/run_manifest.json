@@ -1,0 +1,121 @@
+{
+  "schema_version": 2,
+  "project_id": "sample-claimharness-lab",
+  "run_id": "run-9b3d818b701e4f35a9cd29edc2506f80",
+  "tool": {
+    "name": "claim-harness",
+    "version": "0.4.0"
+  },
+  "started_at": "2026-07-12T01:25:14+00:00",
+  "completed_at": "2026-07-12T01:25:14+00:00",
+  "provider": {
+    "name": "mock",
+    "status": "not_requested",
+    "api_style": "mock",
+    "endpoint_origin": null,
+    "json_mode": "json_schema",
+    "model": null
+  },
+  "run_spec_sha256": "b88ccf93aa0a22cd9d102565780dd545260a92cb315df71ba8d5363e08b34fd3",
+  "inputs": {
+    "manuscript": {
+      "name": "manuscript.md",
+      "size_bytes": 3242,
+      "sha256": "20bab2417f069edc3589f1cfd40d2df5e673b1ee42277292ec97b9780f57bbfc"
+    },
+    "tables": [
+      {
+        "name": "table1_metrics.csv",
+        "size_bytes": 422,
+        "sha256": "abf1f0098e4e85066b990659f9ee225d18faf66da5cfeea7baaf0949c2bd5320"
+      },
+      {
+        "name": "table2_ablation.csv",
+        "size_bytes": 475,
+        "sha256": "5b33c4a08510fe738eb8df634124e6ec7794dbc813109079fc0b8e2da9b165d8"
+      }
+    ],
+    "references": {
+      "name": "references.md",
+      "size_bytes": 901,
+      "sha256": "41a244329b38cfa6564f3c990b2dc1ceb95285350d23731393b9f3e36b6f6884"
+    },
+    "evidence_contract": null
+  },
+  "summary": {
+    "claims": 16,
+    "status_counts": {
+      "needs_human_review": 1,
+      "overclaimed": 1,
+      "supported": 3,
+      "unsupported": 1,
+      "weakly_supported": 10
+    },
+    "high_risk_claim_ids": [
+      "C003"
+    ],
+    "human_review_required_claim_ids": [
+      "C003",
+      "C005"
+    ],
+    "release_allowed_claim_ids": [
+      "C010",
+      "C011",
+      "C012"
+    ],
+    "release_blocked_claim_ids": [
+      "C001",
+      "C002",
+      "C003",
+      "C004",
+      "C005",
+      "C006",
+      "C007",
+      "C008",
+      "C009",
+      "C013",
+      "C014",
+      "C015",
+      "C016"
+    ],
+    "release_allowed": false,
+    "release_boundary": "A true value is only a deterministic low-risk screening gate. It is not professional approval, deployment permission, or factual validation."
+  },
+  "outputs": [
+    {
+      "name": "claim_table.csv",
+      "size_bytes": 6458,
+      "sha256": "d385cd517ce4d7141c3c09a57abb91a88510333a3b59f2b54508049b8df6b32e"
+    },
+    {
+      "name": "evidence_map.json",
+      "size_bytes": 94109,
+      "sha256": "a9919857e608f6bce947c8252b8b82edfced8de75965f57e915d144d139a7219"
+    },
+    {
+      "name": "audit_report.md",
+      "size_bytes": 12621,
+      "sha256": "4fe8297824344c30a238d24bd2fd15b50e4dd688f9c4bd068feb2a435973cbe5"
+    },
+    {
+      "name": "revision_suggestions.md",
+      "size_bytes": 3380,
+      "sha256": "42ac3d5aaa42e2e34a8d7043b3f343215160b65a720121b2d5442d3ea1a86c4a"
+    },
+    {
+      "name": "audit_diagnostics.json",
+      "size_bytes": 5559,
+      "sha256": "ff793e2630354a5a42f57f6c7cb6e02fc244c5332891f46124b6e50db99a62cd"
+    },
+    {
+      "name": "human_review_queue.json",
+      "size_bytes": 2456,
+      "sha256": "9cf220f5ab9058fd45dacfbe5facb62ca25bbb891be890de13495daa8bf4ec62"
+    },
+    {
+      "name": "agent_trace.jsonl",
+      "size_bytes": 8431,
+      "sha256": "6ba0ecf4fea734289a4ed71536996677258a53c337514fca0dda0b579210c1ef"
+    }
+  ]
+}

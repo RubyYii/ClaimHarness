@@ -20,6 +20,7 @@ Show:
 - `ai_task_spec.yaml`
 - `evidence_contract.yaml`
 - `evaluation_protocol.md`
+- `project_summary_log.md`
 
 Explain:
 
@@ -40,6 +41,8 @@ Show:
 - `revision_suggestions.md`
 - `index.html`
 - `agent_trace.jsonl`
+- `run_manifest.json`
+- `project_summary_log.md`
 
 Explain:
 

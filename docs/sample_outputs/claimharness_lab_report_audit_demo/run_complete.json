@@ -1,0 +1,18 @@
+{
+  "artifact_sha256": {
+    "agent_trace.jsonl": "13ef775dc3b95832e03de043a2c28e3d816a3389be1da9867bbb61bb91431110",
+    "audit_diagnostics.json": "84a65192831c565120957274f20e2bab0b050d88bb92301f62a4302997c6924a",
+    "audit_report.md": "6713e4a56be5bf268e57219e562c9fe52549ff80f12cab6baa36e5f0937474de",
+    "claim_table.csv": "c4e4b573a1fc73c533455d182bc0121e1cba2ba5e5db22b04d60d8bfcf52ade6",
+    "evidence_map.json": "1eef357aff9c11f0cb0c15f9ccebed6f5dadf832758c2d9a900206d57f352662",
+    "human_review_queue.json": "00042bb98ac1b3b16a6a9e91360a99b68163a3c9cf344bdc311084ae474993f0",
+    "project_summary_log.md": "f36e74eaf1c19c62bf35b69ac7034e677e0455c3a65244f0f3b880f8ef3ca107",
+    "revision_suggestions.md": "3ad09e2c193322cb1eb19c93b4d5e781c81be031dbb8e0b44126421d35717554",
+    "run_manifest.json": "91629aae8392b66fbe09507ab9b2390b72c57ed5c20c2d65b1025a067d1b2a5e"
+  },
+  "completed_at": "2026-07-12T01:25:14.060746+00:00",
+  "project_id": "sample-claimharness-lab",
+  "run_id": "run-9b3d818b701e4f35a9cd29edc2506f80",
+  "run_identity_sha256": "f548161cf34033ab10962fea85006cb9a772c03551cf07edcd5e066bfea94563",
+  "schema_version": 2
+}

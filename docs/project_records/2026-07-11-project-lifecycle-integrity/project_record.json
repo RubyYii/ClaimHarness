@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "project_id": "claimharness-v040-lifecycle-integrity",
+  "project_name": "ClaimHarness v0.4 lifecycle integrity upgrade",
+  "project_goal": "Prevent project/run contamination, cap repeated revision at three rounds, and make evidence, OCR, sharing, evaluation, and release provenance auditable.",
+  "boundaries": [
+    "Keep the local-first deterministic mock pipeline working without API keys.",
+    "Do not treat OCR text or generated contracts as scientific validation.",
+    "Do not modify unrelated user workspace content."
+  ],
+  "artifacts": [
+    "revision_history.jsonl",
+    "project_summary_log.md",
+    "project_record.json",
+    "round_1_verification.md",
+    "round_2_verification.md",
+    "round_3_verification.md",
+    "windows_deep_path_release_verification.md"
+  ],
+  "created_at": "2026-07-11T06:59:41.198760+00:00",
+  "updated_at": "2026-07-11T09:28:59.081712+00:00",
+  "max_revision_rounds": 3
+}

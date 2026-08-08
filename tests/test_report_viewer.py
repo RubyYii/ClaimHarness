@@ -1,20 +1,23 @@
 import json
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from claim_harness.cli import app
 from claim_harness.report_viewer import MissingAuditOutput, render_report_viewer
+from problem_bridge.project_lifecycle import prepare_run_directory
 
 
 def write_sample_audit_package(path: Path, include_llm_review: bool = False) -> None:
-    path.mkdir(parents=True)
+    path.mkdir(parents=True, exist_ok=True)
     (path / "claim_table.csv").write_text(
         "\n".join(
             [
-                "claim_id,text,source_section,claim_type,strength,status,risk_level,reason,suggested_revision",
-                "C001,Escaped <claim>,Results,performance_claim,strong,supported,low,Table evidence,No revision needed",
-                "C002,Deployment-ready claim,Discussion,deployment_claim,high,overclaimed,high,No validation,Narrow the claim",
+                "claim_id,text,source_section,claim_type,strength,status,risk_level,human_review_required,release_allowed,reason,suggested_revision",
+                "C001,Escaped <claim>,Results,performance_claim,strong,supported,low,false,true,Table evidence,No revision needed",
+                "C002,Deployment-ready claim,Discussion,deployment_claim,high,overclaimed,high,true,false,No validation,Narrow the claim",
+                "C003,Needs more evidence,Results,general_claim,moderate,weakly_supported,low,false,false,Partial evidence,Add evidence",
             ]
         ),
         encoding="utf-8",
@@ -25,6 +28,7 @@ def write_sample_audit_package(path: Path, include_llm_review: bool = False) -> 
                 "claims": [
                     {"claim_id": "C001", "text": "Escaped <claim>", "evidence_ids": ["E001"]},
                     {"claim_id": "C002", "text": "Deployment-ready claim", "evidence_ids": []},
+                    {"claim_id": "C003", "text": "Needs more evidence", "evidence_ids": []},
                 ],
                 "evidence": [
                     {
@@ -67,6 +71,10 @@ def write_sample_audit_package(path: Path, include_llm_review: bool = False) -> 
         ),
         encoding="utf-8",
     )
+    (path / "project_summary_log.md").write_text(
+        "# Project Summary Log\n\nRun ID: example-run\n",
+        encoding="utf-8",
+    )
     if include_llm_review:
         (path / "llm_review.json").write_text(
             json.dumps(
@@ -97,12 +105,165 @@ def test_render_report_viewer_writes_static_html(tmp_path):
     assert "E001" in html
     assert "Audit trace" in html
     assert "Advisory LLM review" in html
-    assert "data-filter=\"weak-or-worse\"" in html
+    assert "Project summary log" in html
+    assert "example-run" in html
+    assert str(run_dir.parent) not in html
+    assert 'href="#main-content"' in html
+    assert 'class="quick-nav"' in html
+    assert 'href="#claims"' in html
+    assert 'id="claim-search"' in html
+    assert 'data-filter="needs-action"' in html
+    assert 'data-filter="priority-review"' in html
+    assert 'id="claim-results"' in html
+    assert 'role="status" aria-live="polite"' in html
+    assert 'id="claim-C001"' in html
+    assert '<details class="row-details">' in html
+    assert 'role="region" aria-labelledby="claims-title" tabindex="0"' in html
+    assert '<th scope="col">ID</th>' in html
+    assert 'id="claim-empty"' in html
     assert "data-status=\"supported\"" in html
     assert "data-risk=\"high\"" in html
+    assert (
+        'id="claim-C001" data-claim-row data-status="supported" '
+        'data-risk="low" data-review-required="false" '
+        'data-release-allowed="true" data-priority="false"'
+    ) in html
+    assert (
+        'id="claim-C002" data-claim-row data-status="overclaimed" '
+        'data-risk="high" data-review-required="true" '
+        'data-release-allowed="false" data-priority="true"'
+    ) in html
+    assert (
+        'id="claim-C003" data-claim-row data-status="weakly_supported" '
+        'data-risk="low" data-review-required="false" '
+        'data-release-allowed="false" data-priority="false"'
+    ) in html
+    assert 'if (filter === \'needs-action\') return row.dataset.releaseAllowed !== \'true\';' in html
+    assert 'if (filter === \'needs_human_review\') return row.dataset.reviewRequired === \'true\';' in html
+    assert "Review required" in html
+    assert "Release blocked" in html
+    assert "return copied;" in html
+    assert "Copy failed; select the review text manually." in html
     assert "Match reason" in html
+    assert "Human review required" in html
+    assert "Release allowed" in html
     assert "Escaped &lt;claim&gt;" in html
     assert "<claim>" not in html
+    assert "Unverified legacy package" in html
+
+
+def test_legacy_claim_rows_fall_back_to_risk_and_status_for_review_filters(tmp_path):
+    run_dir = tmp_path / "legacy-audit"
+    write_sample_audit_package(run_dir)
+    (run_dir / "claim_table.csv").write_text(
+        "\n".join(
+            [
+                "claim_id,text,source_section,claim_type,strength,status,risk_level,reason,suggested_revision",
+                "C001,Low-risk supported,Results,general_claim,moderate,supported,low,Supported,No revision",
+                "C002,High-risk supported,Results,clinical_claim,strong,supported,high,Legacy high risk,Review it",
+                "C003,Explicit review status,Discussion,general_claim,moderate,needs_human_review,low,Legacy review,Review it",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    html = render_report_viewer(run_dir).read_text(encoding="utf-8")
+
+    assert "Review required</span><strong>2</strong>" in html
+    assert (
+        'id="claim-C002" data-claim-row data-status="supported" '
+        'data-risk="high" data-review-required="true" '
+        'data-release-allowed="false" data-priority="true"'
+    ) in html
+    assert (
+        'id="claim-C003" data-claim-row data-status="needs_human_review" '
+        'data-risk="low" data-review-required="true" '
+        'data-release-allowed="false" data-priority="true"'
+    ) in html
+
+
+def test_viewer_renders_structural_diagnostics_precise_locations_and_pending_review(tmp_path):
+    run_dir = tmp_path / "enhanced-audit"
+    write_sample_audit_package(run_dir)
+    evidence_map = json.loads((run_dir / "evidence_map.json").read_text(encoding="utf-8"))
+    locator = {
+        "source_kind": "table",
+        "source_name": "metrics",
+        "source_file": "metrics.csv",
+        "page_number": None,
+        "line": None,
+        "row": 1,
+        "cells": [{"column": "score", "value": "0.91", "cell": "B2"}],
+    }
+    evidence_map["claims"][0]["evidence_links"] = [
+        {
+            "evidence_id": "E001",
+            "match_reason": "metric and value match",
+            "relation": "supports",
+            "locator": locator,
+        }
+    ]
+    evidence_map["evidence"][0]["locator"] = locator
+    (run_dir / "evidence_map.json").write_text(
+        json.dumps(evidence_map), encoding="utf-8"
+    )
+    metrics = {
+        key: {"numerator": 1, "denominator": 2, "rate": 0.5}
+        for key in (
+            "any_link_coverage",
+            "support_relation_coverage",
+            "no_support_relation",
+            "human_review_required",
+            "release_blocked",
+            "contradiction_claims",
+        )
+    }
+    metrics["any_link_coverage"]["numerator"] = '<img src=x onerror="alert(1)">'
+    (run_dir / "audit_diagnostics.json").write_text(
+        json.dumps(
+            {
+                "boundary": "Structural only; not scientific validity.",
+                "metrics": metrics,
+                "requirement_gap_counts": {"human_review": 1},
+            }
+        ),
+        encoding="utf-8",
+    )
+    (run_dir / "human_review_queue.json").write_text(
+        json.dumps(
+            {
+                "boundary": "Pending work, not approval.",
+                "role_boundary": "Identity is not verified.",
+                "items": [
+                    {
+                        "review_item_id": "HR-C002-domain",
+                        "claim_id": "C002",
+                        "required_role": "<script>alert(1)</script>",
+                        "verification_status": "overclaimed",
+                        "risk_level": "high",
+                        "trigger_codes": ["high_risk_claim"],
+                        "state": "pending",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    html = render_report_viewer(run_dir).read_text(encoding="utf-8")
+
+    assert "Structural diagnostics" in html
+    assert "1/2 (50.0%)" in html
+    assert "Pending human review" in html
+    assert "metrics.csv, data row 1, cells score=0.91 (B2)" in html
+    assert 'href="#claim-C002"' in html
+    assert 'id="claim-C002"' in html
+    assert 'data-copy-label="HR-C002-domain"' in html
+    assert "Copy review brief" in html
+    assert "&lt;script&gt;alert(1)&lt;/script&gt;" in html
+    assert "<script>alert(1)</script>" not in html
+    assert "&lt;img src=x onerror=&quot;alert(1)&quot;&gt;/2 (50.0%)" in html
+    assert '<img src=x onerror="alert(1)">' not in html
 
 
 def test_render_report_viewer_reports_missing_required_outputs(tmp_path):
@@ -130,3 +291,42 @@ def test_view_cli_writes_index_html(tmp_path):
     assert result.exit_code == 0, result.output
     assert (run_dir / "index.html").exists()
     assert "index.html" in result.output
+
+
+def test_governed_viewer_rejects_tampered_or_incomplete_artifacts(tmp_path):
+    run_dir = tmp_path / "governed"
+    context = prepare_run_directory(
+        run_dir,
+        project_id="project-viewer",
+        owned_artifacts=(
+            "claim_table.csv",
+            "evidence_map.json",
+            "audit_report.md",
+            "revision_suggestions.md",
+            "agent_trace.jsonl",
+        ),
+        required_artifacts=(
+            "claim_table.csv",
+            "evidence_map.json",
+            "audit_report.md",
+            "revision_suggestions.md",
+            "agent_trace.jsonl",
+            "project_summary_log.md",
+        ),
+    )
+    with context.transaction():
+        write_sample_audit_package(run_dir)
+
+    html_path = render_report_viewer(run_dir)
+    assert "Verified governed run" in html_path.read_text(encoding="utf-8")
+    (run_dir / "claim_table.csv").write_text("tampered", encoding="utf-8")
+    with pytest.raises(MissingAuditOutput, match="integrity"):
+        render_report_viewer(run_dir)
+
+
+def test_viewer_refuses_to_overwrite_package_artifact(tmp_path):
+    run_dir = tmp_path / "audit"
+    write_sample_audit_package(run_dir)
+
+    with pytest.raises(MissingAuditOutput, match="Refusing to overwrite"):
+        render_report_viewer(run_dir, run_dir / "audit_report.md")

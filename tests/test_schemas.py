@@ -2,6 +2,7 @@ from claim_harness.schemas import (
     AuditEvent,
     Claim,
     EvidenceItem,
+    EvidenceLocator,
     ManuscriptSection,
     VerificationResult,
 )
@@ -20,6 +21,7 @@ def test_schema_models_accept_expected_fields():
     evidence = EvidenceItem(
         evidence_id="E001",
         source="table1_metrics",
+        locator=EvidenceLocator(source_kind="table", source_name="table1_metrics", row=1),
         evidence_type="quantitative_result",
         text="Dice increased to 0.89.",
         linked_claim_ids=["C001"],
@@ -44,12 +46,14 @@ def test_evidence_linked_claim_ids_default_isolated():
     first = EvidenceItem(
         evidence_id="E001",
         source="references",
+        locator=EvidenceLocator(source_kind="references", source_name="references", line=1),
         evidence_type="citation",
         text="Reference note.",
     )
     second = EvidenceItem(
         evidence_id="E002",
         source="references",
+        locator=EvidenceLocator(source_kind="references", source_name="references", line=2),
         evidence_type="citation",
         text="Another reference note.",
     )

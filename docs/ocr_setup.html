@@ -146,6 +146,8 @@
       <span class="tag">No API key</span>
       <span class="tag">Optional dependency</span>
       <span class="tag">Scans and images</span>
+      <p>默认资源门：单个来源 25 MB、最多 50 页、最多 1,000,000 个字符；单次操作超时 30 秒，PDF 以 150 DPI 逐页渲染，单页超过 20,000,000 像素会被拒绝。这些限制用于降低资源风险，不保证识别准确，也不等于恶意文件沙箱。</p>
+      <p>混合文字/扫描 PDF 不会自动合并：只要部分页面有直接文本、另一些页面没有文字层，系统会保留直接文本、列出无文本页，并以 <code>mixed_pdf_requires_page_review</code> fail closed。无文本页可能是扫描页，也可能本来就是空白页；请核对原件，把确认的扫描页拆成纯扫描 PDF 或图片后再单独 OCR。</p>
     </div>
   </header>
 
@@ -155,7 +157,7 @@
     <section>
       <h2>1. 先装 Python OCR extra</h2>
       <p>在仓库根目录运行：</p>
-      <pre><code>pip install -e ".[ui,ocr]"</code></pre>
+      <pre><code>pip install -c requirements/constraints.txt -e ".[ui,ocr]"</code></pre>
       <p>这会安装 <code>pytesseract</code>、<code>pdf2image</code> 和 <code>Pillow</code>。这些只是 Python 包，还需要系统工具。</p>
     </section>
 
@@ -189,6 +191,7 @@ sudo apt install tesseract-ocr-chi-sim</code></pre>
       <p>如果要识别中文扫描件，需要 <code>chi_sim</code> 语言数据。否则中文可能乱码、漏字或识别成英文字符。</p>
       <pre><code>tesseract --list-langs</code></pre>
       <p>列表里至少应看到 <code>eng</code>。如果要识别简体中文，还要看到 <code>chi_sim</code>。</p>
+      <p><code>chi_sim</code> 只提供粗略的中文字符识别；它不代表 ClaimHarness 的中文 claim 提取或验证已经通过评测。当前审计规则和合成回归集仍以英文为主。</p>
     </section>
 
     <img class="figure" src="figures/ocr-check-result.svg" data-repo-path="docs/figures/ocr-check-result.svg" alt="OCR check result">
@@ -208,8 +211,10 @@ tesseract --list-langs</code></pre>
         <li>打开 <strong>Document intake</strong>。</li>
         <li>上传扫描版 PDF 或图片。</li>
         <li>打开 <strong>Enable optional OCR for images and image-only PDFs</strong>。</li>
+        <li>在 <strong>OCR language</strong> 选择 <code>eng</code>、<code>chi_sim</code> 或 <code>eng+chi_sim</code>。本机必须安装对应 Tesseract 语言包；英文界面默认 <code>eng</code>，中文界面默认 <code>eng+chi_sim</code>，但不会自动检测文档语言。</li>
         <li>生成文档摄取包。</li>
       </ol>
+      <p>生成后请检查 <code>ocr_quality_report.json</code> 中的引擎/版本、来源 SHA-256、逐页定位、失败/跳过页，以及字节、页数、字符数、超时、DPI 和像素限制。OCR 文本会标记为 <code>derived_text/ocr</code>；从这类输入提取的 claim 必须进入人工原件核对，不能仅凭 OCR 文本或 OCR 来源的“复核记录”满足强证据或人工批准要求。</p>
     </section>
 
     <section>
@@ -222,13 +227,14 @@ tesseract --list-langs</code></pre>
           <tr><td>找不到 <code>tesseract</code></td><td>Tesseract 未安装或不在 PATH</td><td>安装 Tesseract，重新打开终端或 App</td></tr>
           <tr><td>找不到 <code>pdftoppm</code></td><td>Poppler 未安装或不在 PATH</td><td>安装 Poppler，并把 <code>bin</code> 加入 PATH</td></tr>
           <tr><td>中文识别很差</td><td>缺少 <code>chi_sim</code></td><td>安装简体中文语言数据</td></tr>
+          <tr><td>出现 <code>mixed_pdf_requires_page_review</code></td><td>部分页有直接文本，部分页没有文字层</td><td>检查报告列出的页码；把确认的扫描页拆开后单独 OCR 并人工核对</td></tr>
           <tr><td>OCR 文本很乱</td><td>扫描质量或版式复杂</td><td>换更清晰扫描件，或把 OCR 当作粗略输入</td></tr>
         </tbody>
       </table>
     </section>
 
     <section class="notice">
-      <strong>边界：</strong>OCR 只提取可见文字，不理解图片、图表、医学/法律/教育判断，也不能替代人工复核。
+      <strong>边界：</strong>OCR 只提取可见文字，不理解图片、图表、医学/法律/教育判断，也不能替代人工复核。必须把提取文本与原件对照；中文 OCR 可用不等于中文 claim 审计已验证。
     </section>
 
     <section>

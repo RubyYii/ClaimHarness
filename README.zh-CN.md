@@ -1,5 +1,48 @@
 # ProblemBridge + ClaimHarness
 
+## OpenAI Build Week 2026 参赛版本
+
+**赛道：** Work and Productivity
+
+**项目名：** *ProblemBridge: From Fuzzy Workflows to Evidence-Gated AI Build Contracts*
+
+本次新增闭环为：
+
+```text
+工作流描述
+  -> GPT-5.6 生成结构化候选构建方案
+  -> ClaimHarness 逐条门控能力声明
+  -> 保留 / 降级 / 删除 / 弃答
+  -> Codex 交接包 + 可重放构建记录
+```
+
+评委无需 API 密钥即可运行完整 mock 演示：
+
+```powershell
+.venv\Scripts\python.exe -m problem_bridge build-week-demo `
+  --out outputs/build_week_quality_inspection_demo `
+  --llm mock
+```
+
+真实 GPT-5.6 参赛演示使用 OpenAI Responses API：
+
+```powershell
+$env:OPENAI_API_KEY = Read-Host "OPENAI_API_KEY"
+$env:OPENAI_MODEL = "gpt-5.6"
+.venv\Scripts\python.exe -m problem_bridge build-week-demo `
+  --out outputs/build_week_gpt56_demo `
+  --llm openai
+```
+
+密钥只从环境变量读取，不会写入 UI、输出包或运行记录。Mock 运行会明确记录
+`gpt_5_6_used: false`，不能冒充真实模型调用。参见：
+
+- [赛前基线与本周新增内容](BUILD_WEEK_DELTA.md)
+- [提交与评委运行指南](BUILD_WEEK_SUBMISSION.md)
+- [三分钟参赛演示脚本](DEMO_SCRIPT_BUILD_WEEK_3MIN.md)
+- [评委快速入口](JUDGE_START_HERE.md)
+
+
 <p align="center">
   <img src="docs/figures/github-hero-flat-comic.png" alt="ProblemBridge + ClaimHarness：本地优先的问题对齐与证据审计工作流" width="100%">
 </p>
@@ -21,7 +64,7 @@
   <a href="#本地运行">本地运行</a> ·
   <a href="#谁适合使用">谁适合使用</a> ·
   <a href="docs/static_showcase/zh-CN.html">中文静态展示</a> ·
-  <a href="README.md">English</a>
+  <a href="README.md" hreflang="en" aria-label="打开英文 README">English</a>
 </p>
 
 **语言：**[English](README.md) | [简体中文](README.zh-CN.md)
@@ -29,6 +72,8 @@
 **展示页：**[English static showcase](docs/static_showcase/en.html) | [中文静态展示](docs/static_showcase/zh-CN.html)
 
 **开发复盘：**[开发经验整理](DEVELOPMENT_LESSONS.md)
+
+**外部审查对照：**[当前实现与 14 类问题状态](docs/external_review_reconciliation.md)
 
 ## 先看这里
 
@@ -56,13 +101,23 @@ ProblemBridge 要做的第一件事，不是马上给方案，而是把这种模
 | --- | --- |
 | **从模糊感觉开始** | 把“我觉得这里不太对”转成具体问题、该问的人、证据需求和复核边界。 |
 | **默认不需要 API** | 首轮测试使用本地 deterministic mock mode，不调用外部模型。 |
-| **引导式工作流** | 从文档摄取到问题发现、工作流对齐、AI 任务检查和结果查看，逐步继承上下文。 |
+| **引导式工作流** | 从文档摄取到问题发现、工作流对齐、AI 任务检查、证据门控构建和交付复核，逐步继承上下文。 |
 | **ProblemBridge** | 把领域工作流转成 AI 任务规格、证据契约、评价协议和人工复核边界。 |
 | **ClaimHarness** | 检查文本或系统输出中的 claims 是否有证据支撑，并保留审计 trace。 |
+| **复核界面** | 搜索和筛选声明、展开证据详情，并把有边界的待办交给人工复核。 |
+| **项目记录** | 用项目/运行 ID、清单、摘要、完成哈希和每个目标最多三轮修订绑定完整运行。 |
 
 <p align="center">
   <img src="docs/figures/github-workflow.svg" alt="从文档摄取到证据审计的引导式工作流" width="100%">
 </p>
+
+### 三步开始使用
+
+1. 双击 `RUN_PROBLEMBRIDGE_WINDOWS.bat`，从本地文件、一个模糊问题或一段反复发生的工作流开始。
+2. 按中文工作台依次完成“文档摄取 → 问题发现 → 引导式访谈 → ProblemBridge → 证据门控构建 → 查看生成结果”。
+3. 当稿件或系统输出已经存在时，通过 CLI 运行 ClaimHarness，再用可搜索的静态报告查看器检查完成的审计包。
+
+工作台可以通过 deterministic mock 或官方 OpenAI GPT-5.6 Responses API 生成 Build Week 证据门控合同，也可以查看已有的 ClaimHarness 审计包。它不会执行或替代 ClaimHarness 审计；完整的论文审计仍通过 CLI 执行。
 
 ## 项目定位
 
@@ -72,6 +127,18 @@ ProblemBridge + ClaimHarness 是一个本地优先的跨学科 AI 原型。它�
 2. **输出后的证据审计。**ClaimHarness 检查科研文本或 AI 生成内容中的 claims 是否被已有正文、表格或参考材料支持，并标记弱证据、过度主张和需要人工复核的地方。
 
 默认演示使用 deterministic mock mode，不需要 API key，不调用外部模型，只使用合成样例。
+
+### 当前实现真相
+
+| 组件 | 当前实现 |
+| --- | --- |
+| **ProblemBridge 生成** | 确定性的 profile/template 生成，并继承引导字段；不会从任意领域材料中自动推导真实工作流。 |
+| **Claim 抽取** | English-first 的确定性规则；双语界面不等于已经验证中文 claim 抽取。 |
+| **证据检索** | 词法候选匹配，加上表格实体、指标和数值关系检查。 |
+| **验证** | 感知 evidence contract 的保守规则筛查；不是语义或事实验证。 |
+| **证据门控构建** | mock 或 GPT-5.6 先提出有界能力声明，再由 ClaimHarness 根据证据白名单保留、降级、删除或拒答，并记录 GPT-5.6 是否真实运行。 |
+| **远程 LLM** | 只在确定性验证后生成可选 advisory summary；不会改变抽取、检索或 claim 状态。 |
+| **专业决策** | 必须由合格人员复核；pending 人工复核队列不是批准或决策记录。 |
 
 ## 文档摄取层
 
@@ -98,14 +165,19 @@ ProblemBridge + ClaimHarness 是一个本地优先的跨学科 AI 原型。它�
 - `comment_threads.md`
 - `priority_marks.md`
 - `source_manifest.json`
+- `ocr_quality_report.json`
 - `extraction_warnings.md`
 - `problem_seed.md`
 
-在本地网页工作台里，文档摄取完成后会保留最近一次提取结果，并显示 `Continue to Question discovery` 按钮。点击后会把 `problem_seed.md` 自动带入问题发现表单，下一步不是空白开始，而是从已提取材料继续追问。
+在本地网页工作台里，文档摄取完成后会保留最近一次提取结果，并显示“继续到问题发现”按钮。点击后会把 `problem_seed.md` 自动带入问题发现表单，下一步不是空白开始，而是从已提取材料继续追问。
 
 Word 批注、PDF 批注、高亮和字体颜色会被当作“用户注意力信号”保留下来，用于后续追问；系统不会自动推断某种颜色一定代表“高风险”或“已通过”。
 
-边界很重要：OCR 是可选本地能力，不是默认依赖；URL 摄取只读取公开静态网页；不支持登录网页、JavaScript 执行、站点爬取、图片理解、figure 解释、手写标注意图识别或专业判断。它只负责提取文本、简单表格、链接和基础标注信号，不验证专业结论，也不能替代领域专家复核。
+边界很重要：OCR 是可选本地能力，不是默认依赖；URL 摄取只读取公开静态网页；不支持登录网页、JavaScript 执行、站点爬取、图片理解、figure 解释、手写标注意图识别或专业判断。它只负责提取文本、简单表格、链接和基础标注信号，不验证专业结论，也不能替代领域专家复核。OCR 同时受文件大小、页数、字符数、单次操作超时、PDF DPI 和单页像素上限约束。来自 OCR 的 claim 会标记为 `derived_text/ocr` 并进入人工原件核对；OCR 文本及 OCR 来源的“复核记录”本身都不能满足强证据或人工批准要求。
+
+混合文字/扫描 PDF 按页 fail closed：如果部分页面能直接提取文字，而另一些页面没有文字层，系统会保留已提取的直接文本，在 `extraction_warnings.md` 中列出全部无文本页，但不会把这些页静默 OCR 后与直接文本合并，因为页级对应关系可能产生歧义。启用 OCR 时，`ocr_quality_report.json` 会记录 `mixed_pdf_requires_page_review` 及受影响页码。请人工查看原件；必要时把扫描页拆成单独的纯扫描 PDF 或图片再做 OCR。无文本页也可能本来就是空白页，因此警告不等于证明该页含扫描内容。
+
+在 UI 中启用 OCR 后，可选择 `eng`、`chi_sim` 或 `eng+chi_sim`；对应 Tesseract 语言包必须已经安装。英文界面默认 `eng`，中文界面默认 `eng+chi_sim`，但系统不会自动检测文档语言。选择结果会写入 OCR 报告和运行规格。
 
 OCR 图文安装说明见 [OCR_SETUP.md](OCR_SETUP.md)，也可以直接打开本地网页 [docs/ocr_setup.html](docs/ocr_setup.html)。
 ## 问题发现层
@@ -122,9 +194,9 @@ ProblemBridge 不假设用户一开始就知道真正的问题。问题发现层
 
 边界也很明确：先不要提出方案。先把值得问的问题、应该访问的人、需要验证的未知项梳理清楚，再进入引导式访谈或 ProblemBridge 对齐包生成。
 
-在本地网页工作台里，问题发现完成后会显示 `Continue to Domain practitioner wizard` 按钮。它会把问题发现 seed 带入领域工作流表单的上下文里，让用户从“应该问什么”自然进入“应该重建哪段工作流”，不需要手动复制文件。
+在本地网页工作台里，问题发现完成后会显示“继续到领域工作流向导”按钮。它会把问题发现 seed 带入领域工作流表单的上下文里，让用户从“应该问什么”自然进入“应该重建哪段工作流”，不需要手动复制文件。
 
-后续链路也会继续传递上下文：领域工作流向导生成对齐包后，可以点击 `Continue to AI practitioner wizard`，把 `ai_task_spec.yaml`、`evidence_contract.yaml`、`evaluation_protocol.md` 和人工复核边界带入 AI 任务检查；AI 对齐检查完成后，可以点击 `Continue to View generated outputs`，直接查看、导出或分享结果包。
+后续链路也会继续传递上下文：领域工作流向导生成对齐包后，可以点击“继续到 AI 任务对齐向导”，把 `ai_task_spec.yaml`、`evidence_contract.yaml`、`evaluation_protocol.md` 和人工复核边界带入 AI 任务检查；AI 对齐检查完成后，可以点击“继续到查看生成结果”，直接查看、导出或分享结果包。
 
 ## 引导式访谈引擎
 
@@ -172,6 +244,10 @@ ProblemBridge 用在 AI 工作开始之前，输出一个 Problem Alignment Pack
 - 人工复核计划
 - 实施路线
 - 对齐过程 trace
+- `project_record.json`
+- `project_summary_log.md`
+- 首次记录修订后生成的 `revision_history.jsonl`
+- 生命周期治理运行中的 `run_identity.json` 和 `run_complete.json`
 
 ### ClaimHarness
 
@@ -181,8 +257,19 @@ ClaimHarness 用在文本或系统输出之后，输出一个 evidence audit pac
 - `evidence_map.json`
 - `audit_report.md`
 - `revision_suggestions.md`
+- `audit_diagnostics.json`
+- `human_review_queue.json`
 - `agent_trace.jsonl`
+- `run_manifest.json`
+- `project_summary_log.md`
+- `run_identity.json`
+- `run_complete.json`
+- 提供 `--evidence-contract` 时生成的可选 `applied_evidence_contract.json`
 - 可选静态报告 `index.html`
+
+`evidence_map.json` 中每条 claim-evidence 链接都保留匹配理由、关系和该 claim 专属的位置：仅记录可安全分享的文件名，并在上游确实提供时记录页码、原文行、从 1 开始的数据行，以及实际命中的表格单元格；基础 evidence item 仍表示完整来源行。这些 locator 用于导航，不是正式引用锚点，也不能单独证明科学支持关系。
+
+`audit_diagnostics.json` 把“存在任意关联”与“确定性支持关系”分开统计，并明确给出分子和分母；支持关系也可能属于证据要求尚未满足的 `weakly_supported` 声明。它没有 gold label，不是准确率、忠实度、幻觉率、科学有效性或安全性评分。`human_review_queue.json` 只保存状态为 `pending` 的按角色复核待办，不代表复核决定、批准或身份核验，也不会改变确定性验证状态。
 
 本地网页工作台还可以把任意生成结果目录导出为 `export_report.docx` 和 `export_report.pdf`。导出内容来自输出目录里已有的 Markdown、CSV、YAML、JSON 和 trace 文件，在本地生成，不需要 API key，也不会调用远程模型。
 
@@ -194,7 +281,13 @@ ClaimHarness 用在文本或系统输出之后，输出一个 evidence audit pac
 .\RUN_PROBLEMBRIDGE_WINDOWS.bat
 ```
 
-本地网页 UI 支持中英双语界面。页面顶部可以选择 `English` 或 `中文`，语言会同步到 URL：`?lang=zh` 直接打开中文界面，`?lang=en` 直接打开英文界面。
+本地网页 UI 支持中英双语界面。页面顶部可以选择 `English` 或 `中文`，语言会同步到 URL：`?lang=zh` 直接打开中文界面，`?lang=en` 直接打开英文界面。切换语言不会打开新标签页，也不会丢失当前本地项目。当前 Streamlit 版本在中文模式下仍把最外层文档声明为 `lang="en"`，因此屏幕阅读器可能不会自动切换中文发音；语言控件本身已有正确的可访问名称和选中状态。
+
+交互流程现在只在首页展示完整总览，进入任务后改用紧凑流程头，并提供“上一步 / 当前步骤 / 下一步”快捷导航；窄屏下六步卡片改为横向滑动，避免堆成长页面。必填表单会就地提示，不会先创建空运行；问题发现结果会直接预填“一次一问”的引导式访谈；访谈完成后仍可修改答案再生成；进入 AI 向导时，领域问题、候选任务、输入、输出、评价和高风险边界会分别预填，不再把整段 YAML 重复塞进多个字段。复核者字段会保持空白，等待用户确认真实角色。AI 对齐后可进入证据门控构建，逐条查看能力声明的保留、降级、删除或拒答决定；历史结果默认折叠并明确说明不包含当前表单修改，技术文件也默认折叠。
+
+`查看生成结果` 默认只显示当前项目。只有需要跨项目比较时才打开“显示所有项目”；历史标签会写明经过校验的 UTC 时间、工作流、项目标识，以及适用时的 `legacy` 状态。文档摄取、问题发现、ProblemBridge 对齐和 ClaimHarness 审计会进入各自的结果视图，不再统一误用对齐摘要。旧审计包缺少新版诊断文件时会显示“不可用”，不会把缺失值误报成零。
+
+工作台可以生成证据门控构建合同，也可以用审计专属视图检查已有的 ClaimHarness 结果包，但不会执行完整论文审计。请先通过 CLI 运行 ClaimHarness，再在“查看生成结果”或静态 `index.html` 查看器中打开完成的审计包。
 
 如果你是从 GitHub clone：
 
@@ -206,17 +299,18 @@ cd ClaimHarness
 
 浏览器打开后，建议顺序是：
 
-1. 先看 `Explore examples`。
-2. 生成一个合成样例。
-3. 阅读 friendly summary。
-4. 再进入 `Domain practitioner wizard`。
-5. 描述一个非敏感、可重复的真实工作流。
+1. 先看“示例演示”，确认系统边界和合成样例。
+2. 有文件时进入“文档摄取”；问题还模糊时进入“问题发现”。
+3. 在“领域工作流向导”中描述一个非敏感、可重复的真实工作流。
+4. 在“AI 任务对齐向导”中检查候选任务、输入、输出、评价和高风险边界。
+5. 进入“查看生成结果”，阅读面向用户的摘要、技术文件和项目日志。
+6. 对最终稿件或系统输出，通过 ClaimHarness CLI 执行审计并打开静态报告查看器。
 
 CLI 用户可以运行：
 
 ```powershell
 python -m venv .venv
-.venv\Scripts\python.exe -m pip install -e ".[dev,ui]"
+.venv\Scripts\python.exe -m pip install -c requirements\constraints.txt -e ".[dev,ui]"
 .venv\Scripts\python.exe -m problem_bridge demo
 .venv\Scripts\python.exe -m claim_harness demo
 ```
@@ -226,7 +320,7 @@ python -m venv .venv
 如果要分享给别人测试，可以发送本地压缩包：
 
 ```text
-ProblemBridge-ClaimHarness-v0.3.2-local-webapp.zip
+ProblemBridge-ClaimHarness-v0.4.0-local-webapp.zip
 ```
 
 对方解压后双击：
@@ -236,6 +330,32 @@ RUN_PROBLEMBRIDGE_WINDOWS.bat
 ```
 
 第一次运行会创建 `.venv` 并安装依赖，然后在本地浏览器打开 UI。它不是在线服务，也不是 `.exe`。
+
+维护者测试发布 ZIP 时，如果净克隆中没有仓库 `.venv`，并且 `PATH`
+里的 `py` / `python` 也不可用，应显式传入现有 Python 3.10+ 解释器的绝对路径：
+
+```powershell
+.\scripts\test_release_zip_powershell.ps1 -PythonExe "<Python 解释器绝对路径>"
+.\scripts\build_and_test_release_powershell.ps1 -PythonExe "<Python 解释器绝对路径>"
+```
+
+Build Week 最终建议生成一个单独的评委包：
+
+```powershell
+.\scripts\build_build_week_judge_bundle_powershell.ps1
+```
+
+完成真实的合成 GPT-5.6 运行后，再把受限的非密钥运行证据加入评委包：
+
+```powershell
+.\scripts\build_build_week_judge_bundle_powershell.ps1 `
+  -Gpt56RunPath "outputs\build_week_gpt56_demo"
+```
+
+脚本会把经过测试的本地应用 ZIP、mock 结果、参赛说明、内容 manifest
+和 SHA-256 放到 `dist/`，不会复制工作区临时文件。具体结构参见
+[`JUDGE_START_HERE.md`](JUDGE_START_HERE.md) 和
+[`RELEASE_PACKAGE_GUIDE.md`](RELEASE_PACKAGE_GUIDE.md)。
 
 ## 合成样例
 
@@ -250,29 +370,116 @@ RUN_PROBLEMBRIDGE_WINDOWS.bat
 
 ## API 和模型
 
-默认使用 `mock`，不需要 API key。远程模型提供商是可选的，只用于 advisory review。当前 ClaimHarness 已准备常见接口，包括 OpenAI-compatible、Qwen / DashScope、DeepSeek、Groq、Mistral、OpenRouter、xAI、Ollama、Gemini 和 Anthropic。
+本地网页 UI 的大多数步骤运行确定性的 `mock` 工作流。证据门控构建只提供两个有界选择：本地 `mock`，或官方 OpenAI `gpt-5.6`。UI 不提供 API-key 输入框或任意 base URL；只有用户明确选择远程路径后，才从进程环境读取 `OPENAI_API_KEY`。ClaimHarness CLI 除了支持 OpenAI-compatible、Qwen / DashScope、Kimi、DeepSeek、Groq、Mistral、OpenRouter、xAI、Ollama、Gemini 和 Anthropic 的 API provider，现在也支持复用已经安装并登录或配置好的 Codex、Claude Code 和 Qwen Code 客户端。
 
 使用远程模型前要确认：你输入的内容会发送给外部服务。不要上传真实患者数据、机密论文、未公开项目材料、API key 或任何敏感信息。
 
-本地网页 UI 的侧边栏默认只保留导航，高级设置放在 `显示工作台记忆` 和 `显示 API 设置` 两个折叠开关后面。你可以保存 provider、base URL、model、模型选择方式、最近输出目录，以及 Question discovery、Domain wizard、AI wizard 的草稿字段。保存文件位于 `outputs/ui_memory/workbench_memory.json`。
+先运行离线可用性检查：
 
-切换 provider 时，网页会自动填入对应的默认 base URL 和 model；如果你手动改过，也可以点击 `Use provider defaults` 恢复。模型名称支持“常用模型下拉列表”和“手动输入”两种方式：普通测试者可以直接选常见模型，私有部署或新模型可以手动填写。API key 不会默认保存。网页里的 API key 输入框是 session-only，只在当前 Streamlit 进程中临时使用；保存记忆时会过滤 `api_key`、`token`、`secret`、`password` 等敏感字段。分享文件夹或 zip 前，如果草稿里有敏感工作流信息，请先清除本地记忆。
+```powershell
+.venv\Scripts\python.exe -m claim_harness providers
+```
+
+需要机器可读结果时加 `--json`。该命令只检查环境变量是否存在，并静态查找已知可执行文件；不会运行任何客户端，也不会联系模型 endpoint，更不会输出密钥、完整 endpoint 或可执行文件绝对路径。因此 `installed` 不代表已经登录，`configured` 也不代表 key、quota、endpoint 和模型一定可用。
+
+如果确实需要测试真实可用性，只对一个 provider 使用纯合成数据探测：
+
+```powershell
+.venv\Scripts\python.exe -m claim_harness providers `
+  --probe codex `
+  --confirm-call `
+  --probe-timeout 60
+```
+
+探测默认关闭；缺少确认开关时命令会拒绝执行。探测不会发送论文、表格、参考文献或证据包，但可能联系云服务、消耗账号额度或计费，或者占用本地算力。输出会隐藏上游诊断细节，并且只说明这一次结构化请求是否成功，不能保证后续审计一定可用。
+
+非 mock 调用默认等待 60 秒。受信任的慢速本地模型可以显式增加 `--llm-timeout 300`，允许范围为 1-600 秒。该值会进入公开 provider provenance 与运行规格哈希；延长等待时间不等于健康检查，也不会改变确定性 verifier。
+
+复用 Codex 客户端的示例：
+
+```powershell
+.venv\Scripts\python.exe -m claim_harness run `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --out outputs/lab_report_audit_demo_codex `
+  --llm codex
+```
+
+Claude Code 和 Qwen Code 分别使用 `--llm claude-cli` 与 `--llm qwen-cli`。ClaimHarness 不会在这些模式下要求或保存 API key，而是复用客户端当前的认证和模型配置。这里的“本地客户端”不等于离线或免费：Codex、Claude Code 可能使用订阅登录或客户端已有凭据；Qwen Code 可能使用 Coding Plan、API key、自定义 provider 或本地后端。因此 `qwen-cli` 只表示复用现有 Qwen Code 配置，并不承诺 Qwen 本身免 key 或免计费。
+
+三个适配器都在隔离的临时目录运行，通过 stdin 接收审计内容，限制或禁用工具，并发地把 stdout/stderr 读入固定大小的内存缓冲区；一旦超出大小或时间上限就立即终止整个进程树，并在写入 `llm_review.json` 前再次使用 ClaimHarness schema 校验 JSON。可选模型变量为 `CLAIMHARNESS_CODEX_MODEL`、`CLAIMHARNESS_CLAUDE_MODEL`、`CLAIMHARNESS_QWEN_MODEL`；模型 ID 必须是长度受限的安全字符集，空格、控制字符和 shell 元字符会在进程启动前被拒绝。客户端不在 `PATH` 时，可分别用 `CLAIMHARNESS_CODEX_BIN`、`CLAIMHARNESS_CLAUDE_BIN`、`CLAIMHARNESS_QWEN_BIN` 指定可执行文件；覆盖值必须解析到支持的可执行文件，否则显示 `invalid_config`。系统不接受任意 shell 命令模板。
+
+本地网页 UI 不接收、收集或保存 API key。证据门控构建的远程选项会先提示数据将发送到 OpenAI，并且只从进程环境读取密钥。侧边栏的 `显示工作台记忆` 只保存草稿字段和最近输出目录，文件位于 `outputs/ui_memory/workbench_memory.json`。加载记忆时会恢复它原来的项目 ID；只有完整且确实属于该项目的受治理运行才会恢复为最近输出，避免把旧项目草稿和新项目身份混在一起。`清除记忆` 只删除磁盘上的记忆文件，当前页面里尚未保存的草稿会保留；“开始新项目”才会在二次确认后清除项目草稿，并提供“先保存草稿再开始”的选项。分享文件夹或 zip 前，如果草稿里有敏感工作流信息，请先清除本地记忆。
+
+静态 `index.html` 审计查看器现在提供粘性区段导航、声明搜索、组合筛选、实时结果数、待复核项到声明的直接跳转、可复制复核摘要，以及“核心列 + 展开证据详情”的声明表。证据全集和审计轨迹默认折叠；宽表可通过键盘聚焦并横向滚动，也包含跳转正文、清晰焦点、减少动画和窄屏布局。复制失败会明确提示，不会伪装成成功。
+
+远程 provider 的公共 provenance 只保存 provider 名称、API style、模型、temperature、timeout、JSON mode 和 endpoint origin（协议、主机、端口），不保存 API key、URL 凭据、endpoint 路径或 query。完整 endpoint 配置只通过 `run_spec_sha256` 间接绑定，用于发现配置漂移，而不会把完整 URL 或凭据写进运行包。
 
 Qwen / DashScope 可以使用 `qwen` provider：设置 `DASHSCOPE_API_KEY`，可选设置 `QWEN_BASE_URL` 和 `QWEN_MODEL`。
+
+Kimi API 使用 `--llm kimi`：设置 `KIMI_API_KEY`，可选设置 `KIMI_BASE_URL` 和 `KIMI_MODEL_NAME`；默认 endpoint 为 `https://api.moonshot.ai/v1`，默认模型为 `kimi-k3`。ClaimHarness 使用 JSON mode，不显式发送 `temperature`，由所选 Kimi 模型应用其固定值或默认采样约定。这里要求的是 Kimi / Moonshot 开发者平台 API key，消费端会员或 Kimi Code 订阅不会自动变成 API key。
+
+官方 Kimi Code CLI 会出现在 `providers` 的检测结果中，但目前标记为不可选择：它现有的安全非交互接口还没有同时满足 stdin 长文本输入、稳定的严格 schema 输出和非实验工具隔离，因此 ClaimHarness 不会把论文内容放进命令行参数，也不会放宽工具边界。DeepSeek 的直接 API 仍使用 `--llm deepseek`；第三方 Deep Code / DeepSeek TUI 只检测是否存在，不会执行。也可以把受信任的 Claude/Qwen 客户端配置为 DeepSeek，或通过 `--llm ollama` 使用本地 OpenAI-compatible endpoint，但实际认证、模型与计费仍由上游配置决定。
+
+## 三轮修订治理
+
+ProblemBridge 输出包现在包含 `project_record.json` 和 `project_summary_log.md`。可以用 `problem-bridge record-revision` 把每轮修改追加到 `revision_history.jsonl`。同一个稳定 target 最多修订三轮：第三轮仍未解决时必须升级为结构、规格或证据问题；在完成整合前，不允许继续打第四个局部补丁。
+
+ClaimHarness 每次审计都会生成 `run_manifest.json` 和 `project_summary_log.md`。manifest 记录 run ID、工具版本、时间、provider 状态，以及输入/输出文件名、大小和 SHA-256，不暴露本地绝对路径；Markdown 摘要只是导航和 provenance 辅助，不是科学证据或批准记录。
+
+v0.4 使用修订记录 schema v3：每条记录绑定不可变的 `project_id`，并包含 revision/parent ID、输入输出文件哈希、记录哈希链、跨进程文件锁和并发冲突检测。旧 v1/v2 记录不会在正常流程中直接读取或追加，必须运行 `problem-bridge migrate-revision-history`，并明确输入完全一致的项目 ID 后才能迁移。三轮上限没有放宽；第三轮必须接受或升级，不能继续写第四轮。
+
+`problem-bridge record-revision` CLI 现在必须选择且只能选择一种证据路线：至少提供一个可重复的 `--output-artifact`（相对于 `--project` 目录解析），或者在确实没有可哈希结果时提供 `--no-artifact-hash-reason "..."`。两者不能同时使用。`--changed-file` 只是描述字段，不能代替输出哈希；缺失原因只记录证据缺口，并不提供文件完整性。
+
+## v0.4 项目与证据治理
+
+- 每个项目有稳定 `project_id`，每次运行有唯一 `run_id`；`run_identity.json` 绑定工作流类型与运行规格 SHA-256。CLI 的运行规格包含工具版本、输入和 provider 配置，因此不同工作流、规格或工具版本不能伪装成同一次 `resume`。
+- ProblemBridge 与 ClaimHarness CLI 都使用明确的 `new`、`resume`、`replace` 模式。`resume` 或 `replace` 必须同时由用户提供 `--project-id` 和 `--expected-run-id`；不能只信任可编辑的身份文件。
+- `run_complete.json` 最后写入，并记录治理范围内的精确文件快照。Document intake 会逐个哈希 allow-list 内 `extracted_tables/` 和 `source_files/` 的嵌套非符号链接文件，因此提取表格与原件字节都受完整性检查；未知根目录文件不冒充系统产物。
+- 分享 ZIP 只从生成物 allow-list 取文件，默认排除 `source_files/` 和未知/可能私密文件，并生成带精确路径、大小和 SHA-256 的 `share_manifest.json`。只有显式勾选后才会包含原件。项目级删除必须输入当前项目 ID，随后删除该项目的全部运行及原件。
+- Document intake 生成 `ocr_quality_report.json`，记录 OCR 引擎、版本、语言、逐页定位、超时、DPI、像素和其他资源上限及失败信息。`derived_text/ocr` 默认不能作为强证据；从 OCR 输入提取的 claim 必须人工检查原件，也不代表系统理解图表或图片含义。
+- Windows 首次安装与日常启动已分开。正常启动不会每次重新安装依赖；发布门会在 Windows 上构建、测试并生成 ZIP manifest 和 SHA-256。
+
+ProblemBridge 生成的证据契约可以直接交给 ClaimHarness。严格的 schema v2 契约同时绑定稳定 `project_id` 和由契约内容计算得到的 `contract_id`；ClaimHarness 会拒绝项目 ID 不一致或内容 ID 不匹配的契约，并在运行 provenance 中记录这两个 ID 与契约哈希：
+
+```powershell
+.venv\Scripts\python.exe -m claim_harness run `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --evidence-contract outputs/problem_bridge_quality_inspection_demo/evidence_contract.yaml `
+  --out outputs/lab_report_contract_audit `
+  --llm mock
+```
+
+未知 schema、规则、来源类型、证据类型、人工复核角色、项目绑定或内容 ID 会在写输出前失败。提供契约时，审计包还会生成 `applied_evidence_contract.json`：它是经过验证、实际执行的契约的规范化 JSON 快照，并随运行一起受治理和哈希；未提供契约时该文件不存在。未提供契约时仍保留原有验证行为。
+
+离线合成评测：
+
+```powershell
+.venv\Scripts\python.exe scripts\evaluate_gold_set.py --out outputs\synthetic_evaluation
+```
+
+该命令报告 claim precision/recall/F1、evidence recall@k、status macro-F1/confusion、高风险漏检率、**不安全高风险决策率**和 abstention rate。这只是小型版本化合成回归门，不是完整 gold 评测，也不是现实有效性、临床安全性、跨领域或跨语言能力证明。完整升级说明见 [`docs/v0.4_upgrade.md`](docs/v0.4_upgrade.md)。
 
 ## 安全边界
 
 - 这是原型，不是临床、法律或教育政策决策系统。
 - 不保证事实正确性。
 - 只检查你提供的材料。
-- biomedical 或高风险 claims 仍然需要人工复核。
+- 被当前确定性规则判定为 biomedical 或高风险的 claims 仍然需要人工复核；规则仍可能漏掉此类声明。
+- Results 章节中的自述不会自动成为该 claim 的强证据；强表格证据必须有可核验的指标/数值关系。
 - mock mode 是确定性的演示模式，不等于完整语义理解。
+- 中文界面不等于中文 claim 审计已验证；当前规则和合成 gold set 以英文为主，中文稿件必须人工复核。
 - 不要输入真实患者数据、机密论文、未公开项目材料、API key 或任何敏感内容。
 
 ## 路线图
 
 - v0.1：ClaimHarness 科研 claim-evidence audit demo。
 - v0.2：ProblemBridge 问题对齐 MVP。
-- v0.3：Guided Interaction Layer，让非 AI 背景用户从工作流开始描述问题。
-- v0.4：让 ProblemBridge 生成的 evidence contract 更直接地进入 ClaimHarness。
-- v0.5：进行 human review study，评估它是否真的提升问题清晰度、任务定义和评价设计。
+- v0.3：稳定、可审计基线（已完成），包括确定性证据检索/验证、文档摄取、摘要日志、三轮治理和发布 smoke test。
+- v0.4：证据契约与项目生命周期（当前），包括 schema-v2 契约、运行身份、完成快照、安全分享、OCR 质量门和合成评测门。
+- v0.5：在一个获批准且不含私密材料的仓库内进行有边界试点。
+- v0.6：开展 human review study，并在版本化中文 gold set 通过明确门槛后再增加中文 claim 审计支持。
+- v0.7：在一个真实跨学科项目中开展 FDE pilot，记录任务定义、证据契约、评测协议与复核负担的前后变化。

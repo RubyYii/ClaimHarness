@@ -4,27 +4,15 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 Set-Location $repoRoot
 
 $venvPython = Join-Path $repoRoot ".venv\Scripts\python.exe"
+$setupMarker = Join-Path $repoRoot ".venv\.claimharness_setup_v0.4.0"
 
-if (-not (Test-Path $venvPython)) {
-    Write-Host "Creating local Python environment..."
-    if (Get-Command py -ErrorAction SilentlyContinue) {
-        & py -3 -m venv .venv
-    }
-    elseif (Get-Command python -ErrorAction SilentlyContinue) {
-        & python -m venv .venv
-    }
-    else {
-        throw 'Python 3.10 or newer was not found. Install Python and enable "Add python.exe to PATH".'
+if (-not (Test-Path $venvPython) -or -not (Test-Path $setupMarker)) {
+    Write-Host "First run or version change detected; preparing the local environment once..."
+    & (Join-Path $PSScriptRoot "setup_problembridge_windows.ps1")
+    if (-not (Test-Path $venvPython) -or -not (Test-Path $setupMarker)) {
+        throw "ProblemBridge setup did not complete successfully."
     }
 }
-
-if (-not (Test-Path $venvPython)) {
-    throw "The local Python environment could not be created."
-}
-
-Write-Host "Installing or updating ProblemBridge UI dependencies..."
-& $venvPython -m pip install --upgrade pip
-& $venvPython -m pip install -e ".[dev,ui]"
 
 Write-Host "Starting ProblemBridge local UI..."
 Write-Host "If the browser does not open, visit http://127.0.0.1:8501"
@@ -37,3 +25,6 @@ Start-Process powershell -WindowStyle Hidden -ArgumentList @(
 )
 
 & $venvPython -m streamlit run apps/problem_bridge_wizard.py --server.headless true --server.address 127.0.0.1 --server.port 8501
+if ($LASTEXITCODE -ne 0) {
+    throw "ProblemBridge UI exited with code $LASTEXITCODE."
+}

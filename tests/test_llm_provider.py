@@ -1,15 +1,25 @@
+from dataclasses import replace
+from io import BytesIO
 import json
+from urllib.error import HTTPError
 
 import pytest
 
+import claim_harness.llm as llm_module
 from claim_harness.llm import (
     LLMProviderConfig,
+    LLMProviderError,
+    MAX_PROVIDER_ERROR_BYTES,
+    MAX_PROVIDER_RESPONSE_BYTES,
     MissingProviderConfig,
     build_anthropic_messages_request,
     build_gemini_request,
     build_openai_compatible_request,
+    build_openai_responses_request,
+    call_provider_json,
     load_prompt,
     parse_openai_compatible_json,
+    parse_openai_responses_json,
     parse_anthropic_json,
     parse_gemini_json,
     resolve_provider_config,
@@ -27,6 +37,10 @@ def test_validate_provider_accepts_common_provider_presets():
     assert validate_provider("xai") == "xai"
     assert validate_provider("ollama") == "ollama"
     assert validate_provider("Qwen") == "qwen"
+    assert validate_provider("Kimi") == "kimi"
+    assert validate_provider("Codex") == "codex"
+    assert validate_provider("Claude-CLI") == "claude-cli"
+    assert validate_provider("Qwen-CLI") == "qwen-cli"
     assert validate_provider("gemini") == "gemini"
     assert validate_provider("anthropic") == "anthropic"
 
@@ -47,6 +61,78 @@ def test_resolve_provider_config_uses_env_and_defaults(monkeypatch):
     assert config.api_key == "test-key"
     assert config.base_url == "https://api.openai.com/v1"
     assert config.model == "gpt-5.4-mini"
+
+
+def test_resolve_openai_provider_uses_gpt56_responses_api(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.delenv("OPENAI_BASE_URL", raising=False)
+    monkeypatch.delenv("OPENAI_MODEL", raising=False)
+
+    config = resolve_provider_config("openai")
+
+    assert config.api_style == "openai-responses"
+    assert config.model == "gpt-5.6"
+
+
+def test_build_openai_responses_request_uses_strict_text_format():
+    config = LLMProviderConfig(
+        provider="openai",
+        api_key="test-key",
+        base_url="https://api.openai.com/v1",
+        model="gpt-5.6",
+        api_style="openai-responses",
+    )
+
+    built = build_openai_responses_request(config, "System", "User")
+    payload = json.loads(built.data.decode("utf-8"))
+
+    assert built.full_url == "https://api.openai.com/v1/responses"
+    assert payload["model"] == "gpt-5.6"
+    assert payload["instructions"] == "System"
+    assert payload["input"] == "User"
+    assert payload["text"]["format"]["type"] == "json_schema"
+    assert payload["text"]["format"]["strict"] is True
+
+
+def test_parse_openai_responses_json_reads_typed_output_and_metadata():
+    review = {
+        "summary": "Review summary",
+        "highest_risk_claims": ["C004"],
+        "recommended_next_actions": ["Human review"],
+        "limitations": ["Synthetic demo only"],
+    }
+    response = {
+        "id": "resp_test",
+        "model": "gpt-5.6-sol",
+        "output": [
+            {
+                "type": "message",
+                "content": [{"type": "output_text", "text": json.dumps(review)}],
+            }
+        ],
+    }
+
+    parsed = parse_openai_responses_json(json.dumps(response).encode("utf-8"))
+
+    assert parsed.payload == review
+    assert parsed.response_id == "resp_test"
+    assert parsed.model == "gpt-5.6-sol"
+
+
+def test_parse_openai_responses_json_rejects_incomplete_response():
+    response = {
+        "id": "resp_incomplete",
+        "status": "incomplete",
+        "output": [
+            {
+                "type": "message",
+                "content": [{"type": "output_text", "text": "{}"}],
+            }
+        ],
+    }
+
+    with pytest.raises(LLMProviderError, match="did not complete"):
+        parse_openai_responses_json(json.dumps(response).encode("utf-8"))
 
 
 def test_resolve_provider_config_uses_deepseek_preset(monkeypatch):
@@ -77,6 +163,37 @@ def test_resolve_provider_config_uses_qwen_preset(monkeypatch):
     assert config.base_url == "https://dashscope.aliyuncs.com/compatible-mode/v1"
     assert config.model == "qwen-plus"
     assert config.json_mode == "json_object"
+
+
+def test_resolve_provider_config_uses_kimi_preset(monkeypatch):
+    monkeypatch.setenv("KIMI_API_KEY", "kimi-key")
+    monkeypatch.delenv("KIMI_BASE_URL", raising=False)
+    monkeypatch.delenv("KIMI_MODEL_NAME", raising=False)
+
+    config = resolve_provider_config("kimi")
+
+    assert config.provider == "kimi"
+    assert config.api_style == "openai-chat"
+    assert config.api_key == "kimi-key"
+    assert config.base_url == "https://api.moonshot.ai/v1"
+    assert config.model == "kimi-k3"
+    assert config.json_mode == "json_object"
+    assert config.temperature is None
+
+
+def test_kimi_request_uses_json_mode_without_explicit_fixed_temperature(monkeypatch):
+    monkeypatch.setenv("KIMI_API_KEY", "kimi-key")
+    monkeypatch.delenv("KIMI_BASE_URL", raising=False)
+    monkeypatch.delenv("KIMI_MODEL_NAME", raising=False)
+    config = resolve_provider_config("kimi")
+
+    built = build_openai_compatible_request(config, "Return JSON", "Audit data")
+    payload = json.loads(built.data.decode("utf-8"))
+
+    assert built.full_url == "https://api.moonshot.ai/v1/chat/completions"
+    assert payload["model"] == "kimi-k3"
+    assert payload["response_format"] == {"type": "json_object"}
+    assert "temperature" not in payload
 
 
 def test_resolve_provider_config_allows_ollama_without_api_key(monkeypatch):
@@ -139,6 +256,13 @@ def test_resolve_provider_config_requires_dashscope_key_for_qwen(monkeypatch):
 
     with pytest.raises(MissingProviderConfig, match="DASHSCOPE_API_KEY"):
         resolve_provider_config("qwen")
+
+
+def test_resolve_provider_config_rejects_blank_kimi_key(monkeypatch):
+    monkeypatch.setenv("KIMI_API_KEY", "   ")
+
+    with pytest.raises(MissingProviderConfig, match="KIMI_API_KEY"):
+        resolve_provider_config("kimi")
 
 
 def test_load_prompt_reads_packaged_prompt():
@@ -214,6 +338,48 @@ def test_build_openai_compatible_request_omits_authorization_when_key_absent():
 
     assert request.full_url == "http://localhost:11434/v1/chat/completions"
     assert "Authorization" not in request.headers
+
+
+@pytest.mark.parametrize(
+    "base_url",
+    [
+        "http://api.example.test/v1",
+        "ftp://api.example.test/v1",
+        "https://user:secret@api.example.test/v1",
+        "https://api.example.test/v1?tenant=demo",
+        "https://api.example.test/v1#fragment",
+    ],
+)
+def test_provider_endpoint_rejects_insecure_or_ambiguous_base_urls(base_url):
+    config = LLMProviderConfig(
+        provider="openai-compatible",
+        api_key="test-key",
+        base_url=base_url,
+        model="demo-model",
+        api_style="openai-chat",
+    )
+
+    with pytest.raises(MissingProviderConfig):
+        build_openai_compatible_request(config, "System", "User")
+
+
+@pytest.mark.parametrize(
+    "base_url",
+    ["http://localhost:11434/v1", "http://127.0.0.1:11434/v1", "http://[::1]:11434/v1"],
+)
+def test_provider_endpoint_allows_loopback_http(base_url):
+    config = LLMProviderConfig(
+        provider="ollama",
+        api_key=None,
+        base_url=base_url,
+        model="llama3.2",
+        api_style="openai-chat",
+        json_mode="json_object",
+    )
+
+    built = build_openai_compatible_request(config, "System", "User")
+
+    assert built.full_url.endswith("/chat/completions")
 
 
 def test_build_gemini_request_uses_generate_content_shape():
@@ -328,3 +494,181 @@ def test_parse_anthropic_json_reads_text_block():
     parsed = parse_anthropic_json(json.dumps(response).encode("utf-8"))
 
     assert parsed["summary"] == "Anthropic summary"
+
+
+@pytest.mark.parametrize(
+    "review",
+    [
+        {
+            "highest_risk_claims": [],
+            "recommended_next_actions": [],
+            "limitations": [],
+        },
+        {
+            "summary": "Review",
+            "highest_risk_claims": [4],
+            "recommended_next_actions": [],
+            "limitations": [],
+        },
+        {
+            "summary": "Review",
+            "highest_risk_claims": [],
+            "recommended_next_actions": [],
+            "limitations": [],
+            "unexpected": "field",
+        },
+    ],
+)
+def test_provider_response_requires_strict_audit_review_schema(review):
+    response = {"choices": [{"message": {"content": json.dumps(review)}}]}
+
+    with pytest.raises(LLMProviderError, match="schema"):
+        parse_openai_compatible_json(json.dumps(response).encode("utf-8"))
+
+
+def test_provider_response_rejects_invalid_utf8_without_leaking_decode_error():
+    with pytest.raises(LLMProviderError, match="invalid JSON content"):
+        parse_openai_compatible_json(b"\xff\xfe")
+
+
+def test_provider_response_rejects_non_string_message_content():
+    response = {"choices": [{"message": {"content": ["not", "a", "string"]}}]}
+
+    with pytest.raises(LLMProviderError, match="non-JSON text"):
+        parse_openai_compatible_json(json.dumps(response).encode("utf-8"))
+
+
+class _FakeResponse:
+    def __init__(self, body: bytes, headers: dict[str, str] | None = None):
+        self.body = body
+        self.headers = headers or {}
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, traceback):
+        return False
+
+    def read(self, size: int = -1) -> bytes:
+        return self.body if size < 0 else self.body[:size]
+
+
+def _remote_config() -> LLMProviderConfig:
+    return LLMProviderConfig(
+        provider="openai-compatible",
+        api_key="test-key",
+        base_url="https://api.example.test/v1",
+        model="demo-model",
+        api_style="openai-chat",
+    )
+
+
+def test_provider_response_body_is_bounded():
+    response = _FakeResponse(b"x" * (MAX_PROVIDER_RESPONSE_BYTES + 1))
+
+    with pytest.raises(LLMProviderError, match="exceeds"):
+        call_provider_json(
+            _remote_config(),
+            "System",
+            "User",
+            urlopen=lambda *args, **kwargs: response,
+        )
+
+
+def test_provider_content_length_over_limit_is_rejected_before_parsing():
+    response = _FakeResponse(
+        b"{}",
+        headers={"Content-Length": str(MAX_PROVIDER_RESPONSE_BYTES + 1)},
+    )
+
+    with pytest.raises(LLMProviderError, match="exceeds"):
+        call_provider_json(
+            _remote_config(),
+            "System",
+            "User",
+            urlopen=lambda *args, **kwargs: response,
+        )
+
+
+def test_provider_http_error_summary_is_bounded():
+    def fail(*args, **kwargs):
+        raise HTTPError(
+            "https://api.example.test/v1/chat/completions",
+            500,
+            "failure",
+            {},
+            BytesIO(b"x" * (MAX_PROVIDER_ERROR_BYTES + 100)),
+        )
+
+    with pytest.raises(LLMProviderError) as exc_info:
+        call_provider_json(_remote_config(), "System", "User", urlopen=fail)
+
+    assert "[truncated]" in str(exc_info.value)
+    assert len(str(exc_info.value)) < MAX_PROVIDER_ERROR_BYTES + 200
+
+
+def test_provider_timeout_is_reported_as_provider_error():
+    def timeout(*args, **kwargs):
+        raise TimeoutError("socket timed out")
+
+    with pytest.raises(LLMProviderError, match="timed out"):
+        call_provider_json(_remote_config(), "System", "User", urlopen=timeout)
+
+
+def test_provider_uses_timeout_bound_to_provider_config():
+    review = {
+        "summary": "Review summary",
+        "highest_risk_claims": [],
+        "recommended_next_actions": [],
+        "limitations": [],
+    }
+    response = _FakeResponse(
+        json.dumps(
+            {"choices": [{"message": {"content": json.dumps(review)}}]}
+        ).encode("utf-8")
+    )
+    observed = {}
+
+    def open_request(api_request, timeout):
+        observed["timeout"] = timeout
+        return response
+
+    config = replace(_remote_config(), timeout_seconds=123)
+
+    assert call_provider_json(config, "System", "User", urlopen=open_request) == review
+    assert observed["timeout"] == 123
+
+
+def test_provider_rejects_non_positive_timeout_before_transport():
+    config = replace(_remote_config(), timeout_seconds=0)
+
+    with pytest.raises(LLMProviderError, match="greater than zero"):
+        call_provider_json(config, "System", "User")
+
+
+def test_default_provider_transport_rejects_redirects(monkeypatch):
+    captured_handlers = []
+
+    class RedirectingOpener:
+        def open(self, api_request, timeout):
+            raise HTTPError(
+                api_request.full_url,
+                302,
+                "redirect",
+                {"Location": "https://other.example.test/v1"},
+                BytesIO(b"redirect refused"),
+            )
+
+    def build_opener(*handlers):
+        captured_handlers.extend(handlers)
+        return RedirectingOpener()
+
+    monkeypatch.setattr(llm_module.request, "build_opener", build_opener)
+
+    with pytest.raises(LLMProviderError, match="HTTP 302"):
+        call_provider_json(_remote_config(), "System", "User")
+
+    assert any(
+        isinstance(handler, llm_module._RejectRedirectHandler)
+        for handler in captured_handlers
+    )

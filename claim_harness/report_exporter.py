@@ -28,8 +28,14 @@ SUPPORTED_REPORT_FILES = [
     "audit_report.md",
     "revision_suggestions.md",
     "claim_table.csv",
+    "audit_diagnostics.json",
+    "human_review_queue.json",
+    "project_record.json",
+    "run_manifest.json",
     "source_manifest.json",
     "evidence_map.json",
+    "project_summary_log.md",
+    "revision_history.jsonl",
     "alignment_trace.jsonl",
     "agent_trace.jsonl",
     "extraction_warnings.md",
@@ -206,7 +212,7 @@ def write_pdf_report(path: Path, run_dir: Path, sections: list[ReportSection]) -
 def _docx_document(run_dir: Path, sections: list[ReportSection]) -> str:
     paragraphs = [
         _docx_paragraph(REPORT_TITLE, "Title"),
-        _docx_paragraph(f"Source folder: {run_dir}"),
+        _docx_paragraph(f"Source folder: {run_dir.name}"),
         _docx_paragraph(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"),
         _docx_paragraph("Review before sharing. This export may contain user-provided sensitive material."),
     ]
@@ -236,7 +242,7 @@ def _docx_paragraph(text: str, style: str | None = None) -> str:
 def _report_lines(run_dir: Path, sections: list[ReportSection]) -> list[str]:
     lines = [
         REPORT_TITLE,
-        f"Source folder: {run_dir}",
+        f"Source folder: {run_dir.name}",
         f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
         "Review before sharing. This export may contain user-provided sensitive material.",
         "",

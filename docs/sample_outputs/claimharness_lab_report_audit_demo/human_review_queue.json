@@ -1,0 +1,72 @@
+{
+  "artifact_type": "pending_human_review_queue",
+  "boundary": "Every item is pending. This artifact is a deterministic review-work snapshot, not a reviewer identity check, decision, approval, scientific evidence, or permission to change a verification status.",
+  "counts": {
+    "claims_routed": 2,
+    "pending_items": 2
+  },
+  "items": [
+    {
+      "candidate_contradicting_evidence_ids": [],
+      "candidate_supporting_evidence_ids": [
+        "S011"
+      ],
+      "claim_id": "C003",
+      "claim_source": {
+        "line": 5,
+        "section": "Abstract",
+        "source_kind": "manuscript"
+      },
+      "claim_text": "The workflow is ready for real-world operational deployment.",
+      "human_review_required": true,
+      "missing_evidence": [
+        "external_validation",
+        "human_review"
+      ],
+      "release_allowed": false,
+      "required_role": "domain_reviewer",
+      "review_item_id": "HR-C003-domain_reviewer",
+      "risk_level": "high",
+      "role_origin": "built_in_route",
+      "state": "pending",
+      "trigger_codes": [
+        "release_not_allowed",
+        "high_risk_claim",
+        "missing_human_review",
+        "overclaim_detected"
+      ],
+      "verification_status": "overclaimed"
+    },
+    {
+      "candidate_contradicting_evidence_ids": [
+        "S012"
+      ],
+      "candidate_supporting_evidence_ids": [],
+      "claim_id": "C005",
+      "claim_source": {
+        "line": 9,
+        "section": "Introduction",
+        "source_kind": "manuscript"
+      },
+      "claim_text": "A lightweight harness reduces the risk of opaque model output by separating the task specification, selected context, evidence table, and review decision.",
+      "human_review_required": true,
+      "missing_evidence": [
+        "trace"
+      ],
+      "release_allowed": false,
+      "required_role": "domain_reviewer",
+      "review_item_id": "HR-C005-domain_reviewer",
+      "risk_level": "low",
+      "role_origin": "built_in_route",
+      "state": "pending",
+      "trigger_codes": [
+        "release_not_allowed",
+        "contradiction_detected",
+        "verification_requires_human_review"
+      ],
+      "verification_status": "needs_human_review"
+    }
+  ],
+  "role_boundary": "ClaimHarness routes work to named roles but does not verify a reviewer's identity, qualifications, independence, or authority.",
+  "schema_version": 2
+}

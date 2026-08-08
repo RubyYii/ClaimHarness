@@ -9,5 +9,7 @@ outputs/*/
 outputs/*.log
 .streamlit_*.pid
 dist/
+build/
 .playwright-mcp/
 claimharness-filter-smoke.png
+.gemini-agent/
