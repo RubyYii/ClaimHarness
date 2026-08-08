@@ -168,9 +168,9 @@ try {
 
     Push-Location $packageDir.FullName
     try {
-        & $venvPython -m pip install --disable-pip-version-check --no-build-isolation -c $constraints ".[dev,ui]"
+        & $venvPython -m pip install --disable-pip-version-check --only-binary=:all: --no-build-isolation -c $constraints ".[dev,ui]"
         if ($LASTEXITCODE -ne 0) {
-            throw "Could not install the extracted release under constraints (exit code $LASTEXITCODE)."
+            throw "Could not install the extracted release with constrained binary dependencies (exit code $LASTEXITCODE). Check package-index access and wheel availability for this Python/platform."
         }
     }
     finally {

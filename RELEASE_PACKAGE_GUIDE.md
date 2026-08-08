@@ -24,7 +24,7 @@ official OpenAI GPT-5.6 path. The UI has no API-key field and does not accept,
 collect, display, or store credentials; remote mode reads `OPENAI_API_KEY` only
 from the launch environment and warns before transmission.
 
-The local web app package requires Python because its first-run setup creates `.venv`, installs the tested `.[dev,ui]` set under `requirements/constraints.txt`, and runs the Streamlit app locally. Normal daily launches reuse that environment and do not reinstall dependencies. It is not an online deployment.
+The local web app package requires Python because its first-run setup creates `.venv`, installs the tested `.[dev,ui]` set under `requirements/constraints.txt`, and runs the Streamlit app locally. Third-party dependencies must resolve to prebuilt wheels; setup fails with a direct package-index/platform message instead of attempting an unbounded local source build. Normal daily launches reuse that environment and do not reinstall dependencies. It is not an online deployment.
 
 ## Build Week judge bundle
 
@@ -178,7 +178,7 @@ executable by absolute path:
 .\scripts\test_release_zip_powershell.ps1 -PythonExe "<absolute-path-to-python.exe>"
 ```
 
-This extracts the zip into a temporary folder, compiles every packaged Python file, creates a brand-new temporary venv, and installs the extracted `.[dev,ui]` package under `requirements/constraints.txt`. It verifies the constrained Typer/Click pair, runs `pip check`, validates the committed sample completion hashes, and then runs the ClaimHarness demo, ProblemBridge demo, Build Week mock demo, and synthetic evaluation from an unrelated working directory. The Build Week smoke also checks the Codex handoff and no-key runtime truth boundary. The temporary venv does not inherit repository-installed packages and is deleted after the gate. Dependency installation may use the configured package index when wheels are not already cached; the gate does not start Streamlit automatically.
+This extracts the zip into a temporary folder, compiles every packaged Python file, creates a brand-new temporary venv, and installs the extracted `.[dev,ui]` package under `requirements/constraints.txt`. The local package is built without isolation from the explicitly installed build tools, while every indexed third-party dependency must resolve to a prebuilt wheel. This prevents an index inconsistency from silently starting a compiler toolchain; a missing wheel fails the gate with a package-index/platform diagnostic. It verifies the constrained Typer/Click pair, runs `pip check`, validates the committed sample completion hashes, and then runs the ClaimHarness demo, ProblemBridge demo, Build Week mock demo, and synthetic evaluation from an unrelated working directory. The Build Week smoke also checks the Codex handoff and no-key runtime truth boundary. The temporary venv does not inherit repository-installed packages and is deleted after the gate. Dependency installation may use the configured package index when wheels are not already cached; the gate does not start Streamlit automatically.
 
 The constraints file pins every project/build/test/UI/OCR direct dependency and the compatibility-critical Click transitive dependency. Update `pyproject.toml`, `requirements/constraints.txt`, and CI together when changing that set.
 

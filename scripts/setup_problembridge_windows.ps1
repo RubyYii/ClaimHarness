@@ -48,9 +48,9 @@ if ($LASTEXITCODE -ne 0) {
     throw "Failed to install the tested pip version (exit code $LASTEXITCODE)."
 }
 
-& $venvPython -m pip install -c $constraints -e ".[dev,ui]"
+& $venvPython -m pip install --only-binary=:all: -c $constraints -e ".[dev,ui]"
 if ($LASTEXITCODE -ne 0) {
-    throw "Failed to install ProblemBridge UI dependencies (exit code $LASTEXITCODE)."
+    throw "Failed to install the tested ProblemBridge UI dependency wheels (exit code $LASTEXITCODE). Check package-index access and wheel availability for this Python/platform."
 }
 
 New-Item -ItemType File -Force $setupMarker | Out-Null

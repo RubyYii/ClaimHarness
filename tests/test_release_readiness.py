@@ -867,6 +867,7 @@ def test_release_packaging_support_is_present():
     test_script = Path("scripts/test_release_zip_powershell.ps1").read_text(encoding="utf-8")
     assert "clean-smoke-venv" in test_script
     assert '-c $constraints ".[dev,ui]"' in test_script
+    assert "--only-binary=:all:" in test_script
     assert "--no-build-isolation" in test_script
     assert "PIP_REQUIRE_VIRTUALENV" in test_script
     assert "$sampleGate" in test_script
@@ -1219,7 +1220,7 @@ def test_powershell_native_commands_check_exit_codes_immediately():
         "& py -3 -m venv .venv",
         "& python -m venv .venv",
         '& $venvPython -m pip install "pip==25.0.1"',
-        '& $venvPython -m pip install -c $constraints -e ".[dev,ui]"',
+        '& $venvPython -m pip install --only-binary=:all: -c $constraints -e ".[dev,ui]"',
     ]:
         _assert_immediate_native_exit_check(setup, invocation)
 
@@ -1232,7 +1233,7 @@ def test_powershell_native_commands_check_exit_codes_immediately():
         "& $bootstrapPython @bootstrapArgs -m py_compile $pythonFile.FullName",
         "& $bootstrapPython @bootstrapArgs -m venv $smokeVenv",
         '& $venvPython -m pip install --disable-pip-version-check -c $constraints "pip==25.0.1"',
-        '& $venvPython -m pip install --disable-pip-version-check --no-build-isolation -c $constraints ".[dev,ui]"',
+        '& $venvPython -m pip install --disable-pip-version-check --only-binary=:all: --no-build-isolation -c $constraints ".[dev,ui]"',
         "& $venvPython -m pip check",
         "& $venvPython -c $installGate $smokeVenv $repoRoot",
         "& $venvPython -c $sampleGate $packageDir.FullName",
