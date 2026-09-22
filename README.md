@@ -46,10 +46,6 @@ The responsive layout keeps the current question in a focused card, with an expl
 
 ![The local workbench, showing the first question and the two handoffs](docs/figures/workbench-start-en.png)
 
-![The local workbench, showing the first question and the two handoffs](docs/figures/workbench-start-en.png)
-
-The responsive layout keeps the current question in a focused card, with an explanation of the two handoffs alongside it on desktop and below it on mobile. The review form groups context and expected results; both exports have readable document previews. A bundled light theme keeps native controls and primary actions consistent. See the [layout verification record](docs/layout_polish_2026-09-22.md).
-
 Choose **This reflects my need → prepare both handoffs** to preview, copy or download a collaborator brief and a language-model task. Both use the same confirmed record. Nothing is sent automatically; listed materials must be attached separately. The synthetic art-research example shows the result without file uploads. New records save both interface languages (`collaboration_brief_en.md` / `collaboration_brief_zh.md`, `model_task_en.md` / `model_task_zh.md`); supplied wording is not automatically translated.
 
 Problem saves, audits and follow-ups create immutable revisions and save a current-project resume pointer. Reopening resumes the same problem. Editing needs clears their current audit link and retains old results in history. To retain unfinished questions or concept notes, use **Drafts & project settings → Show workspace memory → Save current workspace**. Clear local memory before sharing sensitive drafts. **All tools** and the collapsed optional helpers retain the original workflows.
