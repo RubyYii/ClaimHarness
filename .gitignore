@@ -13,3 +13,4 @@ build/
 .playwright-mcp/
 claimharness-filter-smoke.png
 .gemini-agent/
+/.local/

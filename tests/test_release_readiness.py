@@ -341,12 +341,12 @@ def test_v032_workflow_first_onboarding_is_documented():
     assert "local rule-based question routing" in readme
     assert "理解状态" in Path("README.zh-CN.md").read_text(encoding="utf-8")
     assert "引导式追问" in Path("README.zh-CN.md").read_text(encoding="utf-8")
-    assert "Describe your workflow, not an AI task" in ui_text
-    assert "You do not need to know AI. Start by describing a repeated task in your work." in ui_text
+    assert "Answer five short questions to get a workflow brief" in ui_text
+    assert "You can revise any saved answer along the way" in ui_text
     assert "Interview mode" in ui_text
     assert "Guided interview" in ui_text
     assert "Understanding so far" in ui_text
-    assert "Next question" in ui_text
+    assert 'f"Question {position} of 5"' in ui_text
     assert "Generate alignment package from interview" in ui_text
     assert "completeness" in ui_text
 
@@ -385,7 +385,7 @@ def test_guided_ui_has_bilingual_interface_mode():
         "工作台记忆",
         "ProblemBridge 工作台",
         "当前工作台不接收或保存 API 密钥",
-        "声明-证据审计",
+        "本地声明与证据核查",
         "下载结果包",
     ]:
         assert phrase in ui_text
@@ -447,14 +447,15 @@ def test_guided_ui_keeps_sidebar_advanced_settings_collapsed():
     ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
 
     for phrase in [
-        "st.sidebar.checkbox(_text(\"Show workspace memory\", \"显示工作台记忆\"), value=False",
+        "st.checkbox(_text(\"Show workspace memory\", \"显示工作台记忆\"), value=False",
         "Local-first. Use synthetic or non-sensitive material first.",
         "本地优先。首次测试请使用合成或非敏感材料。",
     ]:
         assert phrase in ui_text
 
     assert "<div class=\"sidebar-note\">" not in ui_text
-    assert "st.sidebar.expander" not in ui_text
+    assert 'st.sidebar.expander(_text("All tools", "全部工具"))' in ui_text
+    assert 'st.sidebar.expander(_text("Drafts & project settings", "草稿与项目设置"))' in ui_text
 
 
 def test_guided_ui_sidebar_has_readable_theme():
@@ -465,7 +466,7 @@ def test_guided_ui_sidebar_has_readable_theme():
         "width: 280px !important;",
         "color: var(--pb-ink);",
         '[data-testid="stHeader"]',
-        '[data-testid="stToolbar"]',
+        '[data-testid="stDeployButton"]',
         '[data-testid="stMainMenu"]',
         '[data-testid="stSidebar"] [data-testid="stMarkdownContainer"]',
         '[data-testid="stSidebar"] [data-testid="stWidgetLabel"]',
@@ -826,7 +827,7 @@ def test_question_discovery_layer_is_documented_and_in_ui():
     assert "question brief" in showcase_en
 
 def test_release_packaging_support_is_present():
-    release_version = "0.4.0"
+    release_version = "0.4.1"
     package_name = f"ProblemBridge-ClaimHarness-v{release_version}-local-webapp.zip"
     required_files = [
         Path("RUN_PROBLEMBRIDGE_WINDOWS.bat"),
@@ -1064,7 +1065,7 @@ def test_release_packaging_support_is_present():
     assert "Downloadable local web app package" in readme
     assert "RUN_PROBLEMBRIDGE_WINDOWS.bat" in readme
     assert "Use it in three steps" in readme
-    assert "does not execute or replace a ClaimHarness audit" in readme
+    assert "executes the deterministic ClaimHarness audit through the same pipeline as the CLI" in readme
 
     readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
     for phrase in [
@@ -1078,7 +1079,7 @@ def test_release_packaging_support_is_present():
         "不要输入真实患者数据",
         "docs/static_showcase/zh-CN.html",
         "三步开始使用",
-        "不会执行或替代 ClaimHarness 审计",
+        "工作台直接复用 ClaimHarness 的确定性审计管线",
     ]:
         assert phrase in readme_zh
 
@@ -1327,6 +1328,11 @@ def _run_release_zip_test(zip_path):
         cwd=Path.cwd(),
         capture_output=True,
         text=True,
+        # Windows PowerShell can mix UTF-8 pip output with localized legacy
+        # diagnostics. Preserve ASCII gate messages without losing a whole
+        # stream to a background-reader UnicodeDecodeError.
+        encoding="utf-8",
+        errors="replace",
         check=False,
     )
 
@@ -1339,11 +1345,33 @@ def _skip_if_strict_release_install_is_offline(result):
         and (
             "Failed to establish a new connection" in output
             or "Temporary failure in name resolution" in output
-            or "No matching distribution found" in output
-            or "ResolutionImpossible" in output
+            or "Network is unreachable" in output
+            or "Connection refused" in output
         )
     ):
         pytest.skip("Strict clean-venv release smoke needs package-index access.")
+
+
+@pytest.mark.parametrize("diagnostic", ["No matching distribution found", "ResolutionImpossible"])
+def test_release_dependency_errors_are_not_skipped_as_offline(diagnostic):
+    result = subprocess.CompletedProcess(
+        args=[], returncode=1,
+        stdout=diagnostic,
+        stderr="Could not install constrained build tooling",
+    )
+    # Dependency-resolution errors must remain failures unless the log also
+    # contains a concrete connection failure.
+    _skip_if_strict_release_install_is_offline(result)
+
+
+def test_release_connection_failure_is_reported_as_unverified():
+    result = subprocess.CompletedProcess(
+        args=[], returncode=1,
+        stdout="Failed to establish a new connection; No matching distribution found",
+        stderr="Could not install constrained build tooling",
+    )
+    with pytest.raises(pytest.skip.Exception, match="package-index access"):
+        _skip_if_strict_release_install_is_offline(result)
 
 
 def _write_minimal_release_build_fixture(root: Path, *, version: str = "0.4.0") -> None:

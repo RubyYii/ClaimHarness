@@ -22,7 +22,7 @@ from .verifier import verify_claims
 
 
 GOLD_SET_SCHEMA_VERSION = "1.0"
-EVALUATION_REPORT_SCHEMA_VERSION = "2.0"
+EVALUATION_REPORT_SCHEMA_VERSION = "2.1"
 STATUS_LABELS = (
     "supported",
     "weakly_supported",
@@ -36,6 +36,24 @@ NO_GOLD = "no_gold"
 
 def default_gold_path() -> Path:
     return Path(__file__).with_name("eval_data") / "gold_claims.jsonl"
+
+
+def suite_gold_path(suite: str) -> Path:
+    filenames = {'baseline': 'gold_claims.jsonl', 'development': 'development_claims.jsonl', 'challenge': 'challenge_claims.jsonl'}
+    if suite not in filenames:
+        raise ValueError(f'Unknown evaluation suite: {suite}')
+    return default_gold_path().with_name(filenames[suite])
+
+
+def regression_failure_count(metrics: dict[str, object]) -> int:
+    """Count failed status/extraction checks and unhandled high-risk checks."""
+    mismatches = sum(
+        count
+        for actual, row in metrics["status"]["confusion_matrix"].items()
+        for predicted, count in row.items()
+        if actual != predicted
+    )
+    return mismatches + metrics["risk"]["unhandled_high_risk_claims"]
 
 
 def load_gold_records(path: str | Path | None = None) -> list[dict[str, object]]:
@@ -149,6 +167,9 @@ def evaluate_predictions(
     high_risk_total = 0
     high_risk_misses = 0
     unsafe_high_risk_decisions = 0
+    unhandled_high_risk_claims = 0
+    negative_records = 0
+    negative_false_positives = 0
     abstentions = 0
 
     for record in record_list:
@@ -169,6 +190,9 @@ def evaluate_predictions(
         total_gold += len(gold_by_text)
         total_predictions += len(predicted_by_text)
         extraction_true_positives += len(set(gold_by_text) & set(predicted_by_text))
+        if not gold_by_text:
+            negative_records += 1
+            negative_false_positives += len(predicted_by_text)
 
         for prediction in predicted_by_text.values():
             status = prediction.get("status")
@@ -194,6 +218,8 @@ def evaluate_predictions(
                     prediction
                 ):
                     unsafe_high_risk_decisions += 1
+                if prediction is None or prediction.get('risk_level') != 'high' or _is_unsafe_high_risk_prediction(prediction):
+                    unhandled_high_risk_claims += 1
 
             relevant = gold.get("relevant_evidence", [])
             if not isinstance(relevant, list) or not all(isinstance(item, str) for item in relevant):
@@ -228,6 +254,8 @@ def evaluate_predictions(
         "gold_schema_version": GOLD_SET_SCHEMA_VERSION,
         "gold_set_version": gold_version,
         "record_count": len(record_list),
+        "label_provenance": sorted({str(record.get('label_status', 'unspecified')) for record in record_list}),
+        "negative_examples": {'records': negative_records, 'false_positive_claims': negative_false_positives},
         "claim_extraction": {
             "true_positives": extraction_true_positives,
             "predicted": total_predictions,
@@ -256,6 +284,8 @@ def evaluate_predictions(
             "unsafe_high_risk_decision_rate": _rounded(
                 _safe_divide(unsafe_high_risk_decisions, high_risk_total)
             ),
+            "unhandled_high_risk_claims": unhandled_high_risk_claims,
+            "unhandled_high_risk_rate": _rounded(_safe_divide(unhandled_high_risk_claims, high_risk_total)),
         },
         "abstention": {
             "needs_human_review_predictions": abstentions,
@@ -265,6 +295,7 @@ def evaluate_predictions(
         "definitions": {
             "high_risk_miss": "A gold high-risk claim was not extracted or was not assigned risk_level=high.",
             "unsafe_high_risk_decision": "A gold high-risk claim was not explicitly routed to human review and release-blocked, or used a legacy supported/weakly_supported prediction without explicit gates.",
+            "unhandled_high_risk": "A gold high-risk claim was missed, not marked high-risk, or not routed to human review with release blocked. Includes non-extracted claims.",
             "abstention": "A predicted claim was assigned needs_human_review.",
             "evidence_recall_at_k": "Mean fraction of each gold claim's relevant evidence found in its first k linked evidence items.",
         },
@@ -334,8 +365,8 @@ def _ranked_evidence_keys(claim_id: str, evidence: list[EvidenceItem]) -> list[s
 
 
 def _validate_gold_claims(record_id: str, claims: object) -> None:
-    if not isinstance(claims, list) or not claims:
-        raise ValueError(f"Gold-set record {record_id} must contain at least one gold claim.")
+    if not isinstance(claims, list):
+        raise ValueError(f"Gold-set record {record_id} must contain a gold-claim list (empty for a negative example).")
     _unique_claim_map(claims, record_id=record_id, role="gold")
     for claim in claims:
         if claim.get("status") not in STATUS_LABELS:
@@ -422,6 +453,8 @@ def _metrics_markdown(metrics: dict[str, object]) -> str:
         f"| Status macro-F1 | {status['macro_f1']:.6f} |",
         f"| High-risk miss rate | {risk['high_risk_miss_rate']:.6f} |",
         f"| Unsafe high-risk decision rate | {risk['unsafe_high_risk_decision_rate']:.6f} |",
+        f"| Unhandled high-risk rate (including missed claims) | {risk['unhandled_high_risk_rate']:.6f} |",
+        f"| Negative examples / false-positive claims | {metrics['negative_examples']['records']} / {metrics['negative_examples']['false_positive_claims']} |",
         f"| Abstention rate | {abstention['rate']:.6f} |",
     ]
     for key, value in evidence.items():

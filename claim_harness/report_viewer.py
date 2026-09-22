@@ -8,6 +8,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from .review_presentation import EXTRACTION_BOUNDARY, issue_label
+
 from problem_bridge.project_lifecycle import (
     RUN_IDENTITY_NAME,
     ProjectLifecycleError,
@@ -207,6 +209,7 @@ def _render_html(payload: dict[str, Any], run_dir: Path) -> str:
             "<h1>ClaimHarness Report Viewer</h1>",
             f"<p>{_e(run_dir.name)}</p>",
             '<p class="notice">Advisory review surface only. ClaimHarness does not guarantee factual correctness, clinical validity, or publication readiness.</p>',
+            f'<p class="extraction-notice">{_e(EXTRACTION_BOUNDARY)}</p>',
             "</div>",
             "</header>",
             _render_quick_nav(payload),
@@ -327,6 +330,7 @@ h2 { margin: 0 0 12px; font-size: 19px; letter-spacing: 0; }
 h3 { margin: 0 0 8px; font-size: 15px; letter-spacing: 0; }
 p { margin: 0 0 8px; }
 .notice { color: #dce5ef; max-width: 860px; }
+.extraction-notice { color: #fff; border-left: 3px solid #a7b4c4; padding-left: 10px; margin-top: 12px; max-width: 900px; }
 .boundary { color: var(--muted); border-left: 4px solid var(--weak); padding-left: 10px; }
 .quick-nav {
   position: sticky;
@@ -437,6 +441,15 @@ tr:last-child td { border-bottom: 0; }
 }
 .claim-table th:first-child { background: #eef2f6; z-index: 4; }
 .claim-text { min-width: 300px; }
+.claim-table .claim-text { width: 48%; overflow-wrap: anywhere; }
+.claim-finding { border-left: 3px solid var(--line); padding-left: 10px; margin-top: 10px; font-size: 13px; }
+.claim-finding p { margin-bottom: 6px; }
+.finding-conflict { border-color: var(--over); background: #fff7f5; }
+.finding-clarification { border-color: var(--human); }
+.finding-missing { border-color: var(--weak); }
+.finding-supported { border-color: var(--supported); }
+.claim-evidence { min-width: 100px; max-width: 230px; overflow-wrap: anywhere; font-size: 12px; }
+.conflict-location { margin-top: 8px; }
 .row-details summary, .advanced-section > summary { cursor: pointer; color: var(--accent); font-weight: 700; }
 .row-details dl { display: grid; grid-template-columns: minmax(110px, 160px) 1fr; gap: 6px 12px; margin: 10px 0 0; }
 .row-details dt { font-weight: 700; color: var(--muted); }
@@ -728,6 +741,31 @@ def _render_claim_table(claims: list[dict[str, str]], evidence_links: list[dict[
         )
         status = row.get("status", "")
         risk = row.get("risk_level", "")
+        contradiction_ids = set(filter(None, row.get("contradicting_evidence_ids", "").split(";")))
+        label = issue_label(
+            status, risk,
+            has_contradictions=bool(contradiction_ids),
+            has_missing_evidence=bool(row.get("missing_evidence", "")),
+        )
+        tone = (
+            "conflict" if contradiction_ids else
+            "clarification" if status == "needs_human_review" else
+            "supported" if status == "supported" else "missing"
+        )
+        finding = (
+            f'<div class="claim-finding finding-{tone}"><p><strong>{_e(label)}</strong></p>'
+            f'<p><strong>Reason:</strong> {_e(row.get("reason", "") or "No reason recorded.")}</p>'
+            f'<p><strong>Next action:</strong> {_e(row.get("suggested_revision", "") or "Review the evidence and record the next action.")}</p></div>'
+        )
+        conflict_locations = "; ".join(
+            f'{link.get("evidence_id", "")}: {_format_locator_dict(link.get("locator"))}'
+            for link in reasons_by_claim.get(claim_id, [])
+            if link.get("evidence_id") in contradiction_ids
+        )
+        conflict_summary = (
+            f'<p class="conflict-location"><strong>Conflict source:</strong> {_e(conflict_locations or ", ".join(sorted(contradiction_ids)))}</p>'
+            if contradiction_ids else ""
+        )
         human_review_required = str(_claim_requires_human_review(row)).lower()
         explicit_release = row.get("release_allowed", "").strip().lower()
         release_allowed = explicit_release if explicit_release in {"true", "false"} else "false"
@@ -745,6 +783,8 @@ def _render_claim_table(claims: list[dict[str, str]], evidence_links: list[dict[
                 release_allowed,
                 row.get("claim_type", ""),
                 row.get("text", ""),
+                row.get("reason", ""),
+                label,
                 evidence_ids,
                 locations,
                 match_reasons,
@@ -773,8 +813,8 @@ def _render_claim_table(claims: list[dict[str, str]], evidence_links: list[dict[
             f'<td class="mono">{_e(claim_id)}</td>'
             f'<td><span class="{_status_class(status)}">{_e(_humanize_status(status))}</span></td>'
             f'<td>{_e(risk)}</td>'
-            f'<td class="claim-text">{_e(row.get("text", ""))}</td>'
-            f'<td><span title="{_e(evidence_ids or "No linked evidence")}">{len(linked_ids)} linked</span></td>'
+            f'<td class="claim-text">{_e(row.get("text", ""))}{finding}</td>'
+            f'<td class="claim-evidence"><span title="{_e(evidence_ids or "No linked evidence")}">{len(linked_ids)} linked</span>{conflict_summary}</td>'
             f'<td>{details}</td>'
             "</tr>"
         )
@@ -794,7 +834,7 @@ def _render_claim_table(claims: list[dict[str, str]], evidence_links: list[dict[
         '<button class="filter-button" type="button" data-filter="supported" aria-controls="claim-table-body" aria-pressed="false">Supported</button>'
         '<button class="filter-button" type="button" data-filter="overclaimed" aria-controls="claim-table-body" aria-pressed="false">Overclaimed</button>'
         '</div><div class="table-wrap" role="region" aria-labelledby="claims-title" tabindex="0"><table class="claim-table">'
-        '<caption>Core claim information. Expand each row for evidence locations, match reasons, and revision guidance.</caption>'
+        '<caption>Each finding shows its reason and next action. Expand details for the full evidence trail.</caption>'
         '<thead><tr><th scope="col">ID</th><th scope="col">Status</th><th scope="col">Risk</th><th scope="col">Claim</th><th scope="col">Evidence</th><th scope="col">Details</th></tr></thead>'
         '<tbody id="claim-table-body">'
         + "".join(rows)

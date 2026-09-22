@@ -49,7 +49,7 @@ def test_compact_next_step_navigation_keeps_one_workspace_session(isolated_app_f
     next(
         button
         for button in app.button
-        if button.label == "Next: Question discovery →"
+        if button.key == "flow_next_0"
     ).click().run(timeout=30)
 
     assert not app.exception

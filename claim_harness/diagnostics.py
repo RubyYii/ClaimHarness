@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from .schemas import Claim, EvidenceItem, VerificationResult
+from .review_presentation import EXTRACTION_BOUNDARY
 
 
 DIAGNOSTICS_SCHEMA_VERSION = 2
@@ -129,6 +130,12 @@ def build_audit_diagnostics(
         "schema_version": DIAGNOSTICS_SCHEMA_VERSION,
         "artifact_type": "single_run_structural_diagnostics",
         "boundary": DIAGNOSTICS_BOUNDARY,
+        "extraction_coverage": {
+            "completeness": "unknown",
+            "extracted_claims": total_claims,
+            "recall": None,
+            "boundary": EXTRACTION_BOUNDARY,
+        },
         "totals": {
             "claims": total_claims,
             "evidence_items": total_evidence,

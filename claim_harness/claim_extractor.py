@@ -1,6 +1,13 @@
 import re
 
 from .evidence_contract import EvidenceContract
+from .claim_language import (
+    contains_term,
+    has_quantitative_assertion,
+    has_risk_assertion,
+    high_risk_claim_type,
+    is_nonassertive,
+)
 from .schemas import Claim, ManuscriptSection
 
 
@@ -42,7 +49,9 @@ def extract_claims(
         for sentence, source_line in sentences_with_lines(section):
             lowered = sentence.lower()
             matched_terms = [term for term in CLAIM_KEYWORDS if contains_term(lowered, term)]
-            if not matched_terms or is_meta_statement(lowered):
+            if is_meta_statement(lowered) or is_nonassertive(sentence):
+                continue
+            if not (matched_terms or has_quantitative_assertion(sentence) or has_risk_assertion(sentence)):
                 continue
 
             claim_id = f"C{len(claims) + 1:03d}"
@@ -99,10 +108,6 @@ def sentences_with_lines(section: ManuscriptSection) -> list[tuple[str, int | No
     return sentences
 
 
-def contains_term(text: str, term: str) -> bool:
-    return bool(re.search(rf"(?<!\w){re.escape(term)}(?!\w)", text, flags=re.IGNORECASE))
-
-
 def term_is_negated(text: str, term: str) -> bool:
     term_pattern = re.compile(rf"(?<!\w){re.escape(term)}(?!\w)", flags=re.IGNORECASE)
     matches = list(term_pattern.finditer(text))
@@ -149,14 +154,15 @@ def is_meta_statement(text: str) -> bool:
 
 
 def _claim_type(text: str) -> str:
-    if any(contains_term(text, term) for term in ("clinically", "clinical", "diagnosis")):
-        return "clinical_claim"
+    risk_type = high_risk_claim_type(text)
+    if risk_type is not None:
+        return risk_type
     if any(
         contains_term(text, term)
         for term in ("deployment", "operational", "ready", "readiness")
     ):
         return "deployment_claim"
-    if any(
+    if has_quantitative_assertion(text) or any(
         contains_term(text, term)
         for term in ("outperforms", "improves", "increases", "dice", "iou", "precision", "recall")
     ):

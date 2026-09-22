@@ -10,42 +10,45 @@ from claim_harness.evaluation import (
     evaluate_gold_set,
     evaluate_predictions,
     load_gold_records,
+    regression_failure_count,
     run_current_pipeline,
     write_evaluation_outputs,
 )
 
 
-def test_default_gold_evaluation_is_deterministic_and_exposes_known_gaps():
+def test_default_gold_evaluation_is_deterministic_and_covers_baseline_claims():
     first = evaluate_gold_set()
     second = evaluate_gold_set()
 
     assert first == second
-    assert first["schema_version"] == "2.0"
+    assert first["schema_version"] == "2.1"
     assert first["gold_schema_version"] == "1.0"
     assert first["gold_set_version"] == "1.0.0"
     assert first["record_count"] == 7
     assert first["claim_extraction"] == {
-        "true_positives": 5,
-        "predicted": 5,
+        "true_positives": 7,
+        "predicted": 7,
         "gold": 7,
         "precision": 1.0,
-        "recall": 0.714286,
-        "f1": 0.833333,
+        "recall": 1.0,
+        "f1": 1.0,
         "matching": "exact_after_casefold_and_whitespace_normalization",
     }
-    assert first["evidence"]["recall_at_1"] == 0.5
-    assert first["evidence"]["recall_at_3"] == 0.666667
-    assert first["status"]["macro_f1"] == 0.866667
-    assert first["status"]["confusion_matrix"]["supported"]["not_extracted"] == 1
-    assert first["status"]["confusion_matrix"]["needs_human_review"]["not_extracted"] == 1
+    assert first["evidence"]["recall_at_1"] == 0.833333
+    assert first["evidence"]["recall_at_3"] == 1.0
+    assert first["status"]["macro_f1"] == 1.0
+    assert first["status"]["confusion_matrix"]["supported"]["not_extracted"] == 0
+    assert first["status"]["confusion_matrix"]["needs_human_review"]["not_extracted"] == 0
     assert first["risk"] == {
         "high_risk_gold_claims": 3,
-        "high_risk_misses": 1,
-        "high_risk_miss_rate": 0.333333,
+        "high_risk_misses": 0,
+        "high_risk_miss_rate": 0.0,
         "unsafe_high_risk_decisions": 0,
         "unsafe_high_risk_decision_rate": 0.0,
+        "unhandled_high_risk_claims": 0,
+        "unhandled_high_risk_rate": 0.0,
     }
-    assert first["abstention"]["rate"] == 0.2
+    assert first["abstention"]["rate"] == 0.285714
     assert len(first["gold_set_sha256"]) == 64
 
 
@@ -60,7 +63,7 @@ def test_evaluation_writes_stable_json_and_markdown(tmp_path: Path):
     assert json_path.read_bytes() == first_json
     assert markdown_path.read_bytes() == first_markdown
     persisted = json.loads(json_path.read_text(encoding="utf-8"))
-    assert persisted["status"]["macro_f1"] == 0.866667
+    assert persisted["status"]["macro_f1"] == 1.0
     report = markdown_path.read_text(encoding="utf-8")
     assert "Evidence recall@1" in report
     assert "Status confusion matrix" in report
@@ -87,10 +90,10 @@ def test_evaluation_script_runs_offline_and_writes_both_formats(tmp_path: Path):
     )
 
     metrics = json.loads((tmp_path / "evaluation_metrics.json").read_text(encoding="utf-8"))
-    assert metrics["evidence"]["recall_at_1"] == 0.5
-    assert metrics["evidence"]["recall_at_2"] == 0.666667
+    assert metrics["evidence"]["recall_at_1"] == 0.833333
+    assert metrics["evidence"]["recall_at_2"] == 1.0
     assert (tmp_path / "evaluation_report.md").is_file()
-    assert "Claim F1=0.833333" in completed.stdout
+    assert "Claim F1=1.000000" in completed.stdout
 
 
 def test_gold_loader_rejects_unknown_schema_version(tmp_path: Path):
@@ -299,3 +302,43 @@ def test_current_pipeline_projects_explicit_review_and_release_gates():
         for record_predictions in predictions.values()
         for prediction in record_predictions
     )
+
+
+def test_risk_gate_includes_missed_claims_and_correct_status_with_missing_review():
+    records = [{
+        "schema_version": "1.0", "gold_set_version": "test-risk-gap",
+        "record_id": "risk-gap", "gold_claims": [{
+            "text": "The system is safe for clinical use.",
+            "status": "needs_human_review", "high_risk": True,
+            "relevant_evidence": [],
+        }],
+    }]
+    missed = evaluate_predictions(records, {})
+    assert missed["risk"]["unsafe_high_risk_decisions"] == 0
+    assert missed["risk"]["unhandled_high_risk_claims"] == 1
+    assert regression_failure_count(missed) > 0
+
+    prediction = dict(records[0]["gold_claims"][0], risk_level="high",
+                      human_review_required=False, release_allowed=False)
+    metrics = evaluate_predictions(records, {"risk-gap": [prediction]})
+    assert metrics["status"]["confusion_matrix"]["needs_human_review"]["needs_human_review"] == 1
+    assert regression_failure_count(metrics) == 1
+
+
+def test_check_cli_fails_on_a_false_positive_in_a_negative_example(tmp_path):
+    record = {
+        "schema_version": "1.0", "gold_set_version": "test-negative",
+        "record_id": "negative", "gold_claims": [],
+        "input": {"sections": [{"name": "Results", "start_line": 1,
+                                "text": "Alpha achieved precision of 0.86."}]},
+    }
+    gold_path = tmp_path / "negative.jsonl"
+    gold_path.write_text(json.dumps(record) + "\n", encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, "scripts/evaluate_gold_set.py", "--gold", str(gold_path),
+         "--check", "--out", str(tmp_path / "metrics")],
+        capture_output=True, text=True, encoding="utf-8",
+    )
+    assert result.returncode == 1, result.stdout + result.stderr
+    metrics = json.loads((tmp_path / "metrics/evaluation_metrics.json").read_text(encoding="utf-8"))
+    assert metrics["negative_examples"] == {"records": 1, "false_positive_claims": 1}

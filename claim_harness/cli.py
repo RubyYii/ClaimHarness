@@ -372,6 +372,29 @@ def _run_audit(
     return outcome
 
 
+def write_local_audit(
+    manuscript: Path,
+    tables: Path,
+    references: Path | None,
+    run_context: RunContext,
+) -> tuple[int, int, int, int, int]:
+    """Write a deterministic audit inside the caller's lifecycle transaction.
+
+    The workbench adds its problem record and follow-up artifacts in the same
+    transaction. Keep this entry point on the CLI pipeline so their evidence
+    decisions cannot drift. It never resolves an external provider.
+    """
+    _validate_input_paths(manuscript, tables, references)
+    outcome, error = _run_audit_locked(
+        manuscript, tables, references, run_context.path, "mock",
+        resolve_provider_config("mock"), None, run_context,
+        capture_input_records(manuscript, tables, references),
+    )
+    if error is not None:
+        raise error
+    return outcome
+
+
 def _run_audit_locked(
     manuscript: Path,
     tables: Path,

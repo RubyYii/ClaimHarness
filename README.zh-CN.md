@@ -1,4 +1,22 @@
-# ProblemBridge + ClaimHarness
+# ProblemBridge 工作台
+
+**项目导航：** [目录与文档索引](docs/project_map.md) · [2026-09-05 本地检查记录](docs/project_check_2026-09-05.md)
+
+## 第一次使用
+
+双击 `RUN_PROBLEMBRIDGE_WINDOWS.bat`，从一件具体工作开始，逐步整理成其他专业的合作者和大模型能接手的任务说明。首页主流程是 **说清需求 → 带走说明**；有结果后再按需使用 ClaimHarness 核查。没有 AI 交互经验、还没准备材料，也可以开始。
+
+新手入口一次只问一件事：你在做什么、最近哪里卡住、希望拿到什么、能提供哪些材料。不清楚的地方可以跳过，保存前能返回修改；已有访谈回答也能带入。确认页可补充专业背景、合作者需要贡献什么、容易误解的词语及正反例，以及怎样检查一个小样例。系统保留你的原话，未填写的内容列为待确认，不替你补出专业定义。
+
+页面把当前问题放进独立卡片，桌面右侧说明两份产出的用途，手机上移到输入区下方。确认页按工作背景与期望结果分组，交付页提供独立文档预览；浅色主题与绿色主按钮保持一致。参见[布局调整与验证记录](docs/layout_polish_2026-09-22.md)。
+
+![本地工作台：从一件具体工作开始，整理两份需求说明](docs/figures/workbench-start-zh.png)
+
+点击 **这符合我的意思 → 整理两份说明** 后，可预览、复制或下载“给合作伙伴”和“给大模型”的 Markdown 说明。两份文件使用同一版确认记录，不会自动发送；材料清单里的文件仍需另附。可先点艺术研究者的合成示例看最终交付。新记录同时保存中英文说明（`collaboration_brief_en.md` / `collaboration_brief_zh.md`、`model_task_en.md` / `model_task_zh.md`）；只切换说明文字，用户原话不会被自动翻译。
+
+确认需求、运行核查和保存追问都会建立不可变记录，重开可继续同一个问题。修改需求会开始新版本并清除当前核查关联，旧结果保留为历史。未完成的逐步提问和术语草稿可通过“草稿与项目设置 → 显示工作台记忆 → 保存当前工作台”保存。原有工具保留在“全部工具”和折叠的辅助工具中。分享文件夹前请清除敏感草稿。
+
+**有结果后再核查：** 粘贴正文或上传 Markdown/TXT，再提供 CSV 结果表。每条发现保留声明 ID 与来源位置；回答追问只记录行动，不会自动改变核查结论。核查仍以英文数值声明为主，提取是否完整需要人工检查；没有提取到声明不表示通过。生成的需求说明不是实验凭据，也不代表接收方已同意。本地提问是预设引导，并未实现任意领域的语义理解或自动执行任务。参见[跨专业需求交付设计](docs/cross_disciplinary_handoff.md)与[核查流程设计](docs/unified_workbench_design.md)。
 
 ## OpenAI Build Week 2026 参赛版本
 
@@ -114,10 +132,10 @@ ProblemBridge 要做的第一件事，不是马上给方案，而是把这种模
 ### 三步开始使用
 
 1. 双击 `RUN_PROBLEMBRIDGE_WINDOWS.bat`，从本地文件、一个模糊问题或一段反复发生的工作流开始。
-2. 按中文工作台依次完成“文档摄取 → 问题发现 → 引导式访谈 → ProblemBridge → 证据门控构建 → 查看生成结果”。
-3. 当稿件或系统输出已经存在时，通过 CLI 运行 ClaimHarness，再用可搜索的静态报告查看器检查完成的审计包。
+2. 在首页试用一键示例，或按需要选择问题、工作流程、文件三个入口。生成结果后使用“继续”按钮带入下一步；不必依次走完所有工具。
+3. 在同一工作台中提供正文和 CSV 结果表，运行本地核查，把发现转为下一步追问；也可以继续使用 CLI 和静态报告查看器。
 
-工作台可以通过 deterministic mock 或官方 OpenAI GPT-5.6 Responses API 生成 Build Week 证据门控合同，也可以查看已有的 ClaimHarness 审计包。它不会执行或替代 ClaimHarness 审计；完整的论文审计仍通过 CLI 执行。
+工作台直接复用 ClaimHarness 的确定性审计管线，并保留同一问题的记录与追问。独立的 Build Week 工具仍可通过 mock 或明确选择的官方 OpenAI GPT-5.6 Responses API 生成证据门控合同。
 
 ## 项目定位
 
@@ -287,7 +305,7 @@ ClaimHarness 用在文本或系统输出之后，输出一个 evidence audit pac
 
 `查看生成结果` 默认只显示当前项目。只有需要跨项目比较时才打开“显示所有项目”；历史标签会写明经过校验的 UTC 时间、工作流、项目标识，以及适用时的 `legacy` 状态。文档摄取、问题发现、ProblemBridge 对齐和 ClaimHarness 审计会进入各自的结果视图，不再统一误用对齐摘要。旧审计包缺少新版诊断文件时会显示“不可用”，不会把缺失值误报成零。
 
-工作台可以生成证据门控构建合同，也可以用审计专属视图检查已有的 ClaimHarness 结果包，但不会执行完整论文审计。请先通过 CLI 运行 ClaimHarness，再在“查看生成结果”或静态 `index.html` 查看器中打开完成的审计包。
+工作台可以在网页内执行本地核查，也可以用审计专属视图检查已有的 ClaimHarness 结果包。CLI 运行仍然可用，完成的审计包可在“查看生成结果”或静态 `index.html` 查看器中打开。
 
 如果你是从 GitHub clone：
 
@@ -304,7 +322,7 @@ cd ClaimHarness
 3. 在“领域工作流向导”中描述一个非敏感、可重复的真实工作流。
 4. 在“AI 任务对齐向导”中检查候选任务、输入、输出、评价和高风险边界。
 5. 进入“查看生成结果”，阅读面向用户的摘要、技术文件和项目日志。
-6. 对最终稿件或系统输出，通过 ClaimHarness CLI 执行审计并打开静态报告查看器。
+6. 对稿件或系统输出，在问题工作台或 ClaimHarness CLI 中执行有限证据核查，再处理追问与材料缺口。
 
 CLI 用户可以运行：
 
@@ -315,12 +333,16 @@ python -m venv .venv
 .venv\Scripts\python.exe -m claim_harness demo
 ```
 
+命令默认创建新运行；再次执行时请指定新的 `--out` 目录。已有结果会受到保护，
+不会自动覆盖。需要恢复或替换时，请按 [运行生命周期说明](docs/v0.4_upgrade.md#safe-output-lifecycle)
+提供对应的项目和运行身份。
+
 ## 可分享包
 
 如果要分享给别人测试，可以发送本地压缩包：
 
 ```text
-ProblemBridge-ClaimHarness-v0.4.0-local-webapp.zip
+ProblemBridge-ClaimHarness-v0.4.1-local-webapp.zip
 ```
 
 对方解压后双击：
@@ -332,7 +354,7 @@ RUN_PROBLEMBRIDGE_WINDOWS.bat
 第一次运行会创建 `.venv` 并安装依赖，然后在本地浏览器打开 UI。它不是在线服务，也不是 `.exe`。
 
 维护者测试发布 ZIP 时，如果净克隆中没有仓库 `.venv`，并且 `PATH`
-里的 `py` / `python` 也不可用，应显式传入现有 Python 3.10+ 解释器的绝对路径：
+里的 `py` / `python` 也不可用，应显式传入现有 Python 3.10–3.13 解释器的绝对路径：
 
 ```powershell
 .\scripts\test_release_zip_powershell.ps1 -PythonExe "<Python 解释器绝对路径>"
@@ -358,6 +380,9 @@ Build Week 最终建议生成一个单独的评委包：
 [`RELEASE_PACKAGE_GUIDE.md`](RELEASE_PACKAGE_GUIDE.md)。
 
 ## 合成样例
+
+`examples/general_demo/` 还提供了一个小型文档分流样例，包含稿件、参考说明和
+`tables/results.csv`。数据完全虚构，可用 ClaimHarness `run` 命令独立检查。
 
 当前仓库包含几个合成样例：
 
@@ -458,10 +483,14 @@ ProblemBridge 生成的证据契约可以直接交给 ClaimHarness。严格的 s
 离线合成评测：
 
 ```powershell
-.venv\Scripts\python.exe scripts\evaluate_gold_set.py --out outputs\synthetic_evaluation
+.venv\Scripts\python.exe scripts\evaluate_gold_set.py --suite all --check --out outputs\synthetic_evaluation
 ```
 
-该命令报告 claim precision/recall/F1、evidence recall@k、status macro-F1/confusion、高风险漏检率、**不安全高风险决策率**和 abstention rate。这只是小型版本化合成回归门，不是完整 gold 评测，也不是现实有效性、临床安全性、跨领域或跨语言能力证明。完整升级说明见 [`docs/v0.4_upgrade.md`](docs/v0.4_upgrade.md)。
+该命令分别输出 baseline（7 条记录）、development（36 条）和 challenge（20 条）的 JSON/Markdown，以及 `evaluation_summary.json`。共 63 条合成记录，包含 45 个预期论断和 18 个负例。`--check` 会在抽取或状态不符、漏掉高风险论断、缺少人工复核门、负例被误抽取时返回非零。省略 `--suite all` 可保留原 baseline 的输出目录结构。
+
+新增 development/challenge 在实现前冻结，但由同一实现代理编写，标签仍是临时合成标签，**没有经过人工或独立验证**。status macro-F1 对全部五类取平均，未出现的类别计零，因此需要结合各组混淆矩阵阅读。这些回归结果不代表真实稿件、临床、跨领域或中文审计有效性。
+
+v0.4.1 统一了抽取与高风险识别词表，以及检索与验证中的表格比较规则。数值冲突会指出“正文值、表格值、行/单元格”；模型、比较对象、实验、split、单位、否定和不支持的数值限定不明确时转人工澄清。报告直接展示问题、原因、下一步动作，并注明“抽取完整性未知”。详见[本次优化记录](docs/audit_core_optimization_2026-09-05.md)。
 
 ## 安全边界
 

@@ -1,5 +1,11 @@
 # Limitations
 
+The cross-disciplinary entry uses predefined local questions and user-written terminology. It does not automatically understand every discipline, match people, contact collaborators, run a language model, or establish agreement. Both portable handoffs retain unknowns and the same confirmed wording. Confirmation records the demand-side interpretation, not validated facts. The current numerical checker is an optional later tool and cannot validate arbitrary professional outputs. Novice comprehension and collaboration benefit still require user testing.
+
+- Extraction completeness remains unknown for an arbitrary manuscript. Only extracted claims appear in a report; omitted sentences are not verified. Shared lexical risk rules reduce specific misses but do not supply semantic completeness.
+- Numerical verification supports bounded exact measurements and comparisons. It requires identifiable entities and metrics, does not convert units, and routes unresolved experiments/splits, negations and unsupported qualifiers/ranges to human review. It is not a general statistical or table-understanding engine.
+- The 36 development and 20 challenge records added in v0.4.1 use frozen, provisional synthetic labels authored by the same implementation agent. They supplement the original 7-record baseline; passing them is not independent or human validation.
+
 ClaimHarness is a small engineering demo, not a scientific review authority.
 
 ## Current Limits
@@ -24,7 +30,9 @@ ClaimHarness is a small engineering demo, not a scientific review authority.
 - A `supported` capability claim means that a bounded design statement is traceable to supplied workflow artifacts. It does not prove accuracy, generalisation, safety, usability, impact, or deployment readiness.
 - `gpt_5_6_runtime.json` is application-level provenance, not cryptographic attestation from OpenAI. It records the returned model string and response ID but cannot independently prove account ownership or rule compliance.
 - Public provenance omits API keys, URL credentials, endpoint paths, query strings, and local executable paths, but any text deliberately sent to a direct provider or cloud-backed installed client is still disclosed to that provider. Do not use private or confidential material.
-- The Streamlit workbench can display an existing ClaimHarness package, but it does not execute a ClaimHarness audit. Audit execution, evidence-contract selection, and remote advisory providers remain CLI operations.
+- The Streamlit workbench executes the same deterministic ClaimHarness pipeline as the CLI for explicit text and CSV inputs. Custom evidence-contract selection and remote advisory audit providers remain CLI operations. User-entered human boundaries are recorded as context, not compiled into additional verifier rules.
+- One problem per project links immutable framing, audit and follow-up revisions. This association does not prove that a supplied table is authentic, independent, or relevant to the whole problem. Generated alignment packages are not automatically loaded as result evidence. A follow-up answer is user-reported and never changes a claim verdict. Changing the framing clears the current audit association; earlier runs remain historical.
+- Workbench checks primarily cover English numerical patterns. They always retain a question about missed statements; zero extracted claims is not a successful validation. The next-question prompts are deterministic finding-based suggestions, not adaptive expert interviews.
 - The static viewer search, filters, anchors, and copy helper run only in the local browser and do not change audit files or verification status. Clipboard access can be blocked by browser policy; the viewer reports failure but cannot grant clipboard permission.
 - `run_manifest.json` and `project_summary_log.md` provide provenance and navigation; they are not scientific evidence, peer review, or approval records.
 - `audit_diagnostics.json` has no gold labels. Its coverage and gap ratios describe only the current deterministic link graph and verifier outputs; they are not accuracy, faithfulness, hallucination, scientific-validity, or safety estimates.

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "claim-harness"
-version = "0.4.0"
+version = "0.4.1"
 description = "ProblemBridge + ClaimHarness: local-first deterministic workflow alignment and rule-based claim-evidence screening."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -46,6 +46,7 @@ claim_harness = [
   "demo_data/*.md",
   "demo_data/tables/*.csv",
   "eval_data/*.jsonl",
+  "eval_data/*.json",
 ]
 problem_bridge = ["demo_data/*.md", "prompts/*.md"]
 

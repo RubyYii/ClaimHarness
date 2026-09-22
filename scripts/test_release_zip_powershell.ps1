@@ -118,7 +118,13 @@ try {
         "claim_harness/evidence_contract.py",
         "claim_harness/capability_gate.py",
         "claim_harness/evaluation.py",
+        "claim_harness/claim_language.py",
+        "claim_harness/table_relations.py",
+        "claim_harness/review_presentation.py",
         "claim_harness/eval_data/gold_claims.jsonl",
+        "claim_harness/eval_data/development_claims.jsonl",
+        "claim_harness/eval_data/challenge_claims.jsonl",
+        "claim_harness/eval_data/corpus_manifest.json",
         "claim_harness/prompts/audit_summary.md",
         "claim_harness/demo_data/manuscript.md",
         "claim_harness/demo_data/references.md",
@@ -304,7 +310,7 @@ for name in samples:
             throw "Build Week packaged demo failed (exit code $LASTEXITCODE)."
         }
 
-        & $venvPython (Join-Path $packageDir.FullName "scripts\evaluate_gold_set.py") --out $evaluationOut
+        & $venvPython (Join-Path $packageDir.FullName "scripts\evaluate_gold_set.py") --suite all --check --out $evaluationOut
         if ($LASTEXITCODE -ne 0) {
             throw "Packaged synthetic evaluation failed (exit code $LASTEXITCODE)."
         }
@@ -386,7 +392,12 @@ for name in samples:
         throw "Packaged mock demo runtime record violates the no-key truth boundary."
     }
 
-    foreach ($relative in @("evaluation_metrics.json", "evaluation_report.md")) {
+    foreach ($relative in @(
+        "evaluation_summary.json",
+        "baseline/evaluation_metrics.json", "baseline/evaluation_report.md",
+        "development/evaluation_metrics.json", "development/evaluation_report.md",
+        "challenge/evaluation_metrics.json", "challenge/evaluation_report.md"
+    )) {
         if (-not (Test-Path -LiteralPath (Join-Path $evaluationOut $relative) -PathType Leaf)) {
             throw "Packaged synthetic evaluation did not produce: $relative"
         }

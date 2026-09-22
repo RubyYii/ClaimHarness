@@ -39,8 +39,8 @@ def test_demo_status_distribution_snapshot():
     assert len(evidence) == 26
     assert status_counts == {
         "supported": 3,
-        "weakly_supported": 10,
+        "weakly_supported": 9,
         "unsupported": 1,
         "overclaimed": 1,
-        "needs_human_review": 1,
+        "needs_human_review": 2,
     }
