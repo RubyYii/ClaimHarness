@@ -80,17 +80,22 @@ def test_examples_do_not_claim_real_or_private_data():
 
 
 def test_readme_documents_runnable_demo_and_required_outputs():
-    text = Path("README.md").read_text(encoding="utf-8")
-    required = [
+    readme = Path("README.md").read_text(encoding="utf-8")
+    for phrase in [
         "python.exe -m claim_harness run",
         "--llm mock",
         "claim_table.csv",
         "evidence_map.json",
         "audit_report.md",
         "revision_suggestions.md",
+        "agent_trace.jsonl",
+    ]:
+        assert phrase in readme
+
+    reference = Path("docs/reference.md").read_text(encoding="utf-8")
+    for phrase in [
         "audit_diagnostics.json",
         "human_review_queue.json",
-        "agent_trace.jsonl",
         "does not guarantee factual correctness",
         "openai-compatible",
         "OPENAI_API_KEY",
@@ -103,44 +108,29 @@ def test_readme_documents_runnable_demo_and_required_outputs():
         "source_line",
         "match reason",
         "GitHub Actions",
-    ]
-
-    for phrase in required:
-        assert phrase in text
-
-
-def test_github_landing_page_has_visual_portfolio_header():
-    readme = Path("README.md").read_text(encoding="utf-8")
-    readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
-    hero = Path("docs/figures/github-hero-flat-comic.png")
-    workflow = Path("docs/figures/github-workflow.svg")
-
-    assert hero.is_file()
-    assert workflow.is_file()
-    assert hero.read_bytes().startswith(b"\x89PNG")
-    assert hero.stat().st_size > 100_000
-    assert workflow.read_text(encoding="utf-8").lstrip().startswith("<svg")
-
-    for phrase in [
-        "docs/figures/github-hero-flat-comic.png",
-        "docs/figures/github-workflow.svg",
-        "Project at a glance",
-        "Guided workflow",
-        "Start locally",
-        "No API by default",
-        "Document intake -> Question discovery -> Workflow alignment -> AI task check -> Evidence-gated build -> Handoff and review",
     ]:
-        assert phrase in readme
+        assert phrase in reference
 
-    for phrase in [
-        "docs/figures/github-hero-flat-comic.png",
-        "docs/figures/github-workflow.svg",
-        "项目一眼看懂",
-        "引导式工作流",
-        "本地运行",
-        "默认不需要 API",
+
+def test_github_landing_page_has_one_current_screenshot_and_starting_route():
+    for filename, language, heading, reference in [
+        ("README.md", "en", "Use it in three steps", "docs/reference.md"),
+        ("README.zh-CN.md", "zh", "三步开始使用", "docs/reference.zh-CN.md"),
     ]:
-        assert phrase in readme_zh
+        readme = Path(filename).read_text(encoding="utf-8")
+        screenshot = Path(f"docs/figures/workbench-start-{language}.png")
+        assert screenshot.is_file()
+        assert screenshot.read_bytes().startswith(b"\x89PNG")
+        assert re.findall(r"!\[[^\]]*\]\(([^)]+)\)", readme) == [screenshot.as_posix()]
+        for phrase in [
+            "[English](README.md)",
+            "[简体中文](README.zh-CN.md)",
+            heading,
+            "RUN_PROBLEMBRIDGE_WINDOWS.bat",
+            reference,
+        ]:
+            assert phrase in readme
+        assert Path(reference).is_file()
 
 
 def test_limitations_are_conservative():
@@ -263,7 +253,7 @@ def test_guided_ui_is_documented_for_non_ai_users():
     assert Path("apps/problem_bridge_wizard.py").is_file()
     assert '.[dev,ui]' in readme
     assert "streamlit run apps/problem_bridge_wizard.py" in readme
-    assert "Guided UI for non-AI users" in readme
+    assert "Guided UI for non-AI users" in Path("docs/reference.md").read_text(encoding="utf-8")
     assert "Do not upload private patient data" in readme
 
 
@@ -300,14 +290,14 @@ def test_v031_usability_validation_pack_is_present():
     ]:
         assert phrase in plan
 
-    readme = Path("README.md").read_text(encoding="utf-8")
+    reference = Path("docs/reference.md").read_text(encoding="utf-8")
     for phrase in [
         "For non-AI users",
         "run_problembridge_ui_windows.bat",
         "Explore examples",
         "Domain practitioner wizard",
     ]:
-        assert phrase in readme
+        assert phrase in reference
 
     ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
     assert "Start with synthetic examples" in ui_text
@@ -322,7 +312,7 @@ def test_v031_usability_validation_pack_is_present():
 
 def test_v032_workflow_first_onboarding_is_documented():
     guide = Path("NON_AI_USER_GUIDE.md").read_text(encoding="utf-8")
-    readme = Path("README.md").read_text(encoding="utf-8")
+    reference = Path("docs/reference.md").read_text(encoding="utf-8")
     ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
 
     assert "You do not need to describe an AI task" in guide
@@ -336,11 +326,11 @@ def test_v032_workflow_first_onboarding_is_documented():
     ]:
         assert phrase in guide
 
-    assert readme.index("Explore examples") < readme.index("Domain practitioner wizard")
-    assert "Guided Interview Engine" in readme
-    assert "local rule-based question routing" in readme
-    assert "理解状态" in Path("README.zh-CN.md").read_text(encoding="utf-8")
-    assert "引导式追问" in Path("README.zh-CN.md").read_text(encoding="utf-8")
+    assert reference.index("Explore examples") < reference.index("Domain practitioner wizard")
+    assert "Guided Interview Engine" in reference
+    assert "local rule-based question routing" in reference
+    assert "理解状态" in Path("docs/reference.zh-CN.md").read_text(encoding="utf-8")
+    assert "引导式追问" in Path("docs/reference.zh-CN.md").read_text(encoding="utf-8")
     assert "Answer five short questions to get a workflow brief" in ui_text
     assert "You can revise any saved answer along the way" in ui_text
     assert "Interview mode" in ui_text
@@ -485,8 +475,8 @@ def test_guided_ui_sidebar_has_readable_theme():
 
 
 def test_document_intake_layer_is_documented_and_in_ui():
-    readme = Path("README.md").read_text(encoding="utf-8")
-    readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
+    reference = Path("docs/reference.md").read_text(encoding="utf-8")
+    reference_zh = Path("docs/reference.zh-CN.md").read_text(encoding="utf-8")
     guide = Path("NON_AI_USER_GUIDE.md").read_text(encoding="utf-8")
     ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
 
@@ -513,14 +503,14 @@ def test_document_intake_layer_is_documented_and_in_ui():
         "no login pages",
         "image understanding",
     ]:
-        assert phrase in readme
+        assert phrase in reference
 
-    assert "文档摄取层" in readme_zh
-    assert "文字版 PDF" in readme_zh
-    assert "批注" in readme_zh
-    assert "高亮" in readme_zh
-    assert "可选本地 OCR" in readme_zh
-    assert "公开静态" in readme_zh
+    assert "文档摄取层" in reference_zh
+    assert "文字版 PDF" in reference_zh
+    assert "批注" in reference_zh
+    assert "高亮" in reference_zh
+    assert "可选本地 OCR" in reference_zh
+    assert "公开静态" in reference_zh
     assert "Document intake" in guide
 
     for phrase in [
@@ -771,12 +761,12 @@ def test_ocr_setup_guide_has_visual_install_instructions():
         assert figure.as_posix() in html
 
     assert "OCR_SETUP.md" in readme
-    assert "docs/ocr_setup.html" in readme
+    assert "ocr_setup.html" in Path("docs/reference.md").read_text(encoding="utf-8")
 
 
 def test_guided_ui_exposes_word_and_pdf_exports():
-    readme = Path("README.md").read_text(encoding="utf-8")
-    readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
+    reference = Path("docs/reference.md").read_text(encoding="utf-8")
+    reference_zh = Path("docs/reference.zh-CN.md").read_text(encoding="utf-8")
     ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
 
     for phrase in [
@@ -789,13 +779,13 @@ def test_guided_ui_exposes_word_and_pdf_exports():
         assert phrase in ui_text
 
     for phrase in ["export_report.docx", "export_report.pdf"]:
-        assert phrase in readme
-        assert phrase in readme_zh
+        assert phrase in reference
+        assert phrase in reference_zh
 
 
 def test_question_discovery_layer_is_documented_and_in_ui():
-    readme = Path("README.md").read_text(encoding="utf-8")
-    readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
+    reference = Path("docs/reference.md").read_text(encoding="utf-8")
+    reference_zh = Path("docs/reference.zh-CN.md").read_text(encoding="utf-8")
     guide = Path("NON_AI_USER_GUIDE.md").read_text(encoding="utf-8")
     ui_text = Path("apps/problem_bridge_wizard.py").read_text(encoding="utf-8")
     showcase_en = Path("docs/static_showcase/en.html").read_text(encoding="utf-8")
@@ -807,10 +797,10 @@ def test_question_discovery_layer_is_documented_and_in_ui():
         "who to ask",
         "Do not propose a solution yet",
     ]:
-        assert phrase in readme
+        assert phrase in reference
 
-    assert "先提出问题" in readme_zh
-    assert "识别该问谁" in readme_zh
+    assert "先提出问题" in reference_zh
+    assert "识别该问谁" in reference_zh
     assert "question_brief.md" in guide
     assert "stakeholder_map.md" in guide
 
@@ -1056,38 +1046,50 @@ def test_release_packaging_support_is_present():
         assert page.count('<article class="step">') == 6
 
     readme = Path("README.md").read_text(encoding="utf-8")
-    assert "[English](README.md)" in readme
-    assert "[简体中文](README.zh-CN.md)" in readme
-    assert "README.zh-CN.md" in readme
-    assert "docs/static_showcase/en.html" in readme
-    assert "中文说明" not in readme
-    assert "English Overview" not in readme
-    assert "Downloadable local web app package" in readme
-    assert "RUN_PROBLEMBRIDGE_WINDOWS.bat" in readme
-    assert "Use it in three steps" in readme
-    assert "executes the deterministic ClaimHarness audit through the same pipeline as the CLI" in readme
-
-    readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
+    reference = Path("docs/reference.md").read_text(encoding="utf-8")
     for phrase in [
         "[English](README.md)",
         "[简体中文](README.zh-CN.md)",
-        "跨学科 AI 项目",
-        "ProblemBridge 负责建模前的问题对齐",
-        "ClaimHarness 负责输出后的证据审计",
+        "RUN_PROBLEMBRIDGE_WINDOWS.bat",
+        "Use it in three steps",
+        "docs/reference.md",
+    ]:
+        assert phrase in readme
+    assert "中文说明" not in readme
+    assert "English Overview" not in readme
+    for phrase in [
+        "static_showcase/en.html",
+        "Downloadable local web app package",
+        "executes the deterministic ClaimHarness audit through the same pipeline as the CLI",
+    ]:
+        assert phrase in reference
+
+    readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
+    reference_zh = Path("docs/reference.zh-CN.md").read_text(encoding="utf-8")
+    for phrase in [
+        "[English](README.md)",
+        "[简体中文](README.zh-CN.md)",
         "本地运行",
         "RUN_PROBLEMBRIDGE_WINDOWS.bat",
         "不要输入真实患者数据",
-        "docs/static_showcase/zh-CN.html",
         "三步开始使用",
-        "工作台直接复用 ClaimHarness 的确定性审计管线",
+        "docs/reference.zh-CN.md",
     ]:
         assert phrase in readme_zh
+    for phrase in [
+        "跨学科 AI 原型",
+        "**建模前的问题对齐。**ProblemBridge",
+        "**输出后的证据审计。**ClaimHarness",
+        "static_showcase/zh-CN.html",
+        "工作台直接复用 ClaimHarness 的确定性审计管线",
+    ]:
+        assert phrase in reference_zh
 
 
 def test_external_review_reconciliation_tracks_product_truth_and_all_issues():
     pyproject = Path("pyproject.toml").read_text(encoding="utf-8")
-    readme = Path("README.md").read_text(encoding="utf-8")
-    readme_zh = Path("README.zh-CN.md").read_text(encoding="utf-8")
+    reference = Path("docs/reference.md").read_text(encoding="utf-8")
+    reference_zh = Path("docs/reference.zh-CN.md").read_text(encoding="utf-8")
     reconciliation = Path("docs/external_review_reconciliation.md").read_text(
         encoding="utf-8"
     )
@@ -1104,7 +1106,7 @@ def test_external_review_reconciliation_tracks_product_truth_and_all_issues():
         "Optional advisory summary only",
         "Current implementation and 14-issue status",
     ]:
-        assert phrase in readme
+        assert phrase in reference
     for phrase in [
         "### 当前实现真相",
         "确定性的 profile/template 生成，并继承引导字段",
@@ -1112,7 +1114,7 @@ def test_external_review_reconciliation_tracks_product_truth_and_all_issues():
         "感知 evidence contract 的保守规则筛查",
         "当前实现与 14 类问题状态",
     ]:
-        assert phrase in readme_zh
+        assert phrase in reference_zh
 
     for issue_number in range(1, 15):
         assert re.search(rf"^\| {issue_number} \|", reconciliation, flags=re.MULTILINE)
@@ -1131,7 +1133,7 @@ def test_model_provider_guide_is_present():
     guide_path = Path("MODEL_PROVIDER_GUIDE.md")
     assert guide_path.is_file()
     guide = guide_path.read_text(encoding="utf-8")
-    readme = Path("README.md").read_text(encoding="utf-8")
+    reference = Path("docs/reference.md").read_text(encoding="utf-8")
 
     for provider in [
         "mock",
@@ -1152,7 +1154,7 @@ def test_model_provider_guide_is_present():
         "anthropic",
     ]:
         assert provider in guide
-        assert provider in readme
+        assert provider in reference
 
     for env_name in [
         "CLAIMHARNESS_CODEX_BIN",
@@ -1179,7 +1181,7 @@ def test_windows_launchers_are_robust_for_double_click_usage():
     bat = Path("scripts/run_problembridge_ui_windows.bat").read_text(encoding="utf-8")
     ps1 = Path("scripts/run_problembridge_ui_powershell.ps1").read_text(encoding="utf-8")
     setup = Path("scripts/setup_problembridge_windows.ps1").read_text(encoding="utf-8")
-    readme = Path("README.md").read_text(encoding="utf-8")
+    reference = Path("docs/reference.md").read_text(encoding="utf-8")
 
     assert 'cd /d "%~dp0\\.."' in bat
     assert "setup_problembridge_windows.bat" in bat
@@ -1204,8 +1206,8 @@ def test_windows_launchers_are_robust_for_double_click_usage():
     assert "requirements\\constraints.txt" in setup
     assert '-c $constraints -e ".[dev,ui]"' in setup
 
-    assert "If the Windows launcher does not load" in readme
-    assert "Static HTML is best for viewing examples only" in readme
+    assert "If the Windows launcher does not load" in reference
+    assert "Static HTML is best for viewing examples only" in reference
 
 
 def _assert_immediate_native_exit_check(script_text, invocation):

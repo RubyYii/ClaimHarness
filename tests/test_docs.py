@@ -1,16 +1,18 @@
 from pathlib import Path
 
 
-README = Path("README.md")
+REFERENCE = Path("docs/reference.md")
 DOCS = {
     "architecture": Path("docs/architecture.md"),
     "walkthrough": Path("docs/demo_walkthrough.md"),
     "limitations": Path("docs/limitations.md"),
+    "reference": REFERENCE,
+    "reference_zh": Path("docs/reference.zh-CN.md"),
 }
 
 
-def test_readme_contains_demo_quality_sections():
-    text = README.read_text(encoding="utf-8")
+def test_reference_contains_demo_quality_sections():
+    text = REFERENCE.read_text(encoding="utf-8")
     required_phrases = [
         "ClaimHarness: A Lightweight Agent Harness for Scientific Claim-Evidence Auditing",
         "ClaimHarness turns a scientific manuscript into an auditable claim-evidence package.",

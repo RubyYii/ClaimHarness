@@ -10,6 +10,7 @@ ClaimHarness 对已有文字中的声明进行确定性证据筛查。网页工�
 | 目的 | 入口 |
 | --- | --- |
 | 首次了解和运行 | [中文 README](../README.zh-CN.md)、[英文 README](../README.md#run-locally) |
+| 查阅完整用法与命令 | [中文参考](reference.zh-CN.md)、[English reference](reference.md) |
 | 使用网页工作台 | 根目录 `RUN_PROBLEMBRIDGE_WINDOWS.bat`；[非 AI 用户指南](../NON_AI_USER_GUIDE.md) |
 | 检查稿件与结果表 | [审计演示步骤](demo_walkthrough.md)；`python -m claim_harness run` |
 | 了解当前代码职责 | [架构](architecture.md)、[v0.4 升级说明](v0.4_upgrade.md) |
