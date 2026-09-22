@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "label_status": "provisional_synthetic_not_human_validated",
+  "boundary": "Development and challenge cases were authored by the same implementation agent and frozen before source implementation. They are regression checks, not independent or human validation.",
+  "files": {
+    "development_claims.jsonl": {
+      "records": 36,
+      "sha256": "d9dedd909c8634211b40e9dc3433f3820727a9120b451f04dbfd6d49ade47ebf"
+    },
+    "challenge_claims.jsonl": {
+      "records": 20,
+      "sha256": "d4c5c6841b3b0a630cea847c91361ae58c5262efce60894f7259d3d8989b983e"
+    }
+  }
+}

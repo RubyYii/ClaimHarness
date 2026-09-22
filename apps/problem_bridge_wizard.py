@@ -23,6 +23,8 @@ from problem_bridge.build_contract import (
     generate_evidence_gated_build,
 )
 from problem_bridge.generator import build_alignment_package
+from problem_bridge.workbench_ui import interview_seed, render_workbench
+from problem_bridge.need_ui import NEED_DRAFT_KEYS
 from problem_bridge.guided import (
     FRIENDLY_FILE_LABELS,
     build_ai_practitioner_problem,
@@ -32,6 +34,8 @@ from problem_bridge.guided import (
 )
 from problem_bridge import document_intake as document_intake_module
 from problem_bridge.interview import (
+    QUESTION_FLOW,
+    REQUIRED_KEYS,
     answer_question,
     build_problem_from_interview,
     is_ready_for_alignment,
@@ -118,14 +122,22 @@ LANGUAGE_BY_QUERY_CODE = {code: choice for choice, code in LANGUAGE_QUERY_CODES.
 LANGUAGE_BADGE = {"en": "English interface", "zh": "中文界面"}
 
 PAGE_LABELS = {
-    "Home": {"en": "Home", "zh": "首页"},
-    "Explore examples": {"en": "Explore examples", "zh": "示例演示"},
-    "Document intake": {"en": "Document intake", "zh": "文档摄取"},
-    "Question discovery": {"en": "Question discovery", "zh": "问题发现"},
-    "Domain practitioner wizard": {"en": "Domain practitioner wizard", "zh": "领域工作流向导"},
-    "AI practitioner wizard": {"en": "AI practitioner wizard", "zh": "AI 任务对齐向导"},
-    "Evidence-gated build": {"en": "Evidence-gated build", "zh": "证据门控构建"},
-    "View generated outputs": {"en": "View generated outputs", "zh": "查看生成结果"},
+    "Home": {"en": "My workbench", "zh": "我的工作台"},
+    "Explore examples": {"en": "Try an example", "zh": "试用示例"},
+    "Document intake": {"en": "Bring your files", "zh": "整理已有材料"},
+    "Question discovery": {"en": "Clarify your question", "zh": "理清问题"},
+    "Domain practitioner wizard": {"en": "Describe your work", "zh": "梳理工作流程"},
+    "AI practitioner wizard": {"en": "Check an AI task", "zh": "检查 AI 任务"},
+    "Evidence-gated build": {"en": "Prepare a build plan", "zh": "准备实现方案"},
+    "View generated outputs": {"en": "Results & downloads", "zh": "查看与下载结果"},
+}
+
+INTERVIEW_EXAMPLES = {
+    "repeated_work": ("Each week I compare a draft report with the result tables, then ask the author about discrepancies.", "每周我要对照结果表检查报告，再把不一致的地方发给作者确认。"),
+    "materials": ("I use the report, a spreadsheet of results, and the review checklist.", "我会看报告正文、结果表和审核清单。"),
+    "pain_points": ("Finding the source table for each number takes time; versions are easy to mix up.", "最费时间的是找到每个数字对应的表格，还容易混淆版本。"),
+    "human_boundaries": ("The author must confirm explanations and conclusions. The assistant cannot approve a report.", "原因解释和最终结论必须由作者确认，助手不能代替审核人批准报告。"),
+    "useful_support": ("A list of statements to check, their source rows, and questions to send to the author.", "给我一份待核查句子清单，附上来源表格和需要向作者确认的问题。"),
 }
 
 WORKFLOW_STEPS_ZH = [
@@ -378,6 +390,7 @@ LEGACY_PACKAGE_FILES = {
 }
 
 DRAFT_KEY_GROUPS = {
+    "need_brief": NEED_DRAFT_KEYS,
     "question_discovery": [
         "question_seed_text",
         "question_uncertainty",
@@ -425,14 +438,18 @@ PROJECT_SCOPED_SESSION_KEYS = (
     "last_ai_alignment_dir",
     "last_build_contract_dir",
     "last_example_dir",
+    "last_problem_dir",
+    "pending_unified_stage",
+    "pending_problem_seed",
     "problem_bridge_interview_state",
     "interview_seed_source",
     "ai_seed_source_dir",
     "domain_input_mode",
     "confirm_interview_reset",
     "confirm_start_new_project",
+    "interview_editing_key",
 )
-PROJECT_SCOPED_KEY_PREFIXES = ("interview_answer_", "interview_edit_")
+PROJECT_SCOPED_KEY_PREFIXES = ("interview_answer_", "interview_edit_", "unified_")
 
 
 def _language_code() -> str:
@@ -491,13 +508,19 @@ def _page_label(page: str) -> str:
 
 
 def _generated_message(out: Path) -> str:
-    return _text(f"Generated: {out}", f"已生成：{out}")
+    return _text("Your result is ready and saved locally. Review it below, then continue or download.", "结果已生成并保存在本地。先查看下方内容，再继续或下载。")
 
 
 def _navigate_to_page(page: str) -> None:
     if page not in PAGE_OPTIONS:
         raise ValueError(f"Unknown workspace page: {page}")
     st.session_state.workspace_page = page
+
+
+def _select_workspace_page(widget_key: str) -> None:
+    selected = st.session_state.get(widget_key)
+    if selected in PAGE_OPTIONS:
+        st.session_state.workspace_page = selected
 
 
 def _set_flash_message(kind: str, message: str) -> None:
@@ -582,32 +605,54 @@ def _display_missing_item(item: str) -> str:
 def main() -> None:
     st.set_page_config(page_title="ProblemBridge Workbench", layout="wide")
     _sync_language_from_query_params()
+    _ensure_memory_state()
+    # Streamlit otherwise deletes widget values when their step is hidden.
+    # Interrupt that cleanup for non-secret text drafts, including tool switches.
+    for key in list(st.session_state):
+        if key in NEED_DRAFT_KEYS or key in {"unified_manuscript", "unified_csv", "unified_references"}:
+            st.session_state[key] = st.session_state[key]
     if "pending_workspace_page" in st.session_state:
         st.session_state.workspace_page = st.session_state.pop("pending_workspace_page")
     _inject_visual_theme()
 
-    st.sidebar.markdown(f"### {_text('Workspace', '工作区')}")
-    page = st.sidebar.radio(
-        _text("Choose an entry", "选择入口"),
-        PAGE_OPTIONS,
-        format_func=_page_label,
-        key="workspace_page",
-    )
+    st.sidebar.markdown("### ProblemBridge")
+    st.sidebar.caption(_text("Explain your work. Prepare a shared task.", "说清专业需求，让合作有个起点。"))
+    for destination in ("Home", "Domain practitioner wizard", "View generated outputs"):
+        st.sidebar.button(
+            _page_label(destination),
+            key=f"quick_nav_{PAGE_OPTIONS.index(destination)}",
+            on_click=_navigate_to_page,
+            args=(destination,),
+            use_container_width=True,
+        )
+    with st.sidebar.expander(_text("All tools", "全部工具")):
+        navigation_key = f"navigation_{_language_code()}"
+        selected_page = st.session_state.get("workspace_page", "Home")
+        st.session_state[navigation_key] = selected_page if selected_page in PAGE_OPTIONS else "Home"
+        navigation_labels = {option: _page_label(option) for option in PAGE_OPTIONS}
+        page = st.radio(
+            _text("Choose an entry", "选择入口"),
+            PAGE_OPTIONS,
+            format_func=navigation_labels.__getitem__,
+            key=navigation_key,
+            on_change=_select_workspace_page,
+            args=(navigation_key,),
+        )
+        st.session_state.workspace_page = page
     st.sidebar.caption(_text(
         "Local-first. Use synthetic or non-sensitive material first.",
         "本地优先。首次测试请使用合成或非敏感材料。",
     ))
-    _render_memory_sidebar()
-    _render_project_sidebar()
+    with st.sidebar.expander(_text("Drafts & project settings", "草稿与项目设置")):
+        _render_memory_sidebar()
+        _render_project_sidebar()
 
     _render_language_switcher()
-    if page == "Home":
+    if page == "Home" and not st.session_state.get("last_problem_dir") and st.session_state.get("unified_intake_step", 0) == 0:
         _render_shell_header()
     else:
         _render_compact_shell_header(page)
-    _render_workflow_strip(page, compact=page != "Home")
-    _render_flow_navigation(page)
-    _safety_banner(compact=page != "Home")
+    _safety_banner(compact=True)
     _render_flash_message()
 
     if page == "Home":
@@ -626,21 +671,24 @@ def main() -> None:
         _evidence_gated_build()
     else:
         _view_outputs()
+    if page != "Home":
+        with st.expander(_text("Other steps (optional)", "其他步骤（可选）")):
+            _render_flow_navigation(page)
 
 
 def _render_memory_sidebar() -> None:
     _ensure_memory_state()
 
-    st.sidebar.divider()
-    show_memory = st.sidebar.checkbox(_text("Show workspace memory", "显示工作台记忆"), value=False, key="show_workspace_memory")
+    st.divider()
+    show_memory = st.checkbox(_text("Show workspace memory", "显示工作台记忆"), value=False, key="show_workspace_memory")
     if show_memory:
-        st.sidebar.caption(
+        st.caption(
             _text(
                 f"Saved locally to `{MEMORY_PATH}` (`{MEMORY_FILE_LABEL}`). This workbench does not accept or store API keys.",
                 f"本地保存位置：`{MEMORY_PATH}`（`{MEMORY_FILE_LABEL}`）。当前工作台不接收或保存 API 密钥。",
             )
         )
-        st.sidebar.warning(
+        st.warning(
             _text(
                 "Privacy check before sharing: Clear local memory before sharing the folder or zip if your drafts include sensitive workflow details.",
                 "分享前隐私检查：如果草稿包含敏感工作流信息，请先清除本地记忆，再分享文件夹或压缩包。",
@@ -649,9 +697,9 @@ def _render_memory_sidebar() -> None:
 
         last_output = st.session_state.get("last_output_dir")
         if last_output:
-            st.sidebar.caption(_text(f"Last output: `{last_output}`", f"最近输出：`{last_output}`"))
+            st.caption(_text(f"Last output: `{last_output}`", f"最近输出：`{last_output}`"))
 
-        col1, col2 = st.sidebar.columns(2)
+        col1, col2 = st.columns(2)
         with col1:
             if st.button(_text("Load saved memory", "加载记忆"), key="memory_load"):
                 st.session_state.pending_workbench_memory = load_workbench_memory(MEMORY_PATH)
@@ -661,7 +709,7 @@ def _render_memory_sidebar() -> None:
                 payload = _current_workbench_memory()
                 save_workbench_memory(payload, MEMORY_PATH)
                 st.session_state.workbench_memory = payload
-                st.sidebar.success(_text("Workspace memory saved locally.", "工作台记忆已保存到本地。"))
+                st.success(_text("Workspace memory saved locally.", "工作台记忆已保存到本地。"))
         with col2:
             if st.button(_text("Clear memory", "清除记忆"), key="memory_clear"):
                 clear_workbench_memory(MEMORY_PATH)
@@ -676,30 +724,31 @@ def _render_memory_sidebar() -> None:
                 )
                 st.rerun()
 
-    st.sidebar.caption(
-        _text(
-            "The guided flow is deterministic by default. Evidence-Gated Build can optionally use GPT-5.6 through an OPENAI_API_KEY environment variable; the UI never accepts or stores the key.",
-            "引导流程默认使用确定性 mock。证据门控构建可通过 OPENAI_API_KEY 环境变量选择 GPT-5.6；界面不会接收或保存密钥。",
+    if show_memory:
+        st.caption(
+            _text(
+                "The guided flow is deterministic by default. Evidence-Gated Build can optionally use GPT-5.6 through an OPENAI_API_KEY environment variable; the UI never accepts or stores the key.",
+                "引导流程默认使用确定性 mock。证据门控构建可通过 OPENAI_API_KEY 环境变量选择 GPT-5.6；界面不会接收或保存密钥。",
+            )
         )
-    )
 
 
 def _render_project_sidebar() -> None:
     project_id = _active_project_id()
-    st.sidebar.divider()
-    st.sidebar.caption(_text(f"Active project: `{project_id}`", f"当前项目：`{project_id}`"))
+    st.divider()
+    st.caption(_text(f"Active project: `{project_id}`", f"当前项目：`{project_id}`"))
     if not st.session_state.get("confirm_start_new_project"):
-        if st.sidebar.button(_text("Start a new project", "开始新项目"), key="start_new_project"):
+        if st.button(_text("Start a new project", "开始新项目"), key="start_new_project"):
             st.session_state.confirm_start_new_project = True
             st.rerun()
     else:
-        st.sidebar.warning(
+        st.warning(
             _text(
                 "Starting a new project clears current drafts from this workspace. Existing generated runs stay on disk.",
                 "开始新项目会清空当前工作台草稿；已经生成的运行结果仍保留在本地。",
             )
         )
-        if st.sidebar.button(
+        if st.button(
             _text("Save drafts, then start", "保存草稿后开始"),
             key="save_then_start_project",
         ):
@@ -710,7 +759,7 @@ def _render_project_sidebar() -> None:
             _reset_active_project()
             _set_flash_message("success", _text("Drafts saved; started a new local project.", "草稿已保存，并已开始新的本地项目。"))
             st.rerun()
-        if st.sidebar.button(
+        if st.button(
             _text("Start without saving drafts", "不保存草稿并开始"),
             key="discard_then_start_project",
         ):
@@ -718,16 +767,16 @@ def _render_project_sidebar() -> None:
             _reset_active_project()
             _set_flash_message("success", _text("Started a new local project.", "已开始一个新的本地项目。"))
             st.rerun()
-        if st.sidebar.button(_text("Cancel", "取消"), key="cancel_start_project"):
+        if st.button(_text("Cancel", "取消"), key="cancel_start_project"):
             st.session_state.pop("confirm_start_new_project", None)
             st.rerun()
-    project_runs = _project_run_paths(project_id)
-    show_project_deletion = st.sidebar.checkbox(
+    show_project_deletion = st.checkbox(
         _text("Show project deletion controls", "显示项目删除控件"),
         value=False,
         key=f"show_project_deletion_{project_id}",
     )
     if show_project_deletion:
+        project_runs = _project_run_paths(project_id)
         st.warning(
             _text(
                 f"This permanently deletes {len(project_runs)} local run(s), including original uploads.",
@@ -751,19 +800,22 @@ def _render_project_sidebar() -> None:
 
 
 def _render_incomplete_run_cleanup() -> None:
-    pending = _pending_run_records()
-    show_pending = st.sidebar.checkbox(
+    show_pending = st.checkbox(
         _text(
-            f"Show incomplete runs ({len(pending)})",
-            f"显示未完成运行（{len(pending)}）",
+            "Show incomplete runs",
+            "检查未完成的运行",
         ),
         value=False,
         key="show_incomplete_runs",
     )
-    if not show_pending or not pending:
+    if not show_pending:
+        return
+    pending = _pending_run_records()
+    if not pending:
+        st.caption(_text("No incomplete runs found.", "没有发现未完成的运行。"))
         return
 
-    selected_index = st.sidebar.selectbox(
+    selected_index = st.selectbox(
         _text("Incomplete run", "未完成运行"),
         options=list(range(len(pending))),
         format_func=lambda index: (
@@ -773,16 +825,16 @@ def _render_incomplete_run_cleanup() -> None:
         key="selected_incomplete_run",
     )
     selected = pending[selected_index]
-    st.sidebar.caption(str(selected["path"]))
-    typed_project = st.sidebar.text_input(
+    st.caption(str(selected["path"]))
+    typed_project = st.text_input(
         _text("Type its project ID", "输入该项目 ID"),
         key="confirm_incomplete_project_id",
     )
-    typed_run = st.sidebar.text_input(
+    typed_run = st.text_input(
         _text("Type its run ID", "输入该运行 ID"),
         key="confirm_incomplete_run_id",
     )
-    if st.sidebar.button(
+    if st.button(
         _text("Delete this incomplete run", "删除这次未完成运行"),
         disabled=(
             typed_project != selected["project_id"]
@@ -852,20 +904,36 @@ def _apply_memory_to_session(memory: dict, clear_existing: bool) -> None:
                     st.session_state.setdefault(key, group_values[key])
 
     active_project_id = st.session_state.get("active_project_id")
+    saved_answers = memory.get("interview_answers", {}) if isinstance(memory, dict) else {}
+    if memory_project_id is not None and isinstance(saved_answers, dict) and "problem_bridge_interview_state" not in st.session_state:
+        restored = start_interview()
+        for key in ("domain", *REQUIRED_KEYS):
+            value = saved_answers.get(key)
+            if isinstance(value, str) and value.strip():
+                restored = answer_question(restored, key, value)
+        if restored.answers:
+            st.session_state.problem_bridge_interview_state = restored
     if isinstance(memory, dict) and memory.get("last_output_dir"):
         restored_output = _validated_project_output_path(
             memory["last_output_dir"], active_project_id
         )
         if restored_output is not None:
             st.session_state.setdefault("last_output_dir", str(restored_output))
+    if isinstance(memory, dict) and memory.get("last_problem_dir"):
+        restored_problem = _validated_project_output_path(memory["last_problem_dir"], active_project_id)
+        if restored_problem is not None and (restored_problem / "problem_record.json").is_file():
+            st.session_state.setdefault("last_problem_dir", str(restored_problem))
 
 
 def _current_workbench_memory() -> dict:
+    interview = st.session_state.get("problem_bridge_interview_state")
     return {
         "schema_version": 3,
         "drafts": _drafts_from_session(),
         "last_output_dir": st.session_state.get("last_output_dir", ""),
+        "last_problem_dir": st.session_state.get("last_problem_dir", ""),
         "active_project_id": _active_project_id(),
+        "interview_answers": dict(interview.answers) if interview else {},
     }
 
 
@@ -1014,11 +1082,11 @@ def _inject_visual_theme() -> None:
         """
         <style>
         :root {
-          --pb-ink: #17202a;
-          --pb-muted: #5b6978;
-          --pb-line: #d9e2ea;
+          --pb-ink: #203632;
+          --pb-muted: #60716d;
+          --pb-line: #dce5e1;
           --pb-paper: #ffffff;
-          --pb-canvas: #f6f8fb;
+          --pb-canvas: #f5f8f6;
           --pb-teal: #0f766e;
           --pb-blue: #1d4ed8;
           --pb-coral: #b45309;
@@ -1031,7 +1099,6 @@ def _inject_visual_theme() -> None:
           background: transparent !important;
           box-shadow: none !important;
         }
-        [data-testid="stToolbar"],
         [data-testid="stMainMenu"] {
           display: none !important;
         }
@@ -1041,6 +1108,8 @@ def _inject_visual_theme() -> None:
           background: linear-gradient(180deg, #ffffff 0%, #f8fbfc 100%);
           border-right: 1px solid var(--pb-line);
           color: var(--pb-ink);
+        }
+        [data-testid="stSidebar"][aria-expanded="true"] {
           width: 280px !important;
           min-width: 280px !important;
           max-width: 280px !important;
@@ -1136,17 +1205,60 @@ def _inject_visual_theme() -> None:
           border-color: rgba(15, 118, 110, .28);
           box-shadow: 0 8px 20px rgba(23, 32, 42, .07);
         }
-        .block-container { padding-top: 1.45rem; max-width: 1180px; }
+        .block-container { padding: 2rem 2.5rem 3rem; max-width: 1120px; }
+        [data-testid="stMain"] h2, [data-testid="stMain"] h3 {
+          color: var(--pb-ink);
+          letter-spacing: -.02em;
+          line-height: 1.45;
+        }
+        [data-testid="stMain"] h3 { font-size: 23px; }
+        [data-testid="stMain"] [data-testid="stCaptionContainer"],
+        [data-testid="stMain"] [data-testid="stCaptionContainer"] * { color: var(--pb-muted) !important; opacity: 1; line-height: 1.65; }
+        .st-key-app_topbar { margin-bottom: 8px; }
+        .st-key-app_topbar [data-testid="stHorizontalBlock"] { align-items: center; gap: 12px; }
+        .app-wordmark { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 750; letter-spacing: -.02em; }
+        .app-mark { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 10px; background: var(--pb-teal); color: white; }
+        .app-mark svg { width: 20px; height: 20px; }
+        .st-key-unified_steps { margin: 2px 0 8px; }
+        .st-key-unified_steps [role="radiogroup"] { gap: 8px; }
+        .st-key-unified_steps label[data-baseweb="radio"] {
+          padding: 9px 16px;
+          border: 1px solid transparent;
+          border-radius: 10px;
+          background: transparent;
+          color: var(--pb-muted);
+        }
+        .st-key-unified_steps label[data-baseweb="radio"] > div:first-child {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          overflow: hidden;
+          opacity: 0;
+        }
+        .st-key-unified_steps label[data-baseweb="radio"]:has(input:checked) {
+          background: var(--pb-soft-teal);
+          border-color: #bddbd3;
+          color: var(--pb-teal);
+          box-shadow: inset 0 -2px 0 var(--pb-teal);
+        }
+        .st-key-unified_steps label[data-baseweb="radio"]:has(input:focus-visible) {
+          outline: 3px solid #1d4ed8;
+          outline-offset: 2px;
+        }
         .st-key-language_control [role="radiogroup"] {
           display: flex;
           flex-direction: row;
-          gap: 0;
+          flex-wrap: nowrap;
+          justify-content: flex-end;
+          gap: 6px;
         }
         .st-key-language_control label[data-baseweb="radio"] {
           min-height: 34px;
-          padding: 6px 14px;
-          border-color: var(--pb-line) !important;
-          background: #ffffff !important;
+          margin: 0 !important;
+          padding: 5px 12px;
+          border: 1px solid var(--pb-line);
+          border-radius: 8px;
+          background: #ffffff;
           color: var(--pb-ink) !important;
         }
         .st-key-language_control label[data-baseweb="radio"] > div:first-child {
@@ -1156,8 +1268,8 @@ def _inject_visual_theme() -> None:
         }
         .st-key-language_control label[data-baseweb="radio"]:has(input:checked) {
           border-color: var(--pb-teal) !important;
-          background: var(--pb-teal) !important;
-          color: #ffffff !important;
+          background: var(--pb-soft-teal) !important;
+          color: var(--pb-teal) !important;
         }
         .st-key-language_control label[data-baseweb="radio"] * {
           color: inherit !important;
@@ -1171,30 +1283,23 @@ def _inject_visual_theme() -> None:
           align-items: center;
           justify-content: space-between;
           gap: 12px;
-          padding: 10px 14px;
-          margin-bottom: 10px;
-          border: 1px solid var(--pb-line);
-          border-radius: 8px;
-          background: #ffffff;
+          padding: 10px 0;
+          margin-bottom: 0;
+          border-bottom: 1px solid var(--pb-line);
           color: var(--pb-muted);
         }
         .compact-shell strong { color: var(--pb-ink); }
         .compact-shell h1 {
-          margin: 0;
+          margin: 0 !important;
+          padding: 0 !important;
           color: var(--pb-muted);
           font-size: 15px;
           line-height: 1.35;
           font-weight: 700;
         }
         .visual-shell {
-          padding: 28px 30px;
-          border: 1px solid var(--pb-line);
-          border-radius: 8px;
-          background:
-            linear-gradient(135deg, rgba(234, 247, 245, .82) 0%, rgba(255, 255, 255, .78) 44%, rgba(237, 244, 255, .72) 100%),
-            var(--pb-paper);
-          box-shadow: 0 20px 48px rgba(23, 32, 42, .09);
-          margin-bottom: 16px;
+          padding: 18px 0 6px;
+          margin-bottom: 0;
         }
         .visual-eyebrow {
           color: var(--pb-teal);
@@ -1204,25 +1309,48 @@ def _inject_visual_theme() -> None:
           letter-spacing: 0;
           margin-bottom: 10px;
         }
-        .visual-title {
-          font-size: clamp(30px, 4.4vw, 46px);
-          line-height: 1.04;
-          font-weight: 850;
-          letter-spacing: 0;
-          margin: 0;
+        .visual-shell h1.visual-title {
+          font-size: clamp(26px, 2.4vw, 34px) !important;
+          line-height: 1.35 !important;
+          font-weight: 750;
+          letter-spacing: -.035em;
+          margin: 0 !important;
+          padding: 0 !important;
           overflow-wrap: anywhere;
         }
-        .visual-lead { max-width: 830px; color: var(--pb-muted); font-size: 18px; margin-top: 14px; }
-        .metric-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+        .visual-lead { max-width: 760px; color: var(--pb-muted); font-size: 15px; line-height: 1.7; margin: 10px 0 0; }
+        .metric-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .metric-pill {
-          padding: 8px 11px;
-          border: 1px solid var(--pb-line);
-          border-radius: 8px;
-          background: #fbfdff;
-          color: var(--pb-ink);
-          font-weight: 750;
-          font-size: 13px;
+          color: var(--pb-teal);
+          font-size: 12px;
         }
+        .metric-pill + .metric-pill::before { content: "·"; margin-right: 8px; color: var(--pb-muted); }
+        .st-key-need_question_card {
+          padding: 24px !important;
+          background: var(--pb-paper);
+          border: 1px solid var(--pb-line) !important;
+          border-radius: 18px !important;
+          box-shadow: 0 8px 30px rgba(32, 54, 50, .04);
+        }
+        .st-key-need_question_card h3 { padding-top: 0; font-size: 23px; }
+        .question-progress { display: flex; gap: 5px; width: 104px; padding: 2px 0; }
+        .question-progress span { height: 4px; flex: 1; background: #e5ece8; border-radius: 3px; }
+        .question-progress .is-complete { background: var(--pb-teal); }
+        .brief-guide { padding: 22px 0 18px; }
+        .brief-guide .guide-kicker { margin: 0 0 10px; color: var(--pb-teal); font-size: 11px; letter-spacing: .08em; font-weight: 700; }
+        .brief-guide h3 { font-size: 20px; margin: 0 0 12px; padding: 0; }
+        .brief-guide-item { display: flex; gap: 12px; padding: 20px 0; border-bottom: 1px solid var(--pb-line); }
+        .brief-guide-number { color: var(--pb-teal); font-size: 12px; line-height: 26px; font-weight: 700; }
+        .brief-guide-item h4 { padding: 0; margin: 0 0 8px; font-size: 15px; font-weight: 650; }
+        .brief-guide-item p, .brief-guide .guide-footnote { margin: 0; font-size: 13px; color: var(--pb-muted); line-height: 1.8; }
+        .brief-guide .guide-footnote { padding-top: 18px; font-size: 12px; }
+        .st-key-need_review_card [data-testid="stForm"] { padding: 24px !important; background: white; border-radius: 16px !important; }
+        [class*="st-key-handoff_preview_"] { padding: 24px !important; background: white; border-radius: 14px !important; }
+        [class*="st-key-handoff_preview_"] p, [class*="st-key-handoff_preview_"] li { line-height: 1.8; }
+        [class*="st-key-handoff_preview_"] h4 { font-size: 17px; }
+        [data-testid="stTabs"] [role="tablist"] { gap: 24px; }
+        [data-testid="stTabs"] [role="tab"][aria-selected="true"] { color: var(--pb-teal); }
+        [data-testid="stTabs"] [data-baseweb="tab-highlight"] { background-color: var(--pb-teal); }
         .st-key-workflow_steps_container {
           margin: 12px 0 22px;
         }
@@ -1320,23 +1448,68 @@ def _inject_visual_theme() -> None:
           font-size: 13px;
           line-height: 1.45;
         }
-        div.stButton > button, div.stDownloadButton > button {
-          border-radius: 8px;
+        div.stButton > button, div.stDownloadButton > button, div.stFormSubmitButton > button {
+          min-height: 42px;
+          border-radius: 10px;
           border: 1px solid var(--pb-line);
           background: #ffffff;
           color: var(--pb-ink);
-          font-weight: 800;
+          font-weight: 600;
         }
-        button[data-testid="stBaseButton-primary"] {
+        button[data-testid="stBaseButton-primary"], button[data-testid="stBaseButton-primaryFormSubmit"] {
           border-color: var(--pb-teal) !important;
           background: var(--pb-teal) !important;
+          color: #ffffff !important;
+        }
+        button[data-testid="stBaseButton-primary"]:hover, button[data-testid="stBaseButton-primaryFormSubmit"]:hover {
+          background: #0b615a !important;
           color: #ffffff !important;
         }
         div.stButton > button:hover, div.stDownloadButton > button:hover {
           border-color: var(--pb-teal);
           color: var(--pb-teal);
         }
-        textarea, input { border-radius: 8px !important; }
+        textarea, input { border-radius: 10px !important; }
+        [data-testid="stTextArea"] [data-baseweb="textarea"], [data-testid="stTextInput"] [data-baseweb="input"] {
+          border: 1px solid var(--pb-line);
+          border-radius: 10px;
+          background: #f8faf9;
+        }
+        [data-testid="stTextArea"] textarea, [data-testid="stTextInput"] input { background: #f8faf9; color: var(--pb-ink); }
+        [data-testid="stTextArea"] [data-baseweb="textarea"]:focus-within, [data-testid="stTextInput"] [data-baseweb="input"]:focus-within {
+          border-color: var(--pb-teal);
+          box-shadow: 0 0 0 3px rgba(15, 118, 110, .12);
+        }
+        [data-testid="stExpander"] details { border-color: var(--pb-line); border-radius: 10px; background: rgba(255,255,255,.45); }
+        .st-key-quick_start_demo { background: var(--pb-soft-teal); }
+        [class*="st-key-home_route_card_"] { background: var(--pb-paper); }
+        [class*="st-key-home_route_card_"] [data-testid="stMarkdownContainer"] p {
+          min-height: 48px;
+        }
+        button:focus-visible, summary:focus-visible {
+          outline: 3px solid var(--pb-blue) !important;
+          outline-offset: 3px;
+        }
+        @media (max-width: 600px) {
+          .block-container { padding: 3.25rem 1rem 1.5rem !important; }
+          .st-key-app_topbar [data-testid="stHorizontalBlock"] { flex-wrap: nowrap; }
+          .st-key-app_topbar [data-testid="stColumn"] { min-width: 0 !important; width: auto !important; flex: 1 1 auto !important; }
+          .st-key-app_topbar [data-testid="stColumn"]:last-child { flex: 0 0 148px !important; }
+          .st-key-language_control label[data-baseweb="radio"] { padding: 5px 9px; }
+          .app-wordmark { font-size: 14px; gap: 7px; }
+          .app-mark { width: 26px; height: 26px; border-radius: 8px; }
+          .compact-shell { flex-wrap: wrap; }
+          .visual-shell h1.visual-title { font-size: 25px !important; line-height: 1.4 !important; }
+          .visual-shell .visual-lead { font-size: 14px; line-height: 1.6; }
+          .visual-shell { padding: 8px 0 0; }
+          .visual-eyebrow, .visual-shell .metric-row { display: none; }
+          .st-key-unified_steps label[data-baseweb="radio"] { padding: 8px 11px; }
+          .st-key-need_question_card { padding: 18px !important; border-radius: 14px !important; }
+          .st-key-need_question_card h3 { font-size: 21px; }
+          .brief-guide { padding: 6px 0 14px; }
+          .st-key-need_review_card [data-testid="stForm"], [class*="st-key-handoff_preview_"] { padding: 16px !important; }
+          [class*="st-key-home_route_card_"] [data-testid="stMarkdownContainer"] p { min-height: 0; }
+        }
         @media (max-width: 900px) {
           .st-key-workflow_steps_container [data-testid="stHorizontalBlock"] {
             flex-direction: row;
@@ -1351,7 +1524,8 @@ def _inject_visual_theme() -> None:
             flex: 0 0 168px !important;
             scroll-snap-align: start;
           }
-          .visual-shell { padding: 22px 18px; }
+          .st-key-need_layout > [data-testid="stHorizontalBlock"] { flex-wrap: wrap; }
+          .st-key-need_layout > [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] { width: 100%; flex: 1 1 100%; min-width: 0; }
         }
         </style>
         """,
@@ -1360,33 +1534,41 @@ def _inject_visual_theme() -> None:
 
 
 def _render_language_switcher() -> None:
-    st.radio(
-        _text("Interface language", "界面语言"),
-        LANGUAGE_OPTIONS,
-        key="language_control",
-        horizontal=True,
-        on_change=_apply_language_control,
-    )
+    with st.container(key="app_topbar"):
+        brand, language = st.columns([3, 1])
+        with brand:
+            st.markdown(
+                '<div class="app-wordmark"><span class="app-mark" aria-hidden="true">'
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">'
+                '<path d="M4 18V8m16 10V8M4 14C4 4 20 4 20 14M4 14h16M8 10v4m8-4v4"/>'
+                '</svg></span>ProblemBridge</div>', unsafe_allow_html=True,
+            )
+        with language:
+            st.radio(
+                _text("Interface language", "界面语言"),
+                LANGUAGE_OPTIONS,
+                key="language_control",
+                horizontal=True,
+                label_visibility="collapsed",
+                on_change=_apply_language_control,
+            )
 
 
 def _render_shell_header() -> None:
-    eyebrow = _text("Local interdisciplinary AI harness", "本地优先的跨学科 AI 工作流工具")
-    title = _text("ProblemBridge Workbench", "ProblemBridge 工作台")
+    eyebrow = _text("ProblemBridge Workbench", "ProblemBridge 工作台")
+    title = _text("Help people and AI understand what you need.", "让合作者和 AI 明白你需要什么")
     lead = _text(
-        "A guided workspace for turning messy domain materials into questions, workflow understanding, AI task specs, and later claim-evidence audits.",
-        "一个引导式工作台：把模糊的领域材料转成问题、工作流理解、AI 任务规格，并在输出后进行声明-证据审计。",
+        "Start with one real task. Clarify your meaning, then take a brief to a collaborator or a language model.",
+        "从一件具体工作开始，逐步说清楚，再带走给合作伙伴或大模型的任务说明。",
     )
     metrics = [
-        _text("No API required by default", "默认不需要 API"),
-        _text("Local file intake", "本地文件摄取"),
-        _text("Question-first workflow", "先提出问题"),
-        _text("Traceable outputs", "可追踪输出"),
+        _text("No prompt-writing experience needed", "不用先学提示词"),
+        _text("Start without uploading files", "没有材料也能开始"),
     ]
     metric_html = "".join(f'<span class="metric-pill">{item}</span>' for item in metrics)
     st.markdown(
         f"""
-        <section class="visual-shell">
-          <div class="visual-eyebrow">{eyebrow}</div>
+        <section class="visual-shell" aria-label="{eyebrow}">
           <h1 class="visual-title">{title}</h1>
           <p class="visual-lead">{lead}</p>
           <div class="metric-row">{metric_html}</div>
@@ -1400,8 +1582,8 @@ def _render_compact_shell_header(page: str) -> None:
     st.markdown(
         f"""
         <section class="compact-shell">
-          <strong>ProblemBridge</strong>
-          <h1>{_page_label(page)} · {_text('local-first guided workflow', '本地优先引导流程')}</h1>
+          <h1>{_page_label(page)}</h1>
+          <span>{_text("Local workspace", "本地工作空间")}</span>
         </section>
         """,
         unsafe_allow_html=True,
@@ -1486,29 +1668,20 @@ def _render_flow_navigation(active_page: str) -> None:
                     key=f"flow_next_{current_index}",
                     on_click=_navigate_to_page,
                     args=(next_page,),
-                    type="primary",
+                    type="secondary",
                     use_container_width=True,
                 )
 
 
 def _render_page_intro(title: str, body: str, trust: str, outputs: list[str]) -> None:
-    output_items = "".join(f"<li>{item}</li>" for item in outputs)
-    st.markdown(
-        f"""
-        <section class="page-intro">
-          <div class="visual-eyebrow">{_text('Workbench step', '工作台步骤')}</div>
-          <h2>{title}</h2>
-          <p>{body}</p>
-          <div class="field-label">{_text('What you get', '你会得到什么')}</div>
-          <ul>{output_items}</ul>
-        </section>
-        <section class="trust-card">
-          <strong>{_text('Trust boundary', '信任边界')}</strong>
-          <p>{trust}</p>
-        </section>
-        """,
-        unsafe_allow_html=True,
-    )
+    st.subheader(title)
+    st.write(body)
+    with st.expander(_text("What you get · scope & details", "你会得到什么 · 功能说明")):
+        st.markdown(f"**{_text('What you get', '你会得到什么')}**")
+        for item in outputs:
+            st.write(f"- {item}")
+        st.markdown(f"**{_text('Trust boundary', '使用范围')}**")
+        st.write(trust)
 
 
 def _render_module_cards() -> None:
@@ -1542,47 +1715,109 @@ def _safety_banner(*, compact: bool = False) -> None:
 
 
 def _home() -> None:
-    _render_page_intro(
-        _text("Choose the right starting point", "选择合适的开始入口"),
-        _text(
-            "You do not need to know AI. Start from the material or uncertainty you actually have, then move through the workflow one step at a time.",
-            "你不需要懂 AI。先从你手里的材料、困惑或日常工作开始，再一步步进入问题发现、工作流对齐和证据审计。",
-        ),
-        _text(
-            "The workbench is a framing and audit aid. It does not replace domain experts, supervisors, clinicians, teachers, or reviewers.",
-            "这个工作台只帮助梳理问题和审计输出，不替代领域专家、主管、医生、教师或审稿人。",
-        ),
-        [
-            _text("A clear entry point for documents, vague questions, workflows, or candidate AI tasks.", "根据文档、模糊问题、工作流或候选 AI 任务选择入口。"),
-            _text("A visible workflow from intake to question discovery, problem alignment, and claim audit.", "看见从摄取、提问、问题对齐到声明审计的完整流程。"),
-            _text("Downloadable local packages that can be reviewed before sharing.", "生成可下载的本地结果包，分享前可先检查。"),
-        ],
-    )
-    _render_module_cards()
+    root = _resolve_safe_ui_run_root(create=False) or RUN_ROOT.absolute()
+    current = _last_output_path("last_problem_dir")
+    if st.session_state.get("last_problem_dir") and current is None:
+        st.error(_text("The current problem record is unavailable or changed. Inspect its saved run before continuing.", "当前问题记录不可用或已被修改，请先检查已保存的运行。"))
+    else:
+        state = st.session_state.get("problem_bridge_interview_state")
+        render_workbench(
+            root=root, project_id=_active_project_id(), current_out=current,
+            text=_text, run_action=_run_ui_action, save_result=_save_unified_result,
+            interview_answers=dict(state.answers) if state else {},
+            render_downloads=_render_share_controls,
+        )
+    with st.expander(_text("Optional helpers · interview, file intake and earlier tools", "辅助工具 · 访谈、文件整理与原有功能")):
+        _home_tools()
 
-    st.subheader(_text("Recommended routes", "推荐路径"))
+
+def _save_unified_result(out: Path, stage: int) -> None:
+    st.session_state.last_problem_dir = str(out)
+    st.session_state.last_output_dir = str(out)
+    st.session_state.pending_unified_stage = stage
+    # A confirmed problem, audit or follow-up is an explicit save action. Only
+    # the validated pointer is added to memory; uploaded materials stay in runs.
+    try:
+        payload = _current_workbench_memory()
+        save_workbench_memory(payload, MEMORY_PATH)
+        st.session_state.workbench_memory = payload
+        _set_flash_message("success", _text("Saved locally. Continue with the same problem.", "已保存到本地，可以围绕同一个问题继续。"))
+    except OSError:
+        _set_flash_message("warning", _text("The result was saved, but the workspace resume pointer could not be saved. Keep the result directory.", "结果已保存，但无法保存工作台续接位置，请保留结果目录。"))
+    st.rerun()
+
+
+def _continue_problem_from_interview() -> None:
+    state = st.session_state.get("problem_bridge_interview_state")
+    st.session_state.pending_problem_seed = interview_seed(dict(state.answers) if state else {})
+    _navigate_to_page("Home")
+
+
+def _home_tools() -> None:
+    latest = _last_output_path("last_output_dir")
+    state = st.session_state.get("problem_bridge_interview_state")
+    if latest or (state and state.answers):
+        with st.container(border=True):
+            st.markdown(f"**{_text('Pick up where you left off', '接着上次继续')}**")
+            if state and state.answers:
+                count = len(REQUIRED_KEYS) - len(summarize_understanding(state).missing_items)
+                st.button(
+                    _text(f"Continue interview · {count}/5 answers saved", f"继续梳理 · 已回答 {count}/5 项"),
+                    key="home_resume_interview", on_click=_navigate_to_page,
+                    args=("Domain practitioner wizard",), use_container_width=True,
+                )
+            if latest:
+                st.button(
+                    _text("Open my latest result", "打开最近一次结果"),
+                    key="home_resume_result", on_click=_navigate_to_page,
+                    args=("View generated outputs",), use_container_width=True,
+                )
+    with st.container(border=True, key="quick_start_demo"):
+        copy_col, action_col = st.columns([2, 1])
+        with copy_col:
+            st.markdown(f"**{_text('First time? See a finished example.', '第一次用？先看一份实际结果。')}**")
+            st.caption(_text(
+                "Run the synthetic quality-inspection example locally. Nothing to upload or configure.",
+                "用合成的质检示例走通流程，无需上传文件或配置。",
+            ))
+        with action_col:
+            if st.button(_text("Run a sample now", "一键体验示例"), key="home_run_example", type="primary", use_container_width=True):
+                out = _run_ui_action(
+                    _text("Preparing your example result…", "正在生成示例结果……"),
+                    lambda: _run_problem_text(EXAMPLES["Quality inspection"].read_text(encoding="utf-8"), "example_quality_inspection"),
+                )
+                if out:
+                    st.session_state.pending_workspace_page = "View generated outputs"
+                    _set_flash_message("success", _text("Synthetic example ready. Review the summary, then try your own workflow.", "合成示例已生成。先看摘要，再试着描述自己的工作。"))
+                    st.rerun()
+
+    st.subheader(_text("What would you like to do?", "你现在想做什么？"))
     route_cards = [
-        (_text("Have files?", "已有文件？"), _text("Start with Document intake, inspect extracted text and warnings, then continue to Question discovery.", "先用文档摄取，检查提取文本和警告，再进入问题发现。"), "Document intake", _text("Start with files", "从文件开始")),
-        (_text("Have a vague concern?", "只有模糊困惑？"), _text("Start with Question discovery to identify what to ask and which experts to involve.", "先用问题发现，明确该问什么、该找哪些专家。"), "Question discovery", _text("Discover the question", "先发现问题")),
-        (_text("Know the workflow?", "已经知道工作流？"), _text("Go to Domain practitioner wizard and generate a ProblemBridge alignment package.", "进入领域工作流向导，生成 ProblemBridge 对齐包。"), "Domain practitioner wizard", _text("Describe the workflow", "描述工作流")),
+        (_text("I have a question", "有困惑，还没想清楚"), _text("Describe what feels unclear. Get questions to ask and people to consult.", "写下不清楚的地方，得到值得追问的问题和该咨询的人。"), "Question discovery", _text("Clarify my question", "帮我理清问题")),
+        (_text("I want to improve a workflow", "有工作流程，想改进"), _text("Answer five short questions. Get a workflow brief and review boundaries.", "回答 5 个简短问题，整理工作流程和需要人工判断的环节。"), "Domain practitioner wizard", _text("Describe my work", "开始梳理工作")),
+        (_text("I have files to organize", "有现成材料，想整理"), _text("Bring documents or paste text. Inspect the extracted text and tables.", "上传文档或直接粘贴文字，检查提取的正文与表格。"), "Document intake", _text("Start with files", "从文件开始")),
     ]
     col1, col2, col3 = st.columns(3)
     for index, (column, (title, body, destination, button_label)) in enumerate(zip([col1, col2, col3], route_cards)):
         with column:
-            st.markdown(f"""
-            <section class="page-intro">
-            <strong>{title}</strong>
-            <p>{body}</p>
-            </section>
-            """, unsafe_allow_html=True)
-            st.button(
-                button_label,
-                key=f"home_route_{index}",
-                type="primary" if index == 0 else "secondary",
-                on_click=_navigate_to_page,
-                args=(destination,),
-                use_container_width=True,
-            )
+            with st.container(border=True, key=f"home_route_card_{index}"):
+                st.markdown(f"**{title}**")
+                st.write(body)
+                st.button(
+                    button_label,
+                    key=f"home_route_{index}",
+                    on_click=_navigate_to_page,
+                    args=(destination,),
+                    use_container_width=True,
+                )
+    st.caption(_text("Choose any starting point. You do not have to complete every tool.", "按需要选择入口，无需依次走完所有工具。"))
+    with st.expander(_text("How the tools connect", "了解完整流程与工具")):
+        _render_workflow_strip("Home", compact=True)
+        st.write(_text(
+            "The workbench connects problem framing, local claim–evidence checks and follow-up questions in one saved problem. The CLI and optional tools remain available.",
+            "工作台把问题梳理、本地声明与证据核查、后续追问连接在同一份问题记录中。命令行和辅助工具仍可单独使用。",
+        ))
+        _render_module_cards()
 
 def _examples() -> None:
     _render_page_intro(
@@ -1908,10 +2143,10 @@ def _render_document_intake_output(out: Path) -> None:
 
 def _domain_wizard() -> None:
     _render_page_intro(
-        _text("Domain practitioner wizard", "领域工作流向导"),
+        _text("Describe your work, one question at a time", "一次回答一个问题，把工作说清楚"),
         _text(
-            "Describe your workflow, not an AI task. You do not need to know AI. Start by describing a repeated task in your work. The guided interview asks one question at a time; the advanced form is for users who already know the workflow details.",
-            "请描述你的工作流，而不是 AI 任务。你不需要懂 AI，先说一项反复发生的真实工作。引导式访谈会一次只问一个问题；高级表单适合已经清楚工作流细节的用户。",
+            "Answer five short questions to get a workflow brief. You can revise any saved answer along the way.",
+            "回答 5 个简短问题，得到一份工作流程说明。已回答的内容随时可以修改。",
         ),
         _text(
             "This page captures workflow understanding. It does not decide what should be automated or replace professional judgement.",
@@ -1925,7 +2160,20 @@ def _domain_wizard() -> None:
         ],
     )
 
-    with st.expander(_text("Interview mode", "访谈模式")):
+    with st.expander(_text("Interview mode", "填写方式与访谈提示")):
+        mode = st.segmented_control(
+            _text("Choose an input mode", "选择填写方式"),
+            ["guided", "advanced"],
+            default="guided",
+            format_func=lambda value: (
+                _text("Guided interview", "引导式访谈")
+                if value == "guided"
+                else _text("Advanced full form", "高级完整表单")
+            ),
+            key="domain_input_mode",
+            selection_mode="single",
+            required=True,
+        )
         st.write(_text(
             "Use this mode when you are helping someone else describe their workflow.",
             "当你在帮助别人描述工作流时，可以用这套访谈提醒。",
@@ -1956,19 +2204,6 @@ def _domain_wizard() -> None:
                 "问题发现仅提供了暂定的反复工作描述。请在访谈中继续确认工作流、证据材料和人工边界。",
             )
         )
-    mode = st.segmented_control(
-        _text("Choose an input mode", "选择填写方式"),
-        ["guided", "advanced"],
-        default="guided",
-        format_func=lambda value: (
-            _text("Guided interview", "引导式访谈")
-            if value == "guided"
-            else _text("Advanced full form", "高级完整表单")
-        ),
-        key="domain_input_mode",
-        selection_mode="single",
-        required=True,
-    )
     if mode == "guided":
         generated_out = _guided_interview()
         if generated_out is None:
@@ -2085,33 +2320,46 @@ def _domain_wizard() -> None:
                 label=_text("workflow alignment result", "工作流对齐结果"),
             )
 
+def _edit_interview_answer(key: str) -> None:
+    if key not in REQUIRED_KEYS:
+        raise ValueError("Unknown interview question")
+    state = st.session_state.problem_bridge_interview_state
+    st.session_state.interview_editing_key = key
+    st.session_state[f"interview_answer_{key}"] = state.answers.get(key, "")
+
+
 def _guided_interview() -> Path | None:
     generated_out: Path | None = None
-    st.subheader(_text("Guided interview", "引导式访谈"))
-    st.caption(
-        _text(
-            "ProblemBridge asks one question at a time, tracks what it understands, and routes the next question based on missing information.",
-            "ProblemBridge 一次只问一个问题，会记录已经理解的内容，并根据缺失信息决定下一问。",
-        )
-    )
 
     if "problem_bridge_interview_state" not in st.session_state:
         st.session_state.problem_bridge_interview_state = start_interview()
 
     state = st.session_state.problem_bridge_interview_state
     summary = summarize_understanding(state)
-    question = summary.next_question
+    editing_key = st.session_state.get("interview_editing_key")
+    question = next((item for item in QUESTION_FLOW if item.key == editing_key), summary.next_question)
+    answered = len(REQUIRED_KEYS) - len(summary.missing_items)
+    st.progress(summary.completeness, text=_text(f"{answered}/5 answers saved · review before generating", f"已回答 {answered}/5 项 · 生成前可再次核对"))
+    if answered:
+        st.button(_text("Continue with this problem in the workbench", "把回答带到问题工作台继续"),
+                  key="interview_to_workbench", on_click=_continue_problem_from_interview,
+                  type="secondary")
 
     left, right = st.columns([1.35, 1])
     with left:
-        st.markdown(f"### {_text('Next question', '下一个问题')}")
+        if question.key in REQUIRED_KEYS:
+            position = REQUIRED_KEYS.index(question.key) + 1
+            st.caption(_text(f"Question {position} of 5", f"第 {position}/5 问"))
         st.write(_interview_copy(question, "prompt"))
         st.caption(_interview_copy(question, "helper"))
-        if question.reframe:
-            st.info(_interview_copy(question, "reframe"))
 
         if question.key != "confirmation":
-            answer = st.text_area(_text("Your answer", "你的回答"), key=f"interview_answer_{question.key}")
+            answer = st.text_area(
+                _text("Your answer", "你的回答"),
+                key=f"interview_answer_{question.key}",
+                placeholder=_text(*INTERVIEW_EXAMPLES[question.key]),
+                height=130,
+            )
             if st.button(
                 _text("Save answer and continue", "保存回答并继续"),
                 key="interview_save_answer",
@@ -2121,6 +2369,8 @@ def _guided_interview() -> Path | None:
                     st.error(_text("Add an answer before continuing.", "请填写回答后再继续。"))
                 else:
                     st.session_state.problem_bridge_interview_state = answer_question(state, question.key, answer)
+                    st.session_state.pop("interview_editing_key", None)
+                    _set_flash_message("success", _text("Answer saved. You can edit it in the summary.", "回答已保存，可以在摘要中修改。"))
                     st.rerun()
         else:
             st.success(_text(
@@ -2134,7 +2384,7 @@ def _guided_interview() -> Path | None:
                 ("human_boundaries", _text("Human review boundaries", "人工复核边界")),
                 ("useful_support", _text("Useful support outputs", "有用的辅助输出")),
             ]
-            with st.expander(_text("Review or edit answers", "检查或修改答案"), expanded=True):
+            with st.expander(_text("Review or edit answers", "检查或修改答案"), expanded=False):
                 with st.form("interview_edit_form"):
                     edited_answers = {
                         key: st.text_area(
@@ -2181,6 +2431,7 @@ def _guided_interview() -> Path | None:
                     key="confirm_interview_reset_button",
                 ):
                     st.session_state.problem_bridge_interview_state = start_interview()
+                    st.session_state.pop("interview_editing_key", None)
                     st.session_state.pop("interview_seed_source", None)
                     st.session_state.pop("confirm_interview_reset", None)
                     for key in list(st.session_state):
@@ -2196,10 +2447,9 @@ def _guided_interview() -> Path | None:
                     st.rerun()
         with generate_col:
             ready = is_ready_for_alignment(state)
-            if st.button(
+            if ready and not editing_key and st.button(
                 _text("Generate alignment package from interview", "根据访谈生成对齐包"),
                 key="interview_generate",
-                disabled=not ready,
                 type="primary",
             ):
                 problem_text = build_problem_from_interview(state)
@@ -2213,24 +2463,27 @@ def _guided_interview() -> Path | None:
                     _render_alignment_next_step(generated_out)
                     _render_friendly_output(generated_out)
             if not ready:
-                st.caption(_text("Answer the missing items before generating the package.", "请先回答缺失项，再生成结果包。"))
+                st.caption(_text(f"{5 - answered} answers to go before your brief is ready.", f"再回答 {5 - answered} 项，就可以生成工作流程说明。"))
 
     with right:
         st.markdown(f"### {_text('Understanding so far', '当前理解')}")
-        st.progress(summary.completeness, text=_text(f"completeness: {int(summary.completeness * 100)}%", f"完整度：{int(summary.completeness * 100)}%"))
         if summary.known_items:
-            st.write(_text("Known:", "已知："))
-            for item in summary.known_items:
-                st.write(f"- {_display_known_item(item)}")
+            for key in REQUIRED_KEYS:
+                if not state.answers.get(key):
+                    continue
+                label = _display_missing_item({"repeated_work": "repeated work", "human_boundaries": "human review boundaries", "useful_support": "useful support outputs"}.get(key, key.replace("_", " ")))
+                with st.expander(label, expanded=False):
+                    st.write(state.answers[key])
+                    st.button(
+                        _text(f"Edit {label}", f"修改：{label}"),
+                        key=f"interview_edit_button_{key}",
+                        on_click=_edit_interview_answer, args=(key,),
+                    )
         else:
-            st.write(_text("No answers yet.", "还没有回答。"))
-
-        if summary.missing_items:
-            st.write(_text("Missing:", "缺失："))
-            for item in summary.missing_items:
-                st.write(f"- {_display_missing_item(item)}")
-        else:
+            st.caption(_text("Your saved answers will appear here. Short, concrete sentences are enough.", "保存的回答会出现在这里。先写简短、具体的一句话就好。"))
+        if not summary.missing_items:
             st.success(_text("No core fields missing.", "核心字段已填写完整。"))
+        st.caption(_text("To continue after closing the browser, save under Drafts & project settings.", "关闭浏览器前，可在「草稿与项目设置」中保存当前工作台，下次继续。"))
 
     return generated_out
 
@@ -2428,32 +2681,8 @@ def _view_outputs() -> None:
             "No UI-generated outputs yet. Run an example, document intake, question discovery, or wizard first.",
             "还没有 UI 生成的输出。请先运行示例、文档摄取、问题发现或向导。",
         ))
+        _render_empty_results_actions()
         return
-    all_runs = [
-        path
-        for path in resolved_run_root.iterdir()
-        if path.is_dir()
-        and not is_internal_staging_name(path.name)
-        and not is_link_or_reparse(path)
-        and path.resolve().parent == resolved_run_root
-    ]
-    viewable_runs = [
-        path
-        for path in all_runs
-        if not (
-            (path / RUN_DELETE_MARKER_NAME).exists()
-            or (path / RUN_DELETE_MARKER_NAME).is_symlink()
-        )
-        and (not (path / RUN_IDENTITY_NAME).is_file() or is_run_complete(path))
-    ]
-    incomplete_count = len(all_runs) - len(viewable_runs)
-    if incomplete_count:
-        st.caption(
-            _text(
-                f"{incomplete_count} incomplete run(s) are hidden until resumed, replaced, or deleted.",
-                f"有 {incomplete_count} 次未完成运行已隐藏，请恢复、替换或删除后再查看。",
-            )
-        )
     active_project = _active_project_id()
     show_all_projects = st.checkbox(
         _text("Show runs from all projects", "显示所有项目的运行结果"),
@@ -2464,13 +2693,38 @@ def _view_outputs() -> None:
             "默认关闭，以降低打开或分享错误项目结果的风险。",
         ),
     )
-    scoped_runs = (
-        viewable_runs
-        if show_all_projects
-        else [path for path in viewable_runs if _run_belongs_to_project(path, active_project)]
-    )
-    runs, run_labels = _sort_view_output_runs(scoped_runs)
-    other_project_count = len(viewable_runs) - len(scoped_runs)
+    all_runs = [
+        path
+        for path in resolved_run_root.iterdir()
+        if path.is_dir()
+        and not is_internal_staging_name(path.name)
+        and not is_link_or_reparse(path)
+        and path.resolve().parent == resolved_run_root
+    ]
+    # Scope by project before verifying completion hashes. Opening one project's
+    # results must not reread the contents of every other project's artifacts.
+    scoped_candidates = all_runs if show_all_projects else [
+        path for path in all_runs if _run_belongs_to_project(path, active_project)
+    ]
+    viewable_runs = [
+        path
+        for path in scoped_candidates
+        if not (
+            (path / RUN_DELETE_MARKER_NAME).exists()
+            or (path / RUN_DELETE_MARKER_NAME).is_symlink()
+        )
+        and (not (path / RUN_IDENTITY_NAME).is_file() or is_run_complete(path))
+    ]
+    incomplete_count = len(scoped_candidates) - len(viewable_runs)
+    if incomplete_count:
+        st.caption(
+            _text(
+                f"{incomplete_count} incomplete run(s) are hidden until resumed, replaced, or deleted.",
+                f"有 {incomplete_count} 次未完成运行已隐藏，请恢复、替换或删除后再查看。",
+            )
+        )
+    runs, run_labels = _sort_view_output_runs(viewable_runs)
+    other_project_count = len(all_runs) - len(scoped_candidates)
     if other_project_count and not show_all_projects:
         st.caption(
             _text(
@@ -2483,6 +2737,7 @@ def _view_outputs() -> None:
             "No completed outputs are available for the current project. Generate one, or explicitly show all projects.",
             "当前项目还没有可查看的完整结果。请先生成结果，或显式选择显示所有项目。",
         ))
+        _render_empty_results_actions()
         return
 
     selected = st.selectbox(
@@ -2492,6 +2747,14 @@ def _view_outputs() -> None:
         format_func=lambda path: run_labels[path],
     )
     _render_output_for_run(selected)
+
+
+def _render_empty_results_actions() -> None:
+    st.button(
+        _text("Start from the home page", "回首页选择一个入口"),
+        key="empty_results_home", type="primary",
+        on_click=_navigate_to_page, args=("Home",),
+    )
 
 
 def _output_kind(out: Path) -> str:
@@ -2504,8 +2767,10 @@ def _output_kind(out: Path) -> str:
             return "document-intake"
         if suffix == "question_discovery":
             return "question-discovery"
-        if suffix in {"claim_audit", "claim-harness", "audit"} or workflow_type == "claim_harness.audit":
+        if suffix in {"claim_audit", "claim-harness", "audit", "problem_audit"} or workflow_type == "claim_harness.audit":
             return "claim-audit"
+        if suffix in {"problem", "problem_follow_up"}:
+            return "problem-record"
         if suffix == "build_contract":
             return "build-contract"
         return "alignment"
@@ -2546,6 +2811,10 @@ def _render_output_for_run(out: Path) -> None:
         _render_claim_audit_output(out)
     elif kind == "build-contract":
         _render_build_contract_output(out)
+    elif kind == "problem-record":
+        st.markdown((out / "problem_record.md").read_text(encoding="utf-8"))
+        _render_problem_continue(out)
+        _render_share_controls(out, "ProblemBridge problem record")
     else:
         _render_friendly_output(out)
 
@@ -2614,6 +2883,8 @@ def _render_build_contract_output(out: Path) -> None:
 
 
 def _render_claim_audit_output(out: Path) -> None:
+    if (out / "problem_record.json").is_file():
+        _render_problem_continue(out)
     st.subheader(_text("Claim audit summary", "声明审计摘要"))
     diagnostics_path = out / "audit_diagnostics.json"
     queue_path = out / "human_review_queue.json"
@@ -2710,6 +2981,18 @@ def _render_claim_audit_output(out: Path) -> None:
             if path.is_file():
                 st.markdown(f"### {filename}")
                 st.code(path.read_text(encoding="utf-8"), language=_language_for(filename))
+
+
+def _render_problem_continue(out: Path) -> None:
+    if _run_belongs_to_project(out, _active_project_id()):
+        if st.button(_text("Continue this problem in my workbench", "在工作台继续这个问题"), key=f"resume_problem_{out.name}"):
+            st.session_state.last_problem_dir = str(out)
+            st.session_state.pending_unified_stage = 3 if (out / "claim_table.csv").is_file() else 4
+            st.session_state.pending_workspace_page = "Home"
+            for key in list(st.session_state):
+                if str(key).startswith("unified_"):
+                    del st.session_state[key]
+            st.rerun()
 
 
 def _read_optional_json_object(path: Path, label: str) -> dict | None:
@@ -3281,13 +3564,14 @@ def _render_friendly_output(out: Path) -> None:
     summary = friendly_summary(out)
     st.subheader(_text("User-facing summary", "面向用户的摘要"))
 
-    top_left, top_right = st.columns([1.2, 1])
-    with top_left:
-        st.markdown(f"### {_text('One-sentence conclusion', '一句话结论')}")
-        st.success(summary.one_sentence)
-    with top_right:
-        st.markdown(f"### {_text('Output folder', '输出文件夹')}")
-        st.code(str(out), language="text")
+    st.markdown(f"### {_text('One-sentence conclusion', '一句话结论')}")
+    st.success(summary.one_sentence)
+    st.caption(_text("This template-based brief needs your review; it does not validate a solution.", "这份说明由本地模板生成，请结合实际工作核对；它不代表方案已获验证。"))
+    st.button(
+        _text("Describe my own workflow", "梳理我自己的工作"),
+        key=f"own_workflow_{out.name}",
+        on_click=_navigate_to_page, args=("Domain practitioner wizard",),
+    )
 
     col1, col2 = st.columns(2)
     with col1:
@@ -3323,6 +3607,8 @@ def _render_friendly_output(out: Path) -> None:
     _render_report_export_buttons(out)
 
     with st.expander(_text("Technical delivery package", "技术交付包")):
+        st.caption(_text("Output folder", "输出文件夹"))
+        st.code(str(out), language="text")
         for item in discover_alignment_outputs(out):
             st.markdown(f"### {FRIENDLY_FILE_LABELS.get(item.filename, item.filename)}")
             st.caption(item.filename)

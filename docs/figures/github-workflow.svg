@@ -1,56 +1,104 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
-  <title id="title">Guided workflow from intake to audit</title>
-  <desc id="desc">Document intake feeds question discovery, workflow alignment, AI task checking, generated outputs, and ClaimHarness evidence audit.</desc>
-  <rect width="1200" height="520" fill="#ffffff"/>
-  <text x="54" y="58" fill="#111827" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="800">Guided workflow handoffs</text>
-  <text x="54" y="88" fill="#5b6978" font-family="Segoe UI, Arial, sans-serif" font-size="16">Each step passes a seed into the next form so users do not restart from a blank prompt.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="440" viewBox="0 0 1200 440" role="img" aria-labelledby="title desc">
+  <title id="title">Guided workflow from problem alignment to evidence audit</title>
+  <desc id="desc">A monochrome five-stage workflow. Document intake leads to question discovery, workflow alignment, and AI task checking in ProblemBridge. When text and results exist, a final handoff leads to ClaimHarness evidence audit.</desc>
 
-  <g transform="translate(58 134)">
-    <rect x="0" y="0" width="188" height="112" rx="10" fill="#f1f8f7" stroke="#79bfb4" stroke-width="2"/>
-    <text x="20" y="34" fill="#0f172a" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="800">1. Document intake</text>
-    <text x="20" y="64" fill="#506172" font-family="Segoe UI, Arial, sans-serif" font-size="13">Word, PDF, webpage,</text>
-    <text x="20" y="84" fill="#506172" font-family="Segoe UI, Arial, sans-serif" font-size="13">image OCR, pasted text</text>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#17324d"/>
+    </marker>
+  </defs>
 
-    <path d="M198 56 H246" stroke="#718096" stroke-width="3" stroke-linecap="round"/>
-    <path d="M246 56 l-10 -7 v14 z" fill="#718096"/>
+  <rect width="1200" height="440" fill="#ffffff"/>
 
-    <rect x="258" y="0" width="188" height="112" rx="10" fill="#eef4ff" stroke="#9eb7ef" stroke-width="2"/>
-    <text x="278" y="34" fill="#0f172a" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="800">2. Questions</text>
-    <text x="278" y="64" fill="#506172" font-family="Segoe UI, Arial, sans-serif" font-size="13">What to ask, who to ask,</text>
-    <text x="278" y="84" fill="#506172" font-family="Segoe UI, Arial, sans-serif" font-size="13">unknowns to validate</text>
+  <text x="40" y="50" fill="#17324d" font-family="Segoe UI, Arial, sans-serif" font-size="29" font-weight="800">Guided workflow: problem alignment to evidence audit</text>
+  <text x="40" y="80" fill="#5e7387" font-family="Segoe UI, Arial, sans-serif" font-size="15">Each stage names the artifact handed forward. Straight arrows show the only workflow direction.</text>
 
-    <path d="M456 56 H504" stroke="#718096" stroke-width="3" stroke-linecap="round"/>
-    <path d="M504 56 l-10 -7 v14 z" fill="#718096"/>
+  <text x="40" y="118" fill="#17324d" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="800" letter-spacing="1.2">PROBLEMBRIDGE · BEFORE AI WORK</text>
+  <line x1="40" y1="130" x2="880" y2="130" stroke="#9aabb9" stroke-width="1.5"/>
 
-    <rect x="516" y="0" width="188" height="112" rx="10" fill="#fff7e6" stroke="#e9b85d" stroke-width="2"/>
-    <text x="536" y="34" fill="#0f172a" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="800">3. Workflow</text>
-    <text x="536" y="64" fill="#506172" font-family="Segoe UI, Arial, sans-serif" font-size="13">Pain points, materials,</text>
-    <text x="536" y="84" fill="#506172" font-family="Segoe UI, Arial, sans-serif" font-size="13">human boundaries</text>
+  <text x="980" y="118" fill="#17324d" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="800" letter-spacing="1.2">CLAIMHARNESS</text>
+  <line x1="980" y1="130" x2="1160" y2="130" stroke="#9aabb9" stroke-width="1.5"/>
 
-    <path d="M714 56 H762" stroke="#718096" stroke-width="3" stroke-linecap="round"/>
-    <path d="M762 56 l-10 -7 v14 z" fill="#718096"/>
+  <line x1="930" y1="106" x2="930" y2="360" stroke="#c3ced7" stroke-width="1.5" stroke-dasharray="5 6"/>
 
-    <rect x="774" y="0" width="188" height="112" rx="10" fill="#fef2f2" stroke="#f0a1a1" stroke-width="2"/>
-    <text x="794" y="34" fill="#0f172a" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="800">4. AI task check</text>
-    <text x="794" y="64" fill="#506172" font-family="Segoe UI, Arial, sans-serif" font-size="13">Task spec, evidence,</text>
-    <text x="794" y="84" fill="#506172" font-family="Segoe UI, Arial, sans-serif" font-size="13">evaluation alignment</text>
+  <g transform="translate(40 145)">
+    <rect width="180" height="200" rx="12" fill="#f4f7f9" stroke="#8fa2b2" stroke-width="1.5"/>
+    <circle cx="22" cy="25" r="13" fill="#17324d"/>
+    <text x="22" y="30" text-anchor="middle" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="800">1</text>
+    <text x="43" y="30" fill="#5e7387" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="800" letter-spacing="1">INTAKE</text>
+    <text x="18" y="69" fill="#17324d" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800">Document intake</text>
+    <text x="18" y="99" fill="#4f6477" font-family="Segoe UI, Arial, sans-serif" font-size="13">Extract text, tables,</text>
+    <text x="18" y="119" fill="#4f6477" font-family="Segoe UI, Arial, sans-serif" font-size="13">annotations and warnings</text>
+    <line x1="18" y1="142" x2="162" y2="142" stroke="#c3ced7" stroke-width="1"/>
+    <text x="18" y="163" fill="#5e7387" font-family="Segoe UI, Arial, sans-serif" font-size="10" font-weight="800" letter-spacing="1">OUTPUT</text>
+    <text x="18" y="184" fill="#17324d" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="700">problem_seed.md</text>
   </g>
 
-  <g transform="translate(187 318)">
-    <rect x="0" y="0" width="240" height="104" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
-    <text x="22" y="34" fill="#0f172a" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="800">5. View and export</text>
-    <text x="22" y="64" fill="#506172" font-family="Segoe UI, Arial, sans-serif" font-size="13">Inspect technical files,</text>
-    <text x="22" y="84" fill="#506172" font-family="Segoe UI, Arial, sans-serif" font-size="13">export Word or PDF</text>
+  <path d="M228 245 H252" fill="none" stroke="#17324d" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arrow)"/>
 
-    <path d="M252 52 H318" stroke="#718096" stroke-width="3" stroke-linecap="round"/>
-    <path d="M318 52 l-10 -7 v14 z" fill="#718096"/>
-
-    <rect x="330" y="0" width="250" height="104" rx="10" fill="#f3f7f0" stroke="#a6c88f" stroke-width="2"/>
-    <text x="352" y="34" fill="#0f172a" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="800">6. ClaimHarness audit</text>
-    <text x="352" y="64" fill="#506172" font-family="Segoe UI, Arial, sans-serif" font-size="13">Claim table, evidence map,</text>
-    <text x="352" y="84" fill="#506172" font-family="Segoe UI, Arial, sans-serif" font-size="13">audit report, trace log</text>
+  <g transform="translate(260 145)">
+    <rect width="180" height="200" rx="12" fill="#f4f7f9" stroke="#8fa2b2" stroke-width="1.5"/>
+    <circle cx="22" cy="25" r="13" fill="#17324d"/>
+    <text x="22" y="30" text-anchor="middle" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="800">2</text>
+    <text x="43" y="30" fill="#5e7387" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="800" letter-spacing="1">DISCOVER</text>
+    <text x="18" y="69" fill="#17324d" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800">Question discovery</text>
+    <text x="18" y="99" fill="#4f6477" font-family="Segoe UI, Arial, sans-serif" font-size="13">Find questions, people,</text>
+    <text x="18" y="119" fill="#4f6477" font-family="Segoe UI, Arial, sans-serif" font-size="13">and unknowns to validate</text>
+    <line x1="18" y1="142" x2="162" y2="142" stroke="#c3ced7" stroke-width="1"/>
+    <text x="18" y="163" fill="#5e7387" font-family="Segoe UI, Arial, sans-serif" font-size="10" font-weight="800" letter-spacing="1">OUTPUT</text>
+    <text x="18" y="184" fill="#17324d" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="700">question brief</text>
   </g>
 
-  <path d="M1020 190 C1096 208 1096 346 780 370" fill="none" stroke="#cbd5e1" stroke-width="3" stroke-dasharray="7 8"/>
-  <text x="842" y="406" fill="#5b6978" font-family="Segoe UI, Arial, sans-serif" font-size="14">Evidence contract can later connect ProblemBridge to ClaimHarness.</text>
+  <path d="M448 245 H472" fill="none" stroke="#17324d" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arrow)"/>
+
+  <g transform="translate(480 145)">
+    <rect width="180" height="200" rx="12" fill="#f4f7f9" stroke="#8fa2b2" stroke-width="1.5"/>
+    <circle cx="22" cy="25" r="13" fill="#17324d"/>
+    <text x="22" y="30" text-anchor="middle" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="800">3</text>
+    <text x="43" y="30" fill="#5e7387" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="800" letter-spacing="1">ALIGN</text>
+    <text x="18" y="69" fill="#17324d" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800">Workflow alignment</text>
+    <text x="18" y="99" fill="#4f6477" font-family="Segoe UI, Arial, sans-serif" font-size="13">Map workflow, evidence,</text>
+    <text x="18" y="119" fill="#4f6477" font-family="Segoe UI, Arial, sans-serif" font-size="13">pain points and boundaries</text>
+    <line x1="18" y1="142" x2="162" y2="142" stroke="#c3ced7" stroke-width="1"/>
+    <text x="18" y="163" fill="#5e7387" font-family="Segoe UI, Arial, sans-serif" font-size="10" font-weight="800" letter-spacing="1">OUTPUT</text>
+    <text x="18" y="184" fill="#17324d" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="700">alignment package</text>
+  </g>
+
+  <path d="M668 245 H692" fill="none" stroke="#17324d" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arrow)"/>
+
+  <g transform="translate(700 145)">
+    <rect width="180" height="200" rx="12" fill="#f4f7f9" stroke="#8fa2b2" stroke-width="1.5"/>
+    <circle cx="22" cy="25" r="13" fill="#17324d"/>
+    <text x="22" y="30" text-anchor="middle" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="800">4</text>
+    <text x="43" y="30" fill="#5e7387" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="800" letter-spacing="1">CHECK</text>
+    <text x="18" y="69" fill="#17324d" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800">AI task check</text>
+    <text x="18" y="99" fill="#4f6477" font-family="Segoe UI, Arial, sans-serif" font-size="13">Check task, inputs,</text>
+    <text x="18" y="119" fill="#4f6477" font-family="Segoe UI, Arial, sans-serif" font-size="13">metrics and review roles</text>
+    <line x1="18" y1="142" x2="162" y2="142" stroke="#c3ced7" stroke-width="1"/>
+    <text x="18" y="163" fill="#5e7387" font-family="Segoe UI, Arial, sans-serif" font-size="10" font-weight="800" letter-spacing="1">OUTPUT</text>
+    <text x="18" y="184" fill="#17324d" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="700">reviewed task spec</text>
+  </g>
+
+  <rect x="887" y="222" width="86" height="20" rx="10" fill="#ffffff"/>
+  <text x="930" y="236" text-anchor="middle" fill="#5e7387" font-family="Segoe UI, Arial, sans-serif" font-size="9.5" font-weight="800" letter-spacing="0.6">OUTPUTS EXIST</text>
+  <path d="M888 255 H972" fill="none" stroke="#17324d" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow)"/>
+
+  <g transform="translate(980 145)">
+    <rect width="180" height="200" rx="12" fill="#e6edf2" stroke="#17324d" stroke-width="2"/>
+    <circle cx="22" cy="25" r="13" fill="#17324d"/>
+    <text x="22" y="30" text-anchor="middle" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="800">5</text>
+    <text x="43" y="30" fill="#5e7387" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="800" letter-spacing="1">AUDIT</text>
+    <text x="18" y="69" fill="#17324d" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800">ClaimHarness audit</text>
+    <text x="18" y="99" fill="#4f6477" font-family="Segoe UI, Arial, sans-serif" font-size="13">Check claims against</text>
+    <text x="18" y="119" fill="#4f6477" font-family="Segoe UI, Arial, sans-serif" font-size="13">the provided evidence</text>
+    <line x1="18" y1="142" x2="162" y2="142" stroke="#9aabb9" stroke-width="1"/>
+    <text x="18" y="163" fill="#5e7387" font-family="Segoe UI, Arial, sans-serif" font-size="10" font-weight="800" letter-spacing="1">OUTPUT</text>
+    <text x="18" y="184" fill="#17324d" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="700">audit package + trace</text>
+  </g>
+
+  <path d="M40 374 V365 M40 374 H880 M880 374 V365" fill="none" stroke="#9aabb9" stroke-width="1.5"/>
+  <text x="460" y="400" text-anchor="middle" fill="#5e7387" font-family="Segoe UI, Arial, sans-serif" font-size="12.5">Local workbench · deterministic mock by default · view and export after generation</text>
+
+  <path d="M980 374 V365 M980 374 H1160 M1160 374 V365" fill="none" stroke="#9aabb9" stroke-width="1.5"/>
+  <text x="1070" y="400" text-anchor="middle" fill="#5e7387" font-family="Segoe UI, Arial, sans-serif" font-size="12.5">CLI + static viewer</text>
 </svg>

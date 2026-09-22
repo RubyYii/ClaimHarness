@@ -1,5 +1,7 @@
 # Release Package Guide
 
+The v0.4.1 smoke gate runs all three frozen synthetic suites with `--suite all --check` after installing the extracted package into a clean environment. Missing packaged corpus files, extraction/status regressions, and unhandled high-risk claims fail the gate. Historical `docs/sample_outputs/` and static showcase captures retain their original tool versions and hashes; regenerate a new run to inspect v0.4.1 behavior.
+
 This guide explains how to package ProblemBridge + ClaimHarness for external testing without turning it into an online service or Windows executable.
 
 ## local web app package
@@ -7,7 +9,7 @@ This guide explains how to package ProblemBridge + ClaimHarness for external tes
 The recommended package is:
 
 ```text
-ProblemBridge-ClaimHarness-v0.4.0-local-webapp.zip
+ProblemBridge-ClaimHarness-v0.4.1-local-webapp.zip
 ```
 
 It contains the repository source, examples, docs, guided UI, and launch scripts. After unzipping, a tester can double-click:
@@ -32,7 +34,7 @@ For the competition, use a judge bundle around the verified local application
 package:
 
 ```text
-ProblemBridge-ClaimHarness-v0.4.0-build-week-2026-judge-bundle.zip
+ProblemBridge-ClaimHarness-v0.4.1-build-week-2026-judge-bundle.zip
 ```
 
 It contains:

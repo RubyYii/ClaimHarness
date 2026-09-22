@@ -2,6 +2,16 @@
 
 ClaimHarness is a CLI-first Agent Harness for scientific claim-evidence auditing. It keeps the first implementation small, deterministic, and auditable.
 
+## Unified problem workbench
+
+`problem_bridge.workbench` maintains one confirmed problem per existing UI project. `problem_record.json` separates the question, reported observation/source, hypothesis, desired change and human boundary. Every framing, audit and follow-up is a new governed run with a stable problem ID and a reference to its predecessor. Changes to the framing clear its current audit; old snapshots remain intact.
+
+`problem_bridge.need_ui` provides a short novice interview and an editable confirmation step. `problem_bridge.handoff` renders a collaborator brief and a language-model task from the same record, preserving original wording and unknowns. Record schema 2 includes the structured need context and concept notes in its framing fingerprint; schema 1 remains readable. Both English and Chinese handoff files commit with the problem snapshot. The main journey is describe work, confirm meaning, then take the handoffs; checking results and following up audit findings are optional later stages. No messages or files are sent externally.
+
+The local audit entry point `claim_harness.cli.write_local_audit` reuses the CLI pipeline within the workbench's lifecycle transaction. Source text and tables are hashed under `source_files/`; the normal audit artifacts plus `follow_up.json` / `follow_up.md` commit together. No generated alignment template or need brief is imported as empirical evidence. The built-in contract is used; explicit custom contracts remain a CLI option.
+
+Follow-up questions cite the original claim ID, status, reason and evidence locators, distinguishing conflicts, missing evidence and human review. A coverage question is always retained. Answers are separately recorded as user-reported next steps and cannot change verdicts. The UI saves only a validated run pointer alongside existing workspace memory; originals remain in the governed snapshot and are excluded from share ZIPs by default. Cross-project links, modified source snapshots and mismatched framing fingerprints fail validation.
+
 ## Build Week evidence-gated build pipeline
 
 ```mermaid
@@ -71,6 +81,8 @@ flowchart TD
 `claim_harness.evidence_retriever` converts table rows, Results text, Discussion limitations, and references into located evidence items. Results prose is candidate context and cannot automatically act as strong evidence for the same claim. Table evidence is strong only when the deterministic rules can verify a metric/value relationship; links distinguish support, contradiction, and topical relation. A base table evidence item preserves the full row while `claim_link_locators` narrows each claim link to the cells that matched that claim. Locators expose only safe basenames, never absolute paths; page numbers are not inferred when the upstream input does not provide them.
 
 `claim_harness.verifier` assigns support labels: `supported`, `weakly_supported`, `unsupported`, `overclaimed`, or `needs_human_review`. Evidence from `ocr` or `derived_text` is excluded from strong-evidence and human-approval checks; a claim extracted from derived input is always routed to `needs_human_review` with `source_inspection` outstanding.
+
+`claim_harness.claim_language` supplies shared extraction and risk cues. `claim_harness.table_relations` binds a metric to a model, comparator, table and experiment context before assessing exact measurements, directions and changes. Retrieval and verification use the same assessment; matching vocabulary alone is only a candidate link. A bound mismatch produces `contradicts` with observed values; unresolved bindings produce a human-review reason. Units are checked but not converted. `review_presentation` shares the report's finding labels and extraction-completeness boundary without changing verifier status.
 
 `claim_harness.report_generator` writes the audit package.
 

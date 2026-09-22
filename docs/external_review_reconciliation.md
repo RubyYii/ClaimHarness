@@ -2,6 +2,8 @@
 
 本页把一次完整仓库审查提出的 14 类问题，与当前 v0.4.0 源码逐项对照。它是能力声明校准记录，不是算法有效性证明，也不把计划中的功能写成已经实现。
 
+2026-09-22 更新：统一问题工作台已支持直接运行本地确定性审计，并把发现带回同一问题的下一步行动。以下第 2、14 项与第 3 条边界已同步；这不增加中文算法验证或科学有效性证据。
+
 状态含义：
 
 - **已完成**：审查指出的具体缺陷已有代码、测试或明确产品措辞支撑。
@@ -22,7 +24,7 @@
 | # | 审查问题 | 当前状态 | 代码或文档证据 | 当前边界与剩余工作 |
 | --- | --- | --- | --- | --- |
 | 1 | 产品描述领先于实际算法 | **已完成** | [`pyproject.toml`](../pyproject.toml)、[`README.md`](../README.md)、[`README.zh-CN.md`](../README.zh-CN.md)、[`problem_bridge/generator.py`](../problem_bridge/generator.py)、[`claim_harness/claim_extractor.py`](../claim_harness/claim_extractor.py) | 包元数据和双语 README 现在明确写成 deterministic workflow alignment 与 rule-based screening；仍是 portfolio prototype，不声称科学验证系统。 |
-| 2 | ProblemBridge 与 ClaimHarness 没有真正契约闭环 | **部分完成** | [`problem_bridge/writer.py`](../problem_bridge/writer.py)、[`claim_harness/evidence_contract.py`](../claim_harness/evidence_contract.py)、[`claim_harness/cli.py`](../claim_harness/cli.py)、[`claim_harness/verifier.py`](../claim_harness/verifier.py)、[`apps/problem_bridge_wizard.py`](../apps/problem_bridge_wizard.py) | CLI 已可用 `--evidence-contract` 读取、校验并执行 schema-v2 契约，也会保存规范化快照；Streamlit 工作台仍只能查看既有审计包，不能直接运行 ClaimHarness。 |
+| 2 | ProblemBridge 与 ClaimHarness 没有真正契约闭环 | **部分完成** | [`problem_bridge/workbench.py`](../problem_bridge/workbench.py)、[`tests/test_unified_workbench.py`](../tests/test_unified_workbench.py)、[`claim_harness/evidence_contract.py`](../claim_harness/evidence_contract.py) | 工作台已把确认问题、本地审计与后续追问绑定到同一问题，并保存不可变版本及输入哈希。UI 使用内置规则；自定义 schema-v2 契约仍通过 CLI 传入，用户文字边界不会自动编译成验证规则。 |
 | 3 | claim 可能被同一句 Results 文本自我支持，表格关系过宽 | **已完成** | [`claim_harness/evidence_retriever.py`](../claim_harness/evidence_retriever.py)、[`claim_harness/verifier.py`](../claim_harness/verifier.py)、[`tests/test_core_integrity.py`](../tests/test_core_integrity.py)、[`tests/test_audit_enhancements.py`](../tests/test_audit_enhancements.py) | 相同文本以及同一来源位置的近重复 claim span 被排除，不会误删同一行的独立句子；Discussion 普通叙述被标为 narrative assertion；强表格支持需要可验证的实体/指标/数值关系。规则仍不等同于完整语义、研究设计或因果判断。 |
 | 4 | `requires_evidence`、风险、人工复核与发布边界没有进入判定 | **已完成** | [`claim_harness/schemas.py`](../claim_harness/schemas.py)、[`claim_harness/verifier.py`](../claim_harness/verifier.py)、[`claim_harness/report_generator.py`](../claim_harness/report_generator.py)、[`claim_harness/review_queue.py`](../claim_harness/review_queue.py)、[`claim_harness/diagnostics.py`](../claim_harness/diagnostics.py) | 验证器执行内置或契约要求，并把 `human_review_required` 与 `release_allowed` 作为独立字段输出；schema 级不变量阻止 high-risk 或待复核结果自动放行，诊断与队列语义版本已升级。系统不能确认人员资质或记录正式批准。 |
 | 5 | 中文界面与 English-first 核心算法不一致 | **明确延期** | [`apps/problem_bridge_wizard.py`](../apps/problem_bridge_wizard.py)、[`claim_harness/claim_extractor.py`](../claim_harness/claim_extractor.py)、[`claim_harness/evidence_retriever.py`](../claim_harness/evidence_retriever.py)、[`claim_harness/eval_data/gold_claims.jsonl`](../claim_harness/eval_data/gold_claims.jsonl)、[`README.zh-CN.md`](../README.zh-CN.md) | UI 已双语，OCR 可调用本地中文语言包；profile detection、claim cues、token matching 与 gold set 仍以英文为主。中文审计只有在版本化中文 gold set 达到明确门槛后才计划进入 v0.6。 |
@@ -34,7 +36,7 @@
 | 11 | CI、release smoke test 与 YAML 校验覆盖薄弱 | **部分完成** | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)、[`scripts/build_and_test_release_powershell.ps1`](../scripts/build_and_test_release_powershell.ps1)、[`scripts/test_release_zip_powershell.ps1`](../scripts/test_release_zip_powershell.ps1)、[`problem_bridge/writer.py`](../problem_bridge/writer.py) | CI 已覆盖 Ubuntu 3.10/3.12、Windows 3.12、`.[dev,ui]`、wheel 和 Windows ZIP clean-environment demo。仍缺 Python 3.11、lint/type/coverage/dependency-audit 门；ProblemBridge YAML 仍由受测的本地 serializer 生成，尚未迁移到标准 YAML serializer + schema round-trip。 |
 | 12 | 缺少算法有效性与真实用户有效性证据 | **部分完成** | [`claim_harness/evaluation.py`](../claim_harness/evaluation.py)、[`claim_harness/eval_data/gold_claims.jsonl`](../claim_harness/eval_data/gold_claims.jsonl)、[`tests/test_evaluation.py`](../tests/test_evaluation.py)、[`USABILITY_TEST_PLAN.md`](../USABILITY_TEST_PLAN.md) | 已有小型、版本化、离线 English-first synthetic regression gate，报告 extraction、retrieval、status、high-risk 和 abstention 指标。没有完成中文/跨领域 gold benchmark、真实用户对照研究、临床或现实有效性验证。 |
 | 13 | README 同时承担过多职责 | **部分完成** | [`README.md`](../README.md)、[`README.zh-CN.md`](../README.zh-CN.md)、[`docs/architecture.md`](architecture.md)、[`docs/limitations.md`](limitations.md)、本页 | 双语 README 已加入首屏能力真相表，并链接架构、限制、升级与审查对照文档。本轮不大拆 README；getting-started、provider、release、安全与 evaluation 的进一步信息架构拆分仍可后续进行。 |
-| 14 | P0/P1/P2 优先级需要转成可验收路线 | **部分完成** | [`docs/v0.4_upgrade.md`](v0.4_upgrade.md)、[`README.md`](../README.md)、[`README.zh-CN.md`](../README.zh-CN.md)、[`ROADMAP.md`](../ROADMAP.md) | v0.4 已覆盖版本统一、能力措辞、契约执行、自我支持阻断、高风险/发布边界、manifest、Windows release gate 与部分 URL 安全。直接 UI audit、中文核心审计、完整 validity study 和 reviewer-decision workflow 尚未完成；更多 provider、托管、复杂 RAG 与自动文献检索继续延期。 |
+| 14 | P0/P1/P2 优先级需要转成可验收路线 | **部分完成** | [`docs/unified_workbench_design.md`](unified_workbench_design.md)、[`README.md`](../README.md)、[`README.zh-CN.md`](../README.zh-CN.md)、[`ROADMAP.md`](../ROADMAP.md) | 已接通直接 UI audit 与同一问题的追问记录。中文核心审计、完整 validity study 和正式 reviewer-decision workflow 尚未完成；更多 provider、托管、复杂 RAG 与自动文献检索继续延期。 |
 
 ## 本轮边界
 
@@ -42,7 +44,7 @@
 
 1. 不得把 bilingual UI 写成 bilingual claim-audit algorithm。
 2. 不得把 contract-aware rule screening 写成语义蕴含、事实核验或科学有效性证明。
-3. 不得声称 Streamlit 工作台会直接运行 ClaimHarness；当前执行入口仍是 CLI。
+3. Streamlit 工作台会直接运行 ClaimHarness 的本地规则管线；不能把这一功能写成自适应专家访谈、自动批准或任意语言的专业判断。
 4. 不得把 remote LLM advisory summary 写成核心 verification 或 verdict override。
 5. 不得把 pending human-review queue 写成人工批准、身份核验或 release authorization。
 6. 不得把 synthetic English-first regression metrics 写成现实、跨领域、中文或临床有效性。

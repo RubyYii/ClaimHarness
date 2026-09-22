@@ -1,0 +1,13 @@
+# Cross-disciplinary needs and model handoff
+
+The user confirmed that ProblemBridge should help people from different disciplines understand each other's needs and prepare requests that a language model can help execute. The primary outcome is a portable, user-confirmed brief; numerical evidence checks follow only when relevant outputs exist.
+
+The home journey asks about one real task, a concrete difficulty, a desired deliverable, and available materials. Only the first answer is required; later answers can remain unknown. Users can go back, revise the wording, describe ambiguous terms with examples/counterexamples, and add their background, desired collaborator contribution, small-sample acceptance check and human boundaries. Confirmation saves one version before showing two handoffs: a collaborator brief and a language-model task. Both quote the same user wording and explicitly retain unknowns. Neither is automatically sent to a person or service.
+
+Local prompts are predefined and selected by the current step. This change does not introduce unrestricted semantic interpretation, automatic disciplinary translation or model execution. User confirmation establishes their wording, not evidence validity or the recipient's agreement. Describing a material does not upload or attach it. Existing file-intake and alignment tools remain available; the optional audit still supports its bounded English-first numerical checks.
+
+The saved schema adds a structured `brief` (background, collaborator contribution, material list, acceptance check and concept notes) to problem record version 2. Its content participates in the framing fingerprint. Version 1 records remain readable. Two handoffs in each interface language are committed with the immutable problem snapshot and included in generated-output exports. A changed requirement creates a new framing and clears the current audit while keeping historical results.
+
+Check the no-file novice journey, skip/back/edit actions, both exports, bilingual switching, session drafts and reopening, old record compatibility, recipient/term/acceptance changes invalidating the framing, project isolation, and existing audit journeys. Run the CLI demo and regression suite; inspect desktop and mobile screenshots. Tests cannot establish that novice users understand the product or complete their real work more easily.
+
+An abstract design-draft request (no source, screenshots or user material) was attempted before source edits. Gemini returned HTTP 429 (daily free-tier request quota). Local design, browser inspection and local visual smoke checks remain the available evidence; do not claim an independent Gemini design or visual review.

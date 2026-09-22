@@ -2,9 +2,14 @@
 
 This walkthrough uses the synthetic lab-report audit demo. The inputs are intentionally toy data, not private manuscript material.
 
+For the main novice UI, launch `RUN_PROBLEMBRIDGE_WINDOWS.bat` and choose **See an example: researcher → collaborator / AI**. This synthetic art-research need produces two handoffs without uploading files or running a model. Alternatively answer the four short questions, leave unknowns blank, edit the confirmation, and prepare both briefs. Download the document for your intended recipient and attach any actual materials separately. The numerical audit below is an optional later step when suitable text and CSV results exist.
+
 ## Install
 
-```bash
+Commands below use PowerShell from the repository root. On Linux/macOS, use
+the Python interpreter in the active virtual environment.
+
+```powershell
 python -m venv .venv
 .venv\Scripts\python.exe -m pip install -c requirements\constraints.txt -e ".[dev]"
 ```
@@ -13,7 +18,7 @@ python -m venv .venv
 
 Fast path:
 
-```bash
+```powershell
 .venv\Scripts\python.exe -m claim_harness demo --out outputs/lab_report_audit_demo_run
 ```
 
@@ -24,7 +29,15 @@ Evidence-Gated Build step may explicitly use GPT-5.6 after `OPENAI_API_KEY` is
 set in the launch environment; the UI has no key field and does not store the
 credential.
 
-For a UI walkthrough, keep one active local project and follow Home -> Document intake -> Question discovery -> Domain practitioner wizard -> AI practitioner wizard -> Evidence-gated build -> View generated outputs. The compact previous/next controls should move between those pages without changing the project ID; on a narrow screen, the six-step strip should scroll horizontally. Empty required forms should show inline guidance without creating a run. Question discovery should seed the guided interview at partial completeness; the interview should remain editable before generation; and the AI form should receive separate concise fields rather than duplicated raw package files. Evidence-Gated Build should show each proposed claim, status, action, final statement, and runtime truth flag. Previous results stay collapsed until requested and explicitly exclude unsaved edits in the current form. Output history is current-project-only by default, with an explicit opt-in for all projects and package-specific renderers for intake, discovery, alignment, build-contract, and audit packages.
+For a first UI walkthrough:
+
+1. On **My workbench**, choose **Try the complete synthetic example**. It saves a problem and runs a real deterministic audit locally.
+2. Inspect the precision discrepancy: the text says 0.95, while the result table says 0.86. Expand the source locations and inspect the associated table row.
+3. Save a next action, for example asking the author which result version is current. The original finding stays unchanged. Choose **Bring this question back to framing**, revise the question, and save. The problem ID remains the same; the new framing has no current audit until you check its materials.
+4. Alternatively start with your own question or use **Describe my work** and **Continue with this problem in the workbench**. Confirm the seeded problem, paste text / upload Markdown or TXT, supply CSV tables, and run the local check. CSVs need unique column names and at least one rectangular data row; each input is limited to 2 MB and the total to 10 MB.
+5. Confirmed problems, audits and next actions save a validated resume pointer. Reopen to continue. Use **Drafts & project settings → Show workspace memory → Save current workspace** for an unfinished interview. The old **Run a sample now** workflow example remains under optional helpers.
+
+The three Home routes accept a question, a workflow, or existing files. **All tools** exposes the complete navigation; **Other steps (optional)** contains previous/next controls. Neither navigation changes the project ID. Advanced help and technical files are collapsed. Empty required forms show inline guidance without creating a run. Question discovery seeds only a provisional repeated-work answer; the user must supply materials, pain points, review boundaries and useful support. Evidence-Gated Build shows each proposed claim, status, action, final statement, and runtime truth flag. Previous results explicitly exclude unsaved edits. Output history defaults to the current project, with explicit opt-in for other projects; unopened cleanup controls do not scan historical artifact hashes on every interaction.
 
 ## Build Week judge path
 
@@ -41,22 +54,28 @@ may produce `gpt_5_6_used: true`.
 
 Manual path:
 
-```bash
-.venv\Scripts\python.exe -m claim_harness run \
-  --manuscript examples/lab_report_audit_demo/manuscript.md \
-  --tables examples/lab_report_audit_demo/tables \
-  --references examples/lab_report_audit_demo/references.md \
-  --out outputs/lab_report_audit_demo_run \
+```powershell
+.venv\Scripts\python.exe -m claim_harness run `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --out outputs/lab_report_audit_demo_run `
   --llm mock
 ```
 
 Expected summary shape:
 
 ```text
-ClaimHarness audit complete.
+ClaimHarness audit outputs written.
 claims=<count>
 supported=<count>
 weak_or_worse=<count>
+human_review_required=<count>
+release_blocked=<count>
+package_release_allowed=<true-or-false>
+project_id=<project-id>
+run_id=<run-id>
+mode=new
 out=outputs\lab_report_audit_demo_run
 ```
 

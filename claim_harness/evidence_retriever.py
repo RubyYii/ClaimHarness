@@ -5,6 +5,7 @@ import pandas as pd
 
 from .claim_extractor import sentences_with_lines, statement_polarity
 from .schemas import Claim, EvidenceCell, EvidenceItem, EvidenceLocator, ManuscriptSection
+from .table_relations import assess_table_relation
 
 
 STOPWORDS = {
@@ -75,6 +76,22 @@ def retrieve_evidence(
             item.claim_link_reasons[claim.claim_id] = reason
             item.claim_link_relations[claim.claim_id] = relation
             item.claim_link_locators[claim.claim_id] = locator
+
+    tables_only = [item for item in evidence if item.locator.source_kind == 'table']
+    for claim in claims:
+        assessment = assess_table_relation(claim, tables_only)
+        for item in tables_only:
+            if claim.claim_id not in item.linked_claim_ids:
+                continue
+            if item.evidence_id in assessment.contradictions:
+                item.claim_link_relations[claim.claim_id] = 'contradicts'
+                item.claim_link_reasons[claim.claim_id] = assessment.contradictions[item.evidence_id]
+            elif item.evidence_id in assessment.support_ids:
+                item.claim_link_relations[claim.claim_id] = 'supports'
+                item.claim_link_reasons[claim.claim_id] = 'Verified entity, metric, context and numerical constraints; ' + item.claim_link_reasons[claim.claim_id]
+            else:
+                item.claim_link_relations[claim.claim_id] = 'related'
+                item.claim_link_reasons[claim.claim_id] = assessment.review_reason or 'Candidate table context; no complete numerical support relation was verified for this row.'
 
     return evidence
 

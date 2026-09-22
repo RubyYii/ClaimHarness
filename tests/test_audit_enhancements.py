@@ -141,7 +141,7 @@ def test_demo_structural_diagnostics_match_the_deterministic_pipeline():
         "table": 1,
         "trace": 4,
     }
-    assert diagnostics["metrics"]["human_review_required"]["numerator"] == 2
+    assert diagnostics["metrics"]["human_review_required"]["numerator"] == 3
     assert diagnostics["metrics"]["release_allowed"]["numerator"] == 3
     assert diagnostics["release_boundary_by_claim"]["C003"] == {
         "human_review_required": True,

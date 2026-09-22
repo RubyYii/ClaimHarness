@@ -1,4 +1,4 @@
-# ProblemBridge + ClaimHarness
+# ProblemBridge Workbench
 
 <p align="center">
   <img src="docs/figures/github-hero-flat-comic.png" alt="ProblemBridge + ClaimHarness: local-first problem alignment and evidence audit workflow" width="100%">
@@ -33,6 +33,28 @@
 **Development reflection:** [Development lessons](DEVELOPMENT_LESSONS.md)
 
 **External review reconciliation (Chinese):** [Current implementation and 14-issue status](docs/external_review_reconciliation.md)
+
+**Repository guide:** [Project map and documentation index](docs/project_map.md) | [Local check, 5 September 2026](docs/project_check_2026-09-05.md)
+
+## First run
+
+Double-click `RUN_PROBLEMBRIDGE_WINDOWS.bat`. **My workbench** starts with a real task and helps prepare a need that a collaborator from another discipline or a language model can take forward: **Describe your work → Take your briefs**. ClaimHarness checks are optional once results exist. No prompt-writing experience, files or API configuration are needed to start.
+
+The novice route asks one short question at a time: your work, a concrete difficulty, the result you want and available materials. Skip unknowns, go back, and edit before confirming. Existing interview answers can seed the review. Optional context includes your background, the collaborator's contribution, ambiguous terms with examples/counterexamples, a small-sample acceptance check and human boundaries. User wording is retained and gaps stay open; specialist meanings are not invented.
+
+The responsive layout keeps the current question in a focused card, with an explanation of the two handoffs alongside it on desktop and below it on mobile. The review form groups context and expected results; both exports have readable document previews. A bundled light theme keeps native controls and primary actions consistent. See the [layout verification record](docs/layout_polish_2026-09-22.md).
+
+![The local workbench, showing the first question and the two handoffs](docs/figures/workbench-start-en.png)
+
+![The local workbench, showing the first question and the two handoffs](docs/figures/workbench-start-en.png)
+
+The responsive layout keeps the current question in a focused card, with an explanation of the two handoffs alongside it on desktop and below it on mobile. The review form groups context and expected results; both exports have readable document previews. A bundled light theme keeps native controls and primary actions consistent. See the [layout verification record](docs/layout_polish_2026-09-22.md).
+
+Choose **This reflects my need → prepare both handoffs** to preview, copy or download a collaborator brief and a language-model task. Both use the same confirmed record. Nothing is sent automatically; listed materials must be attached separately. The synthetic art-research example shows the result without file uploads. New records save both interface languages (`collaboration_brief_en.md` / `collaboration_brief_zh.md`, `model_task_en.md` / `model_task_zh.md`); supplied wording is not automatically translated.
+
+Problem saves, audits and follow-ups create immutable revisions and save a current-project resume pointer. Reopening resumes the same problem. Editing needs clears their current audit link and retains old results in history. To retain unfinished questions or concept notes, use **Drafts & project settings → Show workspace memory → Save current workspace**. Clear local memory before sharing sensitive drafts. **All tools** and the collapsed optional helpers retain the original workflows.
+
+**When results exist:** paste text or upload Markdown/TXT and CSV tables to run the local audit. Findings retain claim IDs and source locations; a saved follow-up does not change a verdict. Checks remain bounded and primarily cover English numerical claims. Extraction coverage is unknown, including when no statements are found. Handoffs are not empirical evidence or recipient agreement. The local questions are predefined guidance, not unrestricted semantic interpretation or task execution. Custom evidence contracts and remote advisory audit providers remain CLI options. See [the cross-disciplinary handoff design](docs/cross_disciplinary_handoff.md) and [the audit workflow design](docs/unified_workbench_design.md).
 
 ## OpenAI Build Week 2026
 
@@ -143,11 +165,11 @@ You do not need AI vocabulary to start. Describe the repeated work, the material
 
 ### Use it in three steps
 
-1. Double-click `RUN_PROBLEMBRIDGE_WINDOWS.bat` and begin with files, a vague concern, or a repeated workflow.
-2. Follow the bilingual workbench through Document intake -> Question discovery -> Guided interview -> ProblemBridge -> Evidence-gated build -> View generated outputs.
-3. When a manuscript or system output exists, run ClaimHarness through the CLI and open its completed package in the searchable static report viewer.
+1. Double-click `RUN_PROBLEMBRIDGE_WINDOWS.bat` and describe one real task. Skip questions you cannot answer yet.
+2. Review your wording, clarify terms and confirm what you want a collaborator or language model to help with.
+3. Copy or download the two handoffs. Bring back questions to revise the same need; check text against CSV results later if that audit fits your task.
 
-The workbench can generate the Build Week evidence-gated contract with the deterministic mock path or the official OpenAI GPT-5.6 Responses API path, then inspect existing ClaimHarness audit packages. It does not execute or replace a ClaimHarness audit; the full manuscript audit remains a CLI operation.
+The workbench executes the deterministic ClaimHarness audit through the same pipeline as the CLI. The separate Build Week tool can still generate an evidence-gated build contract with mock or the explicitly selected official OpenAI GPT-5.6 Responses API path.
 
 ## Overview
 
@@ -300,7 +322,7 @@ The guided interaction now keeps the full overview on Home and uses a compact wo
 
 When an older ClaimHarness package does not contain the newer diagnostics files, the audit-specific view reports them as unavailable instead of presenting missing values as zero.
 
-The workbench can inspect an existing ClaimHarness package with the correct audit-specific view, but it does not execute the audit. Run ClaimHarness through the CLI, then open the completed package in `View generated outputs` or its static `index.html` viewer.
+The workbench runs local evidence checks and also opens existing ClaimHarness packages with the audit-specific view. CLI runs remain available and can be opened in `View generated outputs` or the static `index.html` viewer.
 
 If you are cloning from GitHub manually:
 
@@ -319,29 +341,15 @@ python -m venv .venv
 .venv\Scripts\python.exe -m claim_harness demo
 ```
 
+These commands create new runs. For another run, pass a fresh `--out` directory;
+an existing completed or legacy directory is intentionally not overwritten.
+See [safe output lifecycle](docs/v0.4_upgrade.md#safe-output-lifecycle) for
+identity-checked `resume` and `replace` operations.
+
 ## Safety Boundary
 
 Do not enter real patient data, confidential manuscripts, API keys, unpublished project materials, or sensitive personal information. Most local Streamlit steps are deterministic; the optional Evidence-gated build can call GPT-5.6 only when the API key is supplied through the process environment. The UI never asks for or stores an API key, and it displays a remote-data warning before that choice.
 
-## Downloadable Local Web App Package
-
-For external testing, share the generated local package:
-
-```text
-ProblemBridge-ClaimHarness-v0.4.0-local-webapp.zip
-```
-
-After downloading, unzip it and double-click:
-
-```text
-RUN_PROBLEMBRIDGE_WINDOWS.bat
-```
-
-The first run creates `.venv`, installs dependencies, and opens a local browser UI. This is not an online service and not a standalone `.exe`.
-
-After the first setup, normal launches do not reinstall dependencies. Run `scripts/setup_problembridge_windows.ps1 -Force` only when intentionally refreshing the tested dependency set.
-
-See [docs/v0.4_upgrade.md](docs/v0.4_upgrade.md) for evidence-contract, project lifecycle, OCR quality, evaluation, privacy, and release migration details.
 ## Technical Overview
 
 ClaimHarness: A Lightweight Agent Harness for Scientific Claim-Evidence Auditing
@@ -365,13 +373,13 @@ ProblemBridge is not STORM, RAG, or a writing assistant. STORM-like systems help
 
 Run the bundled synthetic demo and generate the browser report in one command:
 
-```bash
+```powershell
 .venv\Scripts\python.exe -m claim_harness demo
 ```
 
 Run the bundled ProblemBridge quality-inspection alignment demo:
 
-```bash
+```powershell
 .venv\Scripts\python.exe -m problem_bridge demo
 ```
 
@@ -392,33 +400,30 @@ The mock pipeline is deterministic and local-first. It does not require an API k
 
 ## Quickstart
 
-Create and install the development environment:
-
-```bash
-python -m venv .venv
-.venv\Scripts\python.exe -m pip install -c requirements\constraints.txt -e ".[dev]"
-```
+Use the environment from [Run locally](#run-locally). Commands below run from
+the repository root in PowerShell; the CLI also works on Linux/macOS using the
+Python interpreter in the active virtual environment.
 
 Run the synthetic lab-report audit demo manually:
 
-```bash
-.venv\Scripts\python.exe -m claim_harness run \
-  --manuscript examples/lab_report_audit_demo/manuscript.md \
-  --tables examples/lab_report_audit_demo/tables \
-  --references examples/lab_report_audit_demo/references.md \
-  --out outputs/lab_report_audit_demo_run \
+```powershell
+.venv\Scripts\python.exe -m claim_harness run `
+  --manuscript examples/lab_report_audit_demo/manuscript.md `
+  --tables examples/lab_report_audit_demo/tables `
+  --references examples/lab_report_audit_demo/references.md `
+  --out outputs/lab_report_audit_demo_run `
   --llm mock
 ```
 
 Run tests:
 
-```bash
+```powershell
 .venv\Scripts\python.exe -m pytest
 ```
 
 Or use the one-command demo path:
 
-```bash
+```powershell
 .venv\Scripts\python.exe -m claim_harness demo --out outputs/lab_report_audit_demo_run
 ```
 
@@ -469,7 +474,7 @@ Start with synthetic examples. Do not upload private patient data, confidential 
 For external testing, the repository can be shared as a local web app package:
 
 ```text
-ProblemBridge-ClaimHarness-v0.4.0-local-webapp.zip
+ProblemBridge-ClaimHarness-v0.4.1-local-webapp.zip
 ```
 
 After downloading:
@@ -482,6 +487,11 @@ After downloading:
 6. Then try `Domain practitioner wizard` with a non-sensitive workflow.
 
 This is not an online service and not a standalone `.exe`. It runs locally through Python and Streamlit. Do not upload sensitive data, private patient data, confidential manuscripts, API keys, or unpublished project materials.
+
+After the first setup, normal launches do not reinstall dependencies. Run
+`scripts/setup_problembridge_windows.ps1 -Force` only when intentionally
+refreshing the tested dependency set. See [the v0.4 upgrade guide](docs/v0.4_upgrade.md)
+for evidence-contract, lifecycle, OCR, evaluation, privacy, and migration details.
 
 If the Windows launcher does not load:
 
@@ -501,6 +511,10 @@ http://127.0.0.1:8501
 Static HTML is best for viewing examples only. It does not run the workflow wizard, generate new alignment packages, or run ClaimHarness.
 
 To build the package from a checked-out repository:
+
+The builder requires a clean Git checkout and archives the committed source.
+Review and commit intended changes before building; a local test pass does not
+refresh a ZIP already present in `dist/`.
 
 ```powershell
 .\scripts\build_release_zip_powershell.ps1
@@ -558,13 +572,13 @@ upload boundary.
 
 Run the synthetic quality-inspection alignment demo:
 
-```bash
+```powershell
 .venv\Scripts\python.exe -m problem_bridge demo --out outputs/problem_bridge_quality_inspection_demo
 ```
 
 Run a specific problem brief:
 
-```bash
+```powershell
 .venv\Scripts\python.exe -m problem_bridge align `
   --brief examples/problem_bridge/quality_inspection/problem.md `
   --out outputs/quality_inspection_alignment `
@@ -807,16 +821,20 @@ Unknown schemas, rule fields, source kinds, evidence types, review roles, projec
 ## Offline Evaluation Gate
 
 ```powershell
-.venv\Scripts\python.exe scripts\evaluate_gold_set.py --out outputs\synthetic_evaluation
+.venv\Scripts\python.exe scripts\evaluate_gold_set.py --suite all --check --out outputs\synthetic_evaluation
 ```
 
-This writes deterministic JSON and Markdown metrics for the small, versioned synthetic set: claim precision/recall/F1, evidence recall@k, status macro-F1/confusion, high-risk miss rate, **unsafe high-risk decision rate**, and abstention rate. It is a regression check, not a complete gold evaluation or evidence of real-world, clinical, cross-domain, or multilingual validity.
+This writes separate JSON and Markdown results for the baseline (7 records), development (36), and challenge (20) suites, plus `evaluation_summary.json`. The 63 synthetic records contain 45 expected claims and 18 negative examples. `--check` returns nonzero for an extraction/status mismatch or an unhandled high-risk claim; it includes missed claims, missing review gates, and erroneous extraction from negative examples. Omit `--suite all` to retain the original baseline output layout.
+
+The new development and challenge cases were frozen before implementation but authored by the same implementation agent. Their labels are provisional and **not human validated or independent evaluation**. Status macro-F1 averages all five status labels, including absent labels with zero F1; use each suite's confusion matrix alongside the score. These are regression checks, not evidence of real-world, clinical, cross-domain, or multilingual validity.
+
+Version 0.4.1 shares extraction/risk wording and table comparison rules between retrieval and verification. An explicit numerical conflict now names the claimed value, observed value, and table row/cell. Unclear models, comparators, experiments, splits, units, negations, and unsupported numerical qualifiers require clarification rather than being treated as numerical support. Reports show the finding, reason, next action, and **unknown extraction completeness**. See [the optimization notes](docs/audit_core_optimization_2026-09-05.md) for the bounded grammar and checks.
 
 ## Static Report Viewer
 
 Generate a local HTML viewer for an existing audit package:
 
-```bash
+```powershell
 .venv\Scripts\python.exe -m claim_harness view --run outputs/lab_report_audit_demo_run
 ```
 
@@ -838,6 +856,11 @@ examples/lab_report_audit_demo/
 ```
 
 The manuscript is fully synthetic and describes a human-in-the-loop workflow for auditing measurement claims in lab-style reports. The tables are toy result tables designed to exercise claim extraction, evidence retrieval, and verification logic.
+
+For a smaller non-clinical example, use `examples/general_demo/manuscript.md`,
+`examples/general_demo/tables`, and `examples/general_demo/references.md` with
+`--out outputs/general_demo_run --llm mock`. Its invented document-triage
+metrics exercise table matching and deliberately unsupported claims.
 
 ## Expected Output
 
@@ -863,9 +886,9 @@ outputs/lab_report_audit_demo_run/
 
 ```text
 claim_id,source_line,status,claim_type,example
-C002,4,supported,performance_claim,The proposed harness improves macro F1 and recall...
-C004,4,overclaimed,deployment_claim,The workflow is ready for real-world operational deployment...
-C007,8,weakly_supported,workflow_claim,The first design goal is to make every report claim traceable...
+C001,5,needs_human_review,performance_claim,The proposed harness improves macro F1 and recall...
+C003,5,overclaimed,deployment_claim,The workflow is ready for real-world operational deployment...
+C006,9,unsupported,novelty_claim,The first design goal is to make every report claim traceable...
 ```
 
 `source_line` points back to the manuscript line. `evidence_map.json` links claim IDs to evidence IDs and includes a match reason and claim-specific locator for each link. Table locators preserve the safe source filename, one-based data row, and only the matched cells (column, value, and A1 coordinate); the base evidence item still represents the full row. Page numbers remain empty unless an upstream source explicitly provides them. A statement in the Results section is candidate context, not automatically strong evidence for itself; strong table support requires a verifiable metric/value relationship.

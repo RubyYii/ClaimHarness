@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .diagnostics import write_audit_diagnostics
 from .review_queue import write_human_review_queue
+from .review_presentation import EXTRACTION_BOUNDARY, issue_label
 from .schemas import Claim, EvidenceItem, EvidenceLocator, VerificationResult
 
 
@@ -133,6 +134,8 @@ def _write_audit_report(
     lines = [
         "# ClaimHarness Audit Report",
         "",
+        EXTRACTION_BOUNDARY,
+        "",
         "## Summary",
         "",
         f"- Claims audited: {len(claims)}",
@@ -165,9 +168,11 @@ def _write_audit_report(
                 f"- Source line: {claim.source_line if claim.source_line is not None else 'unknown'}",
                 f"- Source kind: {claim.source_kind}",
                 f"- Risk level: {result.risk_level}",
+                f"- Finding: {issue_label(result.status, result.risk_level, has_contradictions=bool(result.contradicting_evidence_ids), has_missing_evidence=bool(result.missing_evidence))}",
                 f"- Human review required: {'yes' if result.human_review_required else 'no'}",
                 f"- Release allowed: {'yes' if result.release_allowed else 'no'}",
                 f"- Reason: {result.reason}",
+                f"- Next action: {result.suggested_revision}",
                 f"- Required evidence: {', '.join(claim.requires_evidence) or 'none'}",
                 f"- Missing evidence: {', '.join(result.missing_evidence) or 'none'}",
                 f"- Supporting evidence IDs: {', '.join(result.supporting_evidence_ids) or 'none'}",
@@ -237,7 +242,7 @@ def _write_revision_suggestions(
     results: list[VerificationResult],
 ) -> None:
     claim_by_id = {claim.claim_id: claim for claim in claims}
-    lines = ["# Revision Suggestions", ""]
+    lines = ["# Revision Suggestions", "", EXTRACTION_BOUNDARY, ""]
     for result in results:
         if result.status == "supported":
             continue
@@ -248,10 +253,12 @@ def _write_revision_suggestions(
                 "",
                 f"Original: {claim.text}",
                 "",
+                f"Reason: {result.reason}",
+                "",
                 f"Suggestion: {result.suggested_revision}",
                 "",
             ]
         )
-    if len(lines) == 2:
+    if all(result.status == "supported" for result in results):
         lines.append("No revisions suggested.")
     path.write_text("\n".join(lines), encoding="utf-8")

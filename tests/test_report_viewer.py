@@ -99,6 +99,8 @@ def test_render_report_viewer_writes_static_html(tmp_path):
     assert output == run_dir / "index.html"
     assert "ClaimHarness Report Viewer" in html
     assert "Claims audited" in html
+    assert "Extraction completeness: unknown" in html
+    assert "sentences not listed here have not been verified" in html
     assert "supported" in html
     assert "overclaimed" in html
     assert "C001" in html
