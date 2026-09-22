@@ -8,7 +8,7 @@
 
 本地运行 · 中英双语 · 开始时无需 API key
 
-![工作台从一件具体工作开始，一次只问一个问题](docs/figures/workbench-start-zh.png)
+![流程插图：从模糊需求到共同理解，再形成给合作者和 AI 的两份说明](docs/figures/github-hero-workbench-v2.png)
 
 ## 三步开始使用
 
