@@ -8,7 +8,7 @@ Start with a real task, check the wording, then take away two briefs: one for so
 
 Local-first · Bilingual interface · No API key needed to start
 
-![The workbench starts with one question about your work](docs/figures/workbench-start-en.png)
+![Illustration: turn an unclear need into shared understanding and two briefs, for a collaborator and an AI](docs/figures/github-hero-workbench-v2.png)
 
 ## Use it in three steps
 

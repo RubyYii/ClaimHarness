@@ -112,16 +112,16 @@ def test_readme_documents_runnable_demo_and_required_outputs():
         assert phrase in reference
 
 
-def test_github_landing_page_has_one_current_screenshot_and_starting_route():
-    for filename, language, heading, reference in [
-        ("README.md", "en", "Use it in three steps", "docs/reference.md"),
-        ("README.zh-CN.md", "zh", "三步开始使用", "docs/reference.zh-CN.md"),
+def test_github_landing_page_has_one_hero_and_starting_route():
+    hero = Path("docs/figures/github-hero-workbench-v2.png")
+    assert hero.is_file()
+    assert hero.read_bytes().startswith(b"\x89PNG")
+    for filename, heading, reference in [
+        ("README.md", "Use it in three steps", "docs/reference.md"),
+        ("README.zh-CN.md", "三步开始使用", "docs/reference.zh-CN.md"),
     ]:
         readme = Path(filename).read_text(encoding="utf-8")
-        screenshot = Path(f"docs/figures/workbench-start-{language}.png")
-        assert screenshot.is_file()
-        assert screenshot.read_bytes().startswith(b"\x89PNG")
-        assert re.findall(r"!\[[^\]]*\]\(([^)]+)\)", readme) == [screenshot.as_posix()]
+        assert re.findall(r"!\[[^\]]*\]\(([^)]+)\)", readme) == [hero.as_posix()]
         for phrase in [
             "[English](README.md)",
             "[简体中文](README.zh-CN.md)",
