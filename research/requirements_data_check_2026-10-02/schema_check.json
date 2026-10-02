@@ -1,0 +1,98 @@
+{
+  "in3/test.jsonl": {
+    "type": "list",
+    "length": 108,
+    "item_type": "dict",
+    "first_item_fields": {
+      "category": {
+        "type": "str",
+        "length": 24
+      },
+      "task": {
+        "type": "str",
+        "length": 47
+      },
+      "vague": {
+        "type": "bool",
+        "length": null
+      },
+      "thought": {
+        "type": "str",
+        "length": 296
+      },
+      "missing_details": {
+        "type": "list",
+        "length": 3
+      }
+    }
+  },
+  "in3/user_records_gpt4.jsonl": {
+    "type": "list",
+    "length": 108,
+    "item_type": "dict",
+    "first_item_fields": {
+      "initial_thought": {
+        "type": "str",
+        "length": 351
+      },
+      "user_record": {
+        "type": "dict",
+        "length": 7
+      },
+      "vague": {
+        "type": "bool",
+        "length": null
+      },
+      "actions": {
+        "type": "list",
+        "length": 8
+      }
+    }
+  },
+  "reqelicitgym/test.json": {
+    "type": "list",
+    "length": 101,
+    "item_type": "dict",
+    "first_item_fields": {
+      "name": {
+        "type": "str",
+        "length": 30
+      },
+      "application_type": {
+        "type": "str",
+        "length": 10
+      },
+      "Category": {
+        "type": "dict",
+        "length": 2
+      },
+      "initial_requirements": {
+        "type": "str",
+        "length": 99
+      },
+      "Implicit Requirements": {
+        "type": "list",
+        "length": 5
+      },
+      "URL": {
+        "type": "list",
+        "length": 8
+      }
+    }
+  },
+  "ccpe/data.json": {
+    "type": "list",
+    "length": 502,
+    "item_type": "dict",
+    "first_item_fields": {
+      "conversationId": {
+        "type": "str",
+        "length": 10
+      },
+      "utterances": {
+        "type": "list",
+        "length": 43
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "data_suitability_check": "complete",
+  "new_model_comparison": "not_run",
+  "real_user_requirements_formation_test": "not_run",
+  "source_files_verified": 9,
+  "pilot_episodes_prepared": 24,
+  "pilot_messages_verified": 356,
+  "regression": {
+    "passed": 542,
+    "exit_code": 0,
+    "command": ".venv/Scripts/python.exe -X utf8 -m pytest -q --basetemp=outputs/requirements_data_check_2026-10-02_pytest"
+  },
+  "mock": {
+    "output_dir": "outputs/requirements_data_check_2026-10-02_mock",
+    "required_files": {
+      "claim_table.csv": "36920cc1c707764782464436036dec5ab11666d409add1268379fb4a0a01cdc6",
+      "evidence_map.json": "9beb603dbb8d1725717865edc538e40788273df9a431114776e7a01ed50a4075",
+      "audit_report.md": "986a13f1280d00271cf75053d9789a1160efeff2718f7af333feff557c369570",
+      "revision_suggestions.md": "f5b5dddc61e16c861c39ee66d00c996265b57007d62ba19e14bf8bd15a123197",
+      "agent_trace.jsonl": "8f593c110b85076d43aa9243f5dc2247a8b43ba44aefc1f8dd492515a2a29ebd"
+    }
+  },
+  "auxiliary_gemini": {
+    "request_succeeded": false,
+    "error": "503 UNAVAILABLE",
+    "advice_used": false
+  }
+}
