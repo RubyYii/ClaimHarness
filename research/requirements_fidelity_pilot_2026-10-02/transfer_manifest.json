@@ -1,0 +1,27 @@
+{
+  "authorization": "User asked 开始测试 after prior status explicitly said model comparison not run.",
+  "destination": "Existing authenticated Codex service through isolated codex exec",
+  "requested_model": "gpt-6-astra",
+  "reasoning_effort": "low",
+  "max_experiment_calls": 96,
+  "generation_fields": [
+    "dataset task type",
+    "complete public dialogue",
+    "ordinary draft for generic review only"
+  ],
+  "judge_fields": [
+    "complete public dialogue",
+    "selected checkpoints",
+    "three anonymous generated briefs"
+  ],
+  "excluded_fields": [
+    "review_only.jsonl",
+    "historical summaries",
+    "private manuscript",
+    "patient data",
+    "credentials"
+  ],
+  "reference_author": "Codex source reading before generation, no independent human validation",
+  "retry_policy": "No automatic retries; stop dispatch on failure",
+  "new_human_participants": 0
+}

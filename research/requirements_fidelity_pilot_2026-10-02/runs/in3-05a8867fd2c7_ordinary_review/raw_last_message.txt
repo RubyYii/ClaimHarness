@@ -1,0 +1,1 @@
+{"brief":"The user wants an estimate of the average cost of living in New York City, including rent for a one-bedroom apartment, utilities, groceries, transportation, and entertainment. They have no neighborhood preference. Household size, lifestyle assumptions, and the estimate’s time period remain unspecified. No cost estimates have been provided yet."}

@@ -1,0 +1,107 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user says they like documentaries, but gave no examples or explanation of that preference.",
+        "reason": "Preserves the preference without inventing a reason."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They strongly disliked an Ali G movie whose title they could not remember and stopped watching after roughly 5–10 minutes; their account varied on the exact duration. They found it awful despite loving the TV show and expecting the film to be better.",
+        "reason": "Preserves early abandonment, strong dislike, the forgotten title, affection for the show, and the inconsistent timing."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They have not seen an unidentified Amy Schumer movie they described as featuring her with an alcohol bottle. They only reported hearing that it was bad, so this is not a firsthand judgment.",
+        "reason": "Preserves both non-viewing and the hearsay basis of the negative report."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They have not seen The Matrix, although they have heard much about it and recognize references to the pills. They also have not seen Wonder Woman",
+        "reason": "Correctly states that neither film has been seen."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They really enjoyed The Godfather, calling it a good piece of cinematic work and praising its creativity and inventiveness.",
+        "reason": "Preserves enjoyment and the specific qualities praised."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes documentaries but gave no specific examples or reasons for that preference.",
+        "reason": "Preserves the preference and absence of a recorded explanation."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They strongly disliked an unidentified Ali G movie and stopped after approximately 5–10 minutes; their account varies. They described it as absolutely awful. This disappointed them because they love the TV show and expected the movie to be much better.",
+        "reason": "Preserves the unidentified film, early abandonment, variable timing, strong dislike, and contrast with love of the show. 'Unidentified' reasonably compresses the forgotten title."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They have not seen an unidentified Amy Schumer movie described as “the one with her with the alcohol bottle”; they only heard it was bad.",
+        "reason": "Preserves non-viewing and distinguishes hearsay from firsthand judgment."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They have never seen The Matrix, though they have heard a lot about it and are familiar with references to the pills. They have not seen Wonder Woman either",
+        "reason": "Preserves non-viewing of both films."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They have seen and really enjoyed The Godfather, praising it as a very good piece of cinematic work and describing it as creative and inventive.",
+        "reason": "Preserves enjoyment and the specific praise."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes documentaries, but gave no specific examples or reasons for that preference.",
+        "reason": "Preserves the preference without supplying an unsupported explanation."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They strongly disliked an unidentified Ali G movie and stopped after roughly 5–10 minutes (their account varies). They found it awful and did not want to continue. This disappointed them because they love the TV show and expected the movie to be much better",
+        "reason": "Preserves strong dislike, early abandonment, timing ambiguity, and love of the show. 'Unidentified' reasonably compresses the forgotten title."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They have not seen an unidentified Amy Schumer movie described as “the one with her with the alcohol bottle”; they only heard it was bad.",
+        "reason": "Preserves non-viewing and the hearsay qualification."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They have never seen The Matrix, though they frequently hear about it and recognize references to the pills. They have not seen Wonder Woman either",
+        "reason": "Preserves that neither film has been seen."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They have seen and really enjoyed The Godfather, calling it a very good piece of cinematic work and describing it as creative and inventive.",
+        "reason": "Preserves enjoyment and praise for creativity and inventiveness."
+      }
+    ],
+    "issues": []
+  }
+}

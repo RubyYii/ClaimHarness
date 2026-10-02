@@ -1,0 +1,53 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a Bash command",
+        "reason": "Preserves the requested command language and deliverable."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "to continuously monitor CPU and memory usage.",
+        "reason": "Preserves continuous monitoring of both resources."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a Bash command",
+        "reason": "Preserves the requested command language and deliverable."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "to continuously monitor CPU and memory usage.",
+        "reason": "Preserves continuous monitoring of both resources."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a Bash command",
+        "reason": "Preserves the requested command language and deliverable."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "that continuously monitors CPU and memory usage.",
+        "reason": "Preserves continuous monitoring of both resources."
+      }
+    ],
+    "issues": []
+  }
+}

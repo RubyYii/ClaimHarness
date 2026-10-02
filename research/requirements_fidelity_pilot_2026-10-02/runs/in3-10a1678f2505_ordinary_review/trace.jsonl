@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"01a0fca5-96a9-74e1-b5ad-824662ccda14"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"brief\":\"The user wants a climate-change dataset covering CO2 levels over the last century, with raw data in CSV format. Although the initial request referred to global climate change, they subsequently specified a focus on oceanic areas. The particular oceans or regions remain unspecified, as do the exact date range and whether “CO2 levels” means atmospheric CO2 over oceans or CO2 in ocean water. No dataset has been identified or provided yet.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":13218,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":100,"reasoning_output_tokens":0}}

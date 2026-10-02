@@ -1,0 +1,115 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user enjoys comedy because they like laughing and having fun. They named The Spy Who Dumped Me, Deadpool, and Game Night as movies they like.",
+        "reason": "Preserves the comedy preference, motivation, and all three titles."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They initially could not think of a disliked movie, then tentatively suggested Juno, noting that it had been a long time. They cited its storyline and thought it was more dumb than funny.",
+        "reason": "Preserves the tentative recollection and both reasons."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "Jurassic World: Liked the suspense.",
+        "reason": "Preserves the positive reaction and its reason."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "Avengers: Infinity War: Thought it was “all right” and does not think they saw the whole film. Liked the characters, tentatively singled out Loki, and enjoyed the fantasy element.",
+        "reason": "Preserves the qualified evaluation, viewing uncertainty, and liked elements."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "Doctor Strange: Initially answered “No” when asked whether they liked it, but clarified that they had not seen it, did not recall it, and had not heard of it. This should not be recorded as dislike.",
+        "reason": "Preserves unfamiliarity and correctly avoids interpreting the initial answer as informed dislike."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user primarily enjoys comedy because they like laughing and having fun. They named The Spy Who Dumped Me, Deadpool, and Game Night as movies they like.",
+        "reason": "Preserves the comedy preference, motivation, and all three titles; the added priority implication is assessed separately."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They initially could not think of a disliked movie, then tentatively suggested Juno, noting that it had been a long time. They disliked its storyline and remembered it as more dumb than funny.",
+        "reason": "The surrounding qualification preserves the tentative recollection and both reasons."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "Jurassic World: Liked it for the suspense.",
+        "reason": "Preserves the preference and its reason."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "Avengers: Infinity War: Thought it was “all right” and does not think they watched the whole film. Liked the characters, tentatively singled out Loki, and enjoyed the fantasy element.",
+        "reason": "Preserves the qualified evaluation, viewing uncertainty, and liked elements."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "Doctor Strange: Initially answered “No” when asked whether they liked it, but clarified that they had not seen it, did not recall it, and had not heard of it. This should not be treated as dislike.",
+        "reason": "Preserves unfamiliarity and the distinction from informed dislike."
+      }
+    ],
+    "issues": [
+      {
+        "kind": "uncertain_issue",
+        "source_turn_id": 1,
+        "source_quote": "I like comedy cuz I like to laugh a lot and have fun.",
+        "response_quote": "The user primarily enjoys comedy",
+        "reason": "“Primarily” may imply a ranking above other genres that the user did not explicitly establish, though it can also reasonably summarize the interview's emphasis."
+      }
+    ]
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user enjoys comedy because they like laughing and having fun. They named The Spy Who Dumped Me, Deadpool, and Game Night as movies they like",
+        "reason": "Preserves the comedy preference, motivation, and all three titles."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They initially could not think of a disliked movie, then tentatively named Juno, noting that it had been a long time. They attributed their dislike to the storyline and finding it more dumb than funny; treat this as a qualified recollection.",
+        "reason": "Preserves the tentative recollection and both reasons."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "the user confirmed liking Jurassic World for its suspense.",
+        "reason": "Preserves the preference and its reason."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They described Avengers: Infinity War as “all right” and were unsure they had watched the whole film. They liked the characters, tentatively singled out Loki, and explicitly enjoyed the fantasy element.",
+        "reason": "Preserves the qualified evaluation, viewing uncertainty, and liked elements."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "Although they initially answered “No” when asked whether they liked Doctor Strange, they clarified that they had not seen it and had not heard of it. This does not establish dislike.",
+        "reason": "Preserves the substantive unfamiliarity and correctly distinguishes it from dislike."
+      }
+    ],
+    "issues": []
+  }
+}

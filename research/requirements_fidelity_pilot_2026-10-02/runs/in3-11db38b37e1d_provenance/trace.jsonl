@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"01a0fca5-2f9a-7300-8629-e76f43843bef"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"brief\":\"The user wants a review comparing the iPhone 14 with the Samsung model they called “samsum galaxy 14.” They explicitly selected performance, camera, battery life, design, and price as the comparison criteria after the assistant asked for clarification. The exact Samsung model remains unclear and should be clarified rather than assumed. Although the initial request referred to the “latest models,” the user subsequently named these devices; do not silently substitute newer models.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":13025,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":103,"reasoning_output_tokens":0}}

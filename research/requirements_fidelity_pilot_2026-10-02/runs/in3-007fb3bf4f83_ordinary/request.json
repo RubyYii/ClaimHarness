@@ -1,0 +1,24 @@
+{
+  "id": "in3-007fb3bf4f83_ordinary",
+  "case_id": "in3-007fb3bf4f83",
+  "dataset": "in3",
+  "stage": "ordinary",
+  "status": "completed",
+  "started_utc": "2026-10-02T12:44:12.599542+00:00",
+  "requested_model": "gpt-6-astra",
+  "effort": "low",
+  "prompt_sha256": "896093aa4fec65030c4bfc0559ce12ecbe28e5546adbfcb7380fa0abc82becde",
+  "predecessors": {},
+  "returncode": 0,
+  "session_id": "01a0fca4-c834-70b1-b1bc-37dcace1b6d9",
+  "usage": {
+    "input_tokens": 12984,
+    "cached_input_tokens": 0,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 65,
+    "reasoning_output_tokens": 0
+  },
+  "response_sha256": "0a86290c6817125f83e574e575726ebd6c65fb5237c6c39e1b2a3f4ee4dfa0ab",
+  "finished_utc": "2026-10-02T12:44:18.312674+00:00",
+  "elapsed_seconds": 5.703
+}

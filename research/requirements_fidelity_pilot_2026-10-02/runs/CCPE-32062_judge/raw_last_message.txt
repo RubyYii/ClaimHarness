@@ -1,0 +1,97 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "They particularly enjoy comedies because they make them laugh and take their mind off their troubles.",
+        "reason": "Preserves enjoyment, laughter, and relief from troubles."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They also like foreign films because they find them interesting and enjoy seeing what is happening elsewhere in the world.",
+        "reason": "Preserves the preference and its world-insight motivation."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They like anything featuring Melissa McCarthy, describing her as funny and a great comedic actress.",
+        "reason": "Preserves the breadth of the preference and its comedic basis."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "The user says they like all movies and named no disliked genres or titles, reiterating their broad enjoyment when asked about dislikes.",
+        "reason": "Accurately summarizes both responses to questions about dislikes."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "They particularly enjoy comedies because they make them laugh and take their mind off their troubles.",
+        "reason": "Preserves enjoyment, laughter, and relief from troubles."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They also like foreign films because they find them interesting and enjoy seeing what is happening elsewhere in the world.",
+        "reason": "Preserves the preference and its world-insight motivation."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They like anything featuring Melissa McCarthy, describing her as funny and a great comedic actress.",
+        "reason": "Preserves the breadth of the preference and its comedic basis."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "The user likes all movies and named no disliked genres or titles, twice clarifying their broad enjoyment.",
+        "reason": "Faithfully paraphrases the user's two statements of broad enjoyment without inventing dislikes."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user particularly enjoys comedies because they make them laugh and take their mind off their troubles.",
+        "reason": "Preserves enjoyment, laughter, and relief from troubles."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They also enjoy foreign films because they find them interesting and like seeing what is happening elsewhere in the world",
+        "reason": "Preserves the preference and its world-insight motivation."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They say they like anything featuring Melissa McCarthy, describing her as funny and a great comedic actress.",
+        "reason": "Preserves the breadth of the preference and its comedic basis."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "Their tastes are broad: when asked about disliked movie types and then specific disliked titles, they twice clarified that they like all movies.",
+        "reason": "Preserves both dislike-question contexts and the user's reported enjoyment of all movies."
+      }
+    ],
+    "issues": [
+      {
+        "kind": "uncertain_issue",
+        "source_turn_id": 8,
+        "source_quote": "I like anything with Melissa McCarthy in it.",
+        "response_quote": "No specific film titles, preferred countries or languages, or narrower comedy preferences were provided.",
+        "reason": "The absence of 'narrower comedy preferences' is ambiguous: the actor preference could count as one. If this means comedy subgenres or styles, the statement is supported."
+      }
+    ]
+  }
+}

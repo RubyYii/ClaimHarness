@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"01a0fca5-55d5-70d2-a6fb-87b684f617f5"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"brief\":\"The user wants research and a summary of blockchain and its applications. In response to the assistant’s clarification, the user explicitly requested a basic overview and stated no particular applications or aspects of interest. Keep the explanation introductory and cover applications broadly. The requested level does not establish the user’s prior knowledge.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":13025,"cached_input_tokens":9984,"cache_write_input_tokens":0,"output_tokens":73,"reasoning_output_tokens":0}}

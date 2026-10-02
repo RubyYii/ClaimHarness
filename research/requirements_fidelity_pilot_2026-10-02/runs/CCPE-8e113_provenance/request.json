@@ -1,0 +1,24 @@
+{
+  "id": "CCPE-8e113_provenance",
+  "case_id": "CCPE-8e113",
+  "dataset": "ccpe",
+  "stage": "provenance",
+  "status": "completed",
+  "started_utc": "2026-10-02T12:44:46.960720+00:00",
+  "requested_model": "gpt-6-astra",
+  "effort": "low",
+  "prompt_sha256": "64f0d715541f6a5181268ab16efca28fd1975c5b0760e12331e34b088447135a",
+  "predecessors": {},
+  "returncode": 0,
+  "session_id": "01a0fca5-4e42-71d1-ae4d-84fe742d0657",
+  "usage": {
+    "input_tokens": 14561,
+    "cached_input_tokens": 0,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 377,
+    "reasoning_output_tokens": 0
+  },
+  "response_sha256": "82ef6388a198e36ae9c28c1edcb46988fa3e187411c9c822194098c48d4422a0",
+  "finished_utc": "2026-10-02T12:45:05.479147+00:00",
+  "elapsed_seconds": 18.516
+}

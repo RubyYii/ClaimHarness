@@ -1,0 +1,2994 @@
+[
+  {
+    "case": {
+      "id": "in3-0047fbefe65b",
+      "dataset": "in3",
+      "messages": [
+        {
+          "turn_id": 0,
+          "role": "user",
+          "content": "Search for an explanation of the String Theory."
+        },
+        {
+          "turn_id": 1,
+          "role": "assistant",
+          "content": "Could you please tell me about your background or current level of knowledge in physics? This would help me determine the complexity of the explanation that would be best for you. Are you looking for a basic overview or a more detailed and technical explanation?"
+        },
+        {
+          "turn_id": 2,
+          "role": "user",
+          "content": "basic overview"
+        }
+      ],
+      "checkpoints": [
+        {
+          "id": "C1",
+          "claim": "Explain String Theory",
+          "source": [
+            {
+              "turn_id": 0,
+              "role": "user",
+              "quote": "Search for an explanation of the String Theory."
+            }
+          ]
+        },
+        {
+          "id": "C2",
+          "claim": "Provide a basic overview",
+          "source": [
+            {
+              "turn_id": 2,
+              "role": "user",
+              "quote": "basic overview"
+            }
+          ]
+        }
+      ],
+      "judge_order": [
+        "provenance",
+        "ordinary",
+        "ordinary_review"
+      ]
+    },
+    "preselected_review": true,
+    "outputs": [
+      {
+        "brief": "The user wants an explanation of string theory and explicitly chose a basic overview when asked about the desired level of detail. Their physics background remains unknown; the request for a basic overview does not establish their knowledge or ability. No explanation or search results have been provided yet.",
+        "episode_id": "in3-0047fbefe65b",
+        "dataset": "in3",
+        "arm": "provenance",
+        "judge_label": "A",
+        "word_count": 49,
+        "cost": {
+          "input_tokens": 13002,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 67,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user wants an explanation of string theory",
+            "reason": "Preserves the requested topic and explanatory goal.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "explicitly chose a basic overview",
+            "reason": "Preserves the user's requested level of detail.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      },
+      {
+        "brief": "The user wants a basic overview of string theory and initially asked to search for an explanation. They chose a basic overview over a detailed technical explanation. Their physics background remains unspecified. No search results or explanation have been provided yet.",
+        "episode_id": "in3-0047fbefe65b",
+        "dataset": "in3",
+        "arm": "ordinary",
+        "judge_label": "B",
+        "word_count": 41,
+        "cost": {
+          "input_tokens": 12890,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 59,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user wants a basic overview of string theory and initially asked to search for an explanation.",
+            "reason": "Preserves both the explanatory goal and the initial search request.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "They chose a basic overview over a detailed technical explanation.",
+            "reason": "Accurately captures the user's selection from the offered levels of detail.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      },
+      {
+        "brief": "The user asked to search for an explanation of string theory and clarified that they want a basic overview rather than a detailed technical explanation. Their physics background remains unspecified. No search results or explanation have been provided yet.",
+        "episode_id": "in3-0047fbefe65b",
+        "dataset": "in3",
+        "arm": "ordinary_review",
+        "judge_label": "C",
+        "word_count": 39,
+        "cost": {
+          "input_tokens": 25866,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 115,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user asked to search for an explanation of string theory",
+            "reason": "Preserves the requested search, topic and explanatory goal.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "clarified that they want a basic overview rather than a detailed technical explanation",
+            "reason": "Preserves the user's selection of a basic overview.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      }
+    ]
+  },
+  {
+    "case": {
+      "id": "in3-007fb3bf4f83",
+      "dataset": "in3",
+      "messages": [
+        {
+          "turn_id": 0,
+          "role": "user",
+          "content": "Write a summary of a given text file."
+        },
+        {
+          "turn_id": 1,
+          "role": "assistant",
+          "content": "Could you please provide more details about the text you would like summarized? For example, is it an academic paper, a technical document, or something else? Additionally, how long would you like the summary to be?"
+        },
+        {
+          "turn_id": 2,
+          "role": "user",
+          "content": "academic paper, 5 pages"
+        },
+        {
+          "turn_id": 3,
+          "role": "assistant",
+          "content": "Could you please tell me more about the subject of the academic paper and its original length? Also, are there any specific aspects or key points you want to ensure are included in the summary?"
+        },
+        {
+          "turn_id": 4,
+          "role": "user",
+          "content": "origional 50 pages, no specific aspects or key points"
+        }
+      ],
+      "checkpoints": [
+        {
+          "id": "C1",
+          "claim": "Summarize an academic paper",
+          "source": [
+            {
+              "turn_id": 0,
+              "role": "user",
+              "quote": "Write a summary of a given text file."
+            },
+            {
+              "turn_id": 2,
+              "role": "user",
+              "quote": "academic paper, 5 pages"
+            }
+          ]
+        },
+        {
+          "id": "C2",
+          "claim": "Original paper is 50 pages",
+          "source": [
+            {
+              "turn_id": 4,
+              "role": "user",
+              "quote": "origional 50 pages, no specific aspects or key points"
+            }
+          ]
+        },
+        {
+          "id": "C3",
+          "claim": "Requested summary is 5 pages",
+          "source": [
+            {
+              "turn_id": 1,
+              "role": "assistant",
+              "quote": "Could you please provide more details about the text you would like summarized? For example, is it an academic paper, a technical document, or something else? Additionally, how long would you like the summary to be?"
+            },
+            {
+              "turn_id": 2,
+              "role": "user",
+              "quote": "academic paper, 5 pages"
+            }
+          ]
+        },
+        {
+          "id": "C4",
+          "claim": "No specific aspects or key points requested",
+          "source": [
+            {
+              "turn_id": 4,
+              "role": "user",
+              "quote": "origional 50 pages, no specific aspects or key points"
+            }
+          ]
+        }
+      ],
+      "judge_order": [
+        "ordinary",
+        "ordinary_review",
+        "provenance"
+      ]
+    },
+    "preselected_review": true,
+    "outputs": [
+      {
+        "brief": "The user wants a five-page summary of a 50-page academic paper provided as a text file. They have no specific aspects or key points they want emphasized. The paper’s subject is unknown, and the file or its contents have not yet been supplied.",
+        "episode_id": "in3-007fb3bf4f83",
+        "dataset": "in3",
+        "arm": "ordinary",
+        "judge_label": "A",
+        "word_count": 43,
+        "cost": {
+          "input_tokens": 12984,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 65,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user wants a five-page summary of a 50-page academic paper provided as a text file.",
+            "reason": "Preserves the requested academic-paper summarization task.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "a 50-page academic paper",
+            "reason": "Preserves the original paper's stated length.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "a five-page summary",
+            "reason": "Preserves the requested summary length.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "They have no specific aspects or key points they want emphasized.",
+            "reason": "Preserves the absence of requested focal points.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      },
+      {
+        "brief": "The user wants a five-page summary of a 50-page academic paper in a text file. They have no specific aspects or key points they want emphasized. The paper’s subject is unknown, and the file or its contents have not yet been supplied.",
+        "episode_id": "in3-007fb3bf4f83",
+        "dataset": "in3",
+        "arm": "ordinary_review",
+        "judge_label": "B",
+        "word_count": 42,
+        "cost": {
+          "input_tokens": 26064,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 129,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user wants a five-page summary of a 50-page academic paper in a text file.",
+            "reason": "Preserves the requested academic-paper summarization task.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "a 50-page academic paper",
+            "reason": "Preserves the original paper's stated length.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "a five-page summary",
+            "reason": "Preserves the requested summary length.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "They have no specific aspects or key points they want emphasized.",
+            "reason": "Preserves the absence of requested focal points.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      },
+      {
+        "brief": "The user wants a five-page summary of an academic paper provided as a text file. They stated that the original paper is 50 pages long and have no specific aspects or key points they want emphasized. The paper’s subject remains unspecified, and no file or source text appears in the recorded conversation. The next assistant will need the source material to produce the summary.",
+        "episode_id": "in3-007fb3bf4f83",
+        "dataset": "in3",
+        "arm": "provenance",
+        "judge_label": "C",
+        "word_count": 64,
+        "cost": {
+          "input_tokens": 13098,
+          "cached_input_tokens": 9984,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 86,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user wants a five-page summary of an academic paper provided as a text file.",
+            "reason": "Preserves the requested academic-paper summarization task.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "They stated that the original paper is 50 pages long",
+            "reason": "Preserves the original paper's stated length.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "a five-page summary",
+            "reason": "Preserves the requested summary length.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "have no specific aspects or key points they want emphasized.",
+            "reason": "Preserves the absence of requested focal points.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      }
+    ]
+  },
+  {
+    "case": {
+      "id": "in3-008e717cbecd",
+      "dataset": "in3",
+      "messages": [
+        {
+          "turn_id": 0,
+          "role": "user",
+          "content": "Research and summarize the concept of blockchain and its applications."
+        },
+        {
+          "turn_id": 1,
+          "role": "assistant",
+          "content": "Could you please specify the level of detail you are looking for in the summary? Are you interested in a basic overview of blockchain technology or a more comprehensive analysis? Additionally, are there any particular applications or aspects of blockchain that you are especially interested in?"
+        },
+        {
+          "turn_id": 2,
+          "role": "user",
+          "content": "basic overview of blockchain technology, no particular applications or aspects of blockchain"
+        }
+      ],
+      "checkpoints": [
+        {
+          "id": "C1",
+          "claim": "Cover the blockchain concept",
+          "source": [
+            {
+              "turn_id": 0,
+              "role": "user",
+              "quote": "Research and summarize the concept of blockchain and its applications."
+            }
+          ]
+        },
+        {
+          "id": "C2",
+          "claim": "Cover blockchain applications as part of the original task",
+          "source": [
+            {
+              "turn_id": 0,
+              "role": "user",
+              "quote": "Research and summarize the concept of blockchain and its applications."
+            }
+          ]
+        },
+        {
+          "id": "C3",
+          "claim": "Basic overview",
+          "source": [
+            {
+              "turn_id": 2,
+              "role": "user",
+              "quote": "basic overview of blockchain technology, no particular applications or aspects of blockchain"
+            }
+          ]
+        },
+        {
+          "id": "C4",
+          "claim": "No particular application or aspect singled out",
+          "source": [
+            {
+              "turn_id": 2,
+              "role": "user",
+              "quote": "basic overview of blockchain technology, no particular applications or aspects of blockchain"
+            }
+          ]
+        }
+      ],
+      "judge_order": [
+        "ordinary",
+        "provenance",
+        "ordinary_review"
+      ]
+    },
+    "preselected_review": true,
+    "outputs": [
+      {
+        "brief": "The user wants research and a basic overview of blockchain technology and its applications. They clarified that they do not need a comprehensive analysis and have no particular applications or aspects in mind. Keep the summary introductory and cover applications broadly. No research or summary has been provided yet.",
+        "episode_id": "in3-008e717cbecd",
+        "dataset": "in3",
+        "arm": "ordinary",
+        "judge_label": "A",
+        "word_count": 49,
+        "cost": {
+          "input_tokens": 12905,
+          "cached_input_tokens": 9984,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 67,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "research and a basic overview of blockchain technology",
+            "reason": "Preserves the request to research and explain the blockchain concept.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "and its applications",
+            "reason": "Retains applications within the requested overview.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "Keep the summary introductory",
+            "reason": "Faithfully expresses the requested basic level.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "have no particular applications or aspects in mind",
+            "reason": "Preserves the absence of a specific application or aspect of interest.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      },
+      {
+        "brief": "The user wants research and a summary of blockchain and its applications. In response to the assistant’s clarification, the user explicitly requested a basic overview and stated no particular applications or aspects of interest. Keep the explanation introductory and cover applications broadly. The requested level does not establish the user’s prior knowledge.",
+        "episode_id": "in3-008e717cbecd",
+        "dataset": "in3",
+        "arm": "provenance",
+        "judge_label": "B",
+        "word_count": 52,
+        "cost": {
+          "input_tokens": 13025,
+          "cached_input_tokens": 9984,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 73,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "research and a summary of blockchain",
+            "reason": "Preserves the request to research and summarize the blockchain concept.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "and its applications",
+            "reason": "Retains applications as part of the task.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "the user explicitly requested a basic overview",
+            "reason": "Directly preserves the requested level of detail.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "stated no particular applications or aspects of interest",
+            "reason": "Preserves the user's lack of a singled-out application or aspect.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      },
+      {
+        "brief": "The user wants research and a basic overview of blockchain technology and its applications. They have no particular applications or aspects they want emphasized, so keep the summary introductory and cover applications broadly. No research or substantive summary has been provided yet.",
+        "episode_id": "in3-008e717cbecd",
+        "dataset": "in3",
+        "arm": "ordinary_review",
+        "judge_label": "C",
+        "word_count": 42,
+        "cost": {
+          "input_tokens": 25906,
+          "cached_input_tokens": 19968,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 127,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "research and a basic overview of blockchain technology",
+            "reason": "Preserves the request to research and explain the blockchain concept.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "and its applications",
+            "reason": "Retains applications within the task.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "keep the summary introductory",
+            "reason": "Faithfully expresses the requested basic level.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "They have no particular applications or aspects they want emphasized",
+            "reason": "Preserves the absence of a specific application or aspect to prioritize.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      }
+    ]
+  },
+  {
+    "case": {
+      "id": "CCPE-aa1a9",
+      "dataset": "ccpe",
+      "messages": [
+        {
+          "turn_id": 0,
+          "role": "assistant",
+          "content": "What kind of movies do you like?"
+        },
+        {
+          "turn_id": 1,
+          "role": "user",
+          "content": "I like romantic comedies."
+        },
+        {
+          "turn_id": 2,
+          "role": "assistant",
+          "content": "So what do you think about The Shape of Water?"
+        },
+        {
+          "turn_id": 3,
+          "role": "user",
+          "content": "You know I know that was a highly rated movie, but for whatever reason at the time I didn't get into it or I didn't see many trailers for it, so I really don't know much about it. I think it won an academy award or two, but just never heard much about it."
+        },
+        {
+          "turn_id": 4,
+          "role": "assistant",
+          "content": "Do you think if you saw more about it, you would have watched it?"
+        },
+        {
+          "turn_id": 5,
+          "role": "user",
+          "content": "Might have."
+        },
+        {
+          "turn_id": 6,
+          "role": "user",
+          "content": "It's hard to say when you know very little about a movie, except that it had an unusual title."
+        },
+        {
+          "turn_id": 7,
+          "role": "assistant",
+          "content": "What movie have you seen recently?"
+        },
+        {
+          "turn_id": 8,
+          "role": "user",
+          "content": "Oh. Well, I watched Sherlock Holmes movies actually."
+        },
+        {
+          "turn_id": 9,
+          "role": "user",
+          "content": "And I saw Dunkirk recently."
+        },
+        {
+          "turn_id": 10,
+          "role": "user",
+          "content": "on TV"
+        },
+        {
+          "turn_id": 11,
+          "role": "assistant",
+          "content": "Do you like movies about conflicts?"
+        },
+        {
+          "turn_id": 12,
+          "role": "user",
+          "content": "I like history a lot, and so"
+        },
+        {
+          "turn_id": 13,
+          "role": "user",
+          "content": "A lot of World War II movies, I find interesting."
+        },
+        {
+          "turn_id": 14,
+          "role": "user",
+          "content": "but I would even watch documentaries. I'm a huge PBS fan."
+        },
+        {
+          "turn_id": 15,
+          "role": "user",
+          "content": "curious about the word, I guess you could say."
+        },
+        {
+          "turn_id": 16,
+          "role": "user",
+          "content": "I like to learn why the conflict started."
+        },
+        {
+          "turn_id": 17,
+          "role": "assistant",
+          "content": "What kind of movies do you not like?"
+        },
+        {
+          "turn_id": 18,
+          "role": "user",
+          "content": "I'm not a big fan of musicals as movies."
+        },
+        {
+          "turn_id": 19,
+          "role": "assistant",
+          "content": "Did you see Wonder Woman?"
+        },
+        {
+          "turn_id": 20,
+          "role": "user",
+          "content": "Wonder Woman"
+        },
+        {
+          "turn_id": 21,
+          "role": "user",
+          "content": "I've seen parts of it on TV."
+        },
+        {
+          "turn_id": 22,
+          "role": "user",
+          "content": "But I haven't seen the whole thing."
+        },
+        {
+          "turn_id": 23,
+          "role": "assistant",
+          "content": "What did you like about it?"
+        },
+        {
+          "turn_id": 24,
+          "role": "user",
+          "content": "Well, there was action, there was some comedy in it that was fun, and of course Wonder Woman looks great. Just looking at Wonder Woman is good for guys. But she was cool. She She had spunk, as Lou Grant would say."
+        },
+        {
+          "turn_id": 25,
+          "role": "user",
+          "content": "And she could take care of herself, so"
+        },
+        {
+          "turn_id": 26,
+          "role": "user",
+          "content": "I liked assertive women."
+        },
+        {
+          "turn_id": 27,
+          "role": "assistant",
+          "content": "Is The Matrix a movie that interests you?"
+        },
+        {
+          "turn_id": 28,
+          "role": "user",
+          "content": "The first one interested me. I didn't think the second and third ones were as nearly as good."
+        },
+        {
+          "turn_id": 29,
+          "role": "user",
+          "content": "Yeah. It's Sometimes it just seemed weird for weird's sake, but it certainly held my interest trying to figure out what was going on."
+        },
+        {
+          "turn_id": 30,
+          "role": "user",
+          "content": "It had an element of mystery to it, I guess you could say."
+        },
+        {
+          "turn_id": 31,
+          "role": "assistant",
+          "content": "Do you like or dislike the movie Aliens?"
+        },
+        {
+          "turn_id": 32,
+          "role": "user",
+          "content": "Oh, I dislike it. It's I don't know if it's officially a horror movie or sci-fi horror movie, but I refuse to go to any horror movies. I don't pay money to get scared."
+        },
+        {
+          "turn_id": 33,
+          "role": "assistant",
+          "content": "What did you dislike the most about it?"
+        },
+        {
+          "turn_id": 34,
+          "role": "user",
+          "content": "Well, jumping out of my seat."
+        },
+        {
+          "turn_id": 35,
+          "role": "user",
+          "content": "being scared"
+        },
+        {
+          "turn_id": 36,
+          "role": "user",
+          "content": "That's not my idea of entertainment."
+        },
+        {
+          "turn_id": 37,
+          "role": "assistant",
+          "content": "Thank you for your input. Have a nice day"
+        },
+        {
+          "turn_id": 38,
+          "role": "user",
+          "content": "Thank you."
+        }
+      ],
+      "checkpoints": [
+        {
+          "id": "C1",
+          "claim": "Likes romantic comedies",
+          "source": [
+            {
+              "turn_id": 1,
+              "role": "user",
+              "quote": "I like romantic comedies."
+            }
+          ]
+        },
+        {
+          "id": "C2",
+          "claim": "Limited knowledge of The Shape of Water; only might have watched with more information",
+          "source": [
+            {
+              "turn_id": 3,
+              "role": "user",
+              "quote": "You know I know that was a highly rated movie, but for whatever reason at the time I didn't get into it or I didn't see many trailers for it, so I really don't know much about it. I think it won an academy award or two, but just never heard much about it."
+            },
+            {
+              "turn_id": 5,
+              "role": "user",
+              "quote": "Might have."
+            },
+            {
+              "turn_id": 6,
+              "role": "user",
+              "quote": "It's hard to say when you know very little about a movie, except that it had an unusual title."
+            }
+          ]
+        },
+        {
+          "id": "C3",
+          "claim": "Likes history and World War II material and is open to documentaries",
+          "source": [
+            {
+              "turn_id": 12,
+              "role": "user",
+              "quote": "I like history a lot, and so"
+            },
+            {
+              "turn_id": 13,
+              "role": "user",
+              "quote": "A lot of World War II movies, I find interesting."
+            },
+            {
+              "turn_id": 14,
+              "role": "user",
+              "quote": "but I would even watch documentaries. I'm a huge PBS fan."
+            }
+          ]
+        },
+        {
+          "id": "C4",
+          "claim": "Not a fan of movie musicals",
+          "source": [
+            {
+              "turn_id": 18,
+              "role": "user",
+              "quote": "I'm not a big fan of musicals as movies."
+            }
+          ]
+        },
+        {
+          "id": "C5",
+          "claim": "Dislikes Aliens and refuses horror because being scared is not enjoyable",
+          "source": [
+            {
+              "turn_id": 32,
+              "role": "user",
+              "quote": "Oh, I dislike it. It's I don't know if it's officially a horror movie or sci-fi horror movie, but I refuse to go to any horror movies. I don't pay money to get scared."
+            },
+            {
+              "turn_id": 34,
+              "role": "user",
+              "quote": "Well, jumping out of my seat."
+            },
+            {
+              "turn_id": 35,
+              "role": "user",
+              "quote": "being scared"
+            },
+            {
+              "turn_id": 36,
+              "role": "user",
+              "quote": "That's not my idea of entertainment."
+            }
+          ]
+        }
+      ],
+      "judge_order": [
+        "ordinary",
+        "ordinary_review",
+        "provenance"
+      ]
+    },
+    "preselected_review": true,
+    "outputs": [
+      {
+        "brief": "The user likes romantic comedies and has a strong interest in history, especially World War II films. They enjoy learning why conflicts started, would watch documentaries, and describe themselves as a huge PBS fan. Recent viewing includes Sherlock Holmes movies and Dunkirk, the latter on TV; they did not give specific opinions on these films.\n\nThey have seen only parts of Wonder Woman on TV. They enjoyed the action and comedy, found Wonder Woman attractive, and appreciated her spunk, assertiveness, and ability to take care of herself.\n\nThe first Matrix interested them, particularly the mystery and trying to figure out what was happening. They thought the second and third films were much less good. They also noted that it sometimes seemed “weird for weird’s sake,” although it held their interest.\n\nThey are not a big fan of movie musicals. They strongly dislike horror and specifically dislike Aliens, though they are unsure whether to classify it as horror or sci-fi horror. Being scared and jumping out of their seat are not entertainment to them; they refuse to go to horror movies and do not want to pay to be frightened.\n\nThey know little about The Shape of Water beyond its unusual title, its reputation as highly rated, and their uncertain recollection that it won one or two Academy Awards. They did not get into it at the time or see many trailers. More exposure might have led them to watch it, but they were explicitly unsure; this should not be treated as a firm dislike.",
+        "episode_id": "CCPE-aa1a9",
+        "dataset": "ccpe",
+        "arm": "ordinary",
+        "judge_label": "A",
+        "word_count": 254,
+        "cost": {
+          "input_tokens": 14190,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 317,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user likes romantic comedies",
+            "reason": "Preserves the stated genre preference.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "More exposure might have led them to watch it, but they were explicitly unsure",
+            "reason": "Together with the stated limited knowledge, preserves the tentative possibility of watching with more information.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "has a strong interest in history, especially World War II films. They enjoy learning why conflicts started, would watch documentaries, and describe themselves as a huge PBS fan.",
+            "reason": "Preserves interest in history and WWII material and openness to documentaries.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "They are not a big fan of movie musicals.",
+            "reason": "Preserves the preference and its degree.",
+            "quote_valid": true
+          },
+          {
+            "id": "C5",
+            "status": "covered",
+            "response_quote": "They strongly dislike horror and specifically dislike Aliens, though they are unsure whether to classify it as horror or sci-fi horror. Being scared and jumping out of their seat are not entertainment to them; they refuse to go to horror movies and do not want to pay to be frightened.",
+            "reason": "Preserves dislike, refusal, the reason for avoidance, and uncertainty about classification.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      },
+      {
+        "brief": "The user likes romantic comedies and has a strong interest in history, finding many World War II movies interesting. They enjoy learning why conflicts started, would watch documentaries, and describe themselves as a huge PBS fan. Recent viewing includes Sherlock Holmes movies and Dunkirk, the latter on TV; they gave no specific opinions on these films.\n\nThey have seen only parts of Wonder Woman on TV. They enjoyed its action and fun comedy, found Wonder Woman attractive, and appreciated her spunk and ability to take care of herself. They explicitly said they like assertive women.\n\nThe first Matrix interested them, with its mystery and the challenge of figuring out what was happening holding their attention. They thought the second and third films were nowhere near as good. They also felt it sometimes seemed “weird for weird’s sake,” despite holding their interest.\n\nThey are not a big fan of movie musicals. They dislike Aliens and refuse to go to horror movies, although they are unsure whether Aliens is classified as horror or sci-fi horror. Being frightened and jumping out of their seat are not entertainment to them; they do not want to pay to be scared.\n\nThey know little about The Shape of Water. They recall it being highly rated and think it won an Academy Award or two, but are uncertain. They said they did not get into it at the time or see many trailers and remarked on its unusual title. More exposure might have led them to watch it, but they explicitly said this was hard to judge with so little information. Their response should not be treated as a firm dislike.",
+        "episode_id": "CCPE-aa1a9",
+        "dataset": "ccpe",
+        "arm": "ordinary_review",
+        "judge_label": "B",
+        "word_count": 274,
+        "cost": {
+          "input_tokens": 28730,
+          "cached_input_tokens": 9984,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 653,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user likes romantic comedies",
+            "reason": "Preserves the stated genre preference.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "They know little about The Shape of Water.",
+            "reason": "The paragraph also explicitly preserves that more exposure only might have prompted watching and that this was hard to judge.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "has a strong interest in history, finding many World War II movies interesting. They enjoy learning why conflicts started, would watch documentaries, and describe themselves as a huge PBS fan.",
+            "reason": "Preserves the historical interests and documentary openness.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "They are not a big fan of movie musicals.",
+            "reason": "Preserves the qualified dislike of movie musicals.",
+            "quote_valid": true
+          },
+          {
+            "id": "C5",
+            "status": "covered",
+            "response_quote": "They dislike Aliens and refuse to go to horror movies, although they are unsure whether Aliens is classified as horror or sci-fi horror. Being frightened and jumping out of their seat are not entertainment to them; they do not want to pay to be scared.",
+            "reason": "Preserves dislike, refusal, classification uncertainty, and the reason.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      },
+      {
+        "brief": "The user likes romantic comedies and has a strong interest in history, particularly World War II films. They enjoy learning why conflicts started, are open to documentaries, and describe themselves as a huge PBS fan. This supports an interest in historical context, rather than a confirmed general preference for conflict or combat movies. They recently watched Sherlock Holmes movies and Dunkirk, the latter on TV, but gave no explicit assessment of either.\n\nThey are not a big fan of movie musicals. They strongly dislike horror: they dislike Aliens, although they are unsure whether to classify it as horror or science-fiction horror. Being frightened and jumping out of their seat are not entertainment to them; they say they refuse to go to horror movies.\n\nThey have seen only parts of Wonder Woman on TV. They enjoyed its action and comedy, found Wonder Woman attractive, and liked her spunk and ability to take care of herself. They explicitly said they like assertive women.\n\nThe first Matrix interested them; they thought the second and third were substantially weaker. Although it sometimes seemed “weird for weird’s sake,” figuring out what was happening held their interest, and they appreciated its element of mystery.\n\nTheir position on The Shape of Water remains uncertain. They knew little about it, recalled it as highly rated, and thought it had won an Academy Award or two. They had not become interested at the time or seen many trailers, and found the title unusual. When the assistant asked whether more exposure would have led them to watch it, they answered only “Might have.” This was tentative openness, not a commitment or a clear dislike of the film.",
+        "episode_id": "CCPE-aa1a9",
+        "dataset": "ccpe",
+        "arm": "provenance",
+        "judge_label": "C",
+        "word_count": 277,
+        "cost": {
+          "input_tokens": 14308,
+          "cached_input_tokens": 9984,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 346,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user likes romantic comedies",
+            "reason": "Preserves the stated genre preference.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "They knew little about it, recalled it as highly rated, and thought it had won an Academy Award or two.",
+            "reason": "The paragraph also preserves the conditional question, “Might have” answer, and tentative nature of that openness.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "has a strong interest in history, particularly World War II films. They enjoy learning why conflicts started, are open to documentaries, and describe themselves as a huge PBS fan.",
+            "reason": "Preserves the interests and documentary openness without generalizing them to all combat movies.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "They are not a big fan of movie musicals.",
+            "reason": "Preserves the preference and its qualification.",
+            "quote_valid": true
+          },
+          {
+            "id": "C5",
+            "status": "covered",
+            "response_quote": "They strongly dislike horror: they dislike Aliens, although they are unsure whether to classify it as horror or science-fiction horror. Being frightened and jumping out of their seat are not entertainment to them; they say they refuse to go to horror movies.",
+            "reason": "Preserves dislike of Aliens, refusal of horror, classification uncertainty, and the reason for avoidance.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      }
+    ]
+  },
+  {
+    "case": {
+      "id": "CCPE-64f09",
+      "dataset": "ccpe",
+      "messages": [
+        {
+          "turn_id": 0,
+          "role": "assistant",
+          "content": "hello"
+        },
+        {
+          "turn_id": 1,
+          "role": "user",
+          "content": "Hello."
+        },
+        {
+          "turn_id": 2,
+          "role": "assistant",
+          "content": "What kind of movies do you like?"
+        },
+        {
+          "turn_id": 3,
+          "role": "user",
+          "content": "Dramas, mostly."
+        },
+        {
+          "turn_id": 4,
+          "role": "assistant",
+          "content": "Why do you like those kinds of movies?"
+        },
+        {
+          "turn_id": 5,
+          "role": "user",
+          "content": "If they are written well then the story and the character are usually engaging and I find it to be a good exploration of the human condition."
+        },
+        {
+          "turn_id": 6,
+          "role": "assistant",
+          "content": "Can you name a particular movie you like?"
+        },
+        {
+          "turn_id": 7,
+          "role": "user",
+          "content": "Yeah, Her."
+        },
+        {
+          "turn_id": 8,
+          "role": "assistant",
+          "content": "What did you like about that movie?"
+        },
+        {
+          "turn_id": 9,
+          "role": "user",
+          "content": "I loved that it was I mean, even in a somewhat not too distant future or whatever, with a lot of technological convenience and you know, relative prosperity, that people can still end up alone somehow. I think that's incredibly valuable and worth exploring."
+        },
+        {
+          "turn_id": 10,
+          "role": "assistant",
+          "content": "I see. Can you tell me a movie you did not like?"
+        },
+        {
+          "turn_id": 11,
+          "role": "user",
+          "content": "Sure. Let's say the 50 Shades series. I didn't like any of those."
+        },
+        {
+          "turn_id": 12,
+          "role": "assistant",
+          "content": "How come you did not like those?"
+        },
+        {
+          "turn_id": 13,
+          "role": "user",
+          "content": "I thought that the I think that the material is terrible. I think that it should not have been green lit either as a book or as a movie. And, I am disappointed in at least American audiences that it has made as much money as it has as a series."
+        },
+        {
+          "turn_id": 14,
+          "role": "assistant",
+          "content": "did you like the incredibles?"
+        },
+        {
+          "turn_id": 15,
+          "role": "user",
+          "content": "Yeah, I did."
+        },
+        {
+          "turn_id": 16,
+          "role": "assistant",
+          "content": "nice. How come you like superhero movies?"
+        },
+        {
+          "turn_id": 17,
+          "role": "user",
+          "content": "I Well truthfully, I really enjoy seeing the visual effects and the sound design. I'm always I'm always mesmerized by the things that you know, visual artists and animators are able to come up with. Plus there's sort of an element of I like to put myself in the shoes of a superhero and imagine that I'm them, but I don't get too carried away with stuff like that, usually."
+        },
+        {
+          "turn_id": 18,
+          "role": "assistant",
+          "content": "thanks for your input"
+        },
+        {
+          "turn_id": 19,
+          "role": "user",
+          "content": "You're welcome."
+        },
+        {
+          "turn_id": 20,
+          "role": "assistant",
+          "content": "Until next time"
+        },
+        {
+          "turn_id": 21,
+          "role": "assistant",
+          "content": "Bye"
+        }
+      ],
+      "checkpoints": [
+        {
+          "id": "C1",
+          "claim": "Mostly likes well-written dramas with engaging stories and characters exploring the human condition",
+          "source": [
+            {
+              "turn_id": 3,
+              "role": "user",
+              "quote": "Dramas, mostly."
+            },
+            {
+              "turn_id": 5,
+              "role": "user",
+              "quote": "If they are written well then the story and the character are usually engaging and I find it to be a good exploration of the human condition."
+            }
+          ]
+        },
+        {
+          "id": "C2",
+          "claim": "Likes Her for loneliness despite technology and prosperity",
+          "source": [
+            {
+              "turn_id": 7,
+              "role": "user",
+              "quote": "Yeah, Her."
+            },
+            {
+              "turn_id": 9,
+              "role": "user",
+              "quote": "I loved that it was I mean, even in a somewhat not too distant future or whatever, with a lot of technological convenience and you know, relative prosperity, that people can still end up alone somehow. I think that's incredibly valuable and worth exploring."
+            }
+          ]
+        },
+        {
+          "id": "C3",
+          "claim": "Dislikes the Fifty Shades series and its material",
+          "source": [
+            {
+              "turn_id": 11,
+              "role": "user",
+              "quote": "Sure. Let's say the 50 Shades series. I didn't like any of those."
+            },
+            {
+              "turn_id": 13,
+              "role": "user",
+              "quote": "I thought that the I think that the material is terrible. I think that it should not have been green lit either as a book or as a movie. And, I am disappointed in at least American audiences that it has made as much money as it has as a series."
+            }
+          ]
+        },
+        {
+          "id": "C4",
+          "claim": "Likes The Incredibles",
+          "source": [
+            {
+              "turn_id": 14,
+              "role": "assistant",
+              "quote": "did you like the incredibles?"
+            },
+            {
+              "turn_id": 15,
+              "role": "user",
+              "quote": "Yeah, I did."
+            }
+          ]
+        },
+        {
+          "id": "C5",
+          "claim": "Enjoys visual effects, sound design and imagining being a superhero",
+          "source": [
+            {
+              "turn_id": 17,
+              "role": "user",
+              "quote": "I Well truthfully, I really enjoy seeing the visual effects and the sound design. I'm always I'm always mesmerized by the things that you know, visual artists and animators are able to come up with. Plus there's sort of an element of I like to put myself in the shoes of a superhero and imagine that I'm them, but I don't get too carried away with stuff like that, usually."
+            }
+          ]
+        }
+      ],
+      "judge_order": [
+        "ordinary",
+        "provenance",
+        "ordinary_review"
+      ]
+    },
+    "preselected_review": true,
+    "outputs": [
+      {
+        "brief": "The user mostly prefers dramas, especially when strong writing makes the story and characters engaging and explores the human condition.\n\nThey loved Her for exploring how people can still end up alone despite technological convenience and relative prosperity in a not-too-distant future. They consider that theme valuable and worth examining.\n\nThey disliked every film in the 50 Shades series, calling the material terrible and saying it should not have been approved as either books or movies. They were disappointed that the series earned so much money, expressing criticism of at least American audiences. They did not specify particular writing flaws or scenes.\n\nThey also liked The Incredibles. Discussing the appeal of superhero movies, they emphasized visual effects and sound design and their fascination with what visual artists and animators create. They enjoy imagining themselves as a superhero, though they qualified that they usually do not get too carried away with it.",
+        "episode_id": "CCPE-64f09",
+        "dataset": "ccpe",
+        "arm": "ordinary",
+        "judge_label": "A",
+        "word_count": 151,
+        "cost": {
+          "input_tokens": 13623,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 193,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user mostly prefers dramas, especially when strong writing makes the story and characters engaging and explores the human condition.",
+            "reason": "Preserves the primary genre preference and the writing, character, story, and thematic qualifications.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "They loved Her for exploring how people can still end up alone despite technological convenience and relative prosperity in a not-too-distant future.",
+            "reason": "Preserves the film preference and the contrast between loneliness and technological and material comfort.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "They disliked every film in the 50 Shades series, calling the material terrible and saying it should not have been approved as either books or movies.",
+            "reason": "Preserves the series-wide dislike and criticism of its material and approval.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "They also liked The Incredibles.",
+            "reason": "Accurately records the user's affirmative response.",
+            "quote_valid": true
+          },
+          {
+            "id": "C5",
+            "status": "covered",
+            "response_quote": "Discussing the appeal of superhero movies, they emphasized visual effects and sound design and their fascination with what visual artists and animators create. They enjoy imagining themselves as a superhero, though they qualified that they usually do not get too carried away with it.",
+            "reason": "Preserves all three attractions and the qualification about limited imaginative involvement.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      },
+      {
+        "brief": "The user mostly likes dramas, especially when strong writing makes the story and characters engaging and explores the human condition.\n\nThey named Her as a film they love, particularly its exploration of how people can still end up alone in a relatively prosperous, technologically convenient, not-too-distant future. They consider that theme valuable and worth exploring.\n\nThey disliked every film in the 50 Shades series. They regarded the source material as terrible and felt it should never have been approved as either books or films. They also expressed disappointment that the series had made so much money, referring specifically to American audiences.\n\nWhen the assistant suggested The Incredibles, the user explicitly confirmed liking it. In response to a broader question about superhero movies, they said they enjoy visual effects and sound design and are mesmerized by what visual artists and animators create. They also enjoy imagining themselves as a superhero, while qualifying that they usually do not get too carried away. This supports those particular attractions, rather than an indiscriminate preference for all superhero films.",
+        "episode_id": "CCPE-64f09",
+        "dataset": "ccpe",
+        "arm": "provenance",
+        "judge_label": "B",
+        "word_count": 174,
+        "cost": {
+          "input_tokens": 13741,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 223,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user mostly likes dramas, especially when strong writing makes the story and characters engaging and explores the human condition.",
+            "reason": "Preserves the primary genre preference and its conditional appeal.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "They named Her as a film they love, particularly its exploration of how people can still end up alone in a relatively prosperous, technologically convenient, not-too-distant future.",
+            "reason": "Preserves the liked film and its valued exploration of loneliness despite prosperity and technology.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "They disliked every film in the 50 Shades series. They regarded the source material as terrible and felt it should never have been approved as either books or films.",
+            "reason": "Preserves the scope of dislike and the criticism of the material and its approval.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "When the assistant suggested The Incredibles, the user explicitly confirmed liking it.",
+            "reason": "Accurately conveys the user's confirmed preference.",
+            "quote_valid": true
+          },
+          {
+            "id": "C5",
+            "status": "covered",
+            "response_quote": "In response to a broader question about superhero movies, they said they enjoy visual effects and sound design and are mesmerized by what visual artists and animators create. They also enjoy imagining themselves as a superhero, while qualifying that they usually do not get too carried away.",
+            "reason": "Preserves the stated attractions and the user's qualification without generalizing to every superhero film.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      },
+      {
+        "brief": "The user mostly prefers dramas, valuing strong writing that makes stories and characters engaging and explores the human condition.\n\nThey loved Her for exploring how people can still end up alone despite technological convenience and relative prosperity in a somewhat near future. They consider this theme valuable and worth examining.\n\nThey disliked every film in the 50 Shades series, describing the material as terrible and saying it should not have been greenlit as either a book or a movie. They expressed disappointment in at least American audiences over the series’ financial success. They did not identify specific flaws or scenes.\n\nThey also liked The Incredibles. When asked about superhero movies’ appeal, they emphasized visual effects, sound design, and their fascination with what visual artists and animators create. They also enjoy imagining themselves as a superhero, while qualifying that they usually do not get too carried away.",
+        "episode_id": "CCPE-64f09",
+        "dataset": "ccpe",
+        "arm": "ordinary_review",
+        "judge_label": "C",
+        "word_count": 146,
+        "cost": {
+          "input_tokens": 27472,
+          "cached_input_tokens": 9984,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 382,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user mostly prefers dramas, valuing strong writing that makes stories and characters engaging and explores the human condition.",
+            "reason": "Preserves the main genre preference and the qualities that make dramas appealing.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "They loved Her for exploring how people can still end up alone despite technological convenience and relative prosperity in a somewhat near future.",
+            "reason": "Preserves the film preference, thematic contrast, and approximate future setting.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "They disliked every film in the 50 Shades series, describing the material as terrible and saying it should not have been greenlit as either a book or a movie.",
+            "reason": "Preserves the series-wide dislike and criticism of the material and its approval.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "They also liked The Incredibles.",
+            "reason": "Accurately records the user's confirmed liking.",
+            "quote_valid": true
+          },
+          {
+            "id": "C5",
+            "status": "covered",
+            "response_quote": "When asked about superhero movies’ appeal, they emphasized visual effects, sound design, and their fascination with what visual artists and animators create. They also enjoy imagining themselves as a superhero, while qualifying that they usually do not get too carried away.",
+            "reason": "Preserves all stated attractions and the qualification about not usually getting carried away.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      }
+    ]
+  },
+  {
+    "case": {
+      "id": "CCPE-ebc61",
+      "dataset": "ccpe",
+      "messages": [
+        {
+          "turn_id": 0,
+          "role": "assistant",
+          "content": "can you tell me what types of movies you like?"
+        },
+        {
+          "turn_id": 1,
+          "role": "user",
+          "content": "Yeah, I like horror movie and action movies."
+        },
+        {
+          "turn_id": 2,
+          "role": "assistant",
+          "content": "ok, what about those genres do you like?"
+        },
+        {
+          "turn_id": 3,
+          "role": "user",
+          "content": "There's incredible There's guns, action, excitement."
+        },
+        {
+          "turn_id": 4,
+          "role": "assistant",
+          "content": "ok, can you name a specific film you liked?"
+        },
+        {
+          "turn_id": 5,
+          "role": "user",
+          "content": "Saving Private Ryan is one of my favorite movies."
+        },
+        {
+          "turn_id": 6,
+          "role": "assistant",
+          "content": "what about that movie specifically did you like?"
+        },
+        {
+          "turn_id": 7,
+          "role": "user",
+          "content": "It It was an epic depiction of world War II."
+        },
+        {
+          "turn_id": 8,
+          "role": "assistant",
+          "content": "ok, can you name genres of movies you don't like?"
+        },
+        {
+          "turn_id": 9,
+          "role": "user",
+          "content": "musicals"
+        },
+        {
+          "turn_id": 10,
+          "role": "assistant",
+          "content": "why don't you like musicals?"
+        },
+        {
+          "turn_id": 11,
+          "role": "user",
+          "content": "They annoy me. I like movies that have a theme that isn't being sang."
+        },
+        {
+          "turn_id": 12,
+          "role": "assistant",
+          "content": "ok, can you name a specific movie you didn't like? it doesn't have to be a musical but it can be"
+        },
+        {
+          "turn_id": 13,
+          "role": "user",
+          "content": "A specific movie I didn't like?"
+        },
+        {
+          "turn_id": 14,
+          "role": "user",
+          "content": "The newest Ghostbusters in 2016."
+        },
+        {
+          "turn_id": 15,
+          "role": "assistant",
+          "content": "ok, why didn't you like that movie?"
+        },
+        {
+          "turn_id": 16,
+          "role": "assistant",
+          "content": "got it, you feel like it didn't live up to the original movie?"
+        },
+        {
+          "turn_id": 17,
+          "role": "user",
+          "content": "Yeah, that's correct."
+        },
+        {
+          "turn_id": 18,
+          "role": "assistant",
+          "content": "ok, can you tell me have you seen star wars: the last jedi?"
+        },
+        {
+          "turn_id": 19,
+          "role": "user",
+          "content": "Yes. It was fantastic. I enjoyed it because I loved the spaceships, and I loved all of the the characters of Star Wars."
+        }
+      ],
+      "checkpoints": [
+        {
+          "id": "C1",
+          "claim": "Likes horror and action movies for action and excitement",
+          "source": [
+            {
+              "turn_id": 1,
+              "role": "user",
+              "quote": "Yeah, I like horror movie and action movies."
+            },
+            {
+              "turn_id": 3,
+              "role": "user",
+              "quote": "There's incredible There's guns, action, excitement."
+            }
+          ]
+        },
+        {
+          "id": "C2",
+          "claim": "Saving Private Ryan is a favorite for its World War II depiction",
+          "source": [
+            {
+              "turn_id": 5,
+              "role": "user",
+              "quote": "Saving Private Ryan is one of my favorite movies."
+            },
+            {
+              "turn_id": 7,
+              "role": "user",
+              "quote": "It It was an epic depiction of world War II."
+            }
+          ]
+        },
+        {
+          "id": "C3",
+          "claim": "Dislikes musicals and sung themes",
+          "source": [
+            {
+              "turn_id": 9,
+              "role": "user",
+              "quote": "musicals"
+            },
+            {
+              "turn_id": 11,
+              "role": "user",
+              "quote": "They annoy me. I like movies that have a theme that isn't being sang."
+            }
+          ]
+        },
+        {
+          "id": "C4",
+          "claim": "Dislikes Ghostbusters (2016); agrees with the interviewer that it did not live up to the original",
+          "source": [
+            {
+              "turn_id": 14,
+              "role": "user",
+              "quote": "The newest Ghostbusters in 2016."
+            },
+            {
+              "turn_id": 16,
+              "role": "assistant",
+              "quote": "got it, you feel like it didn't live up to the original movie?"
+            },
+            {
+              "turn_id": 17,
+              "role": "user",
+              "quote": "Yeah, that's correct."
+            }
+          ]
+        },
+        {
+          "id": "C5",
+          "claim": "Likes The Last Jedi for spaceships and Star Wars characters",
+          "source": [
+            {
+              "turn_id": 18,
+              "role": "assistant",
+              "quote": "ok, can you tell me have you seen star wars: the last jedi?"
+            },
+            {
+              "turn_id": 19,
+              "role": "user",
+              "quote": "Yes. It was fantastic. I enjoyed it because I loved the spaceships, and I loved all of the the characters of Star Wars."
+            }
+          ]
+        }
+      ],
+      "judge_order": [
+        "provenance",
+        "ordinary_review",
+        "ordinary"
+      ]
+    },
+    "preselected_review": true,
+    "outputs": [
+      {
+        "brief": "The user likes horror and action movies, citing guns, action, and excitement as appealing features. They named Saving Private Ryan as one of their favorite films, describing it as an epic depiction of World War II. Their specific reasons for enjoying horror remain unexplored.\n\nThey dislike musicals because they find them annoying and prefer movies whose themes are not conveyed through singing. They also disliked Ghostbusters (2016). When the interviewer suggested that it failed to live up to the original, the user explicitly agreed; they offered no further explanation.\n\nThe user has seen Star Wars: The Last Jedi and thought it was fantastic, specifically praising the spaceships and saying they loved all the Star Wars characters.",
+        "episode_id": "CCPE-ebc61",
+        "dataset": "ccpe",
+        "arm": "provenance",
+        "judge_label": "A",
+        "word_count": 116,
+        "cost": {
+          "input_tokens": 13588,
+          "cached_input_tokens": 9984,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 154,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user likes horror and action movies, citing guns, action, and excitement as appealing features.",
+            "reason": "Preserves both genre preferences and the stated appeal.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "They named Saving Private Ryan as one of their favorite films, describing it as an epic depiction of World War II.",
+            "reason": "Preserves its favorite status and the user's explanation.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "They dislike musicals because they find them annoying and prefer movies whose themes are not conveyed through singing.",
+            "reason": "Preserves the dislike and its stated reason.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "They also disliked Ghostbusters (2016). When the interviewer suggested that it failed to live up to the original, the user explicitly agreed; they offered no further explanation.",
+            "reason": "Accurately preserves the disliked film and the accepted comparison.",
+            "quote_valid": true
+          },
+          {
+            "id": "C5",
+            "status": "covered",
+            "response_quote": "The user has seen Star Wars: The Last Jedi and thought it was fantastic, specifically praising the spaceships and saying they loved all the Star Wars characters.",
+            "reason": "Preserves the positive reaction and both stated reasons.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      },
+      {
+        "brief": "The user likes horror and action movies, citing guns, action, and excitement as appealing. They did not give a separate reason for liking horror. Saving Private Ryan is one of their favorite movies because they consider it an epic depiction of World War II.\n\nThey dislike musicals because they find them annoying and prefer movies whose themes are not conveyed through singing. They disliked Ghostbusters (2016), confirming the interviewer’s suggestion that it did not live up to the original; they gave no further reasons.\n\nThey have seen Star Wars: The Last Jedi and described it as fantastic, saying they loved the spaceships and all the Star Wars characters.",
+        "episode_id": "CCPE-ebc61",
+        "dataset": "ccpe",
+        "arm": "ordinary_review",
+        "judge_label": "B",
+        "word_count": 108,
+        "cost": {
+          "input_tokens": 27115,
+          "cached_input_tokens": 9984,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 288,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user likes horror and action movies, citing guns, action, and excitement as appealing.",
+            "reason": "Preserves both genre preferences and the stated appeal.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "Saving Private Ryan is one of their favorite movies because they consider it an epic depiction of World War II.",
+            "reason": "Preserves the favorite status and the user's reason without making an independent factual claim.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "They dislike musicals because they find them annoying and prefer movies whose themes are not conveyed through singing.",
+            "reason": "Preserves the dislike and its stated reason.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "They disliked Ghostbusters (2016), confirming the interviewer’s suggestion that it did not live up to the original; they gave no further reasons.",
+            "reason": "Preserves the disliked film and the user's acceptance of the comparison.",
+            "quote_valid": true
+          },
+          {
+            "id": "C5",
+            "status": "covered",
+            "response_quote": "They have seen Star Wars: The Last Jedi and described it as fantastic, saying they loved the spaceships and all the Star Wars characters.",
+            "reason": "Preserves the positive reaction and both stated reasons.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      },
+      {
+        "brief": "The user likes horror and action movies, particularly guns, action, and excitement. They did not explain what specifically appeals to them about horror. Saving Private Ryan is one of their favorite films because they consider it an epic depiction of World War II.\n\nThey dislike musicals because they find them annoying and prefer movies whose themes are not conveyed through singing. They also disliked Ghostbusters (2016), agreeing with the interviewer's suggestion that it did not live up to the original; no further reasons were given.\n\nThey have seen Star Wars: The Last Jedi and thought it was fantastic, specifically enjoying the spaceships and all the Star Wars characters.",
+        "episode_id": "CCPE-ebc61",
+        "dataset": "ccpe",
+        "arm": "ordinary",
+        "judge_label": "C",
+        "word_count": 108,
+        "cost": {
+          "input_tokens": 13468,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 144,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user likes horror and action movies, particularly guns, action, and excitement.",
+            "reason": "Preserves both genre preferences and the stated appeal.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "Saving Private Ryan is one of their favorite films because they consider it an epic depiction of World War II.",
+            "reason": "Preserves the favorite status and the user's explanation.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "They dislike musicals because they find them annoying and prefer movies whose themes are not conveyed through singing.",
+            "reason": "Preserves the dislike and its stated reason.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "They also disliked Ghostbusters (2016), agreeing with the interviewer's suggestion that it did not live up to the original; no further reasons were given.",
+            "reason": "Preserves the disliked film and the accepted comparison.",
+            "quote_valid": true
+          },
+          {
+            "id": "C5",
+            "status": "covered",
+            "response_quote": "They have seen Star Wars: The Last Jedi and thought it was fantastic, specifically enjoying the spaceships and all the Star Wars characters.",
+            "reason": "Preserves the positive reaction and both stated reasons.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      }
+    ]
+  },
+  {
+    "case": {
+      "id": "CCPE-9143a",
+      "dataset": "ccpe",
+      "messages": [
+        {
+          "turn_id": 0,
+          "role": "assistant",
+          "content": "What type of movies do you enjoy?"
+        },
+        {
+          "turn_id": 1,
+          "role": "user",
+          "content": "comedy movies"
+        },
+        {
+          "turn_id": 2,
+          "role": "assistant",
+          "content": "What appeals to you with these type of movies?"
+        },
+        {
+          "turn_id": 3,
+          "role": "user",
+          "content": "Well, they don't have to have a sensible plotline usually, and they make me laugh."
+        },
+        {
+          "turn_id": 4,
+          "role": "assistant",
+          "content": "Is there a specific movie you enjoy from this genre?"
+        },
+        {
+          "turn_id": 5,
+          "role": "user",
+          "content": "[inaudible]"
+        },
+        {
+          "turn_id": 6,
+          "role": "assistant",
+          "content": "What did you like about this movie?"
+        },
+        {
+          "turn_id": 7,
+          "role": "user",
+          "content": "I just thought it was funny overall."
+        },
+        {
+          "turn_id": 8,
+          "role": "assistant",
+          "content": "Are there any type of movies that you don't enjoy?"
+        },
+        {
+          "turn_id": 9,
+          "role": "user",
+          "content": "I don't like drama."
+        },
+        {
+          "turn_id": 10,
+          "role": "assistant",
+          "content": "What about these movies is unappealing?"
+        },
+        {
+          "turn_id": 11,
+          "role": "user",
+          "content": "Well, I have enough drama in my life as it is, and I just don't like the thought of thinking about other people's problems. Not superficial, you know, the cliche problems in drama"
+        },
+        {
+          "turn_id": 12,
+          "role": "assistant",
+          "content": "Is there a specific movie that you heavily dislike?"
+        },
+        {
+          "turn_id": 13,
+          "role": "user",
+          "content": "I can't think of any at the moment."
+        },
+        {
+          "turn_id": 14,
+          "role": "assistant",
+          "content": "Have you seen Stepbrothers"
+        },
+        {
+          "turn_id": 15,
+          "role": "user",
+          "content": "Yes."
+        },
+        {
+          "turn_id": 16,
+          "role": "assistant",
+          "content": "What did you enjoy or not enjoy about this movie?"
+        },
+        {
+          "turn_id": 17,
+          "role": "user",
+          "content": "I thought the lead actors, Will Ferrell and I don't know what the other guy's name is I think that they are a good combination. So, I liked just because of that."
+        },
+        {
+          "turn_id": 18,
+          "role": "assistant",
+          "content": "Thank you for your help and have a wonderful day!"
+        }
+      ],
+      "checkpoints": [
+        {
+          "id": "C1",
+          "claim": "Likes comedy for laughter; a sensible plot is not essential",
+          "source": [
+            {
+              "turn_id": 1,
+              "role": "user",
+              "quote": "comedy movies"
+            },
+            {
+              "turn_id": 3,
+              "role": "user",
+              "quote": "Well, they don't have to have a sensible plotline usually, and they make me laugh."
+            }
+          ]
+        },
+        {
+          "id": "C2",
+          "claim": "The first named favorite film is inaudible and unidentified",
+          "source": [
+            {
+              "turn_id": 4,
+              "role": "assistant",
+              "quote": "Is there a specific movie you enjoy from this genre?"
+            },
+            {
+              "turn_id": 5,
+              "role": "user",
+              "quote": "[inaudible]"
+            }
+          ]
+        },
+        {
+          "id": "C3",
+          "claim": "Dislikes drama about other people's problems",
+          "source": [
+            {
+              "turn_id": 9,
+              "role": "user",
+              "quote": "I don't like drama."
+            },
+            {
+              "turn_id": 11,
+              "role": "user",
+              "quote": "Well, I have enough drama in my life as it is, and I just don't like the thought of thinking about other people's problems. Not superficial, you know, the cliche problems in drama"
+            }
+          ]
+        },
+        {
+          "id": "C4",
+          "claim": "Cannot name a specific strongly disliked movie",
+          "source": [
+            {
+              "turn_id": 13,
+              "role": "user",
+              "quote": "I can't think of any at the moment."
+            }
+          ]
+        },
+        {
+          "id": "C5",
+          "claim": "Likes Step Brothers because Will Ferrell and the other lead work well together",
+          "source": [
+            {
+              "turn_id": 14,
+              "role": "assistant",
+              "quote": "Have you seen Stepbrothers"
+            },
+            {
+              "turn_id": 15,
+              "role": "user",
+              "quote": "Yes."
+            },
+            {
+              "turn_id": 17,
+              "role": "user",
+              "quote": "I thought the lead actors, Will Ferrell and I don't know what the other guy's name is I think that they are a good combination. So, I liked just because of that."
+            }
+          ]
+        }
+      ],
+      "judge_order": [
+        "provenance",
+        "ordinary",
+        "ordinary_review"
+      ]
+    },
+    "preselected_review": false,
+    "outputs": [
+      {
+        "brief": "The user enjoys comedy because it makes them laugh and usually does not need a sensible plotline. They described one favorite comedy as funny overall, but its title was inaudible and remains unknown.\n\nThey dislike drama, saying they already have enough drama in their own life and do not enjoy thinking about other people’s problems, referring to clichéd problems in dramas. They could not name a specific disliked movie at the time.\n\nWhen the assistant asked about Stepbrothers, the user confirmed having seen it and liked the pairing of the lead actors. They named Will Ferrell but could not recall the other actor’s name, saying the two were a good combination and that this was why they liked the film.",
+        "episode_id": "CCPE-9143a",
+        "dataset": "ccpe",
+        "arm": "provenance",
+        "judge_label": "A",
+        "word_count": 120,
+        "cost": {
+          "input_tokens": 13555,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 158,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user enjoys comedy because it makes them laugh and usually does not need a sensible plotline.",
+            "reason": "Preserves laughter as the appeal and the qualified lack of a plot requirement.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "its title was inaudible and remains unknown.",
+            "reason": "Preserves the unidentified title without guessing it.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "They dislike drama, saying they already have enough drama in their own life and do not enjoy thinking about other people’s problems, referring to clichéd problems in dramas.",
+            "reason": "Preserves the dislike and its stated reasons.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "They could not name a specific disliked movie at the time.",
+            "reason": "Preserves the inability to provide an example and its temporary scope.",
+            "quote_valid": true
+          },
+          {
+            "id": "C5",
+            "status": "covered",
+            "response_quote": "They named Will Ferrell but could not recall the other actor’s name, saying the two were a good combination and that this was why they liked the film.",
+            "reason": "The preceding sentence identifies Stepbrothers; the quote preserves the pairing as the reason for liking it.",
+            "quote_valid": true
+          }
+        ],
+        "issues": [
+          {
+            "kind": "uncertain_issue",
+            "source_turn_id": 4,
+            "source_quote": "Is there a specific movie you enjoy from this genre?",
+            "response_quote": "one favorite comedy",
+            "reason": "“Favorite” may imply stronger preference than the elicited example of an enjoyed movie, although it can also be a loose paraphrase.",
+            "quote_valid": true
+          }
+        ]
+      },
+      {
+        "brief": "The user enjoys comedy because it makes them laugh and usually does not need a sensible plot. They described one favorite comedy as funny overall, but its title was inaudible and remains unknown.\n\nThey have seen Stepbrothers and liked the pairing of the lead actors, Will Ferrell and the other lead, whose name they could not recall. They felt the actors were a good combination and cited that as their reason for liking it.\n\nThey dislike drama, saying they already have enough drama in their own life and do not enjoy thinking about other people’s problems. They referred to the clichéd problems in dramas, though their qualification involving “not superficial” was unclear. They could not name a specific movie they strongly disliked at the time.",
+        "episode_id": "CCPE-9143a",
+        "dataset": "ccpe",
+        "arm": "ordinary",
+        "judge_label": "B",
+        "word_count": 125,
+        "cost": {
+          "input_tokens": 13441,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 164,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user enjoys comedy because it makes them laugh and usually does not need a sensible plot.",
+            "reason": "Preserves laughter as the appeal and the qualified lack of a plot requirement.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "its title was inaudible and remains unknown.",
+            "reason": "Preserves the unidentified title without guessing it.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "They dislike drama, saying they already have enough drama in their own life and do not enjoy thinking about other people’s problems.",
+            "reason": "Preserves the dislike and its reasons; the following sentence appropriately leaves the ambiguous qualification unresolved.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "They could not name a specific movie they strongly disliked at the time.",
+            "reason": "Preserves the requested degree of dislike and the temporary inability to name an example.",
+            "quote_valid": true
+          },
+          {
+            "id": "C5",
+            "status": "covered",
+            "response_quote": "They have seen Stepbrothers and liked the pairing of the lead actors, Will Ferrell and the other lead, whose name they could not recall. They felt the actors were a good combination and cited that as their reason for liking it.",
+            "reason": "Preserves the film, the pairing, and its role as the reason for liking it.",
+            "quote_valid": true
+          }
+        ],
+        "issues": [
+          {
+            "kind": "uncertain_issue",
+            "source_turn_id": 4,
+            "source_quote": "Is there a specific movie you enjoy from this genre?",
+            "response_quote": "one favorite comedy",
+            "reason": "“Favorite” may imply stronger preference than the elicited example of an enjoyed movie, although it can also be a loose paraphrase.",
+            "quote_valid": true
+          }
+        ]
+      },
+      {
+        "brief": "The user enjoys comedy because it makes them laugh and usually does not require a sensible plot. They described one comedy they enjoy as funny overall, but its title was inaudible and remains unknown.\n\nThey have seen Stepbrothers and liked the combination of its lead actors, Will Ferrell and the other lead, whose name they could not recall. They specifically cited this pairing as their reason for liking the movie.\n\nThey dislike drama because they feel they already have enough drama in their own life and do not enjoy thinking about other people’s problems. They mentioned clichéd problems in dramas, although their qualification involving “not superficial” was unclear. They could not think of a specific movie they strongly disliked at the time.",
+        "episode_id": "CCPE-9143a",
+        "dataset": "ccpe",
+        "arm": "ordinary_review",
+        "judge_label": "C",
+        "word_count": 122,
+        "cost": {
+          "input_tokens": 27077,
+          "cached_input_tokens": 9984,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 324,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user enjoys comedy because it makes them laugh and usually does not require a sensible plot.",
+            "reason": "Preserves laughter as the appeal and the qualified lack of a plot requirement.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "its title was inaudible and remains unknown.",
+            "reason": "Preserves the unidentified title without guessing it.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "They dislike drama because they feel they already have enough drama in their own life and do not enjoy thinking about other people’s problems.",
+            "reason": "Preserves the dislike and its reasons; the following sentence appropriately leaves the ambiguous qualification unresolved.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "They could not think of a specific movie they strongly disliked at the time.",
+            "reason": "Preserves the requested degree of dislike and the temporary inability to name an example.",
+            "quote_valid": true
+          },
+          {
+            "id": "C5",
+            "status": "covered",
+            "response_quote": "They have seen Stepbrothers and liked the combination of its lead actors, Will Ferrell and the other lead, whose name they could not recall. They specifically cited this pairing as their reason for liking the movie.",
+            "reason": "Preserves the film, the pairing, and its role as the reason for liking it.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      }
+    ]
+  },
+  {
+    "case": {
+      "id": "CCPE-32062",
+      "dataset": "ccpe",
+      "messages": [
+        {
+          "turn_id": 0,
+          "role": "assistant",
+          "content": "What movies do you like?"
+        },
+        {
+          "turn_id": 1,
+          "role": "user",
+          "content": "comedies"
+        },
+        {
+          "turn_id": 2,
+          "role": "user",
+          "content": "Also, I like foreign films."
+        },
+        {
+          "turn_id": 3,
+          "role": "assistant",
+          "content": "What do you like about comedy and foreign films?"
+        },
+        {
+          "turn_id": 4,
+          "role": "user",
+          "content": "A comedy just makes me laugh it takes my mind off my troubles, and foreign films are really interesting I like to see what's going on around the rest of the world."
+        },
+        {
+          "turn_id": 5,
+          "role": "assistant",
+          "content": "I understand that you enjoy comedy for the humor and foreign films for insight on the world"
+        },
+        {
+          "turn_id": 6,
+          "role": "user",
+          "content": "Yes, exactly."
+        },
+        {
+          "turn_id": 7,
+          "role": "assistant",
+          "content": "Is there a specific title you enjoy?"
+        },
+        {
+          "turn_id": 8,
+          "role": "user",
+          "content": "I like anything with Melissa McCarthy in it."
+        },
+        {
+          "turn_id": 9,
+          "role": "assistant",
+          "content": "What do you enjoy about her acting?"
+        },
+        {
+          "turn_id": 10,
+          "role": "user",
+          "content": "She's funny. She's a great comedic actress."
+        },
+        {
+          "turn_id": 11,
+          "role": "assistant",
+          "content": "Are there any types of movies you dislike?"
+        },
+        {
+          "turn_id": 12,
+          "role": "user",
+          "content": "No, I like all of them."
+        },
+        {
+          "turn_id": 13,
+          "role": "assistant",
+          "content": "IS there a specific title dislike?"
+        },
+        {
+          "turn_id": 14,
+          "role": "user",
+          "content": "No, I mean I like all movies."
+        },
+        {
+          "turn_id": 15,
+          "role": "assistant",
+          "content": "Thank you"
+        },
+        {
+          "turn_id": 16,
+          "role": "assistant",
+          "content": "Talk to you next time"
+        }
+      ],
+      "checkpoints": [
+        {
+          "id": "C1",
+          "claim": "Likes comedies for laughter and relief from troubles",
+          "source": [
+            {
+              "turn_id": 1,
+              "role": "user",
+              "quote": "comedies"
+            },
+            {
+              "turn_id": 4,
+              "role": "user",
+              "quote": "A comedy just makes me laugh it takes my mind off my troubles, and foreign films are really interesting I like to see what's going on around the rest of the world."
+            }
+          ]
+        },
+        {
+          "id": "C2",
+          "claim": "Likes foreign films for insight into the rest of the world",
+          "source": [
+            {
+              "turn_id": 2,
+              "role": "user",
+              "quote": "Also, I like foreign films."
+            },
+            {
+              "turn_id": 4,
+              "role": "user",
+              "quote": "A comedy just makes me laugh it takes my mind off my troubles, and foreign films are really interesting I like to see what's going on around the rest of the world."
+            }
+          ]
+        },
+        {
+          "id": "C3",
+          "claim": "Likes anything with Melissa McCarthy because she is funny",
+          "source": [
+            {
+              "turn_id": 8,
+              "role": "user",
+              "quote": "I like anything with Melissa McCarthy in it."
+            },
+            {
+              "turn_id": 10,
+              "role": "user",
+              "quote": "She's funny. She's a great comedic actress."
+            }
+          ]
+        },
+        {
+          "id": "C4",
+          "claim": "Reports liking all movies and names no disliked type or title",
+          "source": [
+            {
+              "turn_id": 12,
+              "role": "user",
+              "quote": "No, I like all of them."
+            },
+            {
+              "turn_id": 14,
+              "role": "user",
+              "quote": "No, I mean I like all movies."
+            }
+          ]
+        }
+      ],
+      "judge_order": [
+        "ordinary_review",
+        "ordinary",
+        "provenance"
+      ]
+    },
+    "preselected_review": false,
+    "outputs": [
+      {
+        "brief": "The user says they like all movies and named no disliked genres or titles, reiterating their broad enjoyment when asked about dislikes. They particularly enjoy comedies because they make them laugh and take their mind off their troubles. They also like foreign films because they find them interesting and enjoy seeing what is happening elsewhere in the world. They like anything featuring Melissa McCarthy, describing her as funny and a great comedic actress. No specific movie titles, countries, or languages were mentioned.",
+        "episode_id": "CCPE-32062",
+        "dataset": "ccpe",
+        "arm": "ordinary_review",
+        "judge_label": "A",
+        "word_count": 82,
+        "cost": {
+          "input_tokens": 26790,
+          "cached_input_tokens": 9984,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 213,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "They particularly enjoy comedies because they make them laugh and take their mind off their troubles.",
+            "reason": "Preserves enjoyment, laughter, and relief from troubles.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "They also like foreign films because they find them interesting and enjoy seeing what is happening elsewhere in the world.",
+            "reason": "Preserves the preference and its world-insight motivation.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "They like anything featuring Melissa McCarthy, describing her as funny and a great comedic actress.",
+            "reason": "Preserves the breadth of the preference and its comedic basis.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "The user says they like all movies and named no disliked genres or titles, reiterating their broad enjoyment when asked about dislikes.",
+            "reason": "Accurately summarizes both responses to questions about dislikes.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      },
+      {
+        "brief": "The user likes all movies and named no disliked genres or titles, twice clarifying their broad enjoyment. They particularly enjoy comedies because they make them laugh and take their mind off their troubles. They also like foreign films because they find them interesting and enjoy seeing what is happening elsewhere in the world. They like anything featuring Melissa McCarthy, describing her as funny and a great comedic actress. No specific movie titles, foreign-film countries, or languages were mentioned.",
+        "episode_id": "CCPE-32062",
+        "dataset": "ccpe",
+        "arm": "ordinary",
+        "judge_label": "B",
+        "word_count": 78,
+        "cost": {
+          "input_tokens": 13327,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 105,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "They particularly enjoy comedies because they make them laugh and take their mind off their troubles.",
+            "reason": "Preserves enjoyment, laughter, and relief from troubles.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "They also like foreign films because they find them interesting and enjoy seeing what is happening elsewhere in the world.",
+            "reason": "Preserves the preference and its world-insight motivation.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "They like anything featuring Melissa McCarthy, describing her as funny and a great comedic actress.",
+            "reason": "Preserves the breadth of the preference and its comedic basis.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "The user likes all movies and named no disliked genres or titles, twice clarifying their broad enjoyment.",
+            "reason": "Faithfully paraphrases the user's two statements of broad enjoyment without inventing dislikes.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      },
+      {
+        "brief": "The user particularly enjoys comedies because they make them laugh and take their mind off their troubles. They also enjoy foreign films because they find them interesting and like seeing what is happening elsewhere in the world; they explicitly confirmed the assistant’s summary of these motivations. They say they like anything featuring Melissa McCarthy, describing her as funny and a great comedic actress. Their tastes are broad: when asked about disliked movie types and then specific disliked titles, they twice clarified that they like all movies. No specific film titles, preferred countries or languages, or narrower comedy preferences were provided.",
+        "episode_id": "CCPE-32062",
+        "dataset": "ccpe",
+        "arm": "provenance",
+        "judge_label": "C",
+        "word_count": 100,
+        "cost": {
+          "input_tokens": 13441,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 128,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user particularly enjoys comedies because they make them laugh and take their mind off their troubles.",
+            "reason": "Preserves enjoyment, laughter, and relief from troubles.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "They also enjoy foreign films because they find them interesting and like seeing what is happening elsewhere in the world",
+            "reason": "Preserves the preference and its world-insight motivation.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "They say they like anything featuring Melissa McCarthy, describing her as funny and a great comedic actress.",
+            "reason": "Preserves the breadth of the preference and its comedic basis.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "Their tastes are broad: when asked about disliked movie types and then specific disliked titles, they twice clarified that they like all movies.",
+            "reason": "Preserves both dislike-question contexts and the user's reported enjoyment of all movies.",
+            "quote_valid": true
+          }
+        ],
+        "issues": [
+          {
+            "kind": "uncertain_issue",
+            "source_turn_id": 8,
+            "source_quote": "I like anything with Melissa McCarthy in it.",
+            "response_quote": "No specific film titles, preferred countries or languages, or narrower comedy preferences were provided.",
+            "reason": "The absence of 'narrower comedy preferences' is ambiguous: the actor preference could count as one. If this means comedy subgenres or styles, the statement is supported.",
+            "quote_valid": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "case": {
+      "id": "CCPE-2b2f6",
+      "dataset": "ccpe",
+      "messages": [
+        {
+          "turn_id": 0,
+          "role": "assistant",
+          "content": "What kind of movies do you like, and why do you like this type of movie?"
+        },
+        {
+          "turn_id": 1,
+          "role": "user",
+          "content": "I like comedy cuz I like to laugh a lot and have fun."
+        },
+        {
+          "turn_id": 2,
+          "role": "assistant",
+          "content": "Can you name a particular movie that you like?"
+        },
+        {
+          "turn_id": 3,
+          "role": "user",
+          "content": "Oh my gosh."
+        },
+        {
+          "turn_id": 4,
+          "role": "user",
+          "content": "methinks"
+        },
+        {
+          "turn_id": 5,
+          "role": "user",
+          "content": "The Spy Who Dumped Me"
+        },
+        {
+          "turn_id": 6,
+          "role": "user",
+          "content": "Deadpool, Game Night"
+        },
+        {
+          "turn_id": 7,
+          "role": "assistant",
+          "content": "Can you give me a couple of reasons why you like this movie?"
+        },
+        {
+          "turn_id": 8,
+          "role": "user",
+          "content": "Well, Crazy Rich Asians had like a romantic vibe to it and made me laugh."
+        },
+        {
+          "turn_id": 9,
+          "role": "assistant",
+          "content": "Can you name a movie that you do not like?"
+        },
+        {
+          "turn_id": 10,
+          "role": "user",
+          "content": "No."
+        },
+        {
+          "turn_id": 11,
+          "role": "assistant",
+          "content": "Not even one?"
+        },
+        {
+          "turn_id": 12,
+          "role": "user",
+          "content": "I can't think of one."
+        },
+        {
+          "turn_id": 13,
+          "role": "user",
+          "content": "Maybe Juno? It's been that long"
+        },
+        {
+          "turn_id": 14,
+          "role": "assistant",
+          "content": "ok. what 2 things did you dislike about Juno"
+        },
+        {
+          "turn_id": 15,
+          "role": "user",
+          "content": "I guess it's the storyline and I thought it was more dumb than than funny."
+        },
+        {
+          "turn_id": 16,
+          "role": "assistant",
+          "content": "Do you like the movie Jurassic World ?"
+        },
+        {
+          "turn_id": 17,
+          "role": "user",
+          "content": "Yes."
+        },
+        {
+          "turn_id": 18,
+          "role": "assistant",
+          "content": "Can you give me a couple of reasons why you like this movie?"
+        },
+        {
+          "turn_id": 19,
+          "role": "user",
+          "content": "I like the suspense."
+        },
+        {
+          "turn_id": 20,
+          "role": "assistant",
+          "content": "Do you like the movie Mad Max: Fury Road ?"
+        },
+        {
+          "turn_id": 21,
+          "role": "user",
+          "content": "I don't recall seeing that one."
+        },
+        {
+          "turn_id": 22,
+          "role": "assistant",
+          "content": "Have you heard of this movie?"
+        },
+        {
+          "turn_id": 23,
+          "role": "user",
+          "content": "No."
+        },
+        {
+          "turn_id": 24,
+          "role": "assistant",
+          "content": "Do you like the movie Avengers: Infinity War ?"
+        },
+        {
+          "turn_id": 25,
+          "role": "user",
+          "content": "It was all right. I don't think I saw the whole thing."
+        },
+        {
+          "turn_id": 26,
+          "role": "assistant",
+          "content": "What do you like about this movie? 2 reasons please"
+        },
+        {
+          "turn_id": 27,
+          "role": "user",
+          "content": "All the characters"
+        },
+        {
+          "turn_id": 28,
+          "role": "user",
+          "content": "I guess I liked Loki."
+        },
+        {
+          "turn_id": 29,
+          "role": "assistant",
+          "content": "please give me one more reason"
+        },
+        {
+          "turn_id": 30,
+          "role": "user",
+          "content": "Well it was fantasy. I like the fantasy element."
+        },
+        {
+          "turn_id": 31,
+          "role": "assistant",
+          "content": "Do you like the movie Doctor Strange ?"
+        },
+        {
+          "turn_id": 32,
+          "role": "user",
+          "content": "No."
+        },
+        {
+          "turn_id": 33,
+          "role": "assistant",
+          "content": "Why do you dislike this movie? 2 reasons please"
+        },
+        {
+          "turn_id": 34,
+          "role": "user",
+          "content": "I didn't see it, and I don't recall it."
+        },
+        {
+          "turn_id": 35,
+          "role": "assistant",
+          "content": "Have you heard of this movie?"
+        },
+        {
+          "turn_id": 36,
+          "role": "user",
+          "content": "No."
+        },
+        {
+          "turn_id": 37,
+          "role": "assistant",
+          "content": "Do you like the movie Ocean's Eight ?"
+        },
+        {
+          "turn_id": 38,
+          "role": "user",
+          "content": "Yes."
+        },
+        {
+          "turn_id": 39,
+          "role": "user",
+          "content": "It came out last year."
+        },
+        {
+          "turn_id": 40,
+          "role": "assistant",
+          "content": "What do you like about this movie? 2 reasons please"
+        },
+        {
+          "turn_id": 41,
+          "role": "user",
+          "content": "It's a Christian movie, and it's clean."
+        },
+        {
+          "turn_id": 42,
+          "role": "assistant",
+          "content": "Thank you for your feedback. Enjoy your evening."
+        }
+      ],
+      "checkpoints": [
+        {
+          "id": "C1",
+          "claim": "Likes comedy and names The Spy Who Dumped Me, Deadpool and Game Night",
+          "source": [
+            {
+              "turn_id": 1,
+              "role": "user",
+              "quote": "I like comedy cuz I like to laugh a lot and have fun."
+            },
+            {
+              "turn_id": 5,
+              "role": "user",
+              "quote": "The Spy Who Dumped Me"
+            },
+            {
+              "turn_id": 6,
+              "role": "user",
+              "quote": "Deadpool, Game Night"
+            }
+          ]
+        },
+        {
+          "id": "C2",
+          "claim": "Tentatively recalls disliking Juno for its storyline and being dumb rather than funny",
+          "source": [
+            {
+              "turn_id": 12,
+              "role": "user",
+              "quote": "I can't think of one."
+            },
+            {
+              "turn_id": 13,
+              "role": "user",
+              "quote": "Maybe Juno? It's been that long"
+            },
+            {
+              "turn_id": 15,
+              "role": "user",
+              "quote": "I guess it's the storyline and I thought it was more dumb than than funny."
+            }
+          ]
+        },
+        {
+          "id": "C3",
+          "claim": "Likes Jurassic World for suspense",
+          "source": [
+            {
+              "turn_id": 16,
+              "role": "assistant",
+              "quote": "Do you like the movie Jurassic World ?"
+            },
+            {
+              "turn_id": 17,
+              "role": "user",
+              "quote": "Yes."
+            },
+            {
+              "turn_id": 19,
+              "role": "user",
+              "quote": "I like the suspense."
+            }
+          ]
+        },
+        {
+          "id": "C4",
+          "claim": "Avengers: Infinity War was only all right and perhaps not fully watched; liked characters, Loki and fantasy",
+          "source": [
+            {
+              "turn_id": 24,
+              "role": "assistant",
+              "quote": "Do you like the movie Avengers: Infinity War ?"
+            },
+            {
+              "turn_id": 25,
+              "role": "user",
+              "quote": "It was all right. I don't think I saw the whole thing."
+            },
+            {
+              "turn_id": 27,
+              "role": "user",
+              "quote": "All the characters"
+            },
+            {
+              "turn_id": 28,
+              "role": "user",
+              "quote": "I guess I liked Loki."
+            },
+            {
+              "turn_id": 30,
+              "role": "user",
+              "quote": "Well it was fantasy. I like the fantasy element."
+            }
+          ]
+        },
+        {
+          "id": "C5",
+          "claim": "Doctor Strange was not seen or known; initial 'No' does not establish an informed dislike",
+          "source": [
+            {
+              "turn_id": 31,
+              "role": "assistant",
+              "quote": "Do you like the movie Doctor Strange ?"
+            },
+            {
+              "turn_id": 32,
+              "role": "user",
+              "quote": "No."
+            },
+            {
+              "turn_id": 34,
+              "role": "user",
+              "quote": "I didn't see it, and I don't recall it."
+            },
+            {
+              "turn_id": 36,
+              "role": "user",
+              "quote": "No."
+            }
+          ]
+        }
+      ],
+      "judge_order": [
+        "ordinary_review",
+        "ordinary",
+        "provenance"
+      ]
+    },
+    "preselected_review": false,
+    "outputs": [
+      {
+        "brief": "The user enjoys comedy because they like laughing and having fun. They named The Spy Who Dumped Me, Deadpool, and Game Night as movies they like. They also liked Crazy Rich Asians for its romantic vibe and humor.\n\nThey initially could not think of a disliked movie, then tentatively suggested Juno, noting that it had been a long time. They cited its storyline and thought it was more dumb than funny.\n\nOther reactions:\n- Jurassic World: Liked the suspense.\n- Avengers: Infinity War: Thought it was “all right” and does not think they saw the whole film. Liked the characters, tentatively singled out Loki, and enjoyed the fantasy element.\n- Mad Max: Fury Road: Does not recall seeing it and said they had not heard of it. No evaluative preference was established.\n- Doctor Strange: Initially answered “No” when asked whether they liked it, but clarified that they had not seen it, did not recall it, and had not heard of it. This should not be recorded as dislike.\n- Ocean’s Eight: Said they liked it, that it came out “last year,” and described it as “a Christian movie” and “clean.” Preserve these as the user’s descriptions, not verified facts about the film; the intended film was not clarified.",
+        "episode_id": "CCPE-2b2f6",
+        "dataset": "ccpe",
+        "arm": "ordinary_review",
+        "judge_label": "A",
+        "word_count": 209,
+        "cost": {
+          "input_tokens": 28638,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 568,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user enjoys comedy because they like laughing and having fun. They named The Spy Who Dumped Me, Deadpool, and Game Night as movies they like.",
+            "reason": "Preserves the comedy preference, motivation, and all three titles.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "They initially could not think of a disliked movie, then tentatively suggested Juno, noting that it had been a long time. They cited its storyline and thought it was more dumb than funny.",
+            "reason": "Preserves the tentative recollection and both reasons.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "Jurassic World: Liked the suspense.",
+            "reason": "Preserves the positive reaction and its reason.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "Avengers: Infinity War: Thought it was “all right” and does not think they saw the whole film. Liked the characters, tentatively singled out Loki, and enjoyed the fantasy element.",
+            "reason": "Preserves the qualified evaluation, viewing uncertainty, and liked elements.",
+            "quote_valid": true
+          },
+          {
+            "id": "C5",
+            "status": "covered",
+            "response_quote": "Doctor Strange: Initially answered “No” when asked whether they liked it, but clarified that they had not seen it, did not recall it, and had not heard of it. This should not be recorded as dislike.",
+            "reason": "Preserves unfamiliarity and correctly avoids interpreting the initial answer as informed dislike.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      },
+      {
+        "brief": "The user primarily enjoys comedy because they like laughing and having fun. They named The Spy Who Dumped Me, Deadpool, and Game Night as movies they like. They also enjoyed Crazy Rich Asians for its romantic vibe and humor.\n\nThey initially could not think of a disliked movie, then tentatively suggested Juno, noting that it had been a long time. They disliked its storyline and remembered it as more dumb than funny.\n\nOther reactions:\n- Jurassic World: Liked it for the suspense.\n- Avengers: Infinity War: Thought it was “all right” and does not think they watched the whole film. Liked the characters, tentatively singled out Loki, and enjoyed the fantasy element.\n- Mad Max: Fury Road: Does not recall seeing it and said they had not heard of it; no evaluative preference established.\n- Doctor Strange: Initially answered “No” when asked whether they liked it, but clarified that they had not seen it, did not recall it, and had not heard of it. This should not be treated as dislike.\n- Ocean’s Eight: Said they liked it, that it came out “last year,” and described it as “a Christian movie” and “clean.” These are the user’s statements; the intended film and its identification remain unclarified.",
+        "episode_id": "CCPE-2b2f6",
+        "dataset": "ccpe",
+        "arm": "ordinary",
+        "judge_label": "B",
+        "word_count": 206,
+        "cost": {
+          "input_tokens": 14163,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 283,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user primarily enjoys comedy because they like laughing and having fun. They named The Spy Who Dumped Me, Deadpool, and Game Night as movies they like.",
+            "reason": "Preserves the comedy preference, motivation, and all three titles; the added priority implication is assessed separately.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "They initially could not think of a disliked movie, then tentatively suggested Juno, noting that it had been a long time. They disliked its storyline and remembered it as more dumb than funny.",
+            "reason": "The surrounding qualification preserves the tentative recollection and both reasons.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "Jurassic World: Liked it for the suspense.",
+            "reason": "Preserves the preference and its reason.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "Avengers: Infinity War: Thought it was “all right” and does not think they watched the whole film. Liked the characters, tentatively singled out Loki, and enjoyed the fantasy element.",
+            "reason": "Preserves the qualified evaluation, viewing uncertainty, and liked elements.",
+            "quote_valid": true
+          },
+          {
+            "id": "C5",
+            "status": "covered",
+            "response_quote": "Doctor Strange: Initially answered “No” when asked whether they liked it, but clarified that they had not seen it, did not recall it, and had not heard of it. This should not be treated as dislike.",
+            "reason": "Preserves unfamiliarity and the distinction from informed dislike.",
+            "quote_valid": true
+          }
+        ],
+        "issues": [
+          {
+            "kind": "uncertain_issue",
+            "source_turn_id": 1,
+            "source_quote": "I like comedy cuz I like to laugh a lot and have fun.",
+            "response_quote": "The user primarily enjoys comedy",
+            "reason": "“Primarily” may imply a ranking above other genres that the user did not explicitly establish, though it can also reasonably summarize the interview's emphasis.",
+            "quote_valid": true
+          }
+        ]
+      },
+      {
+        "brief": "The user enjoys comedy because they like laughing and having fun. They named The Spy Who Dumped Me, Deadpool, and Game Night as movies they like, and said Crazy Rich Asians appealed to them for its romantic vibe and humor.\n\nThey initially could not think of a disliked movie, then tentatively named Juno, noting that it had been a long time. They attributed their dislike to the storyline and finding it more dumb than funny; treat this as a qualified recollection.\n\nWhen asked about specific titles, the user confirmed liking Jurassic World for its suspense. They described Avengers: Infinity War as “all right” and were unsure they had watched the whole film. They liked the characters, tentatively singled out Loki, and explicitly enjoyed the fantasy element.\n\nThey did not recall seeing Mad Max: Fury Road and said they had not heard of it. Although they initially answered “No” when asked whether they liked Doctor Strange, they clarified that they had not seen it and had not heard of it. This does not establish dislike.\n\nThe user confirmed liking Ocean’s Eight, said it had come out “last year,” and described their reasons as “It’s a Christian movie, and it’s clean.” These are the user’s statements, but the intended film and those descriptions were not clarified. Preserve the possible title confusion rather than treating the descriptions as verified facts or inferring a general requirement for Christian or clean movies.",
+        "episode_id": "CCPE-2b2f6",
+        "dataset": "ccpe",
+        "arm": "provenance",
+        "judge_label": "C",
+        "word_count": 237,
+        "cost": {
+          "input_tokens": 14279,
+          "cached_input_tokens": 9984,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 305,
+          "reasoning_output_tokens": 0
+        },
+        "checkpoints": [
+          {
+            "id": "C1",
+            "status": "covered",
+            "response_quote": "The user enjoys comedy because they like laughing and having fun. They named The Spy Who Dumped Me, Deadpool, and Game Night as movies they like",
+            "reason": "Preserves the comedy preference, motivation, and all three titles.",
+            "quote_valid": true
+          },
+          {
+            "id": "C2",
+            "status": "covered",
+            "response_quote": "They initially could not think of a disliked movie, then tentatively named Juno, noting that it had been a long time. They attributed their dislike to the storyline and finding it more dumb than funny; treat this as a qualified recollection.",
+            "reason": "Preserves the tentative recollection and both reasons.",
+            "quote_valid": true
+          },
+          {
+            "id": "C3",
+            "status": "covered",
+            "response_quote": "the user confirmed liking Jurassic World for its suspense.",
+            "reason": "Preserves the preference and its reason.",
+            "quote_valid": true
+          },
+          {
+            "id": "C4",
+            "status": "covered",
+            "response_quote": "They described Avengers: Infinity War as “all right” and were unsure they had watched the whole film. They liked the characters, tentatively singled out Loki, and explicitly enjoyed the fantasy element.",
+            "reason": "Preserves the qualified evaluation, viewing uncertainty, and liked elements.",
+            "quote_valid": true
+          },
+          {
+            "id": "C5",
+            "status": "covered",
+            "response_quote": "Although they initially answered “No” when asked whether they liked Doctor Strange, they clarified that they had not seen it and had not heard of it. This does not establish dislike.",
+            "reason": "Preserves the substantive unfamiliarity and correctly distinguishes it from dislike.",
+            "quote_valid": true
+          }
+        ],
+        "issues": []
+      }
+    ]
+  }
+]

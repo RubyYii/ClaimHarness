@@ -1,0 +1,10 @@
+{
+  "executable": "C:\\Users\\15810\\AppData\\Local\\OpenAI\\Codex\\bin\\a51e250fa15c740a\\codex.exe",
+  "sha256": "fcd5eafefb4ff4a607f244e099e0974f66e17966b6ffda6948de2ef3a7a79530",
+  "requested_model": "gpt-6-astra",
+  "effort": "low",
+  "version": "codex-cli 0.159.2",
+  "workers": 8,
+  "pid": 40820,
+  "started_utc": "2026-10-02T12:44:07.160455+00:00"
+}

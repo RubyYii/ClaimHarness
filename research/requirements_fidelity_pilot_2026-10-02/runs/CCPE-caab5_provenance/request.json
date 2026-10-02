@@ -1,0 +1,24 @@
+{
+  "id": "CCPE-caab5_provenance",
+  "case_id": "CCPE-caab5",
+  "dataset": "ccpe",
+  "stage": "provenance",
+  "status": "completed",
+  "started_utc": "2026-10-02T12:44:26.638284+00:00",
+  "requested_model": "gpt-6-astra",
+  "effort": "low",
+  "prompt_sha256": "c5de0f80ca6913a0c45b630c226cc4fefa2bd4b11bf7832d551329e4a6cf2447",
+  "predecessors": {},
+  "returncode": 0,
+  "session_id": "01a0fca4-feea-7ec3-bee8-919caa68f99a",
+  "usage": {
+    "input_tokens": 13653,
+    "cached_input_tokens": 0,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 229,
+    "reasoning_output_tokens": 0
+  },
+  "response_sha256": "c6325d4b37a3d813bd1d7aa6f0bf8e4f538d255861142800c4219d496cb76637",
+  "finished_utc": "2026-10-02T12:44:39.103796+00:00",
+  "elapsed_seconds": 12.469
+}

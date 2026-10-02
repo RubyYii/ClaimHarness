@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"01a0fca5-c513-7570-a677-f921a3a4da39"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"brief\":\"The user wants a five-page summary of a 50-page academic paper in a text file. They have no specific aspects or key points they want emphasized. The paper’s subject is unknown, and the file or its contents have not yet been supplied.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":13080,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":64,"reasoning_output_tokens":0}}

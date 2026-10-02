@@ -1,0 +1,26 @@
+{
+  "id": "CCPE-ebc61_ordinary_review",
+  "case_id": "CCPE-ebc61",
+  "dataset": "ccpe",
+  "stage": "ordinary_review",
+  "status": "completed",
+  "started_utc": "2026-10-02T12:44:56.335651+00:00",
+  "requested_model": "gpt-6-astra",
+  "effort": "low",
+  "prompt_sha256": "8d62502147ed44140e0826b515cabf82971fef0883dad66751c288fd94e0d0a8",
+  "predecessors": {
+    "ordinary": "f151e4c489b89813af13989c8e5052751ac606b6eae3a6ebcd864aa0994d4b67"
+  },
+  "returncode": 0,
+  "session_id": "01a0fca5-72f0-7ee1-bf79-b1820ca31774",
+  "usage": {
+    "input_tokens": 13647,
+    "cached_input_tokens": 9984,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 144,
+    "reasoning_output_tokens": 0
+  },
+  "response_sha256": "294bc1707d208187f189f1549673d8dbb139a9f308d38ce403d7d3270da127e8",
+  "finished_utc": "2026-10-02T12:45:09.019646+00:00",
+  "elapsed_seconds": 12.688
+}

@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"01a0fca5-505f-7aa0-84fd-798cbcd31175"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"brief\":\"The user wants news about new smartphone model releases, specifically Apple’s high-end flagship phones. They explicitly selected model releases, Apple, and the flagship tier in response to the assistant’s clarifying questions. The release timeframe and desired level of detail remain unspecified; no model information has been provided yet.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":13080,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":73,"reasoning_output_tokens":0}}

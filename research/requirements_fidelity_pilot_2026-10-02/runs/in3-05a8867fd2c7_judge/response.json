@@ -1,0 +1,89 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "an estimate of the average cost of living in New York City",
+        "reason": "Preserves the requested measure and city."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "assuming a one-bedroom apartment",
+        "reason": "Preserves the selected housing type."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "with no neighborhood preference",
+        "reason": "Preserves the absence of neighborhood restrictions."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "Include housing, utilities, groceries, transportation, and entertainment.",
+        "reason": "Includes all four requested nonhousing expense categories."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "the average cost of living in New York City",
+        "reason": "Preserves the requested measure and city."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "including a one-bedroom apartment",
+        "reason": "Preserves the selected housing type."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "with no neighborhood preference",
+        "reason": "Preserves the absence of neighborhood restrictions."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "the estimate should also include utilities, groceries, transportation, and entertainment, rather than rent alone",
+        "reason": "Preserves all requested expense categories and the user's confirmation of the broader scope."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "an estimate of the average cost of living in New York City",
+        "reason": "Preserves the requested measure and city."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "including rent for a one-bedroom apartment",
+        "reason": "Preserves the selected housing type; rent is consistent with the accepted apartment-cost framing."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They have no neighborhood preference.",
+        "reason": "Preserves the absence of neighborhood restrictions."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "utilities, groceries, transportation, and entertainment",
+        "reason": "Includes all four requested nonhousing expense categories."
+      }
+    ],
+    "issues": []
+  }
+}

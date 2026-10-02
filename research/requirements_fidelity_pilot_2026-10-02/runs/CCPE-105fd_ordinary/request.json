@@ -1,0 +1,24 @@
+{
+  "id": "CCPE-105fd_ordinary",
+  "case_id": "CCPE-105fd",
+  "dataset": "ccpe",
+  "stage": "ordinary",
+  "status": "completed",
+  "started_utc": "2026-10-02T12:44:14.038872+00:00",
+  "requested_model": "gpt-6-astra",
+  "effort": "low",
+  "prompt_sha256": "1a59939afd1f707f1ae1158315c6ec2f06d949bba1c162b81ea11179a45305ba",
+  "predecessors": {},
+  "returncode": 0,
+  "session_id": "01a0fca4-cdae-7692-b515-464a96e07d98",
+  "usage": {
+    "input_tokens": 13693,
+    "cached_input_tokens": 9984,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 228,
+    "reasoning_output_tokens": 0
+  },
+  "response_sha256": "4883e64c20cfad14cd868f2797030139bb7adb064d993aa1fdce29bfd6672abd",
+  "finished_utc": "2026-10-02T12:44:26.637283+00:00",
+  "elapsed_seconds": 12.594
+}

@@ -1,0 +1,107 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user especially enjoys thrillers; Zodiac is one of their favorite films. They find serial killers interesting and appreciate the film’s depth, immersive period setting, and detailed portrayal of detectives, police, and investigators.",
+        "reason": "Preserves the genre preference, favored film, and appreciation of immersion and investigative detail."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They have heard of Once Upon a Deadpool but have not seen it and are not particularly interested. However, they really wanted to see Deadpool and would be more willing to watch it than most comic book films because its concept seems distinctive and more comedic than a standard superhero movie.",
+        "reason": "Preserves viewing status, limited interest, and the qualified exception for Deadpool's distinctive comedy."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They are not big fans of action films such as Die Hard or the Rambo movies: they do not hate them, but find them boring and get tired of watching many.",
+        "reason": "Retains the distinction between limited enjoyment and hatred, as well as boredom and fatigue."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They say they are not picky about actors, prefer some over others, and have no single favorite.",
+        "reason": "Preserves relative actor preferences without assigning a favorite."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "Asked for their favorite Tom Hanks film, they chose Catch Me If You Can. They find it exciting and value its interesting story, its basis in a true story, and Leonardo DiCaprio, whom they consider a good actor.",
+        "reason": "Preserves the film choice and the user's stated reasons, including its reported true-story basis and DiCaprio."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user especially enjoys thrillers; Zodiac is one of their favorite films. They find serial killers interesting and appreciate the film’s depth, immersive period setting, and portrayal of detectives, police, and investigators.",
+        "reason": "Preserves the thriller preference and appreciation of Zodiac's immersive investigative depth."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They enjoy comedy but generally have little interest in comic book movies. They have heard of Once Upon a Deadpool but have not seen it and are not particularly interested. However, they really wanted to see Deadpool and are more open to it than most comic book films because it seems like a distinctive concept, with more comedy than a standard superhero movie.",
+        "reason": "Retains viewing status, general disinterest, and comparative openness to Deadpool for its distinctive comedy."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They are not big fans of action films such as Die Hard or the Rambo movies. They do not hate them, but find them boring and tire of watching many.",
+        "reason": "Preserves dislike's limited scope and the explicit qualification that they do not hate action films."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They say they are not picky about actors, prefer some over others, and have no single favorite.",
+        "reason": "Retains both relative preferences and the absence of a favorite actor."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "Asked for their favorite Tom Hanks film, they chose Catch Me If You Can. They find it exciting and appreciate its interesting story, its basis in a true story, and Leonardo DiCaprio, whom they consider a good actor.",
+        "reason": "Preserves the choice and stated appreciation of the story, its reported factual basis, and DiCaprio."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user particularly likes thrillers, with Zodiac among their favorite films. They find serial killers interesting and appreciate the film’s depth, immersive period setting, and detailed look at detectives, police, and investigators.",
+        "reason": "Preserves the thriller preference, favored film, and immersive investigative detail."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They generally do not like comic-book movies much. They have heard of Once Upon a Deadpool but have not seen it and are not particularly interested. However, they said they really wanted to see Deadpool and would probably be more willing to watch it than most comic-book films: its concept seems different from standard superhero fare, and its comedic emphasis appeals to them.",
+        "reason": "Retains the viewing status, limited general interest, and qualified willingness based on Deadpool's distinctive concept and comedy."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They are not big fans of action movies such as Die Hard or Rambo: they do not hate them, but find them boring and tire of watching many.",
+        "reason": "Preserves boredom and fatigue without escalating them to hatred."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They say they are not picky about actors, prefer some over others, and have no single favorite.",
+        "reason": "Preserves relative actor preferences and the lack of a favorite."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "Asked for their favorite Hanks movie, they chose Catch Me If You Can, praising its interesting, true-story basis and Leonardo DiCaprio, whom they consider a good actor.",
+        "reason": "Preserves the film choice and the user's stated reasons, including the reported true-story basis and DiCaprio."
+      }
+    ],
+    "issues": []
+  }
+}

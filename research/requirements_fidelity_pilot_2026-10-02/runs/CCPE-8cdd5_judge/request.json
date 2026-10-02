@@ -1,0 +1,28 @@
+{
+  "id": "CCPE-8cdd5_judge",
+  "case_id": "CCPE-8cdd5",
+  "dataset": "ccpe",
+  "stage": "judge",
+  "status": "completed",
+  "started_utc": "2026-10-02T12:46:16.810949+00:00",
+  "requested_model": "gpt-6-astra",
+  "effort": "low",
+  "prompt_sha256": "3d4bf8dbe6e565842def893b04305288740e2494adbfc697da2bd1c8ab16e565",
+  "predecessors": {
+    "ordinary": "4f8617d186b75d8784126849060e389e6a2ed50570e4e1980a7b6ffc7dbefced",
+    "provenance": "1f354c56e6f8523c37f430cb324b1dbae980a93caf6834c2d5370c4e19c2f1c9",
+    "ordinary_review": "fda5e5a1de07c908e056c87c39de888446d6f62ea14e6ab2833d099fd74f3e98"
+  },
+  "returncode": 0,
+  "session_id": "01a0fca6-ad70-79a1-94d7-d06dd4c6cd73",
+  "usage": {
+    "input_tokens": 15211,
+    "cached_input_tokens": 0,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 1045,
+    "reasoning_output_tokens": 0
+  },
+  "response_sha256": "17bb6b20d7f663302d036d2252ceda37779afb8d067f0c9a750a13f0021964b1",
+  "finished_utc": "2026-10-02T12:47:03.030441+00:00",
+  "elapsed_seconds": 46.219
+}

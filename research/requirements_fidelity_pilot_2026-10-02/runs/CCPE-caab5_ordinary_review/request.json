@@ -1,0 +1,26 @@
+{
+  "id": "CCPE-caab5_ordinary_review",
+  "case_id": "CCPE-caab5",
+  "dataset": "ccpe",
+  "stage": "ordinary_review",
+  "status": "completed",
+  "started_utc": "2026-10-02T12:44:59.057395+00:00",
+  "requested_model": "gpt-6-astra",
+  "effort": "low",
+  "prompt_sha256": "fe216a8dfb204e34d669373a3c3384aea0e98d377a595d9d0fccdc695d432d8a",
+  "predecessors": {
+    "ordinary": "a863e60ea8e3cddd490890bec77d2ff0025995e91264dea20df4ee3c711cfb09"
+  },
+  "returncode": 0,
+  "session_id": "01a0fca5-7d84-7401-9a66-3335cb7e82d8",
+  "usage": {
+    "input_tokens": 13778,
+    "cached_input_tokens": 9984,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 204,
+    "reasoning_output_tokens": 0
+  },
+  "response_sha256": "15d9d8dd4a42fed609477f3e13e5e892054a89e548896375b6170ae29bb17f82",
+  "finished_utc": "2026-10-02T12:45:11.110440+00:00",
+  "elapsed_seconds": 12.047
+}

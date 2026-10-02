@@ -1,0 +1,28 @@
+{
+  "id": "in3-1246d89081ad_judge",
+  "case_id": "in3-1246d89081ad",
+  "dataset": "in3",
+  "stage": "judge",
+  "status": "completed",
+  "started_utc": "2026-10-02T12:47:03.036443+00:00",
+  "requested_model": "gpt-6-astra",
+  "effort": "low",
+  "prompt_sha256": "61d97e1ba447a41958bb46c1b1f8dfb47a42fcc77c3f7bc3e2c7576f0ea07431",
+  "predecessors": {
+    "ordinary": "7fa01d77cbc329d50b9db9238d8bb379170229f11166aff011478010769186ec",
+    "provenance": "0dd852b28e710294b614238008db632434061290fe8933624c6d6ab8853fbb62",
+    "ordinary_review": "7fa01d77cbc329d50b9db9238d8bb379170229f11166aff011478010769186ec"
+  },
+  "returncode": 0,
+  "session_id": "01a0fca7-6204-7ae2-9e0c-e3f7e48ce826",
+  "usage": {
+    "input_tokens": 13651,
+    "cached_input_tokens": 0,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 369,
+    "reasoning_output_tokens": 0
+  },
+  "response_sha256": "0883e94d1e3aabf1376117d97c7213171db3e5b0aa14f8d251456ec14bb9c48e",
+  "finished_utc": "2026-10-02T12:47:21.488535+00:00",
+  "elapsed_seconds": 18.454
+}

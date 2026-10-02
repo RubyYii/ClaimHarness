@@ -1,0 +1,34 @@
+{
+  "snapshot_from_git_index": true,
+  "published_files_verified_byte_exact": 698,
+  "published_bytes": 1636116,
+  "verifier_result": {
+    "verified_calls": 96,
+    "distinct_sessions": 96,
+    "corrected_coverage": {
+      "ordinary": {
+        "covered": 99
+      },
+      "provenance": {
+        "covered": 99
+      },
+      "ordinary_review": {
+        "covered": 99
+      }
+    },
+    "frozen_files_verified": 10,
+    "missing_local_preservation_guards": [
+      "research/publication_2026-09-21/CLAIM.md"
+    ],
+    "historical_mock_and_pytest_not_rerun": true,
+    "published_results_unchanged": true
+  },
+  "changed_frozen_protocol_rejected": true,
+  "fresh_snapshot_has_no_unpublished_claim_or_mock_cache": true,
+  "frozen_study_files_unchanged": true,
+  "focused_tests_on_local_source": "7 passed in 0.04s",
+  "gemini_publication_review": "503 unavailable; no advisory judgment used",
+  "helper_sha256": "e8d919edddb0c079670278534a53b9f5d99c2bedf8beb488f4b214b4133e07ee",
+  "snapshot_directory": ".local\\requirements-fidelity-publish-1790946257329001700",
+  "model_calls_during_publication": 0
+}

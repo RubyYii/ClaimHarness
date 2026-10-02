@@ -1,0 +1,71 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants to learn to read piano sheet music",
+        "reason": "Preserves the requested learning task and instrument."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They describe their level as intermediate and report some experience, without further detail.",
+        "reason": "Preserves the self-reported level and limited experience description."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "with a specific focus on understanding complex rhythms",
+        "reason": "Preserves the user's chosen area for improvement."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants to learn to read piano sheet music",
+        "reason": "Preserves the requested learning task and instrument."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They describe their level as intermediate, with some experience",
+        "reason": "Preserves both parts of the user's self-description."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "specifically to better understand complex rhythms",
+        "reason": "Directly preserves the stated improvement goal."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants to learn to read piano sheet music",
+        "reason": "Preserves the requested learning task and instrument."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They describe their level as “intermediate” with “some experience,”",
+        "reason": "Accurately preserves the user's broad self-assessment without assigning it to a specific skill."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "with a specific focus on better understanding complex rhythms",
+        "reason": "Preserves the selected focus; the later discussion of unselected topics does not claim the user rejected them."
+      }
+    ],
+    "issues": []
+  }
+}

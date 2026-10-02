@@ -1,0 +1,53 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants an explanation of string theory",
+        "reason": "Preserves the requested topic and explanatory goal."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "explicitly chose a basic overview",
+        "reason": "Preserves the user's requested level of detail."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a basic overview of string theory and initially asked to search for an explanation.",
+        "reason": "Preserves both the explanatory goal and the initial search request."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They chose a basic overview over a detailed technical explanation.",
+        "reason": "Accurately captures the user's selection from the offered levels of detail."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user asked to search for an explanation of string theory",
+        "reason": "Preserves the requested search, topic and explanatory goal."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "clarified that they want a basic overview rather than a detailed technical explanation",
+        "reason": "Preserves the user's selection of a basic overview."
+      }
+    ],
+    "issues": []
+  }
+}
