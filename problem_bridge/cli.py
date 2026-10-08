@@ -185,6 +185,25 @@ def build_week_demo(
     )
 
 
+@app.command("clarify-demo")
+def clarify_demo(
+    out: Path = typer.Option(Path("outputs/clarification_demo"), help="Fresh directory for the synthetic clarification example."),
+    answer: str = typer.Option("sensors", help="Scripted answer: sensors or observations."),
+    correct_to: str | None = typer.Option(None, help="Optional explicit scripted correction: sensors or observations."),
+) -> None:
+    """Run a local clarification, task revision, handoff and executable result."""
+    from .clarification_demo import run_demo
+    try:
+        result = run_demo(out, answer=answer, correct_to=correct_to)
+    except (ValueError, OSError) as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    console.print("[green]Synthetic clarification demo complete.[/green]")
+    console.print("No model calls or real participants; not an empirical comparison.")
+    console.print(f"questions_used={result['questions_used']}")
+    console.print(f"known_requirements_passed={result['known_requirements_passed']}")
+    console.print(f"out={out}")
+
+
 @app.command("record-revision")
 def record_revision_command(
     project: Path = typer.Option(..., help="Generated project directory containing project_record.json."),

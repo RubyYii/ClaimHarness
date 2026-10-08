@@ -40,6 +40,8 @@ from .provider_status import inspect_provider_availability, probe_provider_avail
 from .report_generator import write_outputs
 from .report_viewer import MissingAuditOutput, render_report_viewer
 from .run_records import (
+    AUDIT_SNAPSHOT_NAME,
+    capture_audit_snapshot,
     MANIFEST_NAME,
     SUMMARY_LOG_NAME,
     capture_input_records,
@@ -52,6 +54,7 @@ app = typer.Typer(help="ClaimHarness command-line interface.")
 console = Console(width=1000)
 
 CORE_OUTPUTS = (
+    AUDIT_SNAPSHOT_NAME,
     "claim_table.csv",
     "evidence_map.json",
     "audit_report.md",
@@ -433,6 +436,8 @@ def _run_audit_locked(
             encoding="utf-8",
         )
 
+    input_records = input_records or capture_input_records(manuscript, tables, references, evidence_contract)
+    audit_snapshot = capture_audit_snapshot(manuscript, tables, references, input_records, __version__)
     manuscript_sections = load_manuscript(manuscript)
     loaded_tables = load_tables(tables)
     reference_text = load_references(references) if references is not None else ""
@@ -540,6 +545,9 @@ def _run_audit_locked(
         "Finalized deterministic audit package",
         {"provider_status": provider_status},
     )
+    if capture_input_records(manuscript, tables, references, evidence_contract) != input_records:
+        raise RuntimeError("Inputs changed during the audit; start a new run from stable inputs.")
+    (out / AUDIT_SNAPSHOT_NAME).write_text(json.dumps(audit_snapshot, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     write_run_records(
         out,
         run_id=logger.run_id,
@@ -767,6 +775,69 @@ def _provider_hash_spec(provider_config) -> dict[str, object]:
         else None
     )
     return details
+
+
+@app.command()
+def compare(
+    previous: Path = typer.Option(..., "--previous"),
+    current: Path = typer.Option(..., "--current"),
+    out: Path = typer.Option(..., "--out"),
+    same_task: bool = typer.Option(False, "--same-task", help="Confirm these are the intended same task and document lineage."),
+    mappings: Optional[Path] = typer.Option(None, "--mappings", help="JSON list with previous_ids, current_ids and reason."),
+    research_questions: bool = typer.Option(False, "--research-questions"),
+    workspace: Optional[Path] = typer.Option(None, "--workspace", help="Include version-bound annotations/handling records from this workspace."),
+) -> None:
+    """Compare complete saved audits; incomplete/legacy limitations stay explicit."""
+    from .comparison import compare_runs, export_comparison
+    try:
+        links = json.loads(mappings.read_text(encoding="utf-8")) if mappings else []
+        value = compare_runs(previous, current, same_task=same_task, mappings=links, workspace=workspace)
+        export_comparison(value, out, research=research_questions)
+        console.print(f"comparability={value['comparability']} changes={len(value['changes'])} out={out}")
+        if value["comparability"] == "blocked":
+            raise typer.Exit(code=2)
+    except (OSError, ValueError, RuntimeError) as exc:
+        typer.echo(f"Comparison error: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+
+
+@app.command("annotate")
+def annotate_command(
+    run: Path = typer.Option(..., "--run"),
+    workspace: Path = typer.Option(..., "--workspace"),
+    start: int = typer.Option(..., "--start", help="Zero-based character offset in the saved manuscript text."),
+    end: int = typer.Option(..., "--end", help="Exclusive end character offset."),
+    question: str = typer.Option(..., "--question"),
+    expected_revision: int = typer.Option(0, "--expected-revision"),
+) -> None:
+    """Add a missed source span as an unevaluated human-check item."""
+    from .handling import annotate
+    try:
+        value = annotate(workspace, run, start=start, end=end, question=question, expected_revision=expected_revision)
+        console.print(f"revision={value['revision']} status=not_evaluated")
+    except (OSError, ValueError, RuntimeError) as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+
+
+@app.command("record-action")
+def record_action_command(
+    run: Path = typer.Option(..., "--run"), workspace: Path = typer.Option(..., "--workspace"),
+    claim_id: str = typer.Option(..., "--claim-id"), note: str = typer.Option(..., "--note"),
+    layer: str = typer.Option("user_action", "--layer"), action: str = typer.Option("planned", "--action"),
+    actor: str = typer.Option("", "--actor"), source: str = typer.Option("", "--source"),
+    expected_revision: int = typer.Option(0, "--expected-revision"),
+    rerun: Optional[Path] = typer.Option(None, "--rerun"), same_task: bool = typer.Option(False, "--same-task"),
+) -> None:
+    """Record an action/opinion separately from the original program result."""
+    from .handling import record_handling
+    try:
+        value = record_handling(workspace, run, claim_id=claim_id, note=note, layer=layer, action=action,
+                                actor=actor, source=source, expected_revision=expected_revision, rerun=rerun, same_task=same_task)
+        console.print(f"revision={value['revision']} program_result=unchanged")
+    except (OSError, ValueError, RuntimeError) as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
 
 
 def main() -> None:

@@ -18,6 +18,12 @@
 
 有结果后，可按需使用 **ClaimHarness**，对照 CSV 表格核查可识别的英文数值表述。
 
+## 收到反馈或修改材料后继续
+
+在已确认说明旁选择“带回反馈继续讨论”，记录分歧、回答与更正，再由你确认新版说明。修改材料并重新核查后，可以比较两轮结果、补标遗漏表述，并分别保存程序结果、用户行动和人工意见。
+
+运行完整合成示例：`python scripts/run_continuity_demo.py --out outputs/continuity_demo`。独立使用 ClaimHarness：`python -m streamlit run apps/claim_compare.py`。[使用流程、CLI 与记录格式](docs/continuous_review.md)
+
 ## 本地运行
 
 **Windows：** [下载源码 ZIP](https://github.com/RubyYii/ClaimHarness/archive/refs/heads/main.zip)，解压后双击 `RUN_PROBLEMBRIDGE_WINDOWS.bat`。
@@ -38,9 +44,15 @@ python -m streamlit run apps/problem_bridge_wizard.py
 
 </details>
 
+## 可执行的需求澄清示例
+
+运行 `python -m problem_bridge clarify-demo --out outputs/clarification_demo --answer sensors`，查看合成需求如何经过执行预览、追问答复和任务修订，生成交接说明与 CSV 结果。加上 `--correct-to observations` 可演示用户显式修改要求。此本地示例没有模型调用或真人参与。
+
+[机制说明、输出文件与 Python API](docs/clarification_mechanism.md)
+
 ## 使用边界
 
-目前使用本地预设问题引导，由你确认专业含义；说明不会自动发送给他人或大模型。证据核查有明确范围，不能证明事实正确，也不能代替专业人员判断。
+网页界面使用本地预设问题引导，由你确认专业含义；说明不会自动发送给他人或大模型。证据核查有明确范围，不能证明事实正确，也不能代替专业人员判断。
 
 请先用公开或合成材料。不要输入真实患者数据、机密文稿或敏感未公开材料；分享项目文件夹前，请清除本地记忆。
 

@@ -8,7 +8,13 @@ from .schemas import ManuscriptSection
 
 def load_manuscript(path: str | Path) -> list[ManuscriptSection]:
     manuscript_path = Path(path)
-    lines = manuscript_path.read_text(encoding="utf-8-sig").splitlines()
+    return parse_manuscript(manuscript_path.read_text(encoding="utf-8-sig"), manuscript_path.name)
+
+
+def parse_manuscript(text: str, source_file: str) -> list[ManuscriptSection]:
+    """Use the same source positions for live input and saved comparison text."""
+    manuscript_path = Path(source_file)
+    lines = text.splitlines()
     if not any(line.strip() for line in lines):
         raise ValueError(f"Manuscript contains no text: {manuscript_path}")
 

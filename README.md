@@ -38,9 +38,21 @@ python -m streamlit run apps/problem_bridge_wizard.py
 
 </details>
 
+## Executable clarification example
+
+Run `python -m problem_bridge clarify-demo --out outputs/clarification_demo --answer sensors` to follow one synthetic need through execution previews, a clarification answer, a versioned task handoff and a CSV result. Add `--correct-to observations` to demonstrate an explicit requirement correction. No model calls or real users are involved in this local demo.
+
+[Mechanism, outputs and Python API](docs/clarification_mechanism.md)
+
+## Continue after feedback or a revision
+
+Bring collaborator/AI feedback back from a confirmed brief, discuss selected questions, and explicitly confirm the next version. After checking revised materials, compare two audit runs, annotate missed statements and keep user actions separate from program results.
+
+Run the complete synthetic example with `python scripts/run_continuity_demo.py --out outputs/continuity_demo`. ClaimHarness can also run independently: `python -m streamlit run apps/claim_compare.py`. [Workflow, comparison CLI and record formats](docs/continuous_review.md)
+
 ## Scope and privacy
 
-The questions are local, predefined guidance. You confirm domain meanings; documents are not sent automatically. Evidence checks are limited and do not establish factual correctness or replace expert review.
+The guided web interface uses local, predefined questions. You confirm domain meanings; documents are not sent automatically. Evidence checks are limited and do not establish factual correctness or replace expert review.
 
 Use public or synthetic materials. Do not upload private patient data or confidential manuscripts. Clear local memory before sharing a project folder.
 

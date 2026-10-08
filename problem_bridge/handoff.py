@@ -92,7 +92,8 @@ def build_handoffs(record: ProblemRecord) -> dict[str, str]:
         provenance = (f"\n\n---\n{t('Confirmed wording, not verified facts or recipient agreement.', '这是需求方确认的表述，不代表事实已验证或接收方已同意。')}\n\n"
                       f"Problem: {record.problem_id} · Revision: {record.revision}\n"
                       f"Framing SHA-256: {record.framing_sha256}\n")
-        common = "\n".join([*context, *concepts, pending])
+        continuation = render_continuation(record, language)
+        common = "\n".join([*context, *concepts, pending, continuation])
         result[f"collaboration_brief_{language}.md"] = (
             f"# {t('A brief for my collaborator', '给合作伙伴的需求说明')}\n\n"
             + common + "\n\n" + section("The help I am looking for", "我希望对方贡献什么", brief.collaborator)
@@ -125,3 +126,50 @@ def build_handoffs(record: ProblemRecord) -> dict[str, str]:
                 "6. 说明我怎样检查样例是否符合期望，哪些判断还需要合适的专业人员。") + provenance
         )
     return result
+
+
+def render_continuation(record: ProblemRecord, language: str) -> str:
+    if not record.continuation:
+        return ""
+    zh = language == "zh"
+    update = record.continuation["updates"][-1]
+    lines = ["## 本轮澄清与需求变化" if zh else "## Clarification and requirement changes",
+             f"Revision {update['from_revision']} → {update['to_revision']} · {update['kind']}",
+             ("用户已确认；回答与计划不构成执行证据。" if zh else "User confirmed; answers and plans are not execution evidence."),
+             update["reason"]]
+    for key, value in update["after"].items():
+        if value != update["before"].get(key):
+            lines += [f"\n{key}:\n> {update['before'].get(key, '')}\n→\n> {value}"]
+    by_id = {item["feedback_id"]: item for item in update["feedback"]}
+    for answer in update["answers"]:
+        feedback = by_id[answer["issue_id"]]
+        lines += [f"\n### {answer['issue_id']}",
+                  f"Feedback: {feedback['sender']} ({feedback['sender_kind']}); target: {feedback['target'] or 'unknown'}",
+                  "\n".join("> " + line for line in feedback["selected"].splitlines()),
+                  ("用户回答：" if zh else "User answer: ") + answer["answer"],
+                  ("所选解释：" if zh else "Selected interpretation: ") + (answer["interpretation_id"] or ("自行表述" if zh else "own wording"))]
+    lines += ["\n### 仍然开放的问题" if zh else "\n### Questions still open"]
+    lines += [f"- {q['issue_id']}: {q['question']} ({q['disposition']['status']})" for q in update["open_questions"]]
+    if not update["open_questions"]:
+        lines += ["本轮候选问题已处理，不代表需求已完全清楚。" if zh else "This round's candidate questions are handled; complete understanding is not established."]
+    lines += ["\n### 接收方下一步" if zh else "\n### Recipient's next action", update["next_action"],
+              "旧核查属于历史记录，不能作为新目标的核查结论。" if zh else update["audit_effect"]]
+    return "\n".join(lines) + "\n"
+
+
+def build_research_input(record: ProblemRecord, language: str = "zh") -> str:
+    zh = language == "zh"
+    original = record.continuation["updates"][0]["before"]["question"] if record.continuation else record.question
+    brief = record.brief or NeedBrief()
+    return "\n".join([
+        "# 研究讨论输入（由用户选择交给 AWT）" if zh else "# Research discussion input (optional user handoff to AWT)",
+        f"Problem: {record.problem_id} · Revision: {record.revision} · SHA-256: {record.framing_sha256}",
+        "\nOriginal question / 原始问题:\n" + original,
+        "\nCurrent goal / 当前目标:\n" + record.question + "\n" + record.desired_change,
+        "\nConditions / 现实条件:\n" + (brief.materials or "Unknown / 未知"),
+        "\nKey unknowns / 关键未知:\n" + "\n".join(missing_details(record, language)),
+        render_continuation(record, language),
+        "\nRequested discussion / 希望讨论: evidence conditions, unresolved choices and research planning / 证据条件、未决选择与研究规划。",
+        "These are reported needs and discussion inputs, not research evidence or a judgement of research value.",
+        "以上为用户陈述和讨论输入，不是实际研究证据或研究价值结论。", "",
+    ])
