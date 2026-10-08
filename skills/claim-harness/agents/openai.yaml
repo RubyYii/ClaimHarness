@@ -1,0 +1,4 @@
+interface:
+  display_name: "ClaimHarness"
+  short_description: "Screen claim evidence and compare saved revisions"
+  default_prompt: "Use $claim-harness to check these claims against my result tables."

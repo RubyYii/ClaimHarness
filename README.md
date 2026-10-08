@@ -18,6 +18,10 @@ Local-first · Bilingual interface · No API key needed to start
 
 When results exist, optional **ClaimHarness** checks can compare recognized English numerical statements with CSV tables.
 
+## Use in Codex or Claude Code
+
+Already use a local coding assistant? Install the two portable Skills to clarify tasks, continue after feedback and check revisions directly in chat. They call the existing Python engine without a second model API key or the web UI. [Installation, update and examples](docs/agent_skills.md).
+
 ## Run locally
 
 **Windows:** [download the source ZIP](https://github.com/RubyYii/ClaimHarness/archive/refs/heads/main.zip), unzip it, and double-click `RUN_PROBLEMBRIDGE_WINDOWS.bat`.

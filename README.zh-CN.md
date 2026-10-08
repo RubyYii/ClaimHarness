@@ -24,6 +24,10 @@
 
 运行完整合成示例：`python scripts/run_continuity_demo.py --out outputs/continuity_demo`。独立使用 ClaimHarness：`python -m streamlit run apps/claim_compare.py`。[使用流程、CLI 与记录格式](docs/continuous_review.md)
 
+## 在 Codex 或 Claude Code 中使用
+
+已有本地编程助手，可以安装 `problem-bridge` 和 `claim-harness` 两份 Skill，在聊天中澄清需求、继续处理反馈、核查并比较版本。复用现有 Python 内核，无须再配置模型 API key 或启动网页界面。[安装、更新与使用示例](docs/agent_skills.md)。
+
 ## 本地运行
 
 **Windows：** [下载源码 ZIP](https://github.com/RubyYii/ClaimHarness/archive/refs/heads/main.zip)，解压后双击 `RUN_PROBLEMBRIDGE_WINDOWS.bat`。
