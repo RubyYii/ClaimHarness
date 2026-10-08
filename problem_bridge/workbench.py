@@ -66,6 +66,7 @@ class ProblemRecord(BaseModel):
     previous: RunReference | None = None
     audit: RunReference | None = None
     responses: list[FollowUpAnswer] = Field(default_factory=list)
+    continuation: dict | None = None
 
 
 def _now() -> str:
@@ -105,11 +106,15 @@ def load_problem(root: Path, out: Path, project_id: str) -> ProblemRecord:
     record = ProblemRecord.model_validate_json(files["problem_record.json"])
     if record.project_id != project_id:
         raise ValueError("The problem belongs to another project.")
-    if record.schema_version not in (1, 2) or (record.schema_version == 1 and record.brief is not None):
+    if record.schema_version not in (1, 2, 3) or (record.schema_version == 1 and record.brief is not None):
         raise ValueError("Unsupported problem record version.")
+    if record.schema_version < 3 and record.continuation is not None:
+        raise ValueError("Legacy records cannot contain a fabricated continuation.")
     framing = {key: getattr(record, key) for key in FRAME_FIELDS}
-    if record.schema_version == 2:
+    if record.schema_version >= 2:
         framing["brief"] = record.brief.model_dump(mode="json") if record.brief else None
+    if record.schema_version == 3:
+        framing["continuation"] = record.continuation
     if record.framing_sha256 != _digest(framing):
         raise ValueError("The problem framing does not match its recorded fingerprint.")
     return record
@@ -130,7 +135,11 @@ def _allocate(root: Path, record: ProblemRecord, kind: str, *, audit: bool = Fal
 
 
 def _write_record(out: Path, record: ProblemRecord) -> None:
-    (out / "problem_record.json").write_text(_json(record.model_dump(mode="json")), encoding="utf-8")
+    payload = record.model_dump(mode="json")
+    # Keep the schema-1/2 record envelope readable by the old strict reader.
+    if record.schema_version < 3:
+        payload.pop("continuation", None)
+    (out / "problem_record.json").write_text(_json(payload), encoding="utf-8")
     labels = {
         "question": "Question / 问题", "observation": "Reported observation / 用户报告的观察",
         "observation_source": "Observation source / 观察来源", "desired_change": "Desired change / 希望改变",
@@ -161,7 +170,7 @@ def _write_follow_up(out: Path, payload: dict) -> None:
 
 def confirm_problem(root: Path, project_id: str, fields: dict[str, str], *,
                     previous: Path | None = None, interview_answers: dict[str, str] | None = None,
-                    brief: NeedBrief | None = None) -> Path:
+                    brief: NeedBrief | None = None, continuation: dict | None = None) -> Path:
     cleaned = {key: str(fields.get(key, "")).strip() for key in FRAME_FIELDS}
     if not cleaned["question"]:
         raise ValueError("Write the question you want to investigate first.")
@@ -169,12 +178,16 @@ def confirm_problem(root: Path, project_id: str, fields: dict[str, str], *,
         raise ValueError("Each problem field must contain at most 20,000 characters.")
     parent = load_problem(root, previous, project_id) if previous else None
     brief = brief if brief is not None else (parent.brief if parent else None)
+    continuation = continuation if continuation is not None else (parent.continuation if parent else None)
     framing = {**cleaned, "brief": brief.model_dump(mode="json")} if brief is not None else cleaned
+    if continuation is not None:
+        framing = {**cleaned, "brief": brief.model_dump(mode="json") if brief else None, "continuation": continuation}
     reference = _snapshot(root, previous, project_id)[1] if previous else None
     record = ProblemRecord(
         problem_id=parent.problem_id if parent else f"problem-{uuid.uuid4().hex}", project_id=project_id,
         revision=parent.revision + 1 if parent else 1, **cleaned, framing_sha256=_digest(framing),
-        schema_version=2 if brief is not None else 1, brief=brief,
+        schema_version=3 if continuation is not None else (2 if brief is not None else 1), brief=brief,
+        continuation=continuation,
         confirmed_at=_now(), previous=reference, responses=parent.responses if parent else [],
         interview_answers=interview_answers if interview_answers is not None else (parent.interview_answers if parent else {}),
     )

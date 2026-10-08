@@ -110,6 +110,7 @@ def _load_audit_package(run_dir: Path) -> dict[str, Any]:
         "project_summary": project_summary,
         "audit_diagnostics": audit_diagnostics,
         "human_review_queue": human_review_queue,
+        "audit_snapshot": json.loads(files["audit_snapshot.json"]) if "audit_snapshot.json" in files and governed else None,
         "integrity_status": (
             "Verified governed run: lifecycle identity and artifact hashes passed."
             if governed
@@ -235,6 +236,7 @@ def _render_html(payload: dict[str, Any], run_dir: Path) -> str:
             ),
             _render_high_risk_claims(high_risk_claims),
             _render_claim_table(claims, payload["evidence_map"].get("claims", [])),
+            _render_source_alignment(payload),
             _render_evidence_table(evidence),
             _render_markdown_block(
                 "Revision suggestions",
@@ -260,6 +262,20 @@ def _render_html(payload: dict[str, Any], run_dir: Path) -> str:
             "</html>",
         ]
     )
+
+
+def _render_source_alignment(payload: dict[str, Any]) -> str:
+    snapshot = payload.get("audit_snapshot")
+    if not snapshot:
+        message = "Original source snapshot unavailable in this older package; absent extractions cannot establish deleted text."
+        return _render_markdown_block("Original text / 原文对照", message, section_id="original-text", collapsible=True)
+    claims = payload["evidence_map"].get("claims", [])
+    lines = ["Extraction coverage remains unknown. Markers show extracted starting positions, not full-text coverage.",
+             "For missed-statement annotations and version comparisons, run: python -m streamlit run apps/claim_compare.py", ""]
+    for number, line in enumerate(snapshot["manuscript"]["text"].splitlines(), 1):
+        ids = [c["claim_id"] for c in claims if c.get("source_line") == number]
+        lines.append(f"{number:4d} [{', '.join(ids) or '—'}] {line}")
+    return _render_markdown_block("Original text / 原文对照", "\n".join(lines), section_id="original-text", collapsible=True)
 
 
 def _render_quick_nav(payload: dict[str, Any]) -> str:

@@ -1,0 +1,61 @@
+{
+  "base_main_commit": "9e516a2e6ab39c87bc5949c8bec0732fada97266",
+  "original_feature_commit": "46d43c07aff1e2f790ce73ef06ca491cd5f0d6ce",
+  "additional_fix": "Keep the schema-1/2 saved record field envelope unchanged unless continuation is used.",
+  "full_regression": {
+    "passed": 562,
+    "failed": 0,
+    "duration": "156.52s (0:02:36)",
+    "log_sha256": "451ff8a309aa2e8fdf78d00c99ad6aa3a334a57d647a0a561270a566e7e177d5"
+  },
+  "actual_old_main_upgrade": {
+    "baseline_commit": "9e516a2e6ab39c87bc5949c8bec0732fada97266",
+    "records": [
+      {
+        "schema": 1,
+        "old_record_loads": true,
+        "old_artifacts_byte_unchanged": true,
+        "old_follow_up_and_rerun_work": true,
+        "no_forced_schema_upgrade": true,
+        "old_comparison_limitation_explicit": true
+      },
+      {
+        "schema": 2,
+        "old_record_loads": true,
+        "old_artifacts_byte_unchanged": true,
+        "old_follow_up_and_rerun_work": true,
+        "no_forced_schema_upgrade": true,
+        "old_comparison_limitation_explicit": true
+      }
+    ],
+    "same_input_identical_core_outputs": [
+      "claim_table.csv",
+      "evidence_map.json",
+      "audit_report.md",
+      "revision_suggestions.md"
+    ],
+    "old_lab_unchanged": true,
+    "new_snapshot_additive": true,
+    "external_model_calls": 0
+  },
+  "actual_old_reader": {
+    "old_reader_commit": "9e516a2e6ab39c87bc5949c8bec0732fada97266",
+    "passed": 8,
+    "failed": [],
+    "new_audit_packages_require_updated_reader": [
+      "problem_audit-0a7249f4cdb5",
+      "problem_audit-9ac41913a6aa"
+    ]
+  },
+  "compatibility_fix_advisory": {
+    "provider": "Gemini",
+    "model": "gemini-3.5-flash",
+    "verdict": "pass",
+    "response_sha256": "f116e03b6f79b419dba98b84e67705bc83e476fc809d54ae6867e8188ee3a97d"
+  },
+  "limits": [
+    "Synthetic engineering checks only.",
+    "Older applications cannot read schema-3 feedback records or new audit packages containing audit_snapshot.json.",
+    "Upgrade checks do not prove arbitrary third-party integrations remain compatible."
+  ]
+}

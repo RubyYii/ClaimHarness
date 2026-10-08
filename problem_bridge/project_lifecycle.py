@@ -42,6 +42,7 @@ SYSTEM_OWNED_ARTIFACTS = frozenset(
         "annotation_map.json",
         "audit_diagnostics.json",
         "audit_report.md",
+        "audit_snapshot.json",
         "build_contract.json",
         "build_contract.md",
         "build_record.jsonl",

@@ -12,6 +12,12 @@ The local audit entry point `claim_harness.cli.write_local_audit` reuses the CLI
 
 Follow-up questions cite the original claim ID, status, reason and evidence locators, distinguishing conflicts, missing evidence and human review. A coverage question is always retained. Answers are separately recorded as user-reported next steps and cannot change verdicts. The UI saves only a validated run pointer alongside existing workspace memory; originals remain in the governed snapshot and are excluded from share ZIPs by default. Cross-project links, modified source snapshots and mismatched framing fingerprints fail validation.
 
+## Clarification mechanism
+
+`problem_bridge.clarification` tracks unresolved candidate interpretations, public execution comparisons, an explicit reply budget and immutable answer/correction events. Selection prefers observed task-output differences while retaining unknown effects and finite-sample agreement as unresolved. The core makes no model or execution calls. Its workbench adapter preserves original frame fields and exports the updated task through normal versioned records and handoffs; stale states and unrelated intervening edits are rejected.
+
+`problem_bridge.clarification_demo` provides one deterministic synthetic daily-summary adapter. The `clarify-demo` command produces actual preview/result tables, state snapshots, a trace, normal workbench revisions and verification artifacts. The feedback/discussion UI now reuses the clarification API, persistent version-bound journals and this bounded example adapter. These checks do not establish general semantic understanding. See [the mechanism documentation](clarification_mechanism.md) and [continuous review](continuous_review.md).
+
 ## Build Week evidence-gated build pipeline
 
 ```mermaid
