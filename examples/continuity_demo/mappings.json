@@ -1,0 +1,7 @@
+[
+  {
+    "previous_ids": ["C001"],
+    "current_ids": ["C002"],
+    "reason": "The author explicitly maps the rewritten precision statement; the numeric claim changed from 0.95 to 0.85."
+  }
+]

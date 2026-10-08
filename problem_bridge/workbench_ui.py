@@ -9,6 +9,7 @@ import streamlit as st
 
 from .handoff import ConceptNote, NeedBrief
 from .need_ui import render_handoffs, render_need_form
+from .feedback_ui import render_feedback
 from .workbench import (
     FRAME_FIELDS, answer_follow_up, audit_problem, confirm_problem, load_audit, load_problem,
 )
@@ -106,12 +107,13 @@ def render_workbench(*, root: Path, project_id: str, current_out: Path | None,
     labels = {1: text("1 · Describe your work", "1 · 说清需求"),
               4: text("2 · Take your briefs", "2 · 带走说明"),
               2: text("3 · Check results (optional)", "3 · 核查材料（可选）"),
-              3: text("4 · Follow up findings", "4 · 处理核查发现")}
+              3: text("4 · Follow up findings", "4 · 处理核查发现"),
+              5: text("Discuss feedback", "继续讨论反馈")}
     # Keep logical navigation separate from translated widget options. A fresh
     # language widget cannot deserialize a label left over from the other one.
     stage_key = text("unified_stage_en", "unified_stage_zh")
     st.session_state[stage_key] = st.session_state.unified_stage
-    stages = [1, 4, 2, 3] if (record and record.audit) or st.session_state.unified_stage in (2, 3) else [1, 4]
+    stages = [1, 4, 5, 2, 3] if (record and record.audit) or st.session_state.unified_stage in (2, 3) else ([1, 4, 5] if record else [1, 4])
     with st.container(key="unified_steps"):
         stage = st.radio(text("From your experience to a shared task", "从具体经历到共同理解的任务"), stages,
                          format_func=labels.get, key=stage_key, horizontal=True,
@@ -133,6 +135,8 @@ def render_workbench(*, root: Path, project_id: str, current_out: Path | None,
         st.button(text("Describe my work", "说说我的工作"), key="unified_back_start", on_click=_go, args=(1,))
     elif stage == 4:
         render_handoffs(current_out, record, text, _go, render_downloads)
+    elif stage == 5:
+        render_feedback(root, project_id, current_out, record, text, run_action, save_result)
     elif stage == 2:
         _materials_form(root, project_id, current_out, record, text, run_action, save_result)
     elif record.audit is None:
@@ -345,6 +349,8 @@ def _findings(root, project_id, current_out, record, text, run_action, save_resu
     right.button(text("Update materials and check again", "补充材料，再核查一次"), key="unified_rerun", on_click=_go, args=(2,))
     with st.expander(text("All extracted statements", "全部已提取表述")):
         st.dataframe([{text("Statement", "表述"): row["text"], text("Status", "状态"): row["status"], "claim_id": row["claim_id"]} for row in rows], hide_index=True, use_container_width=True)
+    from claim_harness.continuity_ui import render_review_tools
+    render_review_tools(root, root / record.audit.run_name, text, run_action)
     with st.expander(text("Download / inspect records", "下载与检查记录")):
         st.download_button(text("Download next questions", "下载下一步问题清单"), files["follow_up.md"], file_name="follow_up.md")
         render_downloads(root / record.audit.run_name, "ProblemBridge evidence check")

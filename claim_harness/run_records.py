@@ -17,6 +17,33 @@ MANIFEST_NAME = "run_manifest.json"
 SUMMARY_LOG_NAME = "project_summary_log.md"
 MANIFEST_SCHEMA_VERSION = 2
 MAX_REVISION_ROUNDS = 3
+AUDIT_SNAPSHOT_NAME = "audit_snapshot.json"
+
+
+def capture_audit_snapshot(manuscript: Path, tables: Path, references: Path | None,
+                           inputs: dict, tool_version: str) -> dict:
+    """Capture the original text and CSVs; no absolute paths or inferred fields."""
+    def source(path, record):
+        data = path.read_bytes()
+        if hashlib.sha256(data).hexdigest() != record["sha256"]:
+            raise RuntimeError("Inputs changed while capturing the audit snapshot.")
+        text = data.decode("utf-8-sig").replace("\r\n", "\n").replace("\r", "\n")
+        return {**record, "text": text, "text_encoding": "utf-8-sig", "newline_policy": "universal",
+                "text_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest()}
+
+    code_root = Path(__file__).parent
+    components = ("claim_extractor.py", "claim_language.py", "evidence_retriever.py",
+                  "verifier.py", "evidence_contract.py", "schemas.py", "table_relations.py",
+                  "loader.py", "context_manager.py", "capability_gate.py")
+    return {
+        "schema_version": 1,
+        "manuscript": source(manuscript, inputs["manuscript"]),
+        "tables": [source(tables / item["name"], item) for item in inputs["tables"]],
+        "references": source(references, inputs["references"]) if references else None,
+        "rules": {"tool_version": tool_version,
+                  "components": {name: _sha256(code_root / name) for name in components},
+                  "evidence_contract": inputs.get("evidence_contract")},
+    }
 
 
 def capture_input_records(

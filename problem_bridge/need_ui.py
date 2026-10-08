@@ -3,7 +3,7 @@ from pathlib import Path
 
 import streamlit as st
 
-from .handoff import ConceptNote, NeedBrief, build_handoffs, missing_details
+from .handoff import ConceptNote, NeedBrief, build_handoffs, missing_details, build_research_input
 from .workbench import FRAME_FIELDS, confirm_problem
 
 
@@ -212,6 +212,7 @@ def render_handoffs(current_out: Path, record, text, go, render_downloads):
             for item in pending:
                 st.write("• " + item)
     st.button(text("Revise my wording or add context", "修改需求或补充条件"), key="unified_edit_need", on_click=go, args=(1,))
+    st.button(text("Bring feedback back into discussion", "带回反馈继续讨论"), key="unified_feedback", on_click=go, args=(5,))
     handoffs = build_handoffs(record)
     tabs = st.tabs([text("For a collaborator", "给合作伙伴"), text("For a language model", "给大模型")])
     for tab, kind in zip(tabs, ("collaboration_brief", "model_task")):
@@ -237,3 +238,5 @@ def render_handoffs(current_out: Path, record, text, go, render_downloads):
         st.button(text("Check text against result tables", "对照结果表核查正文"), key="unified_handoff_audit", on_click=go, args=(2,))
     with st.expander(text("Download the saved record and both handoffs", "下载记录与两份说明")):
         render_downloads(current_out, "ProblemBridge handoff")
+        st.download_button(text("Optional: research discussion input for AWT", "可选：下载给 AWT 的研究讨论输入"),
+                           build_research_input(record, language), file_name=f"research_discussion_{language}.md", mime="text/markdown")

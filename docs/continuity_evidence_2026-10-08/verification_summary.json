@@ -1,0 +1,174 @@
+{
+  "date": "2026-10-08",
+  "baseline_head": "836b24c4a2e9535ae377e9ea6087004107f81e20",
+  "synthetic_only": true,
+  "checks": [
+    {
+      "scope": "full regression before final UI identity refinement",
+      "passed": 561,
+      "failed": 3,
+      "log_sha256": "57d91c8644492a3262572bac4fdf5373687f4a0cf1cd291ecded04cfb68bdac4"
+    },
+    {
+      "scope": "final continuity feature and UI tests",
+      "passed": 18,
+      "failed": 0,
+      "seconds": 28.66,
+      "log_sha256": "20c4e098b7eae15007b08d099192349d1df26cf05c1e84ed03c18dcc3e59f1b4"
+    },
+    {
+      "scope": "release ZIP tests rerun in normal system temporary directory",
+      "passed": 2,
+      "failed": 0,
+      "seconds": 151.77,
+      "log_sha256": "1641ca483642cf0a457fffd04ba98af2123844a07104b99b27a2d14f5d4bcb1f"
+    },
+    {
+      "scope": "isolated staged source: continuity, clarification, handoffs and workbench",
+      "passed": 55,
+      "failed": 0,
+      "seconds": 156.72,
+      "both_mock_demos_passed": true,
+      "log_sha256": "9d8e33ffc827cf0c82fe72bdff1b3a4cf2a56041b54c0301ec0df505e2659516"
+    }
+  ],
+  "remaining_existing_failure": {
+    "test": "test_no_secrets_or_absolute_local_paths_in_project_text",
+    "unchanged_files_already_matching_at_baseline": 97,
+    "record_sha256": "3c853bbfe13c7ac09e715a342f13e41505eb66418d9c210cc1be6b04c6f73a41"
+  },
+  "visual_advice": {
+    "model": "gemini-3.5-flash",
+    "comparison": "caution",
+    "feedback": "caution",
+    "formal_accessibility_certification": false
+  },
+  "contrast_observations": [
+    {
+      "surface": "comparison metadata",
+      "foreground": [
+        32,
+        54,
+        50
+      ],
+      "background": [
+        245,
+        248,
+        246
+      ],
+      "contrast_ratio": 12.01134019772734,
+      "ancestor_opacities": [
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1"
+      ]
+    },
+    {
+      "surface": "confirmation notice",
+      "foreground": [
+        0,
+        84,
+        163
+      ],
+      "background": [
+        223.3,
+        236.3,
+        246.9
+      ],
+      "contrast_ratio": 6.264480613754106,
+      "ancestor_opacities": [
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1"
+      ]
+    }
+  ],
+  "images": [
+    {
+      "path": "claim_compare.jpg",
+      "sha256": "5aa6518bf80db6fb0fadcd56efc9e29ece942e10c725ca283aee7add474ed7a7"
+    },
+    {
+      "path": "feedback_confirmation.jpg",
+      "sha256": "5cce87a1bc7c6737f340f36f5b0d5831286df61703fb6212d216aa7f87388e12"
+    }
+  ],
+  "limitations": [
+    "Original logs remain local; hashes identify those records.",
+    "Separate test runs are not combined into a full-suite pass.",
+    "Synthetic engineering checks are not independent scientific or human validation."
+  ],
+  "commit_diff_review": {
+    "model": "gemini-3.5-flash",
+    "verdict": "pass",
+    "required_changes": []
+  },
+  "validated_python_git_blobs": {
+    "apps/claim_compare.py": "d716aa761794e70b31498a01a6bb4e316d9a1b72",
+    "claim_harness/cli.py": "7161fec6518baa0e0136f9d407e565911b55bc28",
+    "claim_harness/loader.py": "713f1aeb0ab8aa2d9f22d2fd46fea7687c14eae4",
+    "claim_harness/run_records.py": "5fa80de1dad9906c6e13e267f4388135018952d4",
+    "claim_harness/report_viewer.py": "f434f27e6a0a9f0b302f82618f8d89e8f5463d84",
+    "claim_harness/comparison.py": "b40b8bb7a49933d81eea5441923a5e907f4f4970",
+    "claim_harness/continuity_store.py": "1f06ee85109a31603ba2000034d934ae21ef0729",
+    "claim_harness/continuity_ui.py": "9c43fedf555bcf5d5bef851ed04cc1f2d08d199a",
+    "claim_harness/handling.py": "b643d9ad773fc8a9d8625006e36bbbae240e1b70",
+    "problem_bridge/cli.py": "dc4235de488549fb2a5f5a0be9d51560b159dd44",
+    "problem_bridge/clarification.py": "5134f8c051e2f767eb1b268469fd54f943eb6a53",
+    "problem_bridge/clarification_demo.py": "0f37602c0fa6e660a04975ddabda2a961888de45",
+    "problem_bridge/feedback.py": "07ec71e05811c564c7e1ed98ac25e0a3732564e4",
+    "problem_bridge/feedback_ui.py": "c1b75ffca81fcd4636a890a4ff2775e9c324442e",
+    "problem_bridge/handoff.py": "6a059ed27ea207f1ce3987fd2e0a1e7be56b3772",
+    "problem_bridge/need_ui.py": "e6c9ed200b85b9d8a2fd39ce3dc374477ea72651",
+    "problem_bridge/workbench.py": "394b1234f851a8acef82122172bb1373b864e00c",
+    "problem_bridge/workbench_ui.py": "2ea9dba8127943cd0ce03c9da12bdfb9840fb5c9",
+    "problem_bridge/project_lifecycle.py": "68699dc98feba0ec5343eb623ddb6e0871ab19d3",
+    "scripts/run_continuity_demo.py": "7ed0ef5e9085c41bfacf26581d8e65ab45c62b36",
+    "tests/test_clarification.py": "cea11e109ded31e2725965cc76535928c7b70732",
+    "tests/test_audit_continuity.py": "285b0e5272bdc5d17bbafb4468d86dadb8096bd2",
+    "tests/test_feedback_continuity.py": "f277d6919d2b1c7917dd3fe7132c5fc35b00efe6",
+    "tests/test_continuity_ui.py": "80bccca516890215d4796d4c95c8caa6a58bde44"
+  }
+}
