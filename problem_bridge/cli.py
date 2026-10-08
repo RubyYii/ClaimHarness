@@ -490,5 +490,9 @@ def _prepare_output_context(
         raise typer.BadParameter(str(exc), param_hint="--mode") from exc
 
 
+from .agent_cli import task_command
+app.command("task")(task_command)
+
+
 def main() -> None:
     app()

@@ -840,5 +840,9 @@ def record_action_command(
         raise typer.Exit(code=1) from exc
 
 
+from .agent_inspect import inspect_command
+app.command("inspect")(inspect_command)
+
+
 def main() -> None:
     app()
