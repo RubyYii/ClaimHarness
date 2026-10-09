@@ -33,7 +33,7 @@ def runtime() -> tuple[Path, Path]:
         python = root / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
         if not python.is_file():
             python = Path(sys.executable)
-    if not all((root / name).is_file() for name in ("pyproject.toml", "problem_bridge/agent_cli.py", "claim_harness/agent_inspect.py")):
+    if not all((root / name).is_file() for name in ("pyproject.toml", "problem_bridge/agent_cli.py", "claim_harness/agent_inspect.py", "claim_harness/handoff_export.py")):
         raise ValueError("Backend checkout is missing or too old. Install from an updated ClaimHarness checkout.")
     if not python.is_file():
         raise ValueError("Backend Python is missing. Reinstall with an existing --python interpreter.")

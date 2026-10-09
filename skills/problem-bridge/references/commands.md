@@ -84,3 +84,11 @@ Modes: `answer`, `unknown`, `defer`, `none_accurate`, `correct`. Optional `inter
 ```
 
 Paths **inside this JSON** are relative to the request file's directory; absolute paths are also accepted. Manuscript/references are UTF-8 text, tables are 1–20 UTF-8 CSV files with distinct basenames. References are optional. Inputs are limited to 2 MiB per file and 10 MiB combined. For PDF/DOCX loaders use the standalone ClaimHarness skill instead. The original ProblemBridge run remains unchanged. The returned run contains audit files and `follow_up.json` for questions to discuss.
+
+## Export confirmed context
+
+```text
+python <runner> export --workspace .problembridge --project-id demo --run <run_name> --request export.json
+```
+
+`export.json`: `{"out":"handoffs/problem-v1","language":"zh"}`. Language is `zh` (default) or `en`. The output path is relative to the request file's directory. The destination must be fresh and outside saved runs. This writes `problem_context.md` and `problem_context.json` plus lifecycle identity/completion records. It returns JSON with `source`, `export_path` and `files`; unlike mutations it does not return a new problem version. Export does not accept `--confirmed`, adopt unsaved/unconfirmed discussion or change the journal. Historical versions remain exportable with an explicit `is_current_at_export: false` and warning. The JSON preserves the exact selected saved record, including previous-version references; the Markdown carries its conditions, unknowns and confirmed answers. Files are not sent to AWT automatically.

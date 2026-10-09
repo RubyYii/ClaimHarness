@@ -54,6 +54,10 @@ python -m streamlit run apps/problem_bridge_wizard.py
 
 [机制说明、输出文件与 Python API](docs/clarification_mechanism.md)
 
+## 导出问题条件与核查依据
+
+从已确认的 ProblemBridge 记录或单次 ClaimHarness 核查生成本地交接文件，保留条件、版本、证据位置与单独标注的用户记录。[命令与文件内容](docs/local_handoffs.md)。
+
 ## 使用边界
 
 网页界面使用本地预设问题引导，由你确认专业含义；说明不会自动发送给他人或大模型。证据核查有明确范围，不能证明事实正确，也不能代替专业人员判断。
