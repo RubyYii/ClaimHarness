@@ -192,6 +192,10 @@ def test_installed_workflow_runs_from_another_unicode_project(tmp_path):
     comparison = json.loads((Path(summary["comparison"]) / "audit_changes.json").read_text(encoding="utf-8"))
     assert comparison["comparability"] == "comparable"
     assert len(comparison["changes"]) > 0
+    context = json.loads(Path(summary["problem_export"]["files"]["problem_context.json"]).read_text(encoding="utf-8"))
+    brief = json.loads(Path(summary["audit_export"]["files"]["evidence_brief.json"]).read_text(encoding="utf-8"))
+    assert context["record"]["question"] == "Explain the synthetic score difference"
+    assert brief["pending_findings"] and brief["user_records"]["revision"] == 2
     assert Path(summary["original"]).is_dir()
     assert Path(summary["confirmed"]).is_dir()
     assert (Path(summary["standalone_audit"]) / "audit_report.md").is_file()

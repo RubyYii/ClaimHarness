@@ -81,3 +81,7 @@ python scripts/install_agent_skills.py --client both --scope user --upgrade
 Use the same backend Python and the same scope/project options as at installation. A moved backend or deleted virtual environment requires reinstalling the bindings. Updating the backend does not automatically refresh the copied Skill instructions; run the installer with `--upgrade`.
 
 Current checks mainly cover recognized English numerical statements against CSV tables. Missing findings do not establish coverage, scientific correctness or readiness for submission. User actions and attributed human opinions never overwrite program verdicts. Use public or synthetic material; do not introduce patient data or confidential manuscripts. These Skills do not send briefs to collaborators automatically or bypass host permissions.
+
+## Export local handoffs / 带走本地交接文件
+
+Both Skills now expose the same local handoff boundary as the underlying workflow: ProblemBridge `export` carries all confirmed conditions; ClaimHarness `handoff` carries the findings of a single audit, optionally with separate user records. [Exact commands and file contents](local_handoffs.md). The synthetic Skill demo exercises both exports from installed client directories. These are inputs for later research discussion; no AWT installation, related-work search or project assessment is performed by this repository.

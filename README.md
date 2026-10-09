@@ -54,6 +54,10 @@ Bring collaborator/AI feedback back from a confirmed brief, discuss selected que
 
 Run the complete synthetic example with `python scripts/run_continuity_demo.py --out outputs/continuity_demo`. ClaimHarness can also run independently: `python -m streamlit run apps/claim_compare.py`. [Workflow, comparison CLI and record formats](docs/continuous_review.md)
 
+## Export confirmed context and audit findings
+
+Create a local, version-bound handoff from a confirmed ProblemBridge record or a single completed ClaimHarness audit. Exports retain conditions, source identities, evidence locations and separately labelled user records. [Commands and output contents](docs/local_handoffs.md).
+
 ## Scope and privacy
 
 The guided web interface uses local, predefined questions. You confirm domain meanings; documents are not sent automatically. Evidence checks are limited and do not establish factual correctness or replace expert review.

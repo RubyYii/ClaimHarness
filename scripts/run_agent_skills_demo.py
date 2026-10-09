@@ -73,7 +73,10 @@ def run_demo(out: Path) -> dict:
            "--action", "done", "--expected-revision", "1", "--rerun", "runs/" + audit2["run_name"], "--same-task")
     invoke("claim-harness", "run", "--manuscript", "manuscript.md", "--tables", "tables",
            "--out", "standalone", "--project-id", "agent-demo", "--llm", "mock", client=".claude")
-    summary = {"synthetic": True, "project": str(project), "original": first["run_path"],
+    problem_export = task("export", {"out": "problem export", "language": "zh"}, revised)
+    audit_export = invoke("claim-harness", "handoff", "--run", "runs/" + audit1["run_name"],
+                          "--out", "evidence export", "--workspace", "handling", json_result=True, client=".claude")
+    summary = {"synthetic": True, "problem_export": problem_export, "audit_export": audit_export, "project": str(project), "original": first["run_path"],
                "confirmed": revised["run_path"], "previous_audit": audit1["run_path"],
                "current_audit": audit2["run_path"], "comparison": str(project / "comparison"),
                "handoffs": revised["handoffs"], "standalone_audit": str(project / "standalone")}

@@ -75,6 +75,11 @@ class AuditRequest(Request):
     references: str | None = None
 
 
+class ExportRequest(Request):
+    out: str = Field(min_length=1)
+    language: Literal["zh", "en"] = "zh"
+
+
 class Action(str, Enum):
     create = "create"
     show = "show"
@@ -83,11 +88,12 @@ class Action(str, Enum):
     confirm = "confirm"
     next_round = "next-round"
     audit = "audit"
+    export = "export"
 
 
 MODELS = {Action.create: CreateRequest, Action.feedback: FeedbackRequest,
           Action.respond: RespondRequest, Action.confirm: ConfirmRequest,
-          Action.next_round: NextRoundRequest, Action.audit: AuditRequest}
+          Action.next_round: NextRoundRequest, Action.audit: AuditRequest, Action.export: ExportRequest}
 
 
 def read_bounded(path: Path) -> bytes:
@@ -176,6 +182,10 @@ def execute(action: Action, workspace: Path, project_id: str, run: str | None,
         current = feedback.confirm_discussion(workspace, project_id, current, **values)
     elif action == Action.next_round:
         feedback.start_next_round(workspace, project_id, current, **values)
+    elif action == Action.export:
+        from claim_harness.handoff_export import export_problem
+        return export_problem(workspace, current, project_id, request.absolute().parent / payload.out,
+                              language=payload.language)
     elif action == Action.audit:
         feedback.require_current(workspace, load_problem(workspace, current, project_id))
         # Paths inside JSON are relative to that request, not the backend checkout.

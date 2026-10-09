@@ -23,6 +23,10 @@ Path arguments resolve against the caller's project; the runner invokes the exis
 6. Record user handling with `record-action`. Attribute human review only when the user supplies the person and source; never label the host model's opinion as a human review. Keep actions and opinions separate from deterministic verdicts. Re-read `inspect` and use the observed journal revision before writing; stale failures require re-reading and reassessing, not an automatic revision-number retry.
 7. Rerun changed materials into a fresh directory and compare. State what the new program result shows and what still needs domain judgement. If findings raise a question about the intended task, bring the exact finding/source back through `problem-bridge` feedback without silently changing its confirmed goal.
 
+## Export a single audit
+
+Use `handoff --run <saved-audit> --out <fresh-export-directory>` to produce `evidence_brief.md` and `evidence_brief.json` without requiring a second run. Include `--workspace` only for the user-selected annotations/actions. Read both the program findings and the separately labelled user records; an action marked done does not clear a finding. Keep source identity, input/rule hashes, evidence locations and coverage limitations with the handoff. This supplies material for AWT or another researcher and does not perform research-value, novelty or submission assessment. Do not send files automatically.
+
 ## Deliver
 
 Provide the saved report paths, run identity, material limitations, actionable findings and unresolved questions. Required artifacts are `claim_table.csv`, `evidence_map.json`, `audit_report.md`, `revision_suggestions.md`, `agent_trace.jsonl`; current runs also preserve an input snapshot. Never edit completed audit files or present local technical checks as scientific validity, author approval or submission clearance.

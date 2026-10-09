@@ -23,6 +23,10 @@ Use `python <absolute-skill-directory>/scripts/run.py ...`. Arguments containing
 6. Distinguish supplement, correction and a changed goal. Present the actual change and next action; `confirm --confirmed` creates a new version after authorization. Goal changes require explicit new wording; supplements cannot replace the goal. Continue with the returned `run_name`. `next-round` preserves unresolved issues after confirming the previous answers.
 7. Once material exists, `audit` runs the existing deterministic checker and produces a fresh version. Read its follow-up questions. For source annotations or comparisons use the separate `claim-harness` skill, passing the exact returned audit path. No feedback answer automatically changes a verifier result.
 
+## Export for later research discussion
+
+When the user wants to take this confirmed context to AWT, a researcher or another assistant, use `export` with a JSON request such as `{"out":"handoffs/problem-v1","language":"zh"}`. Paths inside the request are relative to that request file. The resulting `problem_context.md` and `problem_context.json` preserve all confirmed fields and version references. The JSON retains the saved record without adopting unconfirmed discussion. Report a historical-version warning when present. This exports inputs only; research evaluation and related-work search belong to the receiving workflow. Do not transmit the export automatically.
+
 ## Deliver
 
 Give the current version, open questions, agreed next action and clickable local brief paths. Let the user choose the recipient and send method; do not send handoffs automatically. Do not overwrite completed run files, infer that a missing claim is fixed, or describe generated briefs/AI answers as independent evidence.
