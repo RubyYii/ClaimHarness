@@ -444,7 +444,7 @@ def test_guided_ui_keeps_sidebar_advanced_settings_collapsed():
         assert phrase in ui_text
 
     assert "<div class=\"sidebar-note\">" not in ui_text
-    assert 'st.sidebar.expander(_text("All tools", "全部工具"))' in ui_text
+    assert 'st.sidebar.expander(_text("Advanced tools", "高级功能"))' in ui_text
     assert 'st.sidebar.expander(_text("Drafts & project settings", "草稿与项目设置"))' in ui_text
 
 

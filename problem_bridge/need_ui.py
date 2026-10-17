@@ -49,19 +49,12 @@ def render_need_form(root, project_id, current_out, record, text, run_action, sa
     if st.session_state.get("unified_return_question"):
         st.info(text("Question brought back for clarification: ", "带回继续澄清的问题：") + st.session_state.unified_return_question)
     step = st.session_state.unified_intake_step
-    if record or step == 4:
+    if step == 4:
         _review(root, project_id, current_out, record, text, run_action, save_result, answers)
     else:
-        with st.container(key="need_layout"):
-            question, guide = st.columns([2.15, 1], gap="large")
-            with question:
-                _interview(step, text)
-            with guide:
-                _handoff_guide(text)
-    with st.expander(text("How is this different from chatting with AI?", "和直接找 AI 聊天有什么不同？")):
-        st.write(text(
-            "Start with an experience, then correct the wording before handing it over. You get two reusable documents from the same confirmed need: one for a collaborator, one for a language model. You choose where to take them. These local questions do not interpret specialist terminology for you; meanings and missing details stay open for confirmation.",
-            "从具体经历开始，先修正理解，再交给别人。这里把同一份确认过的需求整理为两份可带走的说明：给合作伙伴、给大模型。由你决定带到哪里使用。本地引导不会替你解释专业术语，词语含义和缺少的条件会留待确认。"))
+        _interview(step, text)
+        st.caption(text("After you confirm the wording, take a brief for a collaborator and one for your AI.",
+                        "确认后，可以带走给合作伙伴和大模型的两份说明。"))
 
 
 def _handoff_guide(text):
@@ -105,14 +98,15 @@ def _interview(step, text):
         st.caption(text(f"{step + 1} of 4 · You can revise everything before saving", f"第 {step + 1} / 4 问 · 保存前都可以修改"))
         st.subheader(text(en, zh))
         st.caption(text(hint_en, hint_zh))
-        with st.form(f"unified_intake_{step}", border=False):
+        # A form would discard unsubmitted browser-side values on navigation.
+        with st.container():
             value = st.text_area(text("Say it in your own words", "用你自己的话说"), key=f"unified_edit_{key}",
                                  height=140, placeholder=text(example_en, example_zh), max_chars=20000)
             col1, col2 = st.columns([1, 1.2])
             with col1:
-                next_step = st.form_submit_button(text("Continue", "继续"), type="primary", use_container_width=True)
+                next_step = st.button(text("Continue", "继续"), key="unified_intake_next", type="primary", use_container_width=True)
             with col2:
-                skip = st.form_submit_button(text("Not sure yet", "暂时说不清，先跳过"), use_container_width=True) if step else False
+                skip = st.button(text("Not sure yet", "暂时说不清，先跳过"), key="unified_intake_skip", use_container_width=True) if step else False
     if next_step or skip:
         if step == 0 and not value.strip():
             st.error(text("Name one task first. Even a short fragment is enough.", "先说一件你在做的事，几个字也可以。"))
@@ -129,9 +123,8 @@ def _interview(step, text):
 
 
 def _review(root, project_id, current_out, record, text, run_action, save_result, answers):
-    st.subheader(text("Does this say what you mean?", "这些内容准确表达你的意思吗？"))
     st.caption(text("Edit anything below. Empty fields stay open questions in both handoffs.", "下面都可以改。未填写的内容会作为待确认问题，保留在两份说明里。"))
-    with st.container(key="need_review_card"), st.form("unified_problem_form"):
+    with st.container(key="need_review_card", border=True):
         context, outcome = st.columns(2, gap="large")
         with context:
             fields = {
@@ -157,14 +150,14 @@ def _review(root, project_id, current_out, record, text, run_action, save_result
                     concepts.append(ConceptNote(term=term, meaning=meaning, example=example, non_example=non_example))
                 elif any(value.strip() for value in (meaning, example, non_example)):
                     invalid_concept = True
-            add_concept = st.form_submit_button(text("Explain another term", "再解释一个词"), disabled=st.session_state.unified_concept_count >= 10)
+            add_concept = st.button(text("Explain another term", "再解释一个词"), key="unified_add_concept", disabled=st.session_state.unified_concept_count >= 10)
         with st.expander(text("Sources, possible causes and boundaries (optional)", "来源、可能原因与判断边界（可选）")):
             fields["observation_source"] = st.text_input(text("Where did the observation come from?", "观察来自哪里？"), key="unified_edit_observation_source", max_chars=20000)
             fields["hypothesis"] = st.text_area(text("Possible cause, still to be checked", "你猜测的原因，尚待验证"), key="unified_edit_hypothesis", height=80, max_chars=20000)
             fields["human_boundary"] = st.text_area(text("What should a person decide?", "哪些判断应交给人来做？"), key="unified_edit_human_boundary", height=80, max_chars=20000)
         if record and record.audit:
             st.caption(text("Saving changed needs starts a new version; the previous audit remains in history.", "保存会建立新的需求版本；原有核查保留在历史中，需要时重新核查。"))
-        submitted = st.form_submit_button(text("This reflects my need → prepare both handoffs", "这符合我的意思 → 整理两份说明"), type="primary")
+        submitted = st.button(text("This reflects my need → prepare both handoffs", "这符合我的意思 → 整理两份说明"), key="unified_confirm_need", type="primary")
     if add_concept:
         _add_concept()
         st.rerun()
@@ -203,7 +196,9 @@ def render_handoffs(current_out: Path, record, text, go, render_downloads):
                 drafts_differ = True
     if drafts_differ:
         st.warning(text("You have unsaved wording changes. These handoffs still use the last confirmed version.", "需求草稿已修改。下面的说明仍使用上次确认的版本；请返回确认后再交给对方。"))
-    st.subheader(text("One confirmed need, two ways to hand it over", "同一份需求，两种交付方式"))
+    st.caption(text(f"Confirmed need · revision {record.revision}", f"已确认的需求 · 版本 {record.revision}"))
+    st.button(text("Start a two-way handoff with a collaborator", "和合作者完成一次双向交接"),
+              key="unified_start_dyad", type="primary", on_click=go, args=(7,))
     st.caption(text("Copy or download a document, then choose where to use it. Nothing is sent automatically. Described files must be attached separately.",
                     "复制或下载后，由你选择交给谁。这里不会自动发送；清单中的材料需要另行附上。"))
     pending = missing_details(record, language)
@@ -212,7 +207,6 @@ def render_handoffs(current_out: Path, record, text, go, render_downloads):
             for item in pending:
                 st.write("• " + item)
     st.button(text("Revise my wording or add context", "修改需求或补充条件"), key="unified_edit_need", on_click=go, args=(1,))
-    st.button(text("Bring feedback back into discussion", "带回反馈继续讨论"), key="unified_feedback", on_click=go, args=(5,))
     handoffs = build_handoffs(record)
     tabs = st.tabs([text("For a collaborator", "给合作伙伴"), text("For a language model", "给大模型")])
     for tab, kind in zip(tabs, ("collaboration_brief", "model_task")):
@@ -229,13 +223,14 @@ def render_handoffs(current_out: Path, record, text, go, render_downloads):
                                key=f"unified_download_{kind}", type="primary")
             with st.expander(text("Copy the full text", "复制完整说明")):
                 st.code(content, language=None, wrap_lines=True)
-            with st.container(height=480, border=True, key=f"handoff_preview_{kind}"):
+            with st.container(border=True, key=f"handoff_preview_{kind}"):
                 preview = "\n".join("##" + line if line.startswith(("# ", "## ")) else line for line in content.splitlines())
                 st.markdown(preview)
     with st.expander(text("Have results to check? (optional)", "已有结果，想进一步核查？（可选）")):
         st.caption(text("The current checker compares supported English numerical statements with CSV tables. It cannot validate every specialist task.",
                         "当前核查器针对可识别的英文数值表述与 CSV 表格，不适用于所有专业任务。"))
         st.button(text("Check text against result tables", "对照结果表核查正文"), key="unified_handoff_audit", on_click=go, args=(2,))
+    st.button(text("Discuss feedback from the recipient", "带回对方的反馈继续讨论"), key="unified_feedback", on_click=go, args=(5,))
     with st.expander(text("Download the saved record and both handoffs", "下载记录与两份说明")):
         render_downloads(current_out, "ProblemBridge handoff")
         st.download_button(text("Optional: research discussion input for AWT", "可选：下载给 AWT 的研究讨论输入"),

@@ -46,9 +46,13 @@ Run `python -m problem_bridge clarify-demo --out outputs/clarification_demo --an
 
 ## Continue after feedback or a revision
 
+Choose **Start a two-way handoff with a collaborator** next to a confirmed brief. B records an understanding and approach; A responds and confirms a new version; B independently reviews it. Bring back a small sample and record attributed checks against selected requirements. Drafts, open questions and version-specific acknowledgements persist locally. The study's domain scenario remains open until formative interviews. [Walkthrough and implementation notes](docs/two_way_handoff.md)
+
 Bring collaborator/AI feedback back from a confirmed brief, discuss selected questions, and explicitly confirm the next version. After checking revised materials, compare two audit runs, annotate missed statements and keep user actions separate from program results.
 
 Run the complete synthetic example with `python scripts/run_continuity_demo.py --out outputs/continuity_demo`. ClaimHarness can also run independently: `python -m streamlit run apps/claim_compare.py`. [Workflow, comparison CLI and record formats](docs/continuous_review.md)
+
+Track selected requirements from confirmed wording through both handoffs to attributed acceptance records with `python -m problem_bridge requirements-demo --out outputs/requirements_demo`. Open `workspace/review/requirement_trace.md` inside that output. The CLI preserves exact source spans and versions; checks remain separate from ClaimHarness verdicts. [Selection, checks and version changes](docs/requirement_traceability.md)
 
 ## Scope and privacy
 

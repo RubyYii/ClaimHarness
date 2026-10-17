@@ -20,6 +20,7 @@ from claim_harness.cli import CLAIM_REQUIRED_ARTIFACTS, write_local_audit
 from claim_harness import __version__ as audit_version
 from . import __version__ as bridge_version
 from .handoff import HANDOFF_ARTIFACTS, NeedBrief, build_handoffs
+from .requirements import TRACE_ARTIFACTS, TrackedRequirement, build_trace, render_trace
 from .project_lifecycle import (
     SYSTEM_OWNED_ARTIFACTS, allocate_run_directory, is_link_or_reparse, snapshot_completed_run,
 )
@@ -67,6 +68,7 @@ class ProblemRecord(BaseModel):
     audit: RunReference | None = None
     responses: list[FollowUpAnswer] = Field(default_factory=list)
     continuation: dict | None = None
+    requirements: list[TrackedRequirement] | None = Field(default=None, max_length=100)
 
 
 def _now() -> str:
@@ -106,15 +108,22 @@ def load_problem(root: Path, out: Path, project_id: str) -> ProblemRecord:
     record = ProblemRecord.model_validate_json(files["problem_record.json"])
     if record.project_id != project_id:
         raise ValueError("The problem belongs to another project.")
-    if record.schema_version not in (1, 2, 3) or (record.schema_version == 1 and record.brief is not None):
+    if record.schema_version not in (1, 2, 3, 4) or (record.schema_version == 1 and record.brief is not None):
         raise ValueError("Unsupported problem record version.")
     if record.schema_version < 3 and record.continuation is not None:
         raise ValueError("Legacy records cannot contain a fabricated continuation.")
     framing = {key: getattr(record, key) for key in FRAME_FIELDS}
     if record.schema_version >= 2:
         framing["brief"] = record.brief.model_dump(mode="json") if record.brief else None
-    if record.schema_version == 3:
+    if (record.schema_version < 4 and record.requirements is not None) or (record.schema_version == 4 and record.requirements is None):
+        raise ValueError("Selected requirements need a version-4 record.")
+    if record.schema_version >= 3:
         framing["continuation"] = record.continuation
+    if record.schema_version == 4:
+        framing["requirements"] = [item.model_dump(mode="json") for item in record.requirements]
+        ids = [item.requirement_id for item in record.requirements]
+        if len(ids) != len(set(ids)):
+            raise ValueError("Requirement IDs must be unique within this problem.")
     if record.framing_sha256 != _digest(framing):
         raise ValueError("The problem framing does not match its recorded fingerprint.")
     return record
@@ -122,6 +131,8 @@ def load_problem(root: Path, out: Path, project_id: str) -> ProblemRecord:
 
 def _allocate(root: Path, record: ProblemRecord, kind: str, *, audit: bool = False, payload=None):
     artifacts = (*PROBLEM_ARTIFACTS, *FOLLOW_UP_ARTIFACTS)
+    if record.requirements is not None:
+        artifacts = (*artifacts, *TRACE_ARTIFACTS)
     if audit:
         artifacts = (*artifacts, *CLAIM_REQUIRED_ARTIFACTS)
     return allocate_run_directory(
@@ -149,8 +160,13 @@ def _write_record(out: Path, record: ProblemRecord) -> None:
     for response in record.responses:
         lines.extend([f"- {response.audit_run_id} / {response.question_id}: {response.answer}"])
     (out / "problem_record.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
-    for name, content in build_handoffs(record).items():
+    handoffs = build_handoffs(record)
+    for name, content in handoffs.items():
         (out / name).write_bytes(content.encode("utf-8"))
+    if record.requirements is not None:
+        trace = build_trace(record, handoffs)
+        (out / TRACE_ARTIFACTS[0]).write_text(_json(trace), encoding="utf-8")
+        (out / TRACE_ARTIFACTS[1]).write_text(render_trace(trace), encoding="utf-8")
 
 
 def _write_follow_up(out: Path, payload: dict) -> None:
@@ -166,7 +182,8 @@ def _write_follow_up(out: Path, payload: dict) -> None:
 
 def confirm_problem(root: Path, project_id: str, fields: dict[str, str], *,
                     previous: Path | None = None, interview_answers: dict[str, str] | None = None,
-                    brief: NeedBrief | None = None, continuation: dict | None = None) -> Path:
+                    brief: NeedBrief | None = None, continuation: dict | None = None,
+                    _requirements: list[TrackedRequirement] | None = None) -> Path:
     cleaned = {key: str(fields.get(key, "")).strip() for key in FRAME_FIELDS}
     if not cleaned["question"]:
         raise ValueError("Write the question you want to investigate first.")
@@ -178,12 +195,23 @@ def confirm_problem(root: Path, project_id: str, fields: dict[str, str], *,
     framing = {**cleaned, "brief": brief.model_dump(mode="json")} if brief is not None else cleaned
     if continuation is not None:
         framing = {**cleaned, "brief": brief.model_dump(mode="json") if brief else None, "continuation": continuation}
+    requirements = _requirements if _requirements is not None else (parent.requirements if parent else None)
+    if requirements is not None:
+        base = {**cleaned, "brief": brief.model_dump(mode="json") if brief else None, "continuation": continuation}
+        if parent is not None and _requirements is None:
+            previous_base = {**{k: getattr(parent, k) for k in FRAME_FIELDS},
+                "brief": parent.brief.model_dump(mode="json") if parent.brief else None,
+                "continuation": parent.continuation}
+            if base != previous_base:
+                requirements = [item.model_copy(update={"status": "needs_reconfirmation"})
+                                if item.status == "confirmed" else item for item in requirements]
+        framing = {**base, "requirements": [item.model_dump(mode="json") for item in requirements]}
     reference = _snapshot(root, previous, project_id)[1] if previous else None
     record = ProblemRecord(
         problem_id=parent.problem_id if parent else f"problem-{uuid.uuid4().hex}", project_id=project_id,
         revision=parent.revision + 1 if parent else 1, **cleaned, framing_sha256=_digest(framing),
-        schema_version=3 if continuation is not None else (2 if brief is not None else 1), brief=brief,
-        continuation=continuation,
+        schema_version=4 if requirements is not None else (3 if continuation is not None else (2 if brief is not None else 1)), brief=brief,
+        continuation=continuation, requirements=requirements,
         confirmed_at=_now(), previous=reference, responses=parent.responses if parent else [],
         interview_answers=interview_answers if interview_answers is not None else (parent.interview_answers if parent else {}),
     )

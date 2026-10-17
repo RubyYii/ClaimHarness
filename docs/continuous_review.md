@@ -81,4 +81,6 @@ ProblemBridge → AWT 的输入保留原始问题、当前目标、条件、未�
 
 ## Engineering boundary
 
+已确认需求还可通过 CLI 选取关键要求，并追踪原话、交接位置和逐条验收记录。见 [要求交接与验收](requirement_traceability.md)。新版需求不会自动沿用旧版验收结果；这不扩大 ClaimHarness 的核查范围。
+
 Synthetic regression, integrity checks and UI screenshots verify implemented behaviour only. They do not establish reduced real-world misunderstanding, better scientific review, reviewer qualification, clinical validity or research value. `.continuity` contains user-authored records: keep it with the workspace for continuation, and inspect it before sharing.

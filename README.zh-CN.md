@@ -20,9 +20,13 @@
 
 ## 收到反馈或修改材料后继续
 
+在已确认说明旁点击“和合作者完成一次双向交接”。B 直接记录理解与建议，A 回应并确认新版，B 再独立核对；随后可带回一个小样例，按已选要求保存人工检查。支持轮流操作、保存草稿、版本变化与待解决事项追溯。具体业务场景留待 formative 后确定。[双向交接操作与走查说明](docs/two_way_handoff.md)
+
 在已确认说明旁选择“带回反馈继续讨论”，记录分歧、回答与更正，再由你确认新版说明。修改材料并重新核查后，可以比较两轮结果、补标遗漏表述，并分别保存程序结果、用户行动和人工意见。
 
 运行完整合成示例：`python scripts/run_continuity_demo.py --out outputs/continuity_demo`。独立使用 ClaimHarness：`python -m streamlit run apps/claim_compare.py`。[使用流程、CLI 与记录格式](docs/continuous_review.md)
+
+需要逐条跟踪关键要求时，可运行 `python -m problem_bridge requirements-demo --out outputs/requirements_demo`，打开输出中的 `workspace/review/requirement_trace.md`。这条 CLI 流程保留已选原话、确认版本、交接位置和注明来源的验收记录；验收记录独立于 ClaimHarness 判断。[选取、验收与改版说明](docs/requirement_traceability.md)
 
 ## 本地运行
 
