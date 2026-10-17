@@ -146,7 +146,13 @@ def _allocate(root: Path, record: ProblemRecord, kind: str, *, audit: bool = Fal
 
 
 def _write_record(out: Path, record: ProblemRecord) -> None:
-    (out / "problem_record.json").write_text(_json(record.model_dump(mode="json")), encoding="utf-8")
+    payload = record.model_dump(mode="json")
+    # Strict readers reject even null extension fields from later schemas.
+    if record.schema_version < 3:
+        payload.pop("continuation", None)
+    if record.schema_version < 4:
+        payload.pop("requirements", None)
+    (out / "problem_record.json").write_text(_json(payload), encoding="utf-8")
     labels = {
         "question": "Question / 问题", "observation": "Reported observation / 用户报告的观察",
         "observation_source": "Observation source / 观察来源", "desired_change": "Desired change / 希望改变",

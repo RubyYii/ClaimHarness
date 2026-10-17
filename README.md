@@ -54,6 +54,8 @@ Run the complete synthetic example with `python scripts/run_continuity_demo.py -
 
 Track selected requirements from confirmed wording through both handoffs to attributed acceptance records with `python -m problem_bridge requirements-demo --out outputs/requirements_demo`. Open `workspace/review/requirement_trace.md` inside that output. The CLI preserves exact source spans and versions; checks remain separate from ClaimHarness verdicts. [Selection, checks and version changes](docs/requirement_traceability.md)
 
+The original agent entry points and portable skills are available alongside the two-way prototype: [Agent skills](docs/agent_skills.md), [local problem/evidence exports](docs/local_handoffs.md), and [feature compatibility and fixes](docs/compatibility_check_2026-10-17.md).
+
 ## Scope and privacy
 
 The guided web interface uses local, predefined questions. You confirm domain meanings; documents are not sent automatically. Evidence checks are limited and do not establish factual correctness or replace expert review.

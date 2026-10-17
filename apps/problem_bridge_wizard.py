@@ -85,10 +85,11 @@ extract_url = document_intake_module.extract_url
 write_intake_package = document_intake_module.write_intake_package
 
 
+EXAMPLE_ROOT = Path(__file__).resolve().parents[1] / "examples/problem_bridge"
 EXAMPLES = {
-    "Quality inspection": Path("examples/problem_bridge/quality_inspection/problem.md"),
-    "Cultural archive": Path("examples/problem_bridge/cultural_archive/problem.md"),
-    "Training policy": Path("examples/problem_bridge/training_policy/problem.md"),
+    "Quality inspection": EXAMPLE_ROOT / "quality_inspection/problem.md",
+    "Cultural archive": EXAMPLE_ROOT / "cultural_archive/problem.md",
+    "Training policy": EXAMPLE_ROOT / "training_policy/problem.md",
 }
 
 RUN_ROOT = Path("outputs/ui_runs")

@@ -54,15 +54,42 @@ def iter_project_text_files():
             yield path
 
 
+def source_text_findings(path, raw, historical_paths):
+    """Only byte-identical historical provenance paths can be grandfathered."""
+    text = raw.decode("utf-8")
+    findings = ["secret" for pattern in SECRET_PATTERNS if pattern.search(text)]
+    if any(pattern.search(text) for pattern in ABSOLUTE_PATH_PATTERNS):
+        name = path.as_posix()
+        historical = name.startswith("research/") and historical_paths.get(name) == hashlib.sha256(raw).hexdigest()
+        if not historical:
+            findings.append("absolute_path")
+    return findings
+
+
 def test_no_secrets_or_absolute_local_paths_in_project_text():
+    baseline = json.loads(Path("tests/fixtures/historical_absolute_paths.json").read_text(encoding="utf-8"))
+    historical = baseline["files_sha256"]
+    assert baseline["schema_version"] == 1
+    assert all(name.startswith("research/") and ".." not in Path(name).parts
+               and re.fullmatch(r"[a-f0-9]{64}", digest) for name, digest in historical.items())
     offenders = []
     for path in iter_project_text_files():
-        text = path.read_text(encoding="utf-8")
-        for pattern in SECRET_PATTERNS + ABSOLUTE_PATH_PATTERNS:
-            if pattern.search(text):
-                offenders.append(str(path))
+        offenders.extend((str(path), kind) for kind in source_text_findings(path, path.read_bytes(), historical))
 
     assert offenders == []
+
+
+def test_historical_path_baseline_still_rejects_new_changed_and_secret_findings():
+    path = Path("research/synthetic_history/command.json")
+    raw = b'{"cwd":"/home/example/old-run"}'
+    known = {path.as_posix(): hashlib.sha256(raw).hexdigest()}
+    assert source_text_findings(path, raw, known) == []
+    assert source_text_findings(Path("research/new/command.json"), raw, known) == ["absolute_path"]
+    assert source_text_findings(path, raw + b"\n", known) == ["absolute_path"]
+    code = Path("claim_harness/example.py")
+    assert source_text_findings(code, raw, {code.as_posix(): hashlib.sha256(raw).hexdigest()}) == ["absolute_path"]
+    secret = raw + b"\nsk-" + b"x" * 25
+    assert source_text_findings(path, secret, {path.as_posix(): hashlib.sha256(secret).hexdigest()}) == ["secret"]
 
 
 def test_examples_do_not_claim_real_or_private_data():

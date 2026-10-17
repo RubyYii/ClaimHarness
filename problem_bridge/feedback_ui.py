@@ -13,10 +13,10 @@ def saved_versions(root, record):
         if not (path / "problem_record.json").is_file():
             continue
         try:
-            raw = json.loads((path / "problem_record.json").read_text(encoding="utf-8"))
-            if (raw.get("project_id"), raw.get("problem_id")) == (record.project_id, record.problem_id):
-                versions.append((path, load_problem(root, path, record.project_id)))
-        except (ValueError, OSError, RuntimeError):
+            candidate = load_problem(root, path, record.project_id)
+            if candidate.problem_id == record.problem_id:
+                versions.append((path, candidate))
+        except (ValueError, OSError, RuntimeError, KeyError):
             continue
     return sorted(versions, key=lambda x: (x[1].revision, x[0].name))
 

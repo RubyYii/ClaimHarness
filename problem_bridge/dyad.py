@@ -48,7 +48,8 @@ def _active(root, project_id, current, expected_revision):
 def handoff_state(root: Path, current: Path, record) -> dict:
     history = handoff_journal(root, record).read()
     target = _target(current, record)
-    replies = [e["payload"] for e in history["events"] if e["kind"] == "recipient_reply"]
+    replies = [e["payload"] for e in history["events"]
+               if e["kind"] == "recipient_reply" and e["payload"]["target"]["revision"] <= record.revision]
     reply = replies[-1] if replies else None
     updates = (record.continuation or {}).get("updates", [])
     response = next((u for u in reversed(updates)

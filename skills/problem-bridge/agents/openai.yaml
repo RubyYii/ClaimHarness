@@ -1,0 +1,4 @@
+interface:
+  display_name: "ProblemBridge"
+  short_description: "Clarify needs and continue confirmed feedback"
+  default_prompt: "Use $problem-bridge to clarify my task and preserve my decisions."

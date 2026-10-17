@@ -65,15 +65,14 @@ def require_current(root: Path, record) -> None:
         candidate = path / "problem_record.json"
         if not candidate.is_file():
             continue
-        raw = json.loads(candidate.read_text(encoding="utf-8"))
-        if (raw.get("project_id"), raw.get("problem_id")) == (record.project_id, record.problem_id) and raw.get("revision", 0) > record.revision:
-            # Incomplete runs are not newer confirmed state.
-            try:
-                newer = load_problem(root, path, record.project_id)
-            except (ValueError, RuntimeError, OSError):
-                continue
-            if newer.revision > record.revision:
-                raise ValueError("Stale page: a newer confirmed version exists. Open it before continuing.")
+        # Validate the completed package before inspecting its fields. Partial,
+        # malformed, linked and other-project records are not confirmed state.
+        try:
+            newer = load_problem(root, path, record.project_id)
+        except (ValueError, RuntimeError, OSError, KeyError):
+            continue
+        if newer.problem_id == record.problem_id and newer.revision > record.revision:
+            raise ValueError("Stale page: a newer confirmed version exists. Open it before continuing.")
 
 
 def _active(root: Path, current: Path, project_id: str, expected_revision: int):

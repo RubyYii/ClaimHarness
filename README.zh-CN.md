@@ -30,6 +30,8 @@
 
 ## 本地运行
 
+原有 Agent 调用入口和可移植 skill 已补回，与双向交接原型共同保留：[skill 安装与用法](docs/agent_skills.md)、[问题与证据交接导出](docs/local_handoffs.md)、[原有功能对照与修复记录](docs/compatibility_check_2026-10-17.md)。
+
 **Windows：** [下载源码 ZIP](https://github.com/RubyYii/ClaimHarness/archive/refs/heads/main.zip)，解压后双击 `RUN_PROBLEMBRIDGE_WINDOWS.bat`。
 
 需要 Python 3.10–3.13。首次运行会安装依赖，并在浏览器打开本地页面 `http://127.0.0.1:8501`。

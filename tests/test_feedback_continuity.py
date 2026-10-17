@@ -132,3 +132,35 @@ def test_auditing_same_framing_keeps_discussion_and_next_round_retains_unknowns(
     state = ClarificationState.model_validate(result["events"][-1]["payload"]["state"])
     assert len(state.issues) == 1 and not state.resolutions and state.turns_used == 0
     assert state.issues[0].issue_id != first
+
+
+@pytest.mark.parametrize("version", [1, 2])
+def test_plain_workflow_keeps_legacy_record_envelope(tmp_path, version):
+    """The main-branch reader rejects extra keys even when their value is null."""
+    import json
+    from problem_bridge.handoff import NeedBrief
+    from problem_bridge.workbench import audit_problem, answer_follow_up, load_audit
+    from problem_bridge.workbench_ui import DEMO_TEXT, DEMO_CSV
+
+    # Frozen field contract from main 9e516a2e; not derived from the new model.
+    legacy_fields = {
+        "schema_version", "problem_id", "project_id", "revision", "question",
+        "observation", "observation_source", "desired_change", "hypothesis",
+        "human_boundary", "brief", "interview_answers", "framing_sha256",
+        "confirmed_at", "previous", "audit", "responses",
+    }
+    root = tmp_path / "runs"
+    brief = NeedBrief(materials="Synthetic result table") if version == 2 else None
+    confirmed = confirm_problem(root, "legacy-envelope", {"question": "Check the synthetic results"}, brief=brief)
+    audited = audit_problem(root, "legacy-envelope", confirmed, manuscript=DEMO_TEXT,
+                            tables={"results.csv": DEMO_CSV.encode()})
+    record = load_problem(root, audited, "legacy-envelope")
+    _, feedback = load_audit(root, record)
+    answered = answer_follow_up(root, "legacy-envelope", audited,
+                                feedback["questions"][0]["question_id"], "Ask the author")
+    revised = confirm_problem(root, "legacy-envelope", {"question": "Check the next table"}, previous=answered)
+    for out in (confirmed, audited, answered, revised):
+        payload = json.loads((out / "problem_record.json").read_text(encoding="utf-8"))
+        assert payload["schema_version"] == version
+        assert set(payload) == legacy_fields
+        assert load_problem(root, out, "legacy-envelope").continuation is None
