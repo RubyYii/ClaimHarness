@@ -1,0 +1,49 @@
+{
+  "purpose": "data_suitability_and_fixed_dialogue_pilot_preparation",
+  "new_model_inference_calls": 0,
+  "new_human_participants": 0,
+  "selection": {
+    "seed_prefix": "requirements-data-check-2026-10-02:",
+    "sort": "ascending_sha256",
+    "per_source": 12,
+    "heldout_claim": false,
+    "all_selected_cases_retained": true
+  },
+  "in3": {
+    "tasks": 108,
+    "gpt4_recorded_dialogues": 108,
+    "exact_task_joins": 108,
+    "vague_tasks": 95,
+    "not_vague_tasks": 13,
+    "recorded_assistant_summaries": 108
+  },
+  "ccpe": {
+    "dialogues": 502,
+    "utterances": 11971,
+    "speaker_counts": {
+      "ASSISTANT": 5594,
+      "USER": 6377
+    },
+    "utterances_without_segments_field": 5132
+  },
+  "reqelicitgym": {
+    "scenarios": 101,
+    "application_types": 10,
+    "implicit_requirements": 632,
+    "final_user_stories_in_URL_field": 1000,
+    "used_in_pilot": false,
+    "reuse_license": "not_specified_in_source_readme"
+  },
+  "pilot": {
+    "episodes": 24,
+    "input_messages": 356,
+    "reference_rows": 24,
+    "inference_status": "not_run",
+    "semantic_review_status": "six_cases_reviewed_exploratorily"
+  },
+  "checks": {
+    "unique_episode_ids": true,
+    "paired_reference_ids": true,
+    "sources_separate_from_model_predictions": true
+  }
+}

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 390" role="img" aria-labelledby="title desc"><title id="title">A handoff that keeps the conversation going</title><desc id="desc">Start with a confirmed need. Respond, revise and review. Keep open questions visible. Then bring back a small sample and check selected requirements. Reviews and sample checks stay separate.</desc>
+<rect width="1400" height="390" rx="20" fill="#f3f7f8"/>
+<g font-family="Segoe UI, Arial, Microsoft YaHei, sans-serif" fill="#152737">
+<text x="40" y="58" font-size="32" font-weight="700">A handoff that keeps the conversation going</text>
+<text x="40" y="96" font-size="20" fill="#425769">Start with a confirmed need. Respond, revise and review. Keep open questions visible.</text>
+<rect x="40" y="126" width="307" height="170" rx="12" fill="#fff" stroke="#b6cbd4"/>
+<rect x="58" y="144" width="34" height="34" rx="8" fill="#126960"/>
+<text x="75" y="169" text-anchor="middle" font-size="23" font-weight="700" fill="#fff">A</text>
+<text x="58" y="211" font-size="25" font-weight="700">Confirm the need</text>
+<text x="58" y="246" font-size="16" fill="#425769">Describe the task and outcome</text>
+<text x="58" y="273" font-size="16" fill="#425769">Save the first version</text>
+<path d="M352 211 h18 m-7 -6 7 6 -7 6" fill="none" stroke="#516b7b" stroke-width="2"/>
+<rect x="377" y="126" width="307" height="170" rx="12" fill="#fff" stroke="#b6cbd4"/>
+<rect x="395" y="144" width="34" height="34" rx="8" fill="#175f94"/>
+<text x="412" y="169" text-anchor="middle" font-size="23" font-weight="700" fill="#fff">B</text>
+<text x="395" y="211" font-size="25" font-weight="700">Respond</text>
+<text x="395" y="246" font-size="16" fill="#425769">Record your understanding</text>
+<text x="395" y="273" font-size="16" fill="#425769">Suggest an approach; ask questions</text>
+<path d="M689 211 h18 m-7 -6 7 6 -7 6" fill="none" stroke="#516b7b" stroke-width="2"/>
+<rect x="714" y="126" width="307" height="170" rx="12" fill="#fff" stroke="#b6cbd4"/>
+<rect x="732" y="144" width="34" height="34" rx="8" fill="#126960"/>
+<text x="749" y="169" text-anchor="middle" font-size="23" font-weight="700" fill="#fff">A</text>
+<text x="732" y="211" font-size="25" font-weight="700">Revise or retain</text>
+<text x="732" y="246" font-size="16" fill="#425769">Explain the decision and next step</text>
+<text x="732" y="273" font-size="16" fill="#425769">Confirm a new version</text>
+<path d="M1026 211 h18 m-7 -6 7 6 -7 6" fill="none" stroke="#516b7b" stroke-width="2"/>
+<rect x="1051" y="126" width="307" height="170" rx="12" fill="#fff" stroke="#b6cbd4"/>
+<rect x="1069" y="144" width="34" height="34" rx="8" fill="#175f94"/>
+<text x="1086" y="169" text-anchor="middle" font-size="23" font-weight="700" fill="#fff">B</text>
+<text x="1069" y="211" font-size="25" font-weight="700">Review changes</text>
+<text x="1069" y="246" font-size="16" fill="#425769">Check changes and open questions</text>
+<text x="1069" y="273" font-size="16" fill="#425769">Decide whether you can proceed</text>
+<text x="40" y="349" font-size="20" fill="#425769">Then bring back a small sample and check selected requirements. Reviews and sample checks stay separate.</text>
+</g></svg>

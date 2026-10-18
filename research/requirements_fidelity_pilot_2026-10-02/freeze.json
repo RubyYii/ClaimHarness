@@ -1,0 +1,22 @@
+{
+  "frozen_utc": "2026-10-02T12:42:34.731599+00:00",
+  "sha256": {
+    "study.py": "d83a666da4b20a6531e76ad27f718a4fbe938e0a74811bbf480ebb78de18f3f2",
+    "test_study.py": "d3780c3230332fb18b59a1503074c44e813326815813d05ae51a8f98a4c4258c",
+    "checkpoint_specs.json": "291dc1a89592f34a79352c3b702eedb8a219e6d3c56a6de63a11df2dd8ccd9d5",
+    "cases.json": "cc8c7b57dfb0b45cc55d7cc43015bd2619f83be284bf411b50d5dc5325d1de1a",
+    "prompts.json": "a6cb8e2a168bf7f92e52820d3ed9c3c6c9fb42a3d86a176b36d363b1575047fc",
+    "schemas.json": "2c78be17f3c190e5eb732b44493428057f3c402059b6d2cb89ceb75904b1cf90",
+    "PROTOCOL_zh.md": "5403ddc4afdd0034ea494d6dce8f2d05a7e65bbfe9f70a6e274abe1c8797278c",
+    "README_zh.md": "2dcd4ad1718bf49a8c7e986fc24d310632a5c63ee049c13155509cd8291afb94",
+    "transfer_manifest.json": "7ff0a97b5fae9fd594893ce5b3bc633d05ee1591c39b79b75880c278a41d29ce",
+    "advisory_status.json": "98623ef1195354722e78a6c79b931e0507f612e87cadec0109ba16f3a5b56a6b"
+  },
+  "protected": {
+    "research\\requirements_data_check_2026-10-02\\pilot_inputs.jsonl": "fbac9bd89340c3735da3a8c7217aed70442a27f5920be959ebd2f2cc94c72164",
+    "research\\publication_2026-09-21\\CLAIM.md": "f8fe92515ec64e1c33e0868fa4c471c1938d8f84d284022d28a1cb5c92723485"
+  },
+  "requested_model": "gpt-6-astra",
+  "effort": "low",
+  "planned_calls": 96
+}

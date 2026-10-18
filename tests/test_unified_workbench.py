@@ -181,7 +181,7 @@ def test_ui_one_problem_from_interview_to_audit_to_next_question_and_reopening(t
     assert not reopened.exception
     assert reopened.session_state["last_problem_dir"] == str(answered)
     assert reopened.session_state["active_project_id"] == app.session_state["active_project_id"]
-    next(radio for radio in reopened.radio if radio.key == "unified_stage_en").set_value(3).run(timeout=30)
+    click(reopened, "main_nav_3")
     click(reopened, "unified_reframe")
     assert reopened.session_state["unified_stage"] == 1
     assert "Ask the author" in reopened.session_state["unified_return_question"]
@@ -235,7 +235,7 @@ def test_ui_material_draft_survives_step_and_tool_switch_and_marks_old_results(t
     click(app, "unified_demo")
     click(app, "unified_rerun")
     area(app, "unified_manuscript", "A new statement not checked yet.")
-    next(radio for radio in app.radio if radio.key == "unified_stage_en").set_value(3).run(timeout=30)
+    click(app, "main_nav_3")
     assert any("draft has changed" in warning.value for warning in app.warning)
     click(app, "quick_nav_4")
     click(app, "quick_nav_0")
@@ -252,7 +252,7 @@ def test_ui_selected_uploads_override_paste_and_keep_exact_audited_materials(tmp
     app.session_state["unified_uploaded_text"] = ("new-report.md", replacement.encode())
     app.session_state["unified_uploaded_tables"] = [("results.csv", DEMO_CSV.encode())]
     app.run(timeout=30)
-    next(radio for radio in app.radio if radio.key == "unified_stage_en").set_value(3).run(timeout=30)
+    click(app, "main_nav_3")
     assert any("draft has changed" in warning.value for warning in app.warning)
     click(app, "unified_rerun")
     assert app.session_state["unified_uploaded_text"][1] == replacement.encode()

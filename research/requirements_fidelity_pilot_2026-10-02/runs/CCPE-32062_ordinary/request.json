@@ -1,0 +1,24 @@
+{
+  "id": "CCPE-32062_ordinary",
+  "case_id": "CCPE-32062",
+  "dataset": "ccpe",
+  "stage": "ordinary",
+  "status": "completed",
+  "started_utc": "2026-10-02T12:44:20.469360+00:00",
+  "requested_model": "gpt-6-astra",
+  "effort": "low",
+  "prompt_sha256": "56763011e055924dee3076161791b6063294363b082f031b9de39da0d63e2eed",
+  "predecessors": {},
+  "returncode": 0,
+  "session_id": "01a0fca4-e6c9-7083-b1b1-599f033787be",
+  "usage": {
+    "input_tokens": 13327,
+    "cached_input_tokens": 0,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 105,
+    "reasoning_output_tokens": 0
+  },
+  "response_sha256": "2597ec8487502048b1c6fae9a26495adc3ce82cd8c49a6cbf71b31c5b1d98f85",
+  "finished_utc": "2026-10-02T12:44:28.579803+00:00",
+  "elapsed_seconds": 8.109
+}

@@ -1,0 +1,89 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a five-page summary of a 50-page academic paper provided as a text file.",
+        "reason": "Preserves the requested academic-paper summarization task."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "a 50-page academic paper",
+        "reason": "Preserves the original paper's stated length."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "a five-page summary",
+        "reason": "Preserves the requested summary length."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They have no specific aspects or key points they want emphasized.",
+        "reason": "Preserves the absence of requested focal points."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a five-page summary of a 50-page academic paper in a text file.",
+        "reason": "Preserves the requested academic-paper summarization task."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "a 50-page academic paper",
+        "reason": "Preserves the original paper's stated length."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "a five-page summary",
+        "reason": "Preserves the requested summary length."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They have no specific aspects or key points they want emphasized.",
+        "reason": "Preserves the absence of requested focal points."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a five-page summary of an academic paper provided as a text file.",
+        "reason": "Preserves the requested academic-paper summarization task."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They stated that the original paper is 50 pages long",
+        "reason": "Preserves the original paper's stated length."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "a five-page summary",
+        "reason": "Preserves the requested summary length."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "have no specific aspects or key points they want emphasized.",
+        "reason": "Preserves the absence of requested focal points."
+      }
+    ],
+    "issues": []
+  }
+}

@@ -1,0 +1,5 @@
+# Preserve the exact bytes of frozen experiment files and original model logs.
+* -text
+runs/** -text
+# This original advisory CLI capture uses CRLF; preserve it without false whitespace errors.
+gemini_code_review.json whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

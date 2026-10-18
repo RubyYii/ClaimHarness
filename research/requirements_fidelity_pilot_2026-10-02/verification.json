@@ -1,0 +1,40 @@
+{
+  "actual_calls_verified": 96,
+  "distinct_sessions": 96,
+  "generation_outputs": 72,
+  "automated_ratings": 24,
+  "model_call_failures": 0,
+  "runner_retries": 0,
+  "source_dialogues_equal_frozen_inputs": true,
+  "raw_last_message_matches_trace_and_response": true,
+  "generation_received_evaluation_checkpoints": false,
+  "tool_events": 0,
+  "nonfatal_disabled_tool_warning_counts": {
+    "Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`.": 96
+  },
+  "checkpoint_and_issue_quotes_invalid": 0,
+  "focused_tests": {
+    "passed": 7,
+    "elapsed_seconds": 0.07
+  },
+  "repository_tests": {
+    "passed": 547,
+    "elapsed_seconds": 119.65
+  },
+  "mock_required_outputs": {
+    "claim_table.csv": "36920cc1c707764782464436036dec5ab11666d409add1268379fb4a0a01cdc6",
+    "evidence_map.json": "9beb603dbb8d1725717865edc538e40788273df9a431114776e7a01ed50a4075",
+    "audit_report.md": "986a13f1280d00271cf75053d9789a1160efeff2718f7af333feff557c369570",
+    "revision_suggestions.md": "f5b5dddc61e16c861c39ee66d00c996265b57007d62ba19e14bf8bd15a123197",
+    "agent_trace.jsonl": "a16f7159e113e3b52a2c90e09487867dccabadad905ecbc1526136195c5289cb"
+  },
+  "initial_pre_call_executable_path_failure": "Old app binary path absent; zero model attempts from that command. Located installed executable and continued unchanged protocol.",
+  "gemini_plan_review": "503 unavailable; no advice used",
+  "gemini_code_review": "pass; optional fixture suggestions only. Exact int type already excludes bool.",
+  "generated_result_hashes": {
+    "automated_summary.json": "19c407f48d9b8aed5e4dd7107ba5c870de663ab455e8d35cdc74ff1417973e6c",
+    "scored_outputs.json": "495065476e9e2eb2ac3773d4f6966071e873c7308e34683b7e8dff392a97fc8c",
+    "source_audit.json": "9840a1a60f8a59d88e076ba2284db916c5254c4cd266d78ce352457b11f289c4",
+    "corrected_summary.json": "7ad47aefcd8b065a000119b2bdce23067a1ebbe668cb5ff06e687ecb750db464"
+  }
+}

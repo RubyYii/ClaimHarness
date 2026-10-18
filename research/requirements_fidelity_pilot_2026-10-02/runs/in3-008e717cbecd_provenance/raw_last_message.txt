@@ -1,0 +1,1 @@
+{"brief":"The user wants research and a summary of blockchain and its applications. In response to the assistant’s clarification, the user explicitly requested a basic overview and stated no particular applications or aspects of interest. Keep the explanation introductory and cover applications broadly. The requested level does not establish the user’s prior knowledge."}

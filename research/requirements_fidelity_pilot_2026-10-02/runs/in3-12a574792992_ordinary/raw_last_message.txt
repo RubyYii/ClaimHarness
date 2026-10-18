@@ -1,0 +1,1 @@
+{"brief":"The user wants a Bash command that continuously monitors CPU and memory usage. No operating system, refresh interval, preferred tool, or output format was specified."}

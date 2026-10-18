@@ -78,6 +78,8 @@ SYSTEM_OWNED_ARTIFACTS = frozenset(
         "follow_up.json",
         "follow_up.md",
         "question_brief.md",
+        "requirement_trace.json",
+        "requirement_trace.md",
         "revision_suggestions.md",
         "run_manifest.json",
         "source_manifest.json",

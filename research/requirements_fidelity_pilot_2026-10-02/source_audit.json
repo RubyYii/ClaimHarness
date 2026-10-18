@@ -1,0 +1,73 @@
+{
+  "reviewer": "Codex source audit, not an independent human annotator",
+  "reviewed_after_model_outputs": true,
+  "preselected_episodes": ["in3-0047fbefe65b", "in3-007fb3bf4f83", "in3-008e717cbecd", "CCPE-aa1a9", "CCPE-64f09", "CCPE-ebc61"],
+  "additional_episodes_all_flagged": ["CCPE-9143a", "CCPE-32062", "CCPE-2b2f6"],
+  "reviewed_complete_briefs": 27,
+  "total_generated_briefs": 72,
+  "reviewed_automated_issue_flags": 4,
+  "preselected_review_finding": "No additional definite fidelity problem identified in the 18 preselected briefs. This is Codex judgment, not user confirmation.",
+  "reference_correction": {
+    "episode_id": "CCPE-9143a",
+    "checkpoint_id": "C2",
+    "original_claim": "The first named favorite film is inaudible and unidentified",
+    "problem": "The interview asks for a specific movie the user enjoys, not a favorite. The reference itself introduced unsupported preference strength.",
+    "source_turn_ids": [4, 5, 7],
+    "source_question": "Is there a specific movie you enjoy from this genre?",
+    "action": "Exclude this checkpoint from the corrected coverage denominator for all three arms. Preserve the frozen original and all raw ratings. Do not change, omit or rerun the episode.",
+    "timing": "Discovered during post-generation source audit; this is a disclosed measurement correction, not a prespecified exclusion.",
+    "raw_checkpoints_per_arm": 100,
+    "corrected_checkpoints_per_arm": 99,
+    "generation_received_checkpoints": false,
+    "judge_received_original_checkpoint": true,
+    "corrected_interpretation": "The movie title is inaudible; there is no established favorite ranking. No replacement checkpoint is scored."
+  },
+  "issue_adjudications": [
+    {
+      "episode_id": "CCPE-9143a",
+      "arm": "ordinary",
+      "issue_index": 0,
+      "automatic_label": "uncertain_issue",
+      "audit_label": "minor_unsupported_strengthening",
+      "source_turn_id": 4,
+      "source_quote": "Is there a specific movie you enjoy from this genre?",
+      "response_quote": "one favorite comedy",
+      "reason": "The brief upgrades an enjoyed example to a favorite. This is a minor textual overstatement under the source, not evidence that the user actually dislikes it or suffered harm.",
+      "generic_review_response_quote": "one comedy they enjoy"
+    },
+    {
+      "episode_id": "CCPE-9143a",
+      "arm": "provenance",
+      "issue_index": 0,
+      "automatic_label": "uncertain_issue",
+      "audit_label": "minor_unsupported_strengthening",
+      "source_turn_id": 4,
+      "source_quote": "Is there a specific movie you enjoy from this genre?",
+      "response_quote": "one favorite comedy",
+      "reason": "Same minor unsupported strengthening as ordinary despite provenance prompting. Automatic judge remained uncertain; this source-level interpretation is Codex's provisional audit."
+    },
+    {
+      "episode_id": "CCPE-2b2f6",
+      "arm": "ordinary",
+      "issue_index": 0,
+      "automatic_label": "uncertain_issue",
+      "audit_label": "remains_uncertain",
+      "source_turn_id": 1,
+      "source_quote": "I like comedy cuz I like to laugh a lot and have fun.",
+      "response_quote": "The user primarily enjoys comedy",
+      "reason": "Primarily could imply an unsupported genre ranking or merely summarize conversational emphasis. Retain ambiguity instead of counting a definite error."
+    },
+    {
+      "episode_id": "CCPE-32062",
+      "arm": "provenance",
+      "issue_index": 0,
+      "automatic_label": "uncertain_issue",
+      "audit_label": "remains_uncertain",
+      "source_turn_id": 8,
+      "source_quote": "I like anything with Melissa McCarthy in it.",
+      "response_quote": "No specific film titles, preferred countries or languages, or narrower comedy preferences were provided.",
+      "reason": "Narrower comedy preferences could include the actor preference, but the same brief accurately retains that preference and the phrase could instead mean unspecified subgenres. Do not count as a definite omission."
+    }
+  ],
+  "decision": "No observed advantage for provenance prompting on this fixed development set. Generic review corrects a small wording overstatement in one episode, using an additional call. Stop expanding this static summary comparison; no causal conclusion about user goal formation."
+}

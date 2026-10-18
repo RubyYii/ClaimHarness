@@ -1,0 +1,262 @@
+{
+  "brief": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "brief": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "brief"
+    ]
+  },
+  "judge": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "A": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "checkpoints": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "covered",
+                    "altered",
+                    "omitted",
+                    "uncertain"
+                  ]
+                },
+                "response_quote": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "status",
+                "response_quote",
+                "reason"
+              ]
+            }
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "unsupported_assertion",
+                    "meaning_change",
+                    "uncertain_issue"
+                  ]
+                },
+                "source_turn_id": {
+                  "type": "integer"
+                },
+                "source_quote": {
+                  "type": "string"
+                },
+                "response_quote": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "source_turn_id",
+                "source_quote",
+                "response_quote",
+                "reason"
+              ]
+            }
+          }
+        },
+        "required": [
+          "checkpoints",
+          "issues"
+        ]
+      },
+      "B": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "checkpoints": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "covered",
+                    "altered",
+                    "omitted",
+                    "uncertain"
+                  ]
+                },
+                "response_quote": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "status",
+                "response_quote",
+                "reason"
+              ]
+            }
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "unsupported_assertion",
+                    "meaning_change",
+                    "uncertain_issue"
+                  ]
+                },
+                "source_turn_id": {
+                  "type": "integer"
+                },
+                "source_quote": {
+                  "type": "string"
+                },
+                "response_quote": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "source_turn_id",
+                "source_quote",
+                "response_quote",
+                "reason"
+              ]
+            }
+          }
+        },
+        "required": [
+          "checkpoints",
+          "issues"
+        ]
+      },
+      "C": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "checkpoints": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "covered",
+                    "altered",
+                    "omitted",
+                    "uncertain"
+                  ]
+                },
+                "response_quote": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "status",
+                "response_quote",
+                "reason"
+              ]
+            }
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "unsupported_assertion",
+                    "meaning_change",
+                    "uncertain_issue"
+                  ]
+                },
+                "source_turn_id": {
+                  "type": "integer"
+                },
+                "source_quote": {
+                  "type": "string"
+                },
+                "response_quote": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "source_turn_id",
+                "source_quote",
+                "response_quote",
+                "reason"
+              ]
+            }
+          }
+        },
+        "required": [
+          "checkpoints",
+          "issues"
+        ]
+      }
+    },
+    "required": [
+      "A",
+      "B",
+      "C"
+    ]
+  }
+}

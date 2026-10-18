@@ -1,0 +1,24 @@
+{
+  "id": "in3-05a8867fd2c7_provenance",
+  "case_id": "in3-05a8867fd2c7",
+  "dataset": "in3",
+  "stage": "provenance",
+  "status": "completed",
+  "started_utc": "2026-10-02T12:44:35.407830+00:00",
+  "requested_model": "gpt-6-astra",
+  "effort": "low",
+  "prompt_sha256": "d709ed4ca0c1568ad8526308f3fd3dcacce823f163262ba36a664c8c75670786",
+  "predecessors": {},
+  "returncode": 0,
+  "session_id": "01a0fca5-2127-70c3-8b1e-356e94d815e6",
+  "usage": {
+    "input_tokens": 13114,
+    "cached_input_tokens": 9984,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 87,
+    "reasoning_output_tokens": 0
+  },
+  "response_sha256": "47e5a9fca42e3968fcb1f491d3d1d36e784ec135afcbff9a07f3b4c92ec429ac",
+  "finished_utc": "2026-10-02T12:44:42.199467+00:00",
+  "elapsed_seconds": 6.782
+}

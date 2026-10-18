@@ -1,0 +1,107 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes romantic comedies",
+        "reason": "Preserves the stated genre preference."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "More exposure might have led them to watch it, but they were explicitly unsure",
+        "reason": "Together with the stated limited knowledge, preserves the tentative possibility of watching with more information."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "has a strong interest in history, especially World War II films. They enjoy learning why conflicts started, would watch documentaries, and describe themselves as a huge PBS fan.",
+        "reason": "Preserves interest in history and WWII material and openness to documentaries."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They are not a big fan of movie musicals.",
+        "reason": "Preserves the preference and its degree."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They strongly dislike horror and specifically dislike Aliens, though they are unsure whether to classify it as horror or sci-fi horror. Being scared and jumping out of their seat are not entertainment to them; they refuse to go to horror movies and do not want to pay to be frightened.",
+        "reason": "Preserves dislike, refusal, the reason for avoidance, and uncertainty about classification."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes romantic comedies",
+        "reason": "Preserves the stated genre preference."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They know little about The Shape of Water.",
+        "reason": "The paragraph also explicitly preserves that more exposure only might have prompted watching and that this was hard to judge."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "has a strong interest in history, finding many World War II movies interesting. They enjoy learning why conflicts started, would watch documentaries, and describe themselves as a huge PBS fan.",
+        "reason": "Preserves the historical interests and documentary openness."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They are not a big fan of movie musicals.",
+        "reason": "Preserves the qualified dislike of movie musicals."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They dislike Aliens and refuse to go to horror movies, although they are unsure whether Aliens is classified as horror or sci-fi horror. Being frightened and jumping out of their seat are not entertainment to them; they do not want to pay to be scared.",
+        "reason": "Preserves dislike, refusal, classification uncertainty, and the reason."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes romantic comedies",
+        "reason": "Preserves the stated genre preference."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They knew little about it, recalled it as highly rated, and thought it had won an Academy Award or two.",
+        "reason": "The paragraph also preserves the conditional question, “Might have” answer, and tentative nature of that openness."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "has a strong interest in history, particularly World War II films. They enjoy learning why conflicts started, are open to documentaries, and describe themselves as a huge PBS fan.",
+        "reason": "Preserves the interests and documentary openness without generalizing them to all combat movies."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They are not a big fan of movie musicals.",
+        "reason": "Preserves the preference and its qualification."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They strongly dislike horror: they dislike Aliens, although they are unsure whether to classify it as horror or science-fiction horror. Being frightened and jumping out of their seat are not entertainment to them; they say they refuse to go to horror movies.",
+        "reason": "Preserves dislike of Aliens, refusal of horror, classification uncertainty, and the reason for avoidance."
+      }
+    ],
+    "issues": []
+  }
+}

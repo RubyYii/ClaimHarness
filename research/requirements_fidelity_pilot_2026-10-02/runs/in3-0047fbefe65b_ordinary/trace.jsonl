@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"01a0fca4-cd06-7271-82e5-cb53cf22b15b"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"brief\":\"The user wants a basic overview of string theory and initially asked to search for an explanation. They chose a basic overview over a detailed technical explanation. Their physics background remains unspecified. No search results or explanation have been provided yet.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":12890,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":59,"reasoning_output_tokens":0}}

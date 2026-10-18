@@ -1,0 +1,3362 @@
+[
+  {
+    "episode_id": "in3-0047fbefe65b",
+    "dataset": "in3",
+    "arm": "provenance",
+    "judge_label": "A",
+    "word_count": 49,
+    "cost": {
+      "input_tokens": 13002,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 67,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants an explanation of string theory",
+        "reason": "Preserves the requested topic and explanatory goal.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "explicitly chose a basic overview",
+        "reason": "Preserves the user's requested level of detail.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-0047fbefe65b",
+    "dataset": "in3",
+    "arm": "ordinary",
+    "judge_label": "B",
+    "word_count": 41,
+    "cost": {
+      "input_tokens": 12890,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 59,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a basic overview of string theory and initially asked to search for an explanation.",
+        "reason": "Preserves both the explanatory goal and the initial search request.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They chose a basic overview over a detailed technical explanation.",
+        "reason": "Accurately captures the user's selection from the offered levels of detail.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-0047fbefe65b",
+    "dataset": "in3",
+    "arm": "ordinary_review",
+    "judge_label": "C",
+    "word_count": 39,
+    "cost": {
+      "input_tokens": 25866,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 115,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user asked to search for an explanation of string theory",
+        "reason": "Preserves the requested search, topic and explanatory goal.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "clarified that they want a basic overview rather than a detailed technical explanation",
+        "reason": "Preserves the user's selection of a basic overview.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-007fb3bf4f83",
+    "dataset": "in3",
+    "arm": "ordinary",
+    "judge_label": "A",
+    "word_count": 43,
+    "cost": {
+      "input_tokens": 12984,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 65,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a five-page summary of a 50-page academic paper provided as a text file.",
+        "reason": "Preserves the requested academic-paper summarization task.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "a 50-page academic paper",
+        "reason": "Preserves the original paper's stated length.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "a five-page summary",
+        "reason": "Preserves the requested summary length.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They have no specific aspects or key points they want emphasized.",
+        "reason": "Preserves the absence of requested focal points.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-007fb3bf4f83",
+    "dataset": "in3",
+    "arm": "ordinary_review",
+    "judge_label": "B",
+    "word_count": 42,
+    "cost": {
+      "input_tokens": 26064,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 129,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a five-page summary of a 50-page academic paper in a text file.",
+        "reason": "Preserves the requested academic-paper summarization task.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "a 50-page academic paper",
+        "reason": "Preserves the original paper's stated length.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "a five-page summary",
+        "reason": "Preserves the requested summary length.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They have no specific aspects or key points they want emphasized.",
+        "reason": "Preserves the absence of requested focal points.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-007fb3bf4f83",
+    "dataset": "in3",
+    "arm": "provenance",
+    "judge_label": "C",
+    "word_count": 64,
+    "cost": {
+      "input_tokens": 13098,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 86,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a five-page summary of an academic paper provided as a text file.",
+        "reason": "Preserves the requested academic-paper summarization task.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They stated that the original paper is 50 pages long",
+        "reason": "Preserves the original paper's stated length.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "a five-page summary",
+        "reason": "Preserves the requested summary length.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "have no specific aspects or key points they want emphasized.",
+        "reason": "Preserves the absence of requested focal points.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-008e717cbecd",
+    "dataset": "in3",
+    "arm": "ordinary",
+    "judge_label": "A",
+    "word_count": 49,
+    "cost": {
+      "input_tokens": 12905,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 67,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "research and a basic overview of blockchain technology",
+        "reason": "Preserves the request to research and explain the blockchain concept.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "and its applications",
+        "reason": "Retains applications within the requested overview.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "Keep the summary introductory",
+        "reason": "Faithfully expresses the requested basic level.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "have no particular applications or aspects in mind",
+        "reason": "Preserves the absence of a specific application or aspect of interest.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-008e717cbecd",
+    "dataset": "in3",
+    "arm": "provenance",
+    "judge_label": "B",
+    "word_count": 52,
+    "cost": {
+      "input_tokens": 13025,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 73,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "research and a summary of blockchain",
+        "reason": "Preserves the request to research and summarize the blockchain concept.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "and its applications",
+        "reason": "Retains applications as part of the task.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "the user explicitly requested a basic overview",
+        "reason": "Directly preserves the requested level of detail.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "stated no particular applications or aspects of interest",
+        "reason": "Preserves the user's lack of a singled-out application or aspect.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-008e717cbecd",
+    "dataset": "in3",
+    "arm": "ordinary_review",
+    "judge_label": "C",
+    "word_count": 42,
+    "cost": {
+      "input_tokens": 25906,
+      "cached_input_tokens": 19968,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 127,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "research and a basic overview of blockchain technology",
+        "reason": "Preserves the request to research and explain the blockchain concept.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "and its applications",
+        "reason": "Retains applications within the task.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "keep the summary introductory",
+        "reason": "Faithfully expresses the requested basic level.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They have no particular applications or aspects they want emphasized",
+        "reason": "Preserves the absence of a specific application or aspect to prioritize.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-00950ad8d6e5",
+    "dataset": "in3",
+    "arm": "provenance",
+    "judge_label": "A",
+    "word_count": 48,
+    "cost": {
+      "input_tokens": 13080,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 73,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants news about new smartphone model releases",
+        "reason": "Preserves the user's selected focus on new model releases.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "specifically Apple’s high-end flagship phones",
+        "reason": "Preserves Apple as the selected brand.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "specifically Apple’s high-end flagship phones",
+        "reason": "Preserves the high-end flagship tier.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-00950ad8d6e5",
+    "dataset": "in3",
+    "arm": "ordinary",
+    "judge_label": "B",
+    "word_count": 39,
+    "cost": {
+      "input_tokens": 12964,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 62,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants news about new smartphone model releases",
+        "reason": "Preserves the user's selected focus on new model releases.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "specifically Apple’s high-end flagship phones",
+        "reason": "Preserves Apple as the selected brand.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "specifically Apple’s high-end flagship phones",
+        "reason": "Preserves the high-end flagship tier.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-00950ad8d6e5",
+    "dataset": "in3",
+    "arm": "ordinary_review",
+    "judge_label": "C",
+    "word_count": 40,
+    "cost": {
+      "input_tokens": 26019,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 126,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants news about new smartphone model releases",
+        "reason": "Preserves the user's selected focus on new model releases.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "specifically Apple’s high-end flagship phones",
+        "reason": "Preserves Apple as the selected brand.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "specifically Apple’s high-end flagship phones",
+        "reason": "Preserves the high-end flagship tier.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-05a8867fd2c7",
+    "dataset": "in3",
+    "arm": "ordinary",
+    "judge_label": "A",
+    "word_count": 48,
+    "cost": {
+      "input_tokens": 13000,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 75,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "an estimate of the average cost of living in New York City",
+        "reason": "Preserves the requested measure and city.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "assuming a one-bedroom apartment",
+        "reason": "Preserves the selected housing type.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "with no neighborhood preference",
+        "reason": "Preserves the absence of neighborhood restrictions.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "Include housing, utilities, groceries, transportation, and entertainment.",
+        "reason": "Includes all four requested nonhousing expense categories.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-05a8867fd2c7",
+    "dataset": "in3",
+    "arm": "provenance",
+    "judge_label": "B",
+    "word_count": 59,
+    "cost": {
+      "input_tokens": 13114,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 87,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "the average cost of living in New York City",
+        "reason": "Preserves the requested measure and city.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "including a one-bedroom apartment",
+        "reason": "Preserves the selected housing type.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "with no neighborhood preference",
+        "reason": "Preserves the absence of neighborhood restrictions.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "the estimate should also include utilities, groceries, transportation, and entertainment, rather than rent alone",
+        "reason": "Preserves all requested expense categories and the user's confirmation of the broader scope.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-05a8867fd2c7",
+    "dataset": "in3",
+    "arm": "ordinary_review",
+    "judge_label": "C",
+    "word_count": 49,
+    "cost": {
+      "input_tokens": 26110,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 151,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "an estimate of the average cost of living in New York City",
+        "reason": "Preserves the requested measure and city.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "including rent for a one-bedroom apartment",
+        "reason": "Preserves the selected housing type; rent is consistent with the accepted apartment-cost framing.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They have no neighborhood preference.",
+        "reason": "Preserves the absence of neighborhood restrictions.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "utilities, groceries, transportation, and entertainment",
+        "reason": "Includes all four requested nonhousing expense categories.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-0859a4cb25c0",
+    "dataset": "in3",
+    "arm": "ordinary_review",
+    "judge_label": "A",
+    "word_count": 74,
+    "cost": {
+      "input_tokens": 26291,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 199,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "law school exams in two months",
+        "reason": "Preserves the exam context and timeframe.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "focused on civil law",
+        "reason": "Preserves the specified subject.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They study three hours per day",
+        "reason": "Preserves the stated daily study duration.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "prefer one long session",
+        "reason": "Preserves the session preference.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "do not want to study on weekends",
+        "reason": "Preserves the exclusion of weekend study.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-0859a4cb25c0",
+    "dataset": "in3",
+    "arm": "ordinary",
+    "judge_label": "B",
+    "word_count": 72,
+    "cost": {
+      "input_tokens": 13079,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 98,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "law school exams in two months",
+        "reason": "Preserves the exam context and timeframe.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "focused on civil law",
+        "reason": "Preserves the specified subject.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They study three hours per day",
+        "reason": "Preserves the stated daily study duration.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "prefer one continuous session",
+        "reason": "Reasonably paraphrases the preference for one long session.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "do not want weekend study",
+        "reason": "Preserves the exclusion of weekend study.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-0859a4cb25c0",
+    "dataset": "in3",
+    "arm": "provenance",
+    "judge_label": "C",
+    "word_count": 74,
+    "cost": {
+      "input_tokens": 13197,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 102,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "law school exams in two months",
+        "reason": "Preserves the exam context and timeframe.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "focused on civil law",
+        "reason": "Preserves the specified subject.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They specified three hours per day",
+        "reason": "Preserves the duration while reasonably noting that the compound question left current hours versus future availability unresolved.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "prefer one long study session",
+        "reason": "Preserves the session preference.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "explicitly exclude weekends",
+        "reason": "Preserves the exclusion of weekend study.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-0a489b051d49",
+    "dataset": "in3",
+    "arm": "ordinary_review",
+    "judge_label": "A",
+    "word_count": 74,
+    "cost": {
+      "input_tokens": 26125,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 206,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants the cheapest round-trip flights from New York to London",
+        "reason": "Preserves the route, round-trip requirement, and lowest-price objective.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "departing February 1 and returning March 2, with flexible dates",
+        "reason": "Preserves both dates, their travel roles, and flexibility.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They specified Air China",
+        "reason": "Preserves the named airline without adding exclusivity.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "business class",
+        "reason": "Preserves the requested cabin class.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "direct flights",
+        "reason": "Preserves the direct-flight requirement.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-0a489b051d49",
+    "dataset": "in3",
+    "arm": "provenance",
+    "judge_label": "B",
+    "word_count": 91,
+    "cost": {
+      "input_tokens": 13114,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 121,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants the cheapest round-trip flights from New York to London.",
+        "reason": "Preserves the route, round-trip requirement, and lowest-price objective.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They gave February 1 as the departure date and March 2 as the return date and explicitly said the dates are flexible, without specifying how much flexibility.",
+        "reason": "Preserves both dates and flexibility while accurately noting its unspecified extent.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "the user specified Air China",
+        "reason": "Preserves the named airline without adding exclusivity.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "business class",
+        "reason": "Preserves the requested cabin class.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "a direct flight",
+        "reason": "Preserves the direct-flight requirement.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-0a489b051d49",
+    "dataset": "in3",
+    "arm": "ordinary",
+    "judge_label": "C",
+    "word_count": 73,
+    "cost": {
+      "input_tokens": 12994,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 102,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants the cheapest round-trip flights from New York to London",
+        "reason": "Preserves the route, round-trip requirement, and lowest-price objective.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "departing February 1 and returning March 2, with flexible dates",
+        "reason": "Preserves both dates, their travel roles, and flexibility.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They specified Air China",
+        "reason": "Preserves the named airline without adding exclusivity.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "business class",
+        "reason": "Preserves the requested cabin class.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "direct flights",
+        "reason": "Preserves the direct-flight requirement.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-0f9449d9555f",
+    "dataset": "in3",
+    "arm": "ordinary_review",
+    "judge_label": "A",
+    "word_count": 61,
+    "cost": {
+      "input_tokens": 26061,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 159,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants to learn to read piano sheet music",
+        "reason": "Preserves the requested learning task and instrument.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They describe their level as intermediate and report some experience, without further detail.",
+        "reason": "Preserves the self-reported level and limited experience description.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "with a specific focus on understanding complex rhythms",
+        "reason": "Preserves the user's chosen area for improvement.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-0f9449d9555f",
+    "dataset": "in3",
+    "arm": "ordinary",
+    "judge_label": "B",
+    "word_count": 54,
+    "cost": {
+      "input_tokens": 12976,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 76,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants to learn to read piano sheet music",
+        "reason": "Preserves the requested learning task and instrument.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They describe their level as intermediate, with some experience",
+        "reason": "Preserves both parts of the user's self-description.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "specifically to better understand complex rhythms",
+        "reason": "Directly preserves the stated improvement goal.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-0f9449d9555f",
+    "dataset": "in3",
+    "arm": "provenance",
+    "judge_label": "C",
+    "word_count": 84,
+    "cost": {
+      "input_tokens": 13094,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 118,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants to learn to read piano sheet music",
+        "reason": "Preserves the requested learning task and instrument.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They describe their level as “intermediate” with “some experience,”",
+        "reason": "Accurately preserves the user's broad self-assessment without assigning it to a specific skill.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "with a specific focus on better understanding complex rhythms",
+        "reason": "Preserves the selected focus; the later discussion of unselected topics does not claim the user rejected them.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-10a1678f2505",
+    "dataset": "in3",
+    "arm": "ordinary_review",
+    "judge_label": "A",
+    "word_count": 71,
+    "cost": {
+      "input_tokens": 26301,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 200,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "a climate-change dataset covering CO2 levels over the last century",
+        "reason": "Preserves the climate-change context and century-long coverage.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "CO2 levels",
+        "reason": "Preserves the requested parameter.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "raw data in CSV format",
+        "reason": "Preserves the requested CSV format.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "raw data in CSV format",
+        "reason": "Preserves the raw-data requirement.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "they subsequently specified a focus on oceanic areas",
+        "reason": "Preserves the oceanic focus without inventing particular locations.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-10a1678f2505",
+    "dataset": "in3",
+    "arm": "provenance",
+    "judge_label": "B",
+    "word_count": 75,
+    "cost": {
+      "input_tokens": 13203,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 102,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "on CO2 levels over the last century, in the context of climate change",
+        "reason": "Preserves the climate-change context and century-long coverage.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "CO2 levels",
+        "reason": "Preserves the requested parameter.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "a raw dataset in CSV format",
+        "reason": "Preserves the requested CSV format.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "a raw dataset in CSV format",
+        "reason": "Preserves the raw-data requirement.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "they subsequently specified interest in particular regions and identified oceanic areas",
+        "reason": "Preserves the regional oceanic focus without specifying unchosen locations.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-10a1678f2505",
+    "dataset": "in3",
+    "arm": "ordinary",
+    "judge_label": "C",
+    "word_count": 74,
+    "cost": {
+      "input_tokens": 13083,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 100,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "a dataset on CO2 levels related to climate change over the last century",
+        "reason": "Preserves the climate-change context and century-long coverage.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "CO2 levels",
+        "reason": "Preserves the requested parameter.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "raw data in CSV format",
+        "reason": "Preserves the requested CSV format.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "raw data in CSV format",
+        "reason": "Preserves the raw-data requirement.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "have narrowed the geographic focus from global coverage to specific oceanic areas. Which oceans or areas they mean remains unspecified.",
+        "reason": "Preserves the oceanic regional focus and clarifies that particular locations remain unspecified.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-11db38b37e1d",
+    "dataset": "in3",
+    "arm": "ordinary_review",
+    "judge_label": "A",
+    "word_count": 60,
+    "cost": {
+      "input_tokens": 25943,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 183,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a review comparing the iPhone 14 with a Samsung phone they called “samsum galaxy 14,”",
+        "reason": "Preserves both named devices without substituting a specific Galaxy model; the brief also recommends clarifying the ambiguous Samsung name.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "covering performance, camera, battery life, design, and price.",
+        "reason": "Retains all five requested comparison criteria.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-11db38b37e1d",
+    "dataset": "in3",
+    "arm": "provenance",
+    "judge_label": "B",
+    "word_count": 72,
+    "cost": {
+      "input_tokens": 13025,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 103,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a review comparing the iPhone 14 with the Samsung model they called “samsum galaxy 14.”",
+        "reason": "Preserves the user's device names without substitution and calls for clarification of the Samsung model.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They explicitly selected performance, camera, battery life, design, and price as the comparison criteria after the assistant asked for clarification.",
+        "reason": "Accurately retains all five criteria the user selected.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-11db38b37e1d",
+    "dataset": "in3",
+    "arm": "ordinary",
+    "judge_label": "C",
+    "word_count": 61,
+    "cost": {
+      "input_tokens": 12909,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 92,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a comparative smartphone review of the iPhone 14 and a Samsung model they called “samsum galaxy 14,”",
+        "reason": "Preserves both named devices without selecting another Galaxy model; clarification is appropriately proposed.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "covering performance, camera, battery life, design, and price.",
+        "reason": "Retains all five requested comparison criteria.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-1246d89081ad",
+    "dataset": "in3",
+    "arm": "provenance",
+    "judge_label": "A",
+    "word_count": 33,
+    "cost": {
+      "input_tokens": 12908,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 52,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants an explanation of what black holes are",
+        "reason": "Preserves the request to explain the concept of black holes.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "and how they are detected.",
+        "reason": "Preserves the request to explain black hole detection.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-1246d89081ad",
+    "dataset": "in3",
+    "arm": "ordinary_review",
+    "judge_label": "B",
+    "word_count": 27,
+    "cost": {
+      "input_tokens": 25658,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 90,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants an explanation of what black holes are",
+        "reason": "Preserves the request to explain the concept of black holes.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "and how they are detected.",
+        "reason": "Preserves the request to explain black hole detection.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-1246d89081ad",
+    "dataset": "in3",
+    "arm": "ordinary",
+    "judge_label": "C",
+    "word_count": 27,
+    "cost": {
+      "input_tokens": 12788,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 45,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants an explanation of what black holes are",
+        "reason": "Preserves the request to explain the concept of black holes.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "and how they are detected.",
+        "reason": "Preserves the request to explain black hole detection.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-12a574792992",
+    "dataset": "in3",
+    "arm": "ordinary_review",
+    "judge_label": "A",
+    "word_count": 27,
+    "cost": {
+      "input_tokens": 25655,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 90,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a Bash command",
+        "reason": "Preserves the requested command language and deliverable.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "to continuously monitor CPU and memory usage.",
+        "reason": "Preserves continuous monitoring of both resources.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-12a574792992",
+    "dataset": "in3",
+    "arm": "provenance",
+    "judge_label": "B",
+    "word_count": 45,
+    "cost": {
+      "input_tokens": 12908,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 65,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a Bash command",
+        "reason": "Preserves the requested command language and deliverable.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "to continuously monitor CPU and memory usage.",
+        "reason": "Preserves continuous monitoring of both resources.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "in3-12a574792992",
+    "dataset": "in3",
+    "arm": "ordinary",
+    "judge_label": "C",
+    "word_count": 25,
+    "cost": {
+      "input_tokens": 12788,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 44,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a Bash command",
+        "reason": "Preserves the requested command language and deliverable.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "that continuously monitors CPU and memory usage.",
+        "reason": "Preserves continuous monitoring of both resources.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-aa1a9",
+    "dataset": "ccpe",
+    "arm": "ordinary",
+    "judge_label": "A",
+    "word_count": 254,
+    "cost": {
+      "input_tokens": 14190,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 317,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes romantic comedies",
+        "reason": "Preserves the stated genre preference.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "More exposure might have led them to watch it, but they were explicitly unsure",
+        "reason": "Together with the stated limited knowledge, preserves the tentative possibility of watching with more information.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "has a strong interest in history, especially World War II films. They enjoy learning why conflicts started, would watch documentaries, and describe themselves as a huge PBS fan.",
+        "reason": "Preserves interest in history and WWII material and openness to documentaries.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They are not a big fan of movie musicals.",
+        "reason": "Preserves the preference and its degree.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They strongly dislike horror and specifically dislike Aliens, though they are unsure whether to classify it as horror or sci-fi horror. Being scared and jumping out of their seat are not entertainment to them; they refuse to go to horror movies and do not want to pay to be frightened.",
+        "reason": "Preserves dislike, refusal, the reason for avoidance, and uncertainty about classification.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-aa1a9",
+    "dataset": "ccpe",
+    "arm": "ordinary_review",
+    "judge_label": "B",
+    "word_count": 274,
+    "cost": {
+      "input_tokens": 28730,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 653,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes romantic comedies",
+        "reason": "Preserves the stated genre preference.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They know little about The Shape of Water.",
+        "reason": "The paragraph also explicitly preserves that more exposure only might have prompted watching and that this was hard to judge.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "has a strong interest in history, finding many World War II movies interesting. They enjoy learning why conflicts started, would watch documentaries, and describe themselves as a huge PBS fan.",
+        "reason": "Preserves the historical interests and documentary openness.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They are not a big fan of movie musicals.",
+        "reason": "Preserves the qualified dislike of movie musicals.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They dislike Aliens and refuse to go to horror movies, although they are unsure whether Aliens is classified as horror or sci-fi horror. Being frightened and jumping out of their seat are not entertainment to them; they do not want to pay to be scared.",
+        "reason": "Preserves dislike, refusal, classification uncertainty, and the reason.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-aa1a9",
+    "dataset": "ccpe",
+    "arm": "provenance",
+    "judge_label": "C",
+    "word_count": 277,
+    "cost": {
+      "input_tokens": 14308,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 346,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes romantic comedies",
+        "reason": "Preserves the stated genre preference.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They knew little about it, recalled it as highly rated, and thought it had won an Academy Award or two.",
+        "reason": "The paragraph also preserves the conditional question, “Might have” answer, and tentative nature of that openness.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "has a strong interest in history, particularly World War II films. They enjoy learning why conflicts started, are open to documentaries, and describe themselves as a huge PBS fan.",
+        "reason": "Preserves the interests and documentary openness without generalizing them to all combat movies.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They are not a big fan of movie musicals.",
+        "reason": "Preserves the preference and its qualification.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They strongly dislike horror: they dislike Aliens, although they are unsure whether to classify it as horror or science-fiction horror. Being frightened and jumping out of their seat are not entertainment to them; they say they refuse to go to horror movies.",
+        "reason": "Preserves dislike of Aliens, refusal of horror, classification uncertainty, and the reason for avoidance.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-64f09",
+    "dataset": "ccpe",
+    "arm": "ordinary",
+    "judge_label": "A",
+    "word_count": 151,
+    "cost": {
+      "input_tokens": 13623,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 193,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user mostly prefers dramas, especially when strong writing makes the story and characters engaging and explores the human condition.",
+        "reason": "Preserves the primary genre preference and the writing, character, story, and thematic qualifications.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They loved Her for exploring how people can still end up alone despite technological convenience and relative prosperity in a not-too-distant future.",
+        "reason": "Preserves the film preference and the contrast between loneliness and technological and material comfort.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They disliked every film in the 50 Shades series, calling the material terrible and saying it should not have been approved as either books or movies.",
+        "reason": "Preserves the series-wide dislike and criticism of its material and approval.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They also liked The Incredibles.",
+        "reason": "Accurately records the user's affirmative response.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "Discussing the appeal of superhero movies, they emphasized visual effects and sound design and their fascination with what visual artists and animators create. They enjoy imagining themselves as a superhero, though they qualified that they usually do not get too carried away with it.",
+        "reason": "Preserves all three attractions and the qualification about limited imaginative involvement.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-64f09",
+    "dataset": "ccpe",
+    "arm": "provenance",
+    "judge_label": "B",
+    "word_count": 174,
+    "cost": {
+      "input_tokens": 13741,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 223,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user mostly likes dramas, especially when strong writing makes the story and characters engaging and explores the human condition.",
+        "reason": "Preserves the primary genre preference and its conditional appeal.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They named Her as a film they love, particularly its exploration of how people can still end up alone in a relatively prosperous, technologically convenient, not-too-distant future.",
+        "reason": "Preserves the liked film and its valued exploration of loneliness despite prosperity and technology.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They disliked every film in the 50 Shades series. They regarded the source material as terrible and felt it should never have been approved as either books or films.",
+        "reason": "Preserves the scope of dislike and the criticism of the material and its approval.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "When the assistant suggested The Incredibles, the user explicitly confirmed liking it.",
+        "reason": "Accurately conveys the user's confirmed preference.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "In response to a broader question about superhero movies, they said they enjoy visual effects and sound design and are mesmerized by what visual artists and animators create. They also enjoy imagining themselves as a superhero, while qualifying that they usually do not get too carried away.",
+        "reason": "Preserves the stated attractions and the user's qualification without generalizing to every superhero film.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-64f09",
+    "dataset": "ccpe",
+    "arm": "ordinary_review",
+    "judge_label": "C",
+    "word_count": 146,
+    "cost": {
+      "input_tokens": 27472,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 382,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user mostly prefers dramas, valuing strong writing that makes stories and characters engaging and explores the human condition.",
+        "reason": "Preserves the main genre preference and the qualities that make dramas appealing.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They loved Her for exploring how people can still end up alone despite technological convenience and relative prosperity in a somewhat near future.",
+        "reason": "Preserves the film preference, thematic contrast, and approximate future setting.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They disliked every film in the 50 Shades series, describing the material as terrible and saying it should not have been greenlit as either a book or a movie.",
+        "reason": "Preserves the series-wide dislike and criticism of the material and its approval.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They also liked The Incredibles.",
+        "reason": "Accurately records the user's confirmed liking.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "When asked about superhero movies’ appeal, they emphasized visual effects, sound design, and their fascination with what visual artists and animators create. They also enjoy imagining themselves as a superhero, while qualifying that they usually do not get too carried away.",
+        "reason": "Preserves all stated attractions and the qualification about not usually getting carried away.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-ebc61",
+    "dataset": "ccpe",
+    "arm": "provenance",
+    "judge_label": "A",
+    "word_count": 116,
+    "cost": {
+      "input_tokens": 13588,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 154,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes horror and action movies, citing guns, action, and excitement as appealing features.",
+        "reason": "Preserves both genre preferences and the stated appeal.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They named Saving Private Ryan as one of their favorite films, describing it as an epic depiction of World War II.",
+        "reason": "Preserves its favorite status and the user's explanation.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They dislike musicals because they find them annoying and prefer movies whose themes are not conveyed through singing.",
+        "reason": "Preserves the dislike and its stated reason.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They also disliked Ghostbusters (2016). When the interviewer suggested that it failed to live up to the original, the user explicitly agreed; they offered no further explanation.",
+        "reason": "Accurately preserves the disliked film and the accepted comparison.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "The user has seen Star Wars: The Last Jedi and thought it was fantastic, specifically praising the spaceships and saying they loved all the Star Wars characters.",
+        "reason": "Preserves the positive reaction and both stated reasons.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-ebc61",
+    "dataset": "ccpe",
+    "arm": "ordinary_review",
+    "judge_label": "B",
+    "word_count": 108,
+    "cost": {
+      "input_tokens": 27115,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 288,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes horror and action movies, citing guns, action, and excitement as appealing.",
+        "reason": "Preserves both genre preferences and the stated appeal.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "Saving Private Ryan is one of their favorite movies because they consider it an epic depiction of World War II.",
+        "reason": "Preserves the favorite status and the user's reason without making an independent factual claim.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They dislike musicals because they find them annoying and prefer movies whose themes are not conveyed through singing.",
+        "reason": "Preserves the dislike and its stated reason.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They disliked Ghostbusters (2016), confirming the interviewer’s suggestion that it did not live up to the original; they gave no further reasons.",
+        "reason": "Preserves the disliked film and the user's acceptance of the comparison.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They have seen Star Wars: The Last Jedi and described it as fantastic, saying they loved the spaceships and all the Star Wars characters.",
+        "reason": "Preserves the positive reaction and both stated reasons.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-ebc61",
+    "dataset": "ccpe",
+    "arm": "ordinary",
+    "judge_label": "C",
+    "word_count": 108,
+    "cost": {
+      "input_tokens": 13468,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 144,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes horror and action movies, particularly guns, action, and excitement.",
+        "reason": "Preserves both genre preferences and the stated appeal.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "Saving Private Ryan is one of their favorite films because they consider it an epic depiction of World War II.",
+        "reason": "Preserves the favorite status and the user's explanation.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They dislike musicals because they find them annoying and prefer movies whose themes are not conveyed through singing.",
+        "reason": "Preserves the dislike and its stated reason.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They also disliked Ghostbusters (2016), agreeing with the interviewer's suggestion that it did not live up to the original; no further reasons were given.",
+        "reason": "Preserves the disliked film and the accepted comparison.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They have seen Star Wars: The Last Jedi and thought it was fantastic, specifically enjoying the spaceships and all the Star Wars characters.",
+        "reason": "Preserves the positive reaction and both stated reasons.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-105fd",
+    "dataset": "ccpe",
+    "arm": "provenance",
+    "judge_label": "A",
+    "word_count": 206,
+    "cost": {
+      "input_tokens": 13809,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 262,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user enjoys teen movies for their lighthearted blend of comedy, romantic comedy, and the best aspects of being young.",
+        "reason": "Preserves the preferred genre, tone, and combination of comedy and romance.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "One of their favorite films is 10 Things I Hate About You. They praise its acting, writing, casting across the board, and interesting storyline.",
+        "reason": "Preserves favorite status and all four stated reasons.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They did not like Superbad very much, feeling disappointed after its hype as a great teen film. They acknowledge some funny lines but say most had already appeared in commercials. They found it overly juvenile, too simple, and generally not very funny, with a portrayal that seemed like adults’ assumptions about what teenagers do.",
+        "reason": "Preserves disappointment, perceived juvenility, and insufficient humor while retaining the acknowledgment of some funny lines.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "have never rewatched Superbad and have no plans to.",
+        "reason": "Explicitly preserves the lack of plans to rewatch.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "The user directly said they love singing and dancing and would most likely find those aspects entertaining. This is an anticipated attraction to those elements, not a confirmed endorsement of the film as a whole.",
+        "reason": "Preserves the tentative expectation about singing and dancing without turning it into a viewing review.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-105fd",
+    "dataset": "ccpe",
+    "arm": "ordinary",
+    "judge_label": "B",
+    "word_count": 178,
+    "cost": {
+      "input_tokens": 13693,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 228,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user enjoys teen movies for their light-hearted blend of comedy, romance, and the best parts of being young.",
+        "reason": "Preserves the genre preference and its light-hearted comedic and romantic appeal.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "One of their favorites is 10 Things I Hate About You. They praise its acting, writing, and casting across the board, plus an interesting storyline that they feel has more depth than a typical teen movie because of its Shakespeare basis.",
+        "reason": "Preserves favorite status, all four reasons, and the user's explanation of the story's depth.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They did not like Superbad very much, particularly after its hype as a great teen film. They acknowledge some funny lines but felt most had already appeared in commercials. They found it overly juvenile, simplistic, and generally not that funny, describing its portrayal as resembling adults’ assumptions about what teens do.",
+        "reason": "Retains the negative assessment and its reasons without erasing the limited acknowledgment of humor.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They have never rewatched it and have no plans to.",
+        "reason": "In context, this explicitly preserves the user's plans regarding Superbad.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They have heard of High School Musical and love singing and dancing. They expect those elements would probably entertain them, but did not confirm having watched the film or express an overall opinion of it.",
+        "reason": "Preserves the likely, element-specific enjoyment and distinguishes it from an established viewing assessment.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-105fd",
+    "dataset": "ccpe",
+    "arm": "ordinary_review",
+    "judge_label": "C",
+    "word_count": 178,
+    "cost": {
+      "input_tokens": 27647,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 454,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user enjoys teen movies for their light-hearted mix of comedy, romantic comedy, and the best parts of being young.",
+        "reason": "Preserves the preferred genre, light-hearted tone, and comedic and romantic elements.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "10 Things I Hate About You is one of their favorites. They praise its acting, writing, and casting across the board. They find the storyline interesting and feel its Shakespeare basis gives it more substance than a typical teen movie.",
+        "reason": "Preserves favorite status and the acting, writing, casting, and story reasons.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They did not like Superbad very much and felt let down by its hype as a great teen film. They acknowledge some funny lines but say most had already appeared in commercials. They found it overly juvenile, simplistic, and generally not that funny, with a portrayal resembling adults’ assumptions about what teens do.",
+        "reason": "Preserves the disappointment and criticisms, including the qualification that some lines were funny.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They have never rewatched it and have no plans to.",
+        "reason": "Clearly retains the lack of plans to rewatch Superbad.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They have heard of High School Musical and love singing and dancing. They expect those elements would probably entertain them, but did not confirm having watched the film or give an overall opinion of it.",
+        "reason": "Retains the tentative expectation of enjoyment focused on singing and dancing, without asserting a viewing review.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-6848d",
+    "dataset": "ccpe",
+    "arm": "provenance",
+    "judge_label": "A",
+    "word_count": 228,
+    "cost": {
+      "input_tokens": 13846,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 296,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "especially feel-good dramas with strong stories and endings that leave them feeling good. They value escapism combined with enough realism to imagine events happening to themselves or people they know.",
+        "reason": "Preserves the preference for good stories, positive feelings, escapism and relatable realism.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "particularly liking how the protagonist stumbled into experiences without planning them.",
+        "reason": "Accurately captures the appeal of the protagonist's unplanned experiences.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They generally do not enjoy documentaries, especially those about animals or rainforests, but explicitly make exceptions for some true-crime documentaries. They liked Making a Murderer",
+        "reason": "Retains the general dislike, qualified true-crime exception and named example.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They generally do not enjoy documentaries, especially those about animals or rainforests",
+        "reason": "Preserves the specific documentary subjects the user dislikes.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "Bruce Willis is probably the main attraction because they are a fan. They especially praised the first film’s cleverness, dialogue, quippy remarks, and outrageous action, and called it a Christmas movie. They find these movies fun despite considering the events implausible.\n\nThe user thought the last installment they had seen was not very good, while mentioning Timothy Olyphant’s presence. The exact installment is unresolved. They believed another film might be coming out, but this was not confirmed. They said they would definitely see the next one and would probably keep watching as long as the franchise continued.",
+        "reason": "Preserves continued viewing despite disappointment, Willis fandom, wit and fun, including the user's qualifications.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-6848d",
+    "dataset": "ccpe",
+    "arm": "ordinary_review",
+    "judge_label": "B",
+    "word_count": 231,
+    "cost": {
+      "input_tokens": 27776,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 588,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "particularly feel-good dramas with a good story that leave them feeling positive, such as Forrest Gump. They value escapism with enough reality to imagine events happening to themselves or people they know.",
+        "reason": "Retains the preference for feel-good storytelling and relatable escapism.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "In Forrest Gump, they especially liked how he stumbled into experiences without planning them.",
+        "reason": "Directly preserves the stated reason for liking the film.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They generally are not fans of documentaries, particularly those about animals or rainforests, but enjoy some true-crime documentaries, including Making a Murderer.",
+        "reason": "Preserves the general preference and its limited true-crime exception.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They generally are not fans of documentaries, particularly those about animals or rainforests",
+        "reason": "Accurately identifies both disliked documentary subjects.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They have seen all the Die Hard films and will probably keep watching as long as they are made because they find them fun. They thought the installment they described as the last one was not very good, though they noted that it featured Timothy Olyphant. They thought another installment was coming and said they would definitely see it; its existence was not established in the conversation.\n\nBeing a Bruce Willis fan is probably their main reason for liking Die Hard. They particularly enjoyed the first film’s cleverness, dialogue, quippy remarks, and crazy action",
+        "reason": "Preserves future viewing intentions, disappointment with the last installment and enjoyment of Willis, wit and action.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-6848d",
+    "dataset": "ccpe",
+    "arm": "ordinary",
+    "judge_label": "C",
+    "word_count": 219,
+    "cost": {
+      "input_tokens": 13726,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 289,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "especially feel-good dramas with a strong story and an uplifting ending, such as Forrest Gump. They value escapism grounded in enough reality to imagine events happening to themselves or people they know.",
+        "reason": "Reasonably paraphrases positive emotional payoff, good stories and relatable drama.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They particularly liked how Forrest Gump’s experiences happened unexpectedly rather than through his planning.",
+        "reason": "Preserves the appeal of events happening without the protagonist planning them.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They generally do not enjoy documentaries, especially those about animals or rainforests, but make exceptions for some true-crime documentaries. They liked Making a Murderer",
+        "reason": "Retains the qualified documentary dislike and the specific true-crime example.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They generally do not enjoy documentaries, especially those about animals or rainforests",
+        "reason": "Preserves the user's lack of interest in both subjects.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They have seen all the Die Hard films and expect to keep watching them as long as they are made because they are fun. They thought the last one they saw was not very good, while noting Timothy Olyphant’s presence. They believed another installment might be coming and said they would definitely watch it; this was not confirmed.\n\nBruce Willis is a major reason they enjoy Die Hard. They especially appreciated the first film’s cleverness, dialogue, quippy remarks, and outrageous action",
+        "reason": "Preserves anticipated continued viewing despite disappointment and the appeal of Willis, wit and fun. 'Expect' reasonably retains the tentative ongoing commitment.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-11bb7",
+    "dataset": "ccpe",
+    "arm": "ordinary",
+    "judge_label": "A",
+    "word_count": 186,
+    "cost": {
+      "input_tokens": 13847,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 251,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes spy films, science fiction, and movies with lots of action.",
+        "reason": "Preserves all three genre and action preferences.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "Science fiction interests them for its imagined future technologies and the idea that familiar human problems persist despite technological progress.",
+        "reason": "Preserves both technological possibilities and enduring human problems.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They have no fixed favorite movie; their choice changes. Dr. Strangelove and Full Metal Jacket are possible favorites.",
+        "reason": "Retains the changing preference and tentative status of both titles.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "Stanley Kubrick is their favorite director. They praise Full Metal Jacket’s boot-camp/Vietnam structure, anti-war message, excellent acting, and intensity, and describe it as very well done.",
+        "reason": "Preserves the director preference and all specified reasons for admiring the film.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They dislike Bowling for Columbine and broadly dislike films by its director, whose name they could not recall.",
+        "reason": "Preserves the dislike and its scope. The final paragraph also explicitly preserves uncertain viewing of The Accountant and inability to recall its plot.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-11bb7",
+    "dataset": "ccpe",
+    "arm": "ordinary_review",
+    "judge_label": "B",
+    "word_count": 200,
+    "cost": {
+      "input_tokens": 27978,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 514,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes spy films, science fiction, and movies with lots of action.",
+        "reason": "Preserves all three genre and action preferences.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "Science fiction interests them because it imagines technologies we do not yet have while exploring how familiar human problems persist despite technological progress.",
+        "reason": "Preserves both future technology and the continuity of human problems.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They have no fixed favorite movie; their choice changes. Dr. Strangelove and Full Metal Jacket are possible favorites.",
+        "reason": "Preserves uncertainty and both possible favorites.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "Stanley Kubrick is their favorite director. They describe Full Metal Jacket as very well done, praising its anti-war message, fantastic acting, and intensity.",
+        "reason": "Retains the director preference and each specified basis for admiration.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They dislike Bowling for Columbine and broadly reject films by its director, whose name they could not recall.",
+        "reason": "Retains the dislike of the film and the director's work. The final paragraph also preserves uncertain viewing of The Accountant and forgotten plot.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-11bb7",
+    "dataset": "ccpe",
+    "arm": "provenance",
+    "judge_label": "C",
+    "word_count": 204,
+    "cost": {
+      "input_tokens": 13965,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 273,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes spy films, science fiction, and movies with lots of action.",
+        "reason": "Preserves all three genre and action preferences.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "Science fiction appeals to them for imagining future possibilities and exploring how familiar human problems persist despite better technology.",
+        "reason": "Preserves interest in future possibilities alongside enduring human problems.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They have no fixed favorite movie; their choice changes. They named Dr. Strangelove and Full Metal Jacket as possible favorites.",
+        "reason": "Retains the absence of a fixed favorite and both tentative choices.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "Stanley Kubrick is their favorite director. In discussing Full Metal Jacket, they attributed its writing to Kubrick and praised its boot-camp/Vietnam structure, anti-war message, excellent acting, and strong intensity.",
+        "reason": "Preserves the director preference and specified grounds for admiration; the writing attribution is accurately presented as the user's claim.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They dislike Bowling for Columbine and, broadly, films by its director, whose name they could not recall.",
+        "reason": "Preserves the dislike and its scope. The following paragraph also retains uncertain viewing of The Accountant and inability to remember its plot.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-9143a",
+    "dataset": "ccpe",
+    "arm": "provenance",
+    "judge_label": "A",
+    "word_count": 120,
+    "cost": {
+      "input_tokens": 13555,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 158,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user enjoys comedy because it makes them laugh and usually does not need a sensible plotline.",
+        "reason": "Preserves laughter as the appeal and the qualified lack of a plot requirement.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "its title was inaudible and remains unknown.",
+        "reason": "Preserves the unidentified title without guessing it.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They dislike drama, saying they already have enough drama in their own life and do not enjoy thinking about other people’s problems, referring to clichéd problems in dramas.",
+        "reason": "Preserves the dislike and its stated reasons.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They could not name a specific disliked movie at the time.",
+        "reason": "Preserves the inability to provide an example and its temporary scope.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They named Will Ferrell but could not recall the other actor’s name, saying the two were a good combination and that this was why they liked the film.",
+        "reason": "The preceding sentence identifies Stepbrothers; the quote preserves the pairing as the reason for liking it.",
+        "quote_valid": true
+      }
+    ],
+    "issues": [
+      {
+        "kind": "uncertain_issue",
+        "source_turn_id": 4,
+        "source_quote": "Is there a specific movie you enjoy from this genre?",
+        "response_quote": "one favorite comedy",
+        "reason": "“Favorite” may imply stronger preference than the elicited example of an enjoyed movie, although it can also be a loose paraphrase.",
+        "quote_valid": true
+      }
+    ]
+  },
+  {
+    "episode_id": "CCPE-9143a",
+    "dataset": "ccpe",
+    "arm": "ordinary",
+    "judge_label": "B",
+    "word_count": 125,
+    "cost": {
+      "input_tokens": 13441,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 164,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user enjoys comedy because it makes them laugh and usually does not need a sensible plot.",
+        "reason": "Preserves laughter as the appeal and the qualified lack of a plot requirement.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "its title was inaudible and remains unknown.",
+        "reason": "Preserves the unidentified title without guessing it.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They dislike drama, saying they already have enough drama in their own life and do not enjoy thinking about other people’s problems.",
+        "reason": "Preserves the dislike and its reasons; the following sentence appropriately leaves the ambiguous qualification unresolved.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They could not name a specific movie they strongly disliked at the time.",
+        "reason": "Preserves the requested degree of dislike and the temporary inability to name an example.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They have seen Stepbrothers and liked the pairing of the lead actors, Will Ferrell and the other lead, whose name they could not recall. They felt the actors were a good combination and cited that as their reason for liking it.",
+        "reason": "Preserves the film, the pairing, and its role as the reason for liking it.",
+        "quote_valid": true
+      }
+    ],
+    "issues": [
+      {
+        "kind": "uncertain_issue",
+        "source_turn_id": 4,
+        "source_quote": "Is there a specific movie you enjoy from this genre?",
+        "response_quote": "one favorite comedy",
+        "reason": "“Favorite” may imply stronger preference than the elicited example of an enjoyed movie, although it can also be a loose paraphrase.",
+        "quote_valid": true
+      }
+    ]
+  },
+  {
+    "episode_id": "CCPE-9143a",
+    "dataset": "ccpe",
+    "arm": "ordinary_review",
+    "judge_label": "C",
+    "word_count": 122,
+    "cost": {
+      "input_tokens": 27077,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 324,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user enjoys comedy because it makes them laugh and usually does not require a sensible plot.",
+        "reason": "Preserves laughter as the appeal and the qualified lack of a plot requirement.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "its title was inaudible and remains unknown.",
+        "reason": "Preserves the unidentified title without guessing it.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They dislike drama because they feel they already have enough drama in their own life and do not enjoy thinking about other people’s problems.",
+        "reason": "Preserves the dislike and its reasons; the following sentence appropriately leaves the ambiguous qualification unresolved.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They could not think of a specific movie they strongly disliked at the time.",
+        "reason": "Preserves the requested degree of dislike and the temporary inability to name an example.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They have seen Stepbrothers and liked the combination of its lead actors, Will Ferrell and the other lead, whose name they could not recall. They specifically cited this pairing as their reason for liking the movie.",
+        "reason": "Preserves the film, the pairing, and its role as the reason for liking it.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-caab5",
+    "dataset": "ccpe",
+    "arm": "provenance",
+    "judge_label": "A",
+    "word_count": 184,
+    "cost": {
+      "input_tokens": 13653,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 229,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user says they like documentaries, but gave no examples or explanation of that preference.",
+        "reason": "Preserves the preference without inventing a reason.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They strongly disliked an Ali G movie whose title they could not remember and stopped watching after roughly 5–10 minutes; their account varied on the exact duration. They found it awful despite loving the TV show and expecting the film to be better.",
+        "reason": "Preserves early abandonment, strong dislike, the forgotten title, affection for the show, and the inconsistent timing.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They have not seen an unidentified Amy Schumer movie they described as featuring her with an alcohol bottle. They only reported hearing that it was bad, so this is not a firsthand judgment.",
+        "reason": "Preserves both non-viewing and the hearsay basis of the negative report.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They have not seen The Matrix, although they have heard much about it and recognize references to the pills. They also have not seen Wonder Woman",
+        "reason": "Correctly states that neither film has been seen.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They really enjoyed The Godfather, calling it a good piece of cinematic work and praising its creativity and inventiveness.",
+        "reason": "Preserves enjoyment and the specific qualities praised.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-caab5",
+    "dataset": "ccpe",
+    "arm": "ordinary_review",
+    "judge_label": "B",
+    "word_count": 161,
+    "cost": {
+      "input_tokens": 27317,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 412,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes documentaries but gave no specific examples or reasons for that preference.",
+        "reason": "Preserves the preference and absence of a recorded explanation.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They strongly disliked an unidentified Ali G movie and stopped after approximately 5–10 minutes; their account varies. They described it as absolutely awful. This disappointed them because they love the TV show and expected the movie to be much better.",
+        "reason": "Preserves the unidentified film, early abandonment, variable timing, strong dislike, and contrast with love of the show. 'Unidentified' reasonably compresses the forgotten title.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They have not seen an unidentified Amy Schumer movie described as “the one with her with the alcohol bottle”; they only heard it was bad.",
+        "reason": "Preserves non-viewing and distinguishes hearsay from firsthand judgment.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They have never seen The Matrix, though they have heard a lot about it and are familiar with references to the pills. They have not seen Wonder Woman either",
+        "reason": "Preserves non-viewing of both films.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They have seen and really enjoyed The Godfather, praising it as a very good piece of cinematic work and describing it as creative and inventive.",
+        "reason": "Preserves enjoyment and the specific praise.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-caab5",
+    "dataset": "ccpe",
+    "arm": "ordinary",
+    "judge_label": "C",
+    "word_count": 164,
+    "cost": {
+      "input_tokens": 13539,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 208,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes documentaries, but gave no specific examples or reasons for that preference.",
+        "reason": "Preserves the preference without supplying an unsupported explanation.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They strongly disliked an unidentified Ali G movie and stopped after roughly 5–10 minutes (their account varies). They found it awful and did not want to continue. This disappointed them because they love the TV show and expected the movie to be much better",
+        "reason": "Preserves strong dislike, early abandonment, timing ambiguity, and love of the show. 'Unidentified' reasonably compresses the forgotten title.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They have not seen an unidentified Amy Schumer movie described as “the one with her with the alcohol bottle”; they only heard it was bad.",
+        "reason": "Preserves non-viewing and the hearsay qualification.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They have never seen The Matrix, though they frequently hear about it and recognize references to the pills. They have not seen Wonder Woman either",
+        "reason": "Preserves that neither film has been seen.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They have seen and really enjoyed The Godfather, calling it a very good piece of cinematic work and describing it as creative and inventive.",
+        "reason": "Preserves enjoyment and praise for creativity and inventiveness.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-8e113",
+    "dataset": "ccpe",
+    "arm": "ordinary",
+    "judge_label": "A",
+    "word_count": 289,
+    "cost": {
+      "input_tokens": 14445,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 361,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user especially enjoys thrillers; Zodiac is one of their favorite films. They find serial killers interesting and appreciate the film’s depth, immersive period setting, and detailed portrayal of detectives, police, and investigators.",
+        "reason": "Preserves the genre preference, favored film, and appreciation of immersion and investigative detail.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They have heard of Once Upon a Deadpool but have not seen it and are not particularly interested. However, they really wanted to see Deadpool and would be more willing to watch it than most comic book films because its concept seems distinctive and more comedic than a standard superhero movie.",
+        "reason": "Preserves viewing status, limited interest, and the qualified exception for Deadpool's distinctive comedy.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They are not big fans of action films such as Die Hard or the Rambo movies: they do not hate them, but find them boring and get tired of watching many.",
+        "reason": "Retains the distinction between limited enjoyment and hatred, as well as boredom and fatigue.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They say they are not picky about actors, prefer some over others, and have no single favorite.",
+        "reason": "Preserves relative actor preferences without assigning a favorite.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "Asked for their favorite Tom Hanks film, they chose Catch Me If You Can. They find it exciting and value its interesting story, its basis in a true story, and Leonardo DiCaprio, whom they consider a good actor.",
+        "reason": "Preserves the film choice and the user's stated reasons, including its reported true-story basis and DiCaprio.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-8e113",
+    "dataset": "ccpe",
+    "arm": "ordinary_review",
+    "judge_label": "B",
+    "word_count": 281,
+    "cost": {
+      "input_tokens": 29282,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 714,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user especially enjoys thrillers; Zodiac is one of their favorite films. They find serial killers interesting and appreciate the film’s depth, immersive period setting, and portrayal of detectives, police, and investigators.",
+        "reason": "Preserves the thriller preference and appreciation of Zodiac's immersive investigative depth.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They enjoy comedy but generally have little interest in comic book movies. They have heard of Once Upon a Deadpool but have not seen it and are not particularly interested. However, they really wanted to see Deadpool and are more open to it than most comic book films because it seems like a distinctive concept, with more comedy than a standard superhero movie.",
+        "reason": "Retains viewing status, general disinterest, and comparative openness to Deadpool for its distinctive comedy.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They are not big fans of action films such as Die Hard or the Rambo movies. They do not hate them, but find them boring and tire of watching many.",
+        "reason": "Preserves dislike's limited scope and the explicit qualification that they do not hate action films.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They say they are not picky about actors, prefer some over others, and have no single favorite.",
+        "reason": "Retains both relative preferences and the absence of a favorite actor.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "Asked for their favorite Tom Hanks film, they chose Catch Me If You Can. They find it exciting and appreciate its interesting story, its basis in a true story, and Leonardo DiCaprio, whom they consider a good actor.",
+        "reason": "Preserves the choice and stated appreciation of the story, its reported factual basis, and DiCaprio.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-8e113",
+    "dataset": "ccpe",
+    "arm": "provenance",
+    "judge_label": "C",
+    "word_count": 298,
+    "cost": {
+      "input_tokens": 14561,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 377,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user particularly likes thrillers, with Zodiac among their favorite films. They find serial killers interesting and appreciate the film’s depth, immersive period setting, and detailed look at detectives, police, and investigators.",
+        "reason": "Preserves the thriller preference, favored film, and immersive investigative detail.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They generally do not like comic-book movies much. They have heard of Once Upon a Deadpool but have not seen it and are not particularly interested. However, they said they really wanted to see Deadpool and would probably be more willing to watch it than most comic-book films: its concept seems different from standard superhero fare, and its comedic emphasis appeals to them.",
+        "reason": "Retains the viewing status, limited general interest, and qualified willingness based on Deadpool's distinctive concept and comedy.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They are not big fans of action movies such as Die Hard or Rambo: they do not hate them, but find them boring and tire of watching many.",
+        "reason": "Preserves boredom and fatigue without escalating them to hatred.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They say they are not picky about actors, prefer some over others, and have no single favorite.",
+        "reason": "Preserves relative actor preferences and the lack of a favorite.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "Asked for their favorite Hanks movie, they chose Catch Me If You Can, praising its interesting, true-story basis and Leonardo DiCaprio, whom they consider a good actor.",
+        "reason": "Preserves the film choice and the user's stated reasons, including the reported true-story basis and DiCaprio.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-32062",
+    "dataset": "ccpe",
+    "arm": "ordinary_review",
+    "judge_label": "A",
+    "word_count": 82,
+    "cost": {
+      "input_tokens": 26790,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 213,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "They particularly enjoy comedies because they make them laugh and take their mind off their troubles.",
+        "reason": "Preserves enjoyment, laughter, and relief from troubles.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They also like foreign films because they find them interesting and enjoy seeing what is happening elsewhere in the world.",
+        "reason": "Preserves the preference and its world-insight motivation.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They like anything featuring Melissa McCarthy, describing her as funny and a great comedic actress.",
+        "reason": "Preserves the breadth of the preference and its comedic basis.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "The user says they like all movies and named no disliked genres or titles, reiterating their broad enjoyment when asked about dislikes.",
+        "reason": "Accurately summarizes both responses to questions about dislikes.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-32062",
+    "dataset": "ccpe",
+    "arm": "ordinary",
+    "judge_label": "B",
+    "word_count": 78,
+    "cost": {
+      "input_tokens": 13327,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 105,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "They particularly enjoy comedies because they make them laugh and take their mind off their troubles.",
+        "reason": "Preserves enjoyment, laughter, and relief from troubles.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They also like foreign films because they find them interesting and enjoy seeing what is happening elsewhere in the world.",
+        "reason": "Preserves the preference and its world-insight motivation.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They like anything featuring Melissa McCarthy, describing her as funny and a great comedic actress.",
+        "reason": "Preserves the breadth of the preference and its comedic basis.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "The user likes all movies and named no disliked genres or titles, twice clarifying their broad enjoyment.",
+        "reason": "Faithfully paraphrases the user's two statements of broad enjoyment without inventing dislikes.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-32062",
+    "dataset": "ccpe",
+    "arm": "provenance",
+    "judge_label": "C",
+    "word_count": 100,
+    "cost": {
+      "input_tokens": 13441,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 128,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user particularly enjoys comedies because they make them laugh and take their mind off their troubles.",
+        "reason": "Preserves enjoyment, laughter, and relief from troubles.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They also enjoy foreign films because they find them interesting and like seeing what is happening elsewhere in the world",
+        "reason": "Preserves the preference and its world-insight motivation.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They say they like anything featuring Melissa McCarthy, describing her as funny and a great comedic actress.",
+        "reason": "Preserves the breadth of the preference and its comedic basis.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "Their tastes are broad: when asked about disliked movie types and then specific disliked titles, they twice clarified that they like all movies.",
+        "reason": "Preserves both dislike-question contexts and the user's reported enjoyment of all movies.",
+        "quote_valid": true
+      }
+    ],
+    "issues": [
+      {
+        "kind": "uncertain_issue",
+        "source_turn_id": 8,
+        "source_quote": "I like anything with Melissa McCarthy in it.",
+        "response_quote": "No specific film titles, preferred countries or languages, or narrower comedy preferences were provided.",
+        "reason": "The absence of 'narrower comedy preferences' is ambiguous: the actor preference could count as one. If this means comedy subgenres or styles, the statement is supported.",
+        "quote_valid": true
+      }
+    ]
+  },
+  {
+    "episode_id": "CCPE-2b2f6",
+    "dataset": "ccpe",
+    "arm": "ordinary_review",
+    "judge_label": "A",
+    "word_count": 209,
+    "cost": {
+      "input_tokens": 28638,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 568,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user enjoys comedy because they like laughing and having fun. They named The Spy Who Dumped Me, Deadpool, and Game Night as movies they like.",
+        "reason": "Preserves the comedy preference, motivation, and all three titles.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They initially could not think of a disliked movie, then tentatively suggested Juno, noting that it had been a long time. They cited its storyline and thought it was more dumb than funny.",
+        "reason": "Preserves the tentative recollection and both reasons.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "Jurassic World: Liked the suspense.",
+        "reason": "Preserves the positive reaction and its reason.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "Avengers: Infinity War: Thought it was “all right” and does not think they saw the whole film. Liked the characters, tentatively singled out Loki, and enjoyed the fantasy element.",
+        "reason": "Preserves the qualified evaluation, viewing uncertainty, and liked elements.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "Doctor Strange: Initially answered “No” when asked whether they liked it, but clarified that they had not seen it, did not recall it, and had not heard of it. This should not be recorded as dislike.",
+        "reason": "Preserves unfamiliarity and correctly avoids interpreting the initial answer as informed dislike.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-2b2f6",
+    "dataset": "ccpe",
+    "arm": "ordinary",
+    "judge_label": "B",
+    "word_count": 206,
+    "cost": {
+      "input_tokens": 14163,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 283,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user primarily enjoys comedy because they like laughing and having fun. They named The Spy Who Dumped Me, Deadpool, and Game Night as movies they like.",
+        "reason": "Preserves the comedy preference, motivation, and all three titles; the added priority implication is assessed separately.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They initially could not think of a disliked movie, then tentatively suggested Juno, noting that it had been a long time. They disliked its storyline and remembered it as more dumb than funny.",
+        "reason": "The surrounding qualification preserves the tentative recollection and both reasons.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "Jurassic World: Liked it for the suspense.",
+        "reason": "Preserves the preference and its reason.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "Avengers: Infinity War: Thought it was “all right” and does not think they watched the whole film. Liked the characters, tentatively singled out Loki, and enjoyed the fantasy element.",
+        "reason": "Preserves the qualified evaluation, viewing uncertainty, and liked elements.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "Doctor Strange: Initially answered “No” when asked whether they liked it, but clarified that they had not seen it, did not recall it, and had not heard of it. This should not be treated as dislike.",
+        "reason": "Preserves unfamiliarity and the distinction from informed dislike.",
+        "quote_valid": true
+      }
+    ],
+    "issues": [
+      {
+        "kind": "uncertain_issue",
+        "source_turn_id": 1,
+        "source_quote": "I like comedy cuz I like to laugh a lot and have fun.",
+        "response_quote": "The user primarily enjoys comedy",
+        "reason": "“Primarily” may imply a ranking above other genres that the user did not explicitly establish, though it can also reasonably summarize the interview's emphasis.",
+        "quote_valid": true
+      }
+    ]
+  },
+  {
+    "episode_id": "CCPE-2b2f6",
+    "dataset": "ccpe",
+    "arm": "provenance",
+    "judge_label": "C",
+    "word_count": 237,
+    "cost": {
+      "input_tokens": 14279,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 305,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user enjoys comedy because they like laughing and having fun. They named The Spy Who Dumped Me, Deadpool, and Game Night as movies they like",
+        "reason": "Preserves the comedy preference, motivation, and all three titles.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They initially could not think of a disliked movie, then tentatively named Juno, noting that it had been a long time. They attributed their dislike to the storyline and finding it more dumb than funny; treat this as a qualified recollection.",
+        "reason": "Preserves the tentative recollection and both reasons.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "the user confirmed liking Jurassic World for its suspense.",
+        "reason": "Preserves the preference and its reason.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They described Avengers: Infinity War as “all right” and were unsure they had watched the whole film. They liked the characters, tentatively singled out Loki, and explicitly enjoyed the fantasy element.",
+        "reason": "Preserves the qualified evaluation, viewing uncertainty, and liked elements.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "Although they initially answered “No” when asked whether they liked Doctor Strange, they clarified that they had not seen it and had not heard of it. This does not establish dislike.",
+        "reason": "Preserves the substantive unfamiliarity and correctly distinguishes it from dislike.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-8cdd5",
+    "dataset": "ccpe",
+    "arm": "ordinary",
+    "judge_label": "A",
+    "word_count": 107,
+    "cost": {
+      "input_tokens": 13540,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 155,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user prefers science fiction, especially movies about the future and space battles",
+        "reason": "Preserves the genre preference and both specific attractions.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "is a strong Star Trek fan",
+        "reason": "Faithfully paraphrases the user's emphatic confirmation.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "One of their favorites is the original 1977 Star Wars, A New Hope: they saw it as a child, and it introduced them to fantasy and science fiction.",
+        "reason": "Preserves the film, its status as one favorite, and the childhood introduction.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They dislike romance, family-oriented movies, and musicals, saying these are boring or simply do not interest them.",
+        "reason": "Preserves all three dislikes and the accepted boredom explanation.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They liked Inception a lot, praising its direction, acting, story, pacing, and the “shocker at the end.”",
+        "reason": "Preserves the positive reaction and every listed aspect.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-8cdd5",
+    "dataset": "ccpe",
+    "arm": "provenance",
+    "judge_label": "B",
+    "word_count": 139,
+    "cost": {
+      "input_tokens": 13656,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 191,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes science fiction, especially movies about the future and space battles.",
+        "reason": "Preserves the genre preference and both specific attractions.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "When asked about Star Trek, they enthusiastically confirmed being a fan.",
+        "reason": "Reasonably conveys the emphatic affirmation of fandom.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "One of their favorite movies is the original 1977 Star Wars, A New Hope: they saw it as a child, and it introduced them to fantasy and science fiction.",
+        "reason": "Preserves the film, its status as one favorite, and the childhood introduction.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They dislike romance, family-oriented movies, and musicals. They agreed with the assistant’s suggestion that these are boring to them, explaining that they simply do not find them interesting.",
+        "reason": "Preserves all three dislikes and accurately conveys the accepted explanation.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They have watched Inception and liked it a lot, specifically praising its direction, acting, pacing, story, and the “shocker at the end.”",
+        "reason": "Preserves the positive reaction and every listed aspect.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  },
+  {
+    "episode_id": "CCPE-8cdd5",
+    "dataset": "ccpe",
+    "arm": "ordinary_review",
+    "judge_label": "C",
+    "word_count": 116,
+    "cost": {
+      "input_tokens": 27266,
+      "cached_input_tokens": 9984,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 319,
+      "reasoning_output_tokens": 0
+    },
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user prefers science fiction, particularly movies about the future and space battles",
+        "reason": "Preserves the genre preference and both specific attractions.",
+        "quote_valid": true
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "is a strong Star Trek fan",
+        "reason": "Faithfully paraphrases the user's emphatic confirmation.",
+        "quote_valid": true
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "One of their favorite movies is the original 1977 Star Wars, A New Hope. They saw it as a child, and it introduced them to fantasy and science fiction.",
+        "reason": "Preserves the film, its status as one favorite, and the childhood introduction.",
+        "quote_valid": true
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They dislike romance, family-oriented movies, and musicals. They agreed when asked whether these were too boring, explaining that they simply do not interest them.",
+        "reason": "Preserves all three dislikes and accurately conveys the accepted explanation.",
+        "quote_valid": true
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They liked Inception a lot, praising its direction, acting, story, pacing, and the “shocker at the end.”",
+        "reason": "Preserves the positive reaction and every listed aspect.",
+        "quote_valid": true
+      }
+    ],
+    "issues": []
+  }
+]

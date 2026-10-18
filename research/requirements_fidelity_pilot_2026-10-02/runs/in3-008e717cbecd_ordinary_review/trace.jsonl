@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"01a0fca5-de28-7801-9d9a-4779806927ff"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"brief\":\"The user wants research and a basic overview of blockchain technology and its applications. They have no particular applications or aspects they want emphasized, so keep the summary introductory and cover applications broadly. No research or substantive summary has been provided yet.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":13001,"cached_input_tokens":9984,"cache_write_input_tokens":0,"output_tokens":60,"reasoning_output_tokens":0}}

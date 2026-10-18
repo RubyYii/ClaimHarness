@@ -1,0 +1,107 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes spy films, science fiction, and movies with lots of action.",
+        "reason": "Preserves all three genre and action preferences."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "Science fiction interests them for its imagined future technologies and the idea that familiar human problems persist despite technological progress.",
+        "reason": "Preserves both technological possibilities and enduring human problems."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They have no fixed favorite movie; their choice changes. Dr. Strangelove and Full Metal Jacket are possible favorites.",
+        "reason": "Retains the changing preference and tentative status of both titles."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "Stanley Kubrick is their favorite director. They praise Full Metal Jacket’s boot-camp/Vietnam structure, anti-war message, excellent acting, and intensity, and describe it as very well done.",
+        "reason": "Preserves the director preference and all specified reasons for admiring the film."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They dislike Bowling for Columbine and broadly dislike films by its director, whose name they could not recall.",
+        "reason": "Preserves the dislike and its scope. The final paragraph also explicitly preserves uncertain viewing of The Accountant and inability to recall its plot."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes spy films, science fiction, and movies with lots of action.",
+        "reason": "Preserves all three genre and action preferences."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "Science fiction interests them because it imagines technologies we do not yet have while exploring how familiar human problems persist despite technological progress.",
+        "reason": "Preserves both future technology and the continuity of human problems."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They have no fixed favorite movie; their choice changes. Dr. Strangelove and Full Metal Jacket are possible favorites.",
+        "reason": "Preserves uncertainty and both possible favorites."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "Stanley Kubrick is their favorite director. They describe Full Metal Jacket as very well done, praising its anti-war message, fantastic acting, and intensity.",
+        "reason": "Retains the director preference and each specified basis for admiration."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They dislike Bowling for Columbine and broadly reject films by its director, whose name they could not recall.",
+        "reason": "Retains the dislike of the film and the director's work. The final paragraph also preserves uncertain viewing of The Accountant and forgotten plot."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user likes spy films, science fiction, and movies with lots of action.",
+        "reason": "Preserves all three genre and action preferences."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "Science fiction appeals to them for imagining future possibilities and exploring how familiar human problems persist despite better technology.",
+        "reason": "Preserves interest in future possibilities alongside enduring human problems."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They have no fixed favorite movie; their choice changes. They named Dr. Strangelove and Full Metal Jacket as possible favorites.",
+        "reason": "Retains the absence of a fixed favorite and both tentative choices."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "Stanley Kubrick is their favorite director. In discussing Full Metal Jacket, they attributed its writing to Kubrick and praised its boot-camp/Vietnam structure, anti-war message, excellent acting, and strong intensity.",
+        "reason": "Preserves the director preference and specified grounds for admiration; the writing attribution is accurately presented as the user's claim."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They dislike Bowling for Columbine and, broadly, films by its director, whose name they could not recall.",
+        "reason": "Preserves the dislike and its scope. The following paragraph also retains uncertain viewing of The Accountant and inability to remember its plot."
+      }
+    ],
+    "issues": []
+  }
+}

@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"01a0fca5-3713-7131-a4c8-e1ac4af73f89"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"brief\":\"The user wants a Bash command to continuously monitor CPU and memory usage. They have not specified an operating system, refresh interval, preferred tool, or whether monitoring should cover the whole system or individual processes. No command or approach has yet been proposed or accepted.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":12908,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":65,"reasoning_output_tokens":0}}

@@ -1,0 +1,31 @@
+{
+  "raw_scores_preserved": true,
+  "post_run_reference_exclusion": {
+    "episode_id": "CCPE-9143a",
+    "checkpoint_id": "C2"
+  },
+  "all_24_episodes_retained": true,
+  "corrected_automated_coverage_per_arm": {
+    "ordinary": {
+      "covered": 99
+    },
+    "provenance": {
+      "covered": 99
+    },
+    "ordinary_review": {
+      "covered": 99
+    }
+  },
+  "source_audit_briefs_per_arm": 9,
+  "source_audit_minor_strengthening_per_arm": {
+    "ordinary": 1,
+    "provenance": 1,
+    "ordinary_review": 0
+  },
+  "source_audit_unresolved_flags_per_arm": {
+    "ordinary": 1,
+    "provenance": 1,
+    "ordinary_review": 0
+  },
+  "source_audit_is_codex_judgment_not_independent_human_annotation": true
+}

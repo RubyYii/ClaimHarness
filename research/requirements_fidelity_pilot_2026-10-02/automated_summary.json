@@ -1,0 +1,143 @@
+{
+  "episodes": 24,
+  "generation_calls": 72,
+  "automated_judge_calls": 24,
+  "distinct_sessions": 96,
+  "new_human_participants": 0,
+  "model_judgments_not_human_labels": true,
+  "actual_usage": {
+    "input_tokens": 1325085,
+    "cached_input_tokens": 249984,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 32765,
+    "reasoning_output_tokens": 498
+  },
+  "by_dataset_arm": {
+    "in3/ordinary": {
+      "briefs": 12,
+      "checkpoints": {
+        "covered": 41
+      },
+      "briefs_with_quote_valid_definite_issue": 0,
+      "quote_valid_definite_issues": 0,
+      "uncertain_issues": 0,
+      "invalid_issue_quotes": 0,
+      "over_350_words": 0,
+      "mean_words": 50.5,
+      "input_tokens_including_shared_draft": 155360,
+      "output_tokens_including_shared_draft": 885
+    },
+    "in3/provenance": {
+      "briefs": 12,
+      "checkpoints": {
+        "covered": 41
+      },
+      "briefs_with_quote_valid_definite_issue": 0,
+      "quote_valid_definite_issues": 0,
+      "uncertain_issues": 0,
+      "invalid_issue_quotes": 0,
+      "over_350_words": 0,
+      "mean_words": 62.2,
+      "input_tokens_including_shared_draft": 156768,
+      "output_tokens_including_shared_draft": 1049
+    },
+    "in3/ordinary_review": {
+      "briefs": 12,
+      "checkpoints": {
+        "covered": 41
+      },
+      "briefs_with_quote_valid_definite_issue": 0,
+      "quote_valid_definite_issues": 0,
+      "uncertain_issues": 0,
+      "invalid_issue_quotes": 0,
+      "over_350_words": 0,
+      "mean_words": 50.5,
+      "input_tokens_including_shared_draft": 311999,
+      "output_tokens_including_shared_draft": 1775
+    },
+    "ccpe/ordinary": {
+      "briefs": 12,
+      "checkpoints": {
+        "covered": 59
+      },
+      "briefs_with_quote_valid_definite_issue": 0,
+      "quote_valid_definite_issues": 0,
+      "uncertain_issues": 2,
+      "invalid_issue_quotes": 0,
+      "over_350_words": 0,
+      "mean_words": 172.1,
+      "input_tokens_including_shared_draft": 165002,
+      "output_tokens_including_shared_draft": 2698
+    },
+    "ccpe/provenance": {
+      "briefs": 12,
+      "checkpoints": {
+        "covered": 59
+      },
+      "briefs_with_quote_valid_definite_issue": 0,
+      "quote_valid_definite_issues": 0,
+      "uncertain_issues": 2,
+      "invalid_issue_quotes": 0,
+      "over_350_words": 0,
+      "mean_words": 190.2,
+      "input_tokens_including_shared_draft": 166402,
+      "output_tokens_including_shared_draft": 2942
+    },
+    "ccpe/ordinary_review": {
+      "briefs": 12,
+      "checkpoints": {
+        "covered": 59
+      },
+      "briefs_with_quote_valid_definite_issue": 0,
+      "quote_valid_definite_issues": 0,
+      "uncertain_issues": 0,
+      "invalid_issue_quotes": 0,
+      "over_350_words": 0,
+      "mean_words": 175.7,
+      "input_tokens_including_shared_draft": 333088,
+      "output_tokens_including_shared_draft": 5429
+    },
+    "all/ordinary": {
+      "briefs": 24,
+      "checkpoints": {
+        "covered": 100
+      },
+      "briefs_with_quote_valid_definite_issue": 0,
+      "quote_valid_definite_issues": 0,
+      "uncertain_issues": 2,
+      "invalid_issue_quotes": 0,
+      "over_350_words": 0,
+      "mean_words": 111.3,
+      "input_tokens_including_shared_draft": 320362,
+      "output_tokens_including_shared_draft": 3583
+    },
+    "all/provenance": {
+      "briefs": 24,
+      "checkpoints": {
+        "covered": 100
+      },
+      "briefs_with_quote_valid_definite_issue": 0,
+      "quote_valid_definite_issues": 0,
+      "uncertain_issues": 2,
+      "invalid_issue_quotes": 0,
+      "over_350_words": 0,
+      "mean_words": 126.2,
+      "input_tokens_including_shared_draft": 323170,
+      "output_tokens_including_shared_draft": 3991
+    },
+    "all/ordinary_review": {
+      "briefs": 24,
+      "checkpoints": {
+        "covered": 100
+      },
+      "briefs_with_quote_valid_definite_issue": 0,
+      "quote_valid_definite_issues": 0,
+      "uncertain_issues": 0,
+      "invalid_issue_quotes": 0,
+      "over_350_words": 0,
+      "mean_words": 113.1,
+      "input_tokens_including_shared_draft": 645087,
+      "output_tokens_including_shared_draft": 7204
+    }
+  }
+}

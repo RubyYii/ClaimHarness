@@ -137,7 +137,7 @@ def test_terms_corrections_drafts_and_optional_audit_keep_one_problem(tmp_path, 
     assert new.problem_id == load_problem(Path("outputs/ui_runs"), original, project_id).problem_id
     click(app, "unified_edit_need")
     fill(app, "unified_edit_meaning_1", "A draft meaning not confirmed yet")
-    next(item for item in app.radio if item.key == "unified_stage_en").set_value(4).run(timeout=30)
+    click(app, "main_nav_4")
     assert any("unsaved wording" in item.value for item in app.warning)
     click(app, "unified_edit_need")
     assert next(item for item in app.text_area if item.key == "unified_edit_meaning_1").value.startswith("A draft")

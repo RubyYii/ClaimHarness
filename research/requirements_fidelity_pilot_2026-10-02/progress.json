@@ -1,0 +1,22 @@
+{
+  "updated_utc": "2026-10-02T12:48:10.552312+00:00",
+  "counts": {
+    "completed": 96,
+    "pending": 0
+  },
+  "by_stage": {
+    "ordinary": {
+      "completed": 24
+    },
+    "provenance": {
+      "completed": 24
+    },
+    "ordinary_review": {
+      "completed": 24
+    },
+    "judge": {
+      "completed": 24
+    }
+  },
+  "failures": []
+}

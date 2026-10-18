@@ -1,0 +1,53 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a review comparing the iPhone 14 with a Samsung phone they called “samsum galaxy 14,”",
+        "reason": "Preserves both named devices without substituting a specific Galaxy model; the brief also recommends clarifying the ambiguous Samsung name."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "covering performance, camera, battery life, design, and price.",
+        "reason": "Retains all five requested comparison criteria."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a review comparing the iPhone 14 with the Samsung model they called “samsum galaxy 14.”",
+        "reason": "Preserves the user's device names without substitution and calls for clarification of the Samsung model."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They explicitly selected performance, camera, battery life, design, and price as the comparison criteria after the assistant asked for clarification.",
+        "reason": "Accurately retains all five criteria the user selected."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants a comparative smartphone review of the iPhone 14 and a Samsung model they called “samsum galaxy 14,”",
+        "reason": "Preserves both named devices without selecting another Galaxy model; clarification is appropriately proposed."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "covering performance, camera, battery life, design, and price.",
+        "reason": "Retains all five requested comparison criteria."
+      }
+    ],
+    "issues": []
+  }
+}

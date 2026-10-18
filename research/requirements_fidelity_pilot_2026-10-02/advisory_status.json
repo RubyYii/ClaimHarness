@@ -1,0 +1,11 @@
+{
+  "provider": "gemini-agent",
+  "requested_model": "gemini-3.5-flash",
+  "purpose": "Generic methodological plan critique only",
+  "sent_dialogue_text": false,
+  "sent_private_data": false,
+  "status": "unavailable",
+  "error": "HTTP 503 UNAVAILABLE: model experiencing high demand",
+  "automatic_retry": false,
+  "effect_on_experiment": "No Gemini judgment used; proceed with source-bounded Codex design and checks."
+}

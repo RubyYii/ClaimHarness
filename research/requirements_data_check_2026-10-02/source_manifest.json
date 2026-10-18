@@ -1,0 +1,80 @@
+{
+  "created_at_utc": "2026-10-02T04:59:48.956796+00:00",
+  "purpose": "development_data_suitability_check",
+  "model_calls": 0,
+  "new_human_participants": 0,
+  "files": [
+    {
+      "dataset": "in3",
+      "path": "raw/in3/README.md",
+      "url": "https://raw.githubusercontent.com/OpenBMB/Tell_Me_More/654fcec4da3b3465536d57b0d1995e8699a5a8f0/README.md",
+      "commit": "654fcec4da3b3465536d57b0d1995e8699a5a8f0",
+      "bytes": 12157,
+      "sha256": "95a0d43bdf625a6845c8fd2ded35f86dfb2db4cc8ff7fd53da746de82cec5d40"
+    },
+    {
+      "dataset": "in3",
+      "path": "raw/in3/LICENSE",
+      "url": "https://raw.githubusercontent.com/OpenBMB/Tell_Me_More/654fcec4da3b3465536d57b0d1995e8699a5a8f0/LICENSE",
+      "commit": "654fcec4da3b3465536d57b0d1995e8699a5a8f0",
+      "bytes": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "dataset": "in3",
+      "path": "raw/in3/test.jsonl",
+      "url": "https://raw.githubusercontent.com/OpenBMB/Tell_Me_More/654fcec4da3b3465536d57b0d1995e8699a5a8f0/data/IN3/test.jsonl",
+      "commit": "654fcec4da3b3465536d57b0d1995e8699a5a8f0",
+      "bytes": 145953,
+      "sha256": "9dac5296a35d03eb494d475bb67569965e9b514ebd3121da969277b3d6147944"
+    },
+    {
+      "dataset": "in3",
+      "path": "raw/in3/user_records_gpt4.jsonl",
+      "url": "https://raw.githubusercontent.com/OpenBMB/Tell_Me_More/654fcec4da3b3465536d57b0d1995e8699a5a8f0/data/user_interaction_records/user_interaction_record_gpt4.jsonl",
+      "commit": "654fcec4da3b3465536d57b0d1995e8699a5a8f0",
+      "bytes": 254514,
+      "sha256": "46f6598e145fa7995b8db30687a62b2de78164de3327199f7901e066f6c8c06e"
+    },
+    {
+      "dataset": "reqelicitgym",
+      "path": "raw/reqelicitgym/README.md",
+      "url": "https://raw.githubusercontent.com/jdm4pku/ReqElicitBench/6ef5dfd92056b4c31157f82be43a293bf4eb441b/README.md",
+      "commit": "6ef5dfd92056b4c31157f82be43a293bf4eb441b",
+      "bytes": 6244,
+      "sha256": "fde5bb62718947670243b274e487ed7d24af7f72516a43b2a3b997391c4bc4ef"
+    },
+    {
+      "dataset": "reqelicitgym",
+      "path": "raw/reqelicitgym/test.json",
+      "url": "https://raw.githubusercontent.com/jdm4pku/ReqElicitBench/6ef5dfd92056b4c31157f82be43a293bf4eb441b/ReqElicitGym/data/test.json",
+      "commit": "6ef5dfd92056b4c31157f82be43a293bf4eb441b",
+      "bytes": 289723,
+      "sha256": "2f8f85ab9ebe797140462660ceaa6042b503984c07400ce0be517a77e08e3791"
+    },
+    {
+      "dataset": "ccpe",
+      "path": "raw/ccpe/README.md",
+      "url": "https://raw.githubusercontent.com/google-research-datasets/ccpe/2c9cd30f33f3a154b5a27d015333679262ff36f5/README.md",
+      "commit": "2c9cd30f33f3a154b5a27d015333679262ff36f5",
+      "bytes": 4432,
+      "sha256": "334e587e68cae97d935bf8a196634571f57f563d72583771bced1d26ac2cb98f"
+    },
+    {
+      "dataset": "ccpe",
+      "path": "raw/ccpe/data.json",
+      "url": "https://raw.githubusercontent.com/google-research-datasets/ccpe/2c9cd30f33f3a154b5a27d015333679262ff36f5/data.json",
+      "commit": "2c9cd30f33f3a154b5a27d015333679262ff36f5",
+      "bytes": 5191959,
+      "sha256": "4ff051ea7ea60cf0f480c911c7e2cfed56434e2e2c9ea8965ac5e26365773f0a"
+    },
+    {
+      "dataset": "areas_lab",
+      "path": "raw/areas_lab/README.md",
+      "url": "https://raw.githubusercontent.com/cpengshan/AREAs-Lab/dd0b2079dd872c2b632376e29068f571fdf208d9/README.md",
+      "commit": "dd0b2079dd872c2b632376e29068f571fdf208d9",
+      "bytes": 1826,
+      "sha256": "ffc1c0ac5fa4fbf5abd6ca6e14f33e6429f3debba67dce10ab57ac41d44e952b"
+    }
+  ]
+}

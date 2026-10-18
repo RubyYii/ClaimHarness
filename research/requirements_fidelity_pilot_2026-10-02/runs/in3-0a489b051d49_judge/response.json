@@ -1,0 +1,107 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants the cheapest round-trip flights from New York to London",
+        "reason": "Preserves the route, round-trip requirement, and lowest-price objective."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "departing February 1 and returning March 2, with flexible dates",
+        "reason": "Preserves both dates, their travel roles, and flexibility."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They specified Air China",
+        "reason": "Preserves the named airline without adding exclusivity."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "business class",
+        "reason": "Preserves the requested cabin class."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "direct flights",
+        "reason": "Preserves the direct-flight requirement."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants the cheapest round-trip flights from New York to London.",
+        "reason": "Preserves the route, round-trip requirement, and lowest-price objective."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They gave February 1 as the departure date and March 2 as the return date and explicitly said the dates are flexible, without specifying how much flexibility.",
+        "reason": "Preserves both dates and flexibility while accurately noting its unspecified extent."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "the user specified Air China",
+        "reason": "Preserves the named airline without adding exclusivity."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "business class",
+        "reason": "Preserves the requested cabin class."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "a direct flight",
+        "reason": "Preserves the direct-flight requirement."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants the cheapest round-trip flights from New York to London",
+        "reason": "Preserves the route, round-trip requirement, and lowest-price objective."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "departing February 1 and returning March 2, with flexible dates",
+        "reason": "Preserves both dates, their travel roles, and flexibility."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They specified Air China",
+        "reason": "Preserves the named airline without adding exclusivity."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "business class",
+        "reason": "Preserves the requested cabin class."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "direct flights",
+        "reason": "Preserves the direct-flight requirement."
+      }
+    ],
+    "issues": []
+  }
+}

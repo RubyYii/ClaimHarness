@@ -1,0 +1,24 @@
+{
+  "id": "CCPE-64f09_provenance",
+  "case_id": "CCPE-64f09",
+  "dataset": "ccpe",
+  "stage": "provenance",
+  "status": "completed",
+  "started_utc": "2026-10-02T12:44:50.225070+00:00",
+  "requested_model": "gpt-6-astra",
+  "effort": "low",
+  "prompt_sha256": "baeb20fde8cc0e66198887009236d33927e24f0d463545e8c1b623131515ea4e",
+  "predecessors": {},
+  "returncode": 0,
+  "session_id": "01a0fca5-5b08-7b61-a918-3259dc2db04e",
+  "usage": {
+    "input_tokens": 13741,
+    "cached_input_tokens": 0,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 223,
+    "reasoning_output_tokens": 0
+  },
+  "response_sha256": "cbca13023d8feb43f7bb283e6d1f9460a0071e6f461eed5ad6669dc371d0f3de",
+  "finished_utc": "2026-10-02T12:45:06.087053+00:00",
+  "elapsed_seconds": 15.859
+}

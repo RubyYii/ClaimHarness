@@ -1,0 +1,107 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "especially feel-good dramas with strong stories and endings that leave them feeling good. They value escapism combined with enough realism to imagine events happening to themselves or people they know.",
+        "reason": "Preserves the preference for good stories, positive feelings, escapism and relatable realism."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "particularly liking how the protagonist stumbled into experiences without planning them.",
+        "reason": "Accurately captures the appeal of the protagonist's unplanned experiences."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They generally do not enjoy documentaries, especially those about animals or rainforests, but explicitly make exceptions for some true-crime documentaries. They liked Making a Murderer",
+        "reason": "Retains the general dislike, qualified true-crime exception and named example."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They generally do not enjoy documentaries, especially those about animals or rainforests",
+        "reason": "Preserves the specific documentary subjects the user dislikes."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "Bruce Willis is probably the main attraction because they are a fan. They especially praised the first film’s cleverness, dialogue, quippy remarks, and outrageous action, and called it a Christmas movie. They find these movies fun despite considering the events implausible.\n\nThe user thought the last installment they had seen was not very good, while mentioning Timothy Olyphant’s presence. The exact installment is unresolved. They believed another film might be coming out, but this was not confirmed. They said they would definitely see the next one and would probably keep watching as long as the franchise continued.",
+        "reason": "Preserves continued viewing despite disappointment, Willis fandom, wit and fun, including the user's qualifications."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "particularly feel-good dramas with a good story that leave them feeling positive, such as Forrest Gump. They value escapism with enough reality to imagine events happening to themselves or people they know.",
+        "reason": "Retains the preference for feel-good storytelling and relatable escapism."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "In Forrest Gump, they especially liked how he stumbled into experiences without planning them.",
+        "reason": "Directly preserves the stated reason for liking the film."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They generally are not fans of documentaries, particularly those about animals or rainforests, but enjoy some true-crime documentaries, including Making a Murderer.",
+        "reason": "Preserves the general preference and its limited true-crime exception."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They generally are not fans of documentaries, particularly those about animals or rainforests",
+        "reason": "Accurately identifies both disliked documentary subjects."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They have seen all the Die Hard films and will probably keep watching as long as they are made because they find them fun. They thought the installment they described as the last one was not very good, though they noted that it featured Timothy Olyphant. They thought another installment was coming and said they would definitely see it; its existence was not established in the conversation.\n\nBeing a Bruce Willis fan is probably their main reason for liking Die Hard. They particularly enjoyed the first film’s cleverness, dialogue, quippy remarks, and crazy action",
+        "reason": "Preserves future viewing intentions, disappointment with the last installment and enjoyment of Willis, wit and action."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "especially feel-good dramas with a strong story and an uplifting ending, such as Forrest Gump. They value escapism grounded in enough reality to imagine events happening to themselves or people they know.",
+        "reason": "Reasonably paraphrases positive emotional payoff, good stories and relatable drama."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They particularly liked how Forrest Gump’s experiences happened unexpectedly rather than through his planning.",
+        "reason": "Preserves the appeal of events happening without the protagonist planning them."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They generally do not enjoy documentaries, especially those about animals or rainforests, but make exceptions for some true-crime documentaries. They liked Making a Murderer",
+        "reason": "Retains the qualified documentary dislike and the specific true-crime example."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They generally do not enjoy documentaries, especially those about animals or rainforests",
+        "reason": "Preserves the user's lack of interest in both subjects."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "They have seen all the Die Hard films and expect to keep watching them as long as they are made because they are fun. They thought the last one they saw was not very good, while noting Timothy Olyphant’s presence. They believed another installment might be coming and said they would definitely watch it; this was not confirmed.\n\nBruce Willis is a major reason they enjoy Die Hard. They especially appreciated the first film’s cleverness, dialogue, quippy remarks, and outrageous action",
+        "reason": "Preserves anticipated continued viewing despite disappointment and the appeal of Willis, wit and fun. 'Expect' reasonably retains the tentative ongoing commitment."
+      }
+    ],
+    "issues": []
+  }
+}

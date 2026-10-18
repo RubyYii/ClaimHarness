@@ -85,10 +85,11 @@ extract_url = document_intake_module.extract_url
 write_intake_package = document_intake_module.write_intake_package
 
 
+EXAMPLE_ROOT = Path(__file__).resolve().parents[1] / "examples/problem_bridge"
 EXAMPLES = {
-    "Quality inspection": Path("examples/problem_bridge/quality_inspection/problem.md"),
-    "Cultural archive": Path("examples/problem_bridge/cultural_archive/problem.md"),
-    "Training policy": Path("examples/problem_bridge/training_policy/problem.md"),
+    "Quality inspection": EXAMPLE_ROOT / "quality_inspection/problem.md",
+    "Cultural archive": EXAMPLE_ROOT / "cultural_archive/problem.md",
+    "Training policy": EXAMPLE_ROOT / "training_policy/problem.md",
 }
 
 RUN_ROOT = Path("outputs/ui_runs")
@@ -609,23 +610,25 @@ def main() -> None:
     # Streamlit otherwise deletes widget values when their step is hidden.
     # Interrupt that cleanup for non-secret text drafts, including tool switches.
     for key in list(st.session_state):
-        if key in NEED_DRAFT_KEYS or key in {"unified_manuscript", "unified_csv", "unified_references"}:
+        if (key in NEED_DRAFT_KEYS or key in {"unified_manuscript", "unified_csv", "unified_references"}
+                or str(key).startswith(("unified_dyad_A_", "unified_dyad_B_", "unified_dyad_review_",
+                                       "unified_dyad_actor_", "unified_dyad_sample_title_", "unified_dyad_sample_content_"))
+                or key == "unified_dyad_role"):
             st.session_state[key] = st.session_state[key]
     if "pending_workspace_page" in st.session_state:
         st.session_state.workspace_page = st.session_state.pop("pending_workspace_page")
     _inject_visual_theme()
 
-    st.sidebar.markdown("### ProblemBridge")
-    st.sidebar.caption(_text("Explain your work. Prepare a shared task.", "说清专业需求，让合作有个起点。"))
-    for destination in ("Home", "Domain practitioner wizard", "View generated outputs"):
-        st.sidebar.button(
-            _page_label(destination),
-            key=f"quick_nav_{PAGE_OPTIONS.index(destination)}",
-            on_click=_navigate_to_page,
-            args=(destination,),
-            use_container_width=True,
-        )
-    with st.sidebar.expander(_text("All tools", "全部工具")):
+    st.sidebar.markdown("### " + _text("My workspace", "我的工作台"))
+    primary_navigation = st.sidebar.container(key="primary_navigation")
+    st.sidebar.button(_text("View history", "查看历史记录"), key="quick_nav_7",
+                      on_click=_navigate_to_page, args=("View generated outputs",), use_container_width=True)
+    with st.sidebar.expander(_text("Advanced tools", "高级功能")):
+        st.caption(_text("Local-first. Use synthetic or non-sensitive material first.",
+                         "本地优先。首次测试请使用合成或非敏感材料。"))
+        for destination in ("Home", "Domain practitioner wizard"):
+            st.button(_page_label(destination), key=f"quick_nav_{PAGE_OPTIONS.index(destination)}",
+                      on_click=_navigate_to_page, args=(destination,), use_container_width=True)
         navigation_key = f"navigation_{_language_code()}"
         selected_page = st.session_state.get("workspace_page", "Home")
         st.session_state[navigation_key] = selected_page if selected_page in PAGE_OPTIONS else "Home"
@@ -639,24 +642,20 @@ def main() -> None:
             args=(navigation_key,),
         )
         st.session_state.workspace_page = page
-    st.sidebar.caption(_text(
-        "Local-first. Use synthetic or non-sensitive material first.",
-        "本地优先。首次测试请使用合成或非敏感材料。",
-    ))
+        legacy_helpers = st.container()
     with st.sidebar.expander(_text("Drafts & project settings", "草稿与项目设置")):
+        _render_language_switcher()
         _render_memory_sidebar()
         _render_project_sidebar()
-
-    _render_language_switcher()
-    if page == "Home" and not st.session_state.get("last_problem_dir") and st.session_state.get("unified_intake_step", 0) == 0:
-        _render_shell_header()
-    else:
+    if page != "Home":
+        with primary_navigation:
+            st.button(_text("Return to the main workflow", "回到主流程"), key="return_main_flow",
+                      on_click=_navigate_to_page, args=("Home",), use_container_width=True)
         _render_compact_shell_header(page)
-    _safety_banner(compact=True)
     _render_flash_message()
 
     if page == "Home":
-        _home()
+        _home(primary_navigation, legacy_helpers)
     elif page == "Explore examples":
         _examples()
     elif page == "Question discovery":
@@ -674,6 +673,7 @@ def main() -> None:
     if page != "Home":
         with st.expander(_text("Other steps (optional)", "其他步骤（可选）")):
             _render_flow_navigation(page)
+    _safety_banner(compact=True)
 
 
 def _render_memory_sidebar() -> None:
@@ -1087,7 +1087,7 @@ def _inject_visual_theme() -> None:
           --pb-line: #dce5e1;
           --pb-paper: #ffffff;
           --pb-canvas: #f5f8f6;
-          --pb-teal: #0f766e;
+          --pb-teal: #286247;
           --pb-blue: #1d4ed8;
           --pb-coral: #b45309;
           --pb-soft-teal: #eaf7f5;
@@ -1105,7 +1105,7 @@ def _inject_visual_theme() -> None:
         [data-testid="stDeployButton"] { display: none !important; }
         [data-testid="stAppDeployButton"] { display: none !important; }
         [data-testid="stSidebar"] {
-          background: linear-gradient(180deg, #ffffff 0%, #f8fbfc 100%);
+          background: #f5f8f6;
           border-right: 1px solid var(--pb-line);
           color: var(--pb-ink);
         }
@@ -1206,6 +1206,22 @@ def _inject_visual_theme() -> None:
           box-shadow: 0 8px 20px rgba(23, 32, 42, .07);
         }
         .block-container { padding: 2rem 2.5rem 3rem; max-width: 1120px; }
+        [data-testid="stMain"] h1 { font-size: clamp(26px, 3vw, 34px); line-height: 1.35; padding-top: 0; }
+        .st-key-primary_navigation button { min-height: 50px; text-align: left; justify-content: flex-start; }
+        .st-key-primary_navigation button p { font-size: 16px; }
+        [data-testid="stSidebar"] button[kind="primary"] p { color: white !important; }
+        [data-testid="stSidebar"] button:disabled p { color: #7a8982 !important; }
+        [data-testid="stMain"] textarea, [data-testid="stMain"] input { font-size: 16px !important; }
+        [data-testid="stMain"] button p { font-size: 16px; }
+        .st-key-claim_list button { text-align: left; justify-content: flex-start; padding: 16px 20px; }
+        .st-key-claim_list button p { white-space: normal; overflow-wrap: anywhere; line-height: 1.65; }
+        .st-key-claim_list button > div, .st-key-claim_list button > div > span,
+        .st-key-primary_navigation button > div, .st-key-primary_navigation button > div > span {
+          width: 100%; justify-content: flex-start;
+        }
+        .st-key-claim_list button [data-testid="stMarkdownContainer"],
+        .st-key-primary_navigation button [data-testid="stMarkdownContainer"] { width: 100%; text-align: left; }
+        .st-key-selected_evidence { background: white; padding: 22px; }
         [data-testid="stMain"] h2, [data-testid="stMain"] h3 {
           color: var(--pb-ink);
           letter-spacing: -.02em;
@@ -1333,7 +1349,7 @@ def _inject_visual_theme() -> None:
           box-shadow: 0 8px 30px rgba(32, 54, 50, .04);
         }
         .st-key-need_question_card h3 { padding-top: 0; font-size: 23px; }
-        .question-progress { display: flex; gap: 5px; width: 104px; padding: 2px 0; }
+        .question-progress { display: flex; gap: 8px; width: 100%; padding: 2px 0; }
         .question-progress span { height: 4px; flex: 1; background: #e5ece8; border-radius: 3px; }
         .question-progress .is-complete { background: var(--pb-teal); }
         .brief-guide { padding: 22px 0 18px; }
@@ -1344,7 +1360,7 @@ def _inject_visual_theme() -> None:
         .brief-guide-item h4 { padding: 0; margin: 0 0 8px; font-size: 15px; font-weight: 650; }
         .brief-guide-item p, .brief-guide .guide-footnote { margin: 0; font-size: 13px; color: var(--pb-muted); line-height: 1.8; }
         .brief-guide .guide-footnote { padding-top: 18px; font-size: 12px; }
-        .st-key-need_review_card [data-testid="stForm"] { padding: 24px !important; background: white; border-radius: 16px !important; }
+        .st-key-need_review_card { padding: 24px !important; background: white; border-radius: 16px !important; }
         [class*="st-key-handoff_preview_"] { padding: 24px !important; background: white; border-radius: 14px !important; }
         [class*="st-key-handoff_preview_"] p, [class*="st-key-handoff_preview_"] li { line-height: 1.8; }
         [class*="st-key-handoff_preview_"] h4 { font-size: 17px; }
@@ -1534,17 +1550,7 @@ def _inject_visual_theme() -> None:
 
 
 def _render_language_switcher() -> None:
-    with st.container(key="app_topbar"):
-        brand, language = st.columns([3, 1])
-        with brand:
-            st.markdown(
-                '<div class="app-wordmark"><span class="app-mark" aria-hidden="true">'
-                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">'
-                '<path d="M4 18V8m16 10V8M4 14C4 4 20 4 20 14M4 14h16M8 10v4m8-4v4"/>'
-                '</svg></span>ProblemBridge</div>', unsafe_allow_html=True,
-            )
-        with language:
-            st.radio(
+    st.radio(
                 _text("Interface language", "界面语言"),
                 LANGUAGE_OPTIONS,
                 key="language_control",
@@ -1714,7 +1720,7 @@ def _safety_banner(*, compact: bool = False) -> None:
         st.warning(message)
 
 
-def _home() -> None:
+def _home(primary_navigation=None, legacy_helpers=None) -> None:
     root = _resolve_safe_ui_run_root(create=False) or RUN_ROOT.absolute()
     current = _last_output_path("last_problem_dir")
     if st.session_state.get("last_problem_dir") and current is None:
@@ -1726,9 +1732,12 @@ def _home() -> None:
             text=_text, run_action=_run_ui_action, save_result=_save_unified_result,
             interview_answers=dict(state.answers) if state else {},
             render_downloads=_render_share_controls,
+            navigation=primary_navigation,
         )
-    with st.expander(_text("Optional helpers · interview, file intake and earlier tools", "辅助工具 · 访谈、文件整理与原有功能")):
-        _home_tools()
+    if legacy_helpers is not None:
+        with legacy_helpers:
+            with st.expander(_text("Earlier workflows and file tools", "原有流程与文件工具")):
+                _home_tools()
 
 
 def _save_unified_result(out: Path, stage: int) -> None:
@@ -1797,9 +1806,8 @@ def _home_tools() -> None:
         (_text("I want to improve a workflow", "有工作流程，想改进"), _text("Answer five short questions. Get a workflow brief and review boundaries.", "回答 5 个简短问题，整理工作流程和需要人工判断的环节。"), "Domain practitioner wizard", _text("Describe my work", "开始梳理工作")),
         (_text("I have files to organize", "有现成材料，想整理"), _text("Bring documents or paste text. Inspect the extracted text and tables.", "上传文档或直接粘贴文字，检查提取的正文与表格。"), "Document intake", _text("Start with files", "从文件开始")),
     ]
-    col1, col2, col3 = st.columns(3)
-    for index, (column, (title, body, destination, button_label)) in enumerate(zip([col1, col2, col3], route_cards)):
-        with column:
+    for index, (title, body, destination, button_label) in enumerate(route_cards):
+        with st.container():
             with st.container(border=True, key=f"home_route_card_{index}"):
                 st.markdown(f"**{title}**")
                 st.write(body)

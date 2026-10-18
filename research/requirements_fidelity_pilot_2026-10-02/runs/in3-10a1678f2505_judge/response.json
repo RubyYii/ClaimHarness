@@ -1,0 +1,107 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "a climate-change dataset covering CO2 levels over the last century",
+        "reason": "Preserves the climate-change context and century-long coverage."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "CO2 levels",
+        "reason": "Preserves the requested parameter."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "raw data in CSV format",
+        "reason": "Preserves the requested CSV format."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "raw data in CSV format",
+        "reason": "Preserves the raw-data requirement."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "they subsequently specified a focus on oceanic areas",
+        "reason": "Preserves the oceanic focus without inventing particular locations."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "on CO2 levels over the last century, in the context of climate change",
+        "reason": "Preserves the climate-change context and century-long coverage."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "CO2 levels",
+        "reason": "Preserves the requested parameter."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "a raw dataset in CSV format",
+        "reason": "Preserves the requested CSV format."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "a raw dataset in CSV format",
+        "reason": "Preserves the raw-data requirement."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "they subsequently specified interest in particular regions and identified oceanic areas",
+        "reason": "Preserves the regional oceanic focus without specifying unchosen locations."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "a dataset on CO2 levels related to climate change over the last century",
+        "reason": "Preserves the climate-change context and century-long coverage."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "CO2 levels",
+        "reason": "Preserves the requested parameter."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "raw data in CSV format",
+        "reason": "Preserves the requested CSV format."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "raw data in CSV format",
+        "reason": "Preserves the raw-data requirement."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "have narrowed the geographic focus from global coverage to specific oceanic areas. Which oceans or areas they mean remains unspecified.",
+        "reason": "Preserves the oceanic regional focus and clarifies that particular locations remain unspecified."
+      }
+    ],
+    "issues": []
+  }
+}

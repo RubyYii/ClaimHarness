@@ -1,0 +1,53 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants an explanation of what black holes are",
+        "reason": "Preserves the request to explain the concept of black holes."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "and how they are detected.",
+        "reason": "Preserves the request to explain black hole detection."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants an explanation of what black holes are",
+        "reason": "Preserves the request to explain the concept of black holes."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "and how they are detected.",
+        "reason": "Preserves the request to explain black hole detection."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants an explanation of what black holes are",
+        "reason": "Preserves the request to explain the concept of black holes."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "and how they are detected.",
+        "reason": "Preserves the request to explain black hole detection."
+      }
+    ],
+    "issues": []
+  }
+}

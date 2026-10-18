@@ -1,0 +1,71 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants news about new smartphone model releases",
+        "reason": "Preserves the user's selected focus on new model releases."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "specifically Apple’s high-end flagship phones",
+        "reason": "Preserves Apple as the selected brand."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "specifically Apple’s high-end flagship phones",
+        "reason": "Preserves the high-end flagship tier."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants news about new smartphone model releases",
+        "reason": "Preserves the user's selected focus on new model releases."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "specifically Apple’s high-end flagship phones",
+        "reason": "Preserves Apple as the selected brand."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "specifically Apple’s high-end flagship phones",
+        "reason": "Preserves the high-end flagship tier."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user wants news about new smartphone model releases",
+        "reason": "Preserves the user's selected focus on new model releases."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "specifically Apple’s high-end flagship phones",
+        "reason": "Preserves Apple as the selected brand."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "specifically Apple’s high-end flagship phones",
+        "reason": "Preserves the high-end flagship tier."
+      }
+    ],
+    "issues": []
+  }
+}

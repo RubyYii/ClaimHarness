@@ -2,13 +2,13 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
-**Make your needs clear to a collaborator or an AI.**
+**Clarify your need, hear your partner's response, and review the changes together.**
 
-Start with a real task, check the wording, then take away two briefs: one for someone from another discipline and one for a language model.
+Start from one concrete task and confirm your brief. Collaborator B records their understanding and proposal, domain participant A responds and confirms a new version, and B reviews the changes and remaining questions.
 
 Local-first · Bilingual interface · No API key needed to start
 
-![Illustration: turn an unclear need into shared understanding and two briefs, for a collaborator and an AI](docs/figures/github-hero-workbench-v2.png)
+![Two-way handoff: A confirms a need, B responds, A revises or retains, and B reviews the changes](docs/figures/two-way-handoff-en.svg)
 
 ## Use it in three steps
 
@@ -18,9 +18,21 @@ Local-first · Bilingual interface · No API key needed to start
 
 When results exist, optional **ClaimHarness** checks can compare recognized English numerical statements with CSV tables.
 
-## Use in Codex or Claude Code
+## Try one two-way handoff
 
-Already use a local coding assistant? Install the two portable Skills to clarify tasks, continue after feedback and check revisions directly in chat. They call the existing Python engine without a second model API key or the web UI. [Installation, update and examples](docs/agent_skills.md).
+After confirming a need, open **Two-way handoff** in the sidebar. Take turns on one computer or a shared screen; A and B are selected roles.
+
+| Whose turn | Action | What is saved |
+|---|---|---|
+| B: technical collaborator | Restate the need, suggest an approach, ask questions | B's own response and open questions |
+| A: domain participant | Respond, revise or retain the need, explain why | A new version, decisions and next steps |
+| B: technical collaborator | Check changes and unresolved questions | Ready / partly ready / needs discussion |
+
+<a href="docs/figures/handoff-review-en.png"><img src="docs/figures/handoff-review-en.png" alt="Current workbench showing B reviewing A's response, using synthetic registration messages" width="960"></a>
+
+Actual app screenshot with synthetic demonstration content. Bring back a small text or CSV sample afterwards and record human checks against selected requirements. The program does not determine whether both people truly understand each other.
+
+[Full walkthrough](docs/two_way_handoff.md) · [First individual test (Chinese)](docs/first_round_single_participant.md) · [Static showcase source](docs/static_showcase/en.html)
 
 ## Run locally
 
@@ -50,13 +62,15 @@ Run `python -m problem_bridge clarify-demo --out outputs/clarification_demo --an
 
 ## Continue after feedback or a revision
 
+Choose **Start a two-way handoff with a collaborator** next to a confirmed brief. B records an understanding and approach; A responds and confirms a new version; B independently reviews it. Bring back a small sample and record attributed checks against selected requirements. Drafts, open questions and version-specific acknowledgements persist locally. The study's domain scenario remains open until formative interviews. [Walkthrough and implementation notes](docs/two_way_handoff.md)
+
 Bring collaborator/AI feedback back from a confirmed brief, discuss selected questions, and explicitly confirm the next version. After checking revised materials, compare two audit runs, annotate missed statements and keep user actions separate from program results.
 
 Run the complete synthetic example with `python scripts/run_continuity_demo.py --out outputs/continuity_demo`. ClaimHarness can also run independently: `python -m streamlit run apps/claim_compare.py`. [Workflow, comparison CLI and record formats](docs/continuous_review.md)
 
-## Export confirmed context and audit findings
+Track selected requirements from confirmed wording through both handoffs to attributed acceptance records with `python -m problem_bridge requirements-demo --out outputs/requirements_demo`. Open `workspace/review/requirement_trace.md` inside that output. The CLI preserves exact source spans and versions; checks remain separate from ClaimHarness verdicts. [Selection, checks and version changes](docs/requirement_traceability.md)
 
-Create a local, version-bound handoff from a confirmed ProblemBridge record or a single completed ClaimHarness audit. Exports retain conditions, source identities, evidence locations and separately labelled user records. [Commands and output contents](docs/local_handoffs.md).
+The original agent entry points and portable skills are available alongside the two-way prototype: [Agent skills](docs/agent_skills.md), [local problem/evidence exports](docs/local_handoffs.md), and [feature compatibility and fixes](docs/compatibility_check_2026-10-17.md).
 
 ## Scope and privacy
 

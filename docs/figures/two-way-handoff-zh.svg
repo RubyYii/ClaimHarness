@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 390" role="img" aria-labelledby="title desc"><title id="title">一次交接，让双方继续把话说清楚</title><desc id="desc">先确认需求，再回应、调整、核对；未解决的事项继续保留。 随后可带回一个小样例，逐条核对要求。双方确认与结果检查分别保存。</desc>
+<rect width="1400" height="390" rx="20" fill="#f3f7f8"/>
+<g font-family="Segoe UI, Arial, Microsoft YaHei, sans-serif" fill="#152737">
+<text x="40" y="58" font-size="32" font-weight="700">一次交接，让双方继续把话说清楚</text>
+<text x="40" y="96" font-size="20" fill="#425769">先确认需求，再回应、调整、核对；未解决的事项继续保留。</text>
+<rect x="40" y="126" width="307" height="170" rx="12" fill="#fff" stroke="#b6cbd4"/>
+<rect x="58" y="144" width="34" height="34" rx="8" fill="#126960"/>
+<text x="75" y="169" text-anchor="middle" font-size="23" font-weight="700" fill="#fff">A</text>
+<text x="58" y="211" font-size="25" font-weight="700">确认需求</text>
+<text x="58" y="246" font-size="16" fill="#425769">说明工作与预期结果</text>
+<text x="58" y="273" font-size="16" fill="#425769">保存第一个版本</text>
+<path d="M352 211 h18 m-7 -6 7 6 -7 6" fill="none" stroke="#516b7b" stroke-width="2"/>
+<rect x="377" y="126" width="307" height="170" rx="12" fill="#fff" stroke="#b6cbd4"/>
+<rect x="395" y="144" width="34" height="34" rx="8" fill="#175f94"/>
+<text x="412" y="169" text-anchor="middle" font-size="23" font-weight="700" fill="#fff">B</text>
+<text x="395" y="211" font-size="25" font-weight="700">接收并回应</text>
+<text x="395" y="246" font-size="16" fill="#425769">写下理解与建议</text>
+<text x="395" y="273" font-size="16" fill="#425769">提出需要确认的问题</text>
+<path d="M689 211 h18 m-7 -6 7 6 -7 6" fill="none" stroke="#516b7b" stroke-width="2"/>
+<rect x="714" y="126" width="307" height="170" rx="12" fill="#fff" stroke="#b6cbd4"/>
+<rect x="732" y="144" width="34" height="34" rx="8" fill="#126960"/>
+<text x="749" y="169" text-anchor="middle" font-size="23" font-weight="700" fill="#fff">A</text>
+<text x="732" y="211" font-size="25" font-weight="700">回应与调整</text>
+<text x="732" y="246" font-size="16" fill="#425769">说明取舍与下一步</text>
+<text x="732" y="273" font-size="16" fill="#425769">确认一个新版本</text>
+<path d="M1026 211 h18 m-7 -6 7 6 -7 6" fill="none" stroke="#516b7b" stroke-width="2"/>
+<rect x="1051" y="126" width="307" height="170" rx="12" fill="#fff" stroke="#b6cbd4"/>
+<rect x="1069" y="144" width="34" height="34" rx="8" fill="#175f94"/>
+<text x="1086" y="169" text-anchor="middle" font-size="23" font-weight="700" fill="#fff">B</text>
+<text x="1069" y="211" font-size="25" font-weight="700">查看调整结果</text>
+<text x="1069" y="246" font-size="16" fill="#425769">检查变化与保留问题</text>
+<text x="1069" y="273" font-size="16" fill="#425769">独立判断能否继续</text>
+<text x="40" y="349" font-size="20" fill="#425769">随后可带回一个小样例，逐条核对要求。双方确认与结果检查分别保存。</text>
+</g></svg>

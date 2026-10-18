@@ -41,9 +41,16 @@ def discussion(root: Path, record, current: Path | None = None) -> tuple[Journal
         update = (record.continuation or {}).get("updates", [{}])[-1]
         recovered = (history["events"][-1]["kind"] == "confirmation_requested" and
                      update.get("confirmation_request_sha256") == history["events"][-1]["sha256"])
-        if prior.framing_sha256 == record.framing_sha256 or recovered:
+        requirement_only_change = (
+            (prior.requirements is not None or record.requirements is not None)
+            and all(getattr(prior, key) == getattr(record, key) for key in FRAME_FIELDS)
+            and prior.brief == record.brief and prior.continuation == record.continuation
+        )
+        if prior.framing_sha256 == record.framing_sha256 or recovered or requirement_only_change:
             # Audit/follow-up revisions do not change the confirmed meaning. A
             # committed confirmation can also recover after its final journal write failed.
+            # Selecting tracked spans changes the framing hash, but must not
+            # discard an unfinished discussion of that same confirmed wording.
             latest = {**latest, "current_run": current.name}
             if recovered:
                 latest["last_confirmed_state_revision"] = latest["state"]["revision"]
@@ -58,15 +65,14 @@ def require_current(root: Path, record) -> None:
         candidate = path / "problem_record.json"
         if not candidate.is_file():
             continue
-        raw = json.loads(candidate.read_text(encoding="utf-8"))
-        if (raw.get("project_id"), raw.get("problem_id")) == (record.project_id, record.problem_id) and raw.get("revision", 0) > record.revision:
-            # Incomplete runs are not newer confirmed state.
-            try:
-                newer = load_problem(root, path, record.project_id)
-            except (ValueError, RuntimeError, OSError):
-                continue
-            if newer.revision > record.revision:
-                raise ValueError("Stale page: a newer confirmed version exists. Open it before continuing.")
+        # Validate the completed package before inspecting its fields. Partial,
+        # malformed, linked and other-project records are not confirmed state.
+        try:
+            newer = load_problem(root, path, record.project_id)
+        except (ValueError, RuntimeError, OSError, KeyError):
+            continue
+        if newer.problem_id == record.problem_id and newer.revision > record.revision:
+            raise ValueError("Stale page: a newer confirmed version exists. Open it before continuing.")
 
 
 def _active(root: Path, current: Path, project_id: str, expected_revision: int):

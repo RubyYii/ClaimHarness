@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "episodes_checked": 24,
+  "messages_exactly_matched_to_source": 356,
+  "paired_review_records": 24,
+  "test_kind": "source_fidelity_and_reference_isolation",
+  "model_quality_test": false,
+  "output_hashes": {
+    "pilot_inputs.jsonl": "fbac9bd89340c3735da3a8c7217aed70442a27f5920be959ebd2f2cc94c72164",
+    "review_only.jsonl": "664472740ffa96d836aa48abe9166d5426ef35ddf212e6fab1497a84e1476663"
+  },
+  "line_endings": "LF"
+}

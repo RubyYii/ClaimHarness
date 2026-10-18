@@ -1,0 +1,3594 @@
+[
+  {
+    "id": "in3-0047fbefe65b",
+    "dataset": "in3",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "user",
+        "content": "Search for an explanation of the String Theory."
+      },
+      {
+        "turn_id": 1,
+        "role": "assistant",
+        "content": "Could you please tell me about your background or current level of knowledge in physics? This would help me determine the complexity of the explanation that would be best for you. Are you looking for a basic overview or a more detailed and technical explanation?"
+      },
+      {
+        "turn_id": 2,
+        "role": "user",
+        "content": "basic overview"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Explain String Theory",
+        "source": [
+          {
+            "turn_id": 0,
+            "role": "user",
+            "quote": "Search for an explanation of the String Theory."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Provide a basic overview",
+        "source": [
+          {
+            "turn_id": 2,
+            "role": "user",
+            "quote": "basic overview"
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "provenance",
+      "ordinary",
+      "ordinary_review"
+    ]
+  },
+  {
+    "id": "in3-007fb3bf4f83",
+    "dataset": "in3",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "user",
+        "content": "Write a summary of a given text file."
+      },
+      {
+        "turn_id": 1,
+        "role": "assistant",
+        "content": "Could you please provide more details about the text you would like summarized? For example, is it an academic paper, a technical document, or something else? Additionally, how long would you like the summary to be?"
+      },
+      {
+        "turn_id": 2,
+        "role": "user",
+        "content": "academic paper, 5 pages"
+      },
+      {
+        "turn_id": 3,
+        "role": "assistant",
+        "content": "Could you please tell me more about the subject of the academic paper and its original length? Also, are there any specific aspects or key points you want to ensure are included in the summary?"
+      },
+      {
+        "turn_id": 4,
+        "role": "user",
+        "content": "origional 50 pages, no specific aspects or key points"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Summarize an academic paper",
+        "source": [
+          {
+            "turn_id": 0,
+            "role": "user",
+            "quote": "Write a summary of a given text file."
+          },
+          {
+            "turn_id": 2,
+            "role": "user",
+            "quote": "academic paper, 5 pages"
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Original paper is 50 pages",
+        "source": [
+          {
+            "turn_id": 4,
+            "role": "user",
+            "quote": "origional 50 pages, no specific aspects or key points"
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "Requested summary is 5 pages",
+        "source": [
+          {
+            "turn_id": 1,
+            "role": "assistant",
+            "quote": "Could you please provide more details about the text you would like summarized? For example, is it an academic paper, a technical document, or something else? Additionally, how long would you like the summary to be?"
+          },
+          {
+            "turn_id": 2,
+            "role": "user",
+            "quote": "academic paper, 5 pages"
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "No specific aspects or key points requested",
+        "source": [
+          {
+            "turn_id": 4,
+            "role": "user",
+            "quote": "origional 50 pages, no specific aspects or key points"
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "ordinary",
+      "ordinary_review",
+      "provenance"
+    ]
+  },
+  {
+    "id": "in3-008e717cbecd",
+    "dataset": "in3",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "user",
+        "content": "Research and summarize the concept of blockchain and its applications."
+      },
+      {
+        "turn_id": 1,
+        "role": "assistant",
+        "content": "Could you please specify the level of detail you are looking for in the summary? Are you interested in a basic overview of blockchain technology or a more comprehensive analysis? Additionally, are there any particular applications or aspects of blockchain that you are especially interested in?"
+      },
+      {
+        "turn_id": 2,
+        "role": "user",
+        "content": "basic overview of blockchain technology, no particular applications or aspects of blockchain"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Cover the blockchain concept",
+        "source": [
+          {
+            "turn_id": 0,
+            "role": "user",
+            "quote": "Research and summarize the concept of blockchain and its applications."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Cover blockchain applications as part of the original task",
+        "source": [
+          {
+            "turn_id": 0,
+            "role": "user",
+            "quote": "Research and summarize the concept of blockchain and its applications."
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "Basic overview",
+        "source": [
+          {
+            "turn_id": 2,
+            "role": "user",
+            "quote": "basic overview of blockchain technology, no particular applications or aspects of blockchain"
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "No particular application or aspect singled out",
+        "source": [
+          {
+            "turn_id": 2,
+            "role": "user",
+            "quote": "basic overview of blockchain technology, no particular applications or aspects of blockchain"
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "ordinary",
+      "provenance",
+      "ordinary_review"
+    ]
+  },
+  {
+    "id": "in3-00950ad8d6e5",
+    "dataset": "in3",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "user",
+        "content": "What's new in the world of smartphones?"
+      },
+      {
+        "turn_id": 1,
+        "role": "assistant",
+        "content": "Could you please specify what aspect of smartphones you are interested in? Are you looking for information on new model releases, technological advancements, software updates, market trends, or news from specific brands?"
+      },
+      {
+        "turn_id": 2,
+        "role": "user",
+        "content": "new model releases"
+      },
+      {
+        "turn_id": 3,
+        "role": "assistant",
+        "content": "Could you specify which brands you are most interested in? Also, are you looking for high-end flagship phones, mid-range models, or budget-friendly options?"
+      },
+      {
+        "turn_id": 4,
+        "role": "user",
+        "content": "Apple, high-end flagship phones"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "New smartphone model releases",
+        "source": [
+          {
+            "turn_id": 0,
+            "role": "user",
+            "quote": "What's new in the world of smartphones?"
+          },
+          {
+            "turn_id": 2,
+            "role": "user",
+            "quote": "new model releases"
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Apple",
+        "source": [
+          {
+            "turn_id": 4,
+            "role": "user",
+            "quote": "Apple, high-end flagship phones"
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "High-end flagship phones",
+        "source": [
+          {
+            "turn_id": 4,
+            "role": "user",
+            "quote": "Apple, high-end flagship phones"
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "provenance",
+      "ordinary",
+      "ordinary_review"
+    ]
+  },
+  {
+    "id": "in3-05a8867fd2c7",
+    "dataset": "in3",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "user",
+        "content": "Determine the average cost of living in New York City."
+      },
+      {
+        "turn_id": 1,
+        "role": "assistant",
+        "content": "Could you specify the type of housing you are considering in New York City? For example, are you looking for a studio, one-bedroom, or larger apartment, and do you have any neighborhood preferences?"
+      },
+      {
+        "turn_id": 2,
+        "role": "user",
+        "content": " one-bedroom, no neighborhood preferences"
+      },
+      {
+        "turn_id": 3,
+        "role": "assistant",
+        "content": "Could you let me know if you would like the average cost of living to include other expenses such as utilities, groceries, transportation, and entertainment, or are you only looking for the cost of a one-bedroom apartment regardless of the neighborhood?"
+      },
+      {
+        "turn_id": 4,
+        "role": "user",
+        "content": "average cost of living to include other expenses such as utilities, groceries, transportation, and entertainment"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Average cost of living in New York City",
+        "source": [
+          {
+            "turn_id": 0,
+            "role": "user",
+            "quote": "Determine the average cost of living in New York City."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "One-bedroom housing",
+        "source": [
+          {
+            "turn_id": 2,
+            "role": "user",
+            "quote": " one-bedroom, no neighborhood preferences"
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "No neighborhood preference",
+        "source": [
+          {
+            "turn_id": 2,
+            "role": "user",
+            "quote": " one-bedroom, no neighborhood preferences"
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "Include utilities, groceries, transportation and entertainment",
+        "source": [
+          {
+            "turn_id": 4,
+            "role": "user",
+            "quote": "average cost of living to include other expenses such as utilities, groceries, transportation, and entertainment"
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "ordinary",
+      "provenance",
+      "ordinary_review"
+    ]
+  },
+  {
+    "id": "in3-0859a4cb25c0",
+    "dataset": "in3",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "user",
+        "content": "Set up a study plan for my upcoming law school exams in two months."
+      },
+      {
+        "turn_id": 1,
+        "role": "assistant",
+        "content": "Could you tell me about your current study habits and the specific subjects or topics you need to study for your law school exams?"
+      },
+      {
+        "turn_id": 2,
+        "role": "user",
+        "content": " Regular study schedule, eneral overview "
+      },
+      {
+        "turn_id": 3,
+        "role": "assistant",
+        "content": "Could you specify how many hours per day or week you are currently studying and how many you can potentially dedicate to your study plan? Also, can you list the subjects or specific areas of law that you need to prepare for in your upcoming exams?"
+      },
+      {
+        "turn_id": 4,
+        "role": "user",
+        "content": "3hours per day, civil law"
+      },
+      {
+        "turn_id": 5,
+        "role": "assistant",
+        "content": "You've mentioned studying 3 hours per day for civil law. Can you tell me if you prefer to study in one long session or break it into shorter periods? Also, are you willing to include weekends in your study plan?\\"
+      },
+      {
+        "turn_id": 6,
+        "role": "user",
+        "content": "one long session, no weekend"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Law school exams in two months",
+        "source": [
+          {
+            "turn_id": 0,
+            "role": "user",
+            "quote": "Set up a study plan for my upcoming law school exams in two months."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Civil law",
+        "source": [
+          {
+            "turn_id": 4,
+            "role": "user",
+            "quote": "3hours per day, civil law"
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "Three study hours per day",
+        "source": [
+          {
+            "turn_id": 4,
+            "role": "user",
+            "quote": "3hours per day, civil law"
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "One long study session",
+        "source": [
+          {
+            "turn_id": 6,
+            "role": "user",
+            "quote": "one long session, no weekend"
+          }
+        ]
+      },
+      {
+        "id": "C5",
+        "claim": "No weekend study",
+        "source": [
+          {
+            "turn_id": 6,
+            "role": "user",
+            "quote": "one long session, no weekend"
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "ordinary_review",
+      "ordinary",
+      "provenance"
+    ]
+  },
+  {
+    "id": "in3-0a489b051d49",
+    "dataset": "in3",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "user",
+        "content": "Find the cheapest round-trip flights from New York to London next month."
+      },
+      {
+        "turn_id": 1,
+        "role": "assistant",
+        "content": "Could you please specify the exact dates you wish to travel from New York to London and return? Also, do you have any flexibility with these dates that could allow for more cost-effective options?"
+      },
+      {
+        "turn_id": 2,
+        "role": "user",
+        "content": "february 1st and march 2nd, flexible"
+      },
+      {
+        "turn_id": 3,
+        "role": "assistant",
+        "content": "Could you let me know if you have a preferred airline or alliance, and what cabin class you'd like to travel in? Additionally, are you looking for direct flights only or are you open to flights with layovers for potentially cheaper options?"
+      },
+      {
+        "turn_id": 4,
+        "role": "user",
+        "content": "air china, bussiness class, direct flight"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Cheapest round-trip New York to London flights",
+        "source": [
+          {
+            "turn_id": 0,
+            "role": "user",
+            "quote": "Find the cheapest round-trip flights from New York to London next month."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Departure February 1 and return March 2, dates flexible",
+        "source": [
+          {
+            "turn_id": 1,
+            "role": "assistant",
+            "quote": "Could you please specify the exact dates you wish to travel from New York to London and return? Also, do you have any flexibility with these dates that could allow for more cost-effective options?"
+          },
+          {
+            "turn_id": 2,
+            "role": "user",
+            "quote": "february 1st and march 2nd, flexible"
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "Air China preference",
+        "source": [
+          {
+            "turn_id": 4,
+            "role": "user",
+            "quote": "air china, bussiness class, direct flight"
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "Business class",
+        "source": [
+          {
+            "turn_id": 4,
+            "role": "user",
+            "quote": "air china, bussiness class, direct flight"
+          }
+        ]
+      },
+      {
+        "id": "C5",
+        "claim": "Direct flights",
+        "source": [
+          {
+            "turn_id": 4,
+            "role": "user",
+            "quote": "air china, bussiness class, direct flight"
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "ordinary_review",
+      "provenance",
+      "ordinary"
+    ]
+  },
+  {
+    "id": "in3-0f9449d9555f",
+    "dataset": "in3",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "user",
+        "content": "Teach me how to read sheet music for the piano."
+      },
+      {
+        "turn_id": 1,
+        "role": "assistant",
+        "content": "Could you please tell me about your current understanding of music theory and your experience with the piano or any other musical instruments? This will help determine the level of instruction to start from."
+      },
+      {
+        "turn_id": 2,
+        "role": "user",
+        "content": "intermediate, some experience"
+      },
+      {
+        "turn_id": 3,
+        "role": "assistant",
+        "content": "Could you specify what aspects of reading sheet music you're comfortable with and which areas you're looking to improve? For instance, are you looking to better understand complex rhythms, key signatures, chord inversions, or maybe sight-reading?"
+      },
+      {
+        "turn_id": 4,
+        "role": "user",
+        "content": "better understand complex rhythms"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Learn to read piano sheet music",
+        "source": [
+          {
+            "turn_id": 0,
+            "role": "user",
+            "quote": "Teach me how to read sheet music for the piano."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Intermediate level with some experience",
+        "source": [
+          {
+            "turn_id": 2,
+            "role": "user",
+            "quote": "intermediate, some experience"
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "Improve understanding of complex rhythms",
+        "source": [
+          {
+            "turn_id": 4,
+            "role": "user",
+            "quote": "better understand complex rhythms"
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "ordinary_review",
+      "ordinary",
+      "provenance"
+    ]
+  },
+  {
+    "id": "in3-10a1678f2505",
+    "dataset": "in3",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "user",
+        "content": "Find a dataset about the global climate change for the last century."
+      },
+      {
+        "turn_id": 1,
+        "role": "assistant",
+        "content": "Could you please specify the format you'd like the dataset in, and are there any particular climate parameters you're most interested in (such as temperature, CO2 levels, etc.)?"
+      },
+      {
+        "turn_id": 2,
+        "role": "user",
+        "content": "CO2 levels"
+      },
+      {
+        "turn_id": 3,
+        "role": "assistant",
+        "content": "Could you please specify the format you would prefer for the dataset (e.g., CSV, JSON, Excel) and whether you need the data to have a global coverage or if you are interested in specific regions? Additionally, are you looking for raw data or processed data that includes analysis and interpretation?"
+      },
+      {
+        "turn_id": 4,
+        "role": "user",
+        "content": "CSV, interested in specific regions, raw data"
+      },
+      {
+        "turn_id": 5,
+        "role": "assistant",
+        "content": "Could you please specify which regions you are interested in for the CO2 levels dataset? For instance, are you looking for data pertaining to continents, specific countries, or oceanic areas?"
+      },
+      {
+        "turn_id": 6,
+        "role": "user",
+        "content": "oceanic areas"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Climate-change dataset covering the last century",
+        "source": [
+          {
+            "turn_id": 0,
+            "role": "user",
+            "quote": "Find a dataset about the global climate change for the last century."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "CO2 levels",
+        "source": [
+          {
+            "turn_id": 2,
+            "role": "user",
+            "quote": "CO2 levels"
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "CSV format",
+        "source": [
+          {
+            "turn_id": 4,
+            "role": "user",
+            "quote": "CSV, interested in specific regions, raw data"
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "Raw data",
+        "source": [
+          {
+            "turn_id": 4,
+            "role": "user",
+            "quote": "CSV, interested in specific regions, raw data"
+          }
+        ]
+      },
+      {
+        "id": "C5",
+        "claim": "Oceanic areas rather than a specified country or continent",
+        "source": [
+          {
+            "turn_id": 6,
+            "role": "user",
+            "quote": "oceanic areas"
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "ordinary_review",
+      "provenance",
+      "ordinary"
+    ]
+  },
+  {
+    "id": "in3-11db38b37e1d",
+    "dataset": "in3",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "user",
+        "content": "Write a review comparing the latest models of Android and iOS smartphones."
+      },
+      {
+        "turn_id": 1,
+        "role": "assistant",
+        "content": "Could you specify which models of Android and iOS smartphones you're interested in comparing? Also, what aspects of the smartphones would you like the review to focus on (e.g., performance, camera, battery life, design, price)?"
+      },
+      {
+        "turn_id": 2,
+        "role": "user",
+        "content": "iphone 14 vs samsum galaxy 14, compare performance, camera, battery life, design, price"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Compare iPhone 14 with the user's named 'samsum galaxy 14'; do not silently substitute a specific other Galaxy model",
+        "source": [
+          {
+            "turn_id": 2,
+            "role": "user",
+            "quote": "iphone 14 vs samsum galaxy 14, compare performance, camera, battery life, design, price"
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Compare performance, camera, battery life, design and price",
+        "source": [
+          {
+            "turn_id": 2,
+            "role": "user",
+            "quote": "iphone 14 vs samsum galaxy 14, compare performance, camera, battery life, design, price"
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "ordinary_review",
+      "provenance",
+      "ordinary"
+    ]
+  },
+  {
+    "id": "in3-1246d89081ad",
+    "dataset": "in3",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "user",
+        "content": "Explain the concept of black holes and how they are detected."
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Explain the concept of black holes",
+        "source": [
+          {
+            "turn_id": 0,
+            "role": "user",
+            "quote": "Explain the concept of black holes and how they are detected."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Explain how black holes are detected",
+        "source": [
+          {
+            "turn_id": 0,
+            "role": "user",
+            "quote": "Explain the concept of black holes and how they are detected."
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "provenance",
+      "ordinary_review",
+      "ordinary"
+    ]
+  },
+  {
+    "id": "in3-12a574792992",
+    "dataset": "in3",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "user",
+        "content": "Write a bash command to monitor CPU and memory usage continuously."
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Write a bash command",
+        "source": [
+          {
+            "turn_id": 0,
+            "role": "user",
+            "quote": "Write a bash command to monitor CPU and memory usage continuously."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Continuously monitor both CPU and memory usage",
+        "source": [
+          {
+            "turn_id": 0,
+            "role": "user",
+            "quote": "Write a bash command to monitor CPU and memory usage continuously."
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "ordinary_review",
+      "provenance",
+      "ordinary"
+    ]
+  },
+  {
+    "id": "CCPE-aa1a9",
+    "dataset": "ccpe",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "assistant",
+        "content": "What kind of movies do you like?"
+      },
+      {
+        "turn_id": 1,
+        "role": "user",
+        "content": "I like romantic comedies."
+      },
+      {
+        "turn_id": 2,
+        "role": "assistant",
+        "content": "So what do you think about The Shape of Water?"
+      },
+      {
+        "turn_id": 3,
+        "role": "user",
+        "content": "You know I know that was a highly rated movie, but for whatever reason at the time I didn't get into it or I didn't see many trailers for it, so I really don't know much about it. I think it won an academy award or two, but just never heard much about it."
+      },
+      {
+        "turn_id": 4,
+        "role": "assistant",
+        "content": "Do you think if you saw more about it, you would have watched it?"
+      },
+      {
+        "turn_id": 5,
+        "role": "user",
+        "content": "Might have."
+      },
+      {
+        "turn_id": 6,
+        "role": "user",
+        "content": "It's hard to say when you know very little about a movie, except that it had an unusual title."
+      },
+      {
+        "turn_id": 7,
+        "role": "assistant",
+        "content": "What movie have you seen recently?"
+      },
+      {
+        "turn_id": 8,
+        "role": "user",
+        "content": "Oh. Well, I watched Sherlock Holmes movies actually."
+      },
+      {
+        "turn_id": 9,
+        "role": "user",
+        "content": "And I saw Dunkirk recently."
+      },
+      {
+        "turn_id": 10,
+        "role": "user",
+        "content": "on TV"
+      },
+      {
+        "turn_id": 11,
+        "role": "assistant",
+        "content": "Do you like movies about conflicts?"
+      },
+      {
+        "turn_id": 12,
+        "role": "user",
+        "content": "I like history a lot, and so"
+      },
+      {
+        "turn_id": 13,
+        "role": "user",
+        "content": "A lot of World War II movies, I find interesting."
+      },
+      {
+        "turn_id": 14,
+        "role": "user",
+        "content": "but I would even watch documentaries. I'm a huge PBS fan."
+      },
+      {
+        "turn_id": 15,
+        "role": "user",
+        "content": "curious about the word, I guess you could say."
+      },
+      {
+        "turn_id": 16,
+        "role": "user",
+        "content": "I like to learn why the conflict started."
+      },
+      {
+        "turn_id": 17,
+        "role": "assistant",
+        "content": "What kind of movies do you not like?"
+      },
+      {
+        "turn_id": 18,
+        "role": "user",
+        "content": "I'm not a big fan of musicals as movies."
+      },
+      {
+        "turn_id": 19,
+        "role": "assistant",
+        "content": "Did you see Wonder Woman?"
+      },
+      {
+        "turn_id": 20,
+        "role": "user",
+        "content": "Wonder Woman"
+      },
+      {
+        "turn_id": 21,
+        "role": "user",
+        "content": "I've seen parts of it on TV."
+      },
+      {
+        "turn_id": 22,
+        "role": "user",
+        "content": "But I haven't seen the whole thing."
+      },
+      {
+        "turn_id": 23,
+        "role": "assistant",
+        "content": "What did you like about it?"
+      },
+      {
+        "turn_id": 24,
+        "role": "user",
+        "content": "Well, there was action, there was some comedy in it that was fun, and of course Wonder Woman looks great. Just looking at Wonder Woman is good for guys. But she was cool. She She had spunk, as Lou Grant would say."
+      },
+      {
+        "turn_id": 25,
+        "role": "user",
+        "content": "And she could take care of herself, so"
+      },
+      {
+        "turn_id": 26,
+        "role": "user",
+        "content": "I liked assertive women."
+      },
+      {
+        "turn_id": 27,
+        "role": "assistant",
+        "content": "Is The Matrix a movie that interests you?"
+      },
+      {
+        "turn_id": 28,
+        "role": "user",
+        "content": "The first one interested me. I didn't think the second and third ones were as nearly as good."
+      },
+      {
+        "turn_id": 29,
+        "role": "user",
+        "content": "Yeah. It's Sometimes it just seemed weird for weird's sake, but it certainly held my interest trying to figure out what was going on."
+      },
+      {
+        "turn_id": 30,
+        "role": "user",
+        "content": "It had an element of mystery to it, I guess you could say."
+      },
+      {
+        "turn_id": 31,
+        "role": "assistant",
+        "content": "Do you like or dislike the movie Aliens?"
+      },
+      {
+        "turn_id": 32,
+        "role": "user",
+        "content": "Oh, I dislike it. It's I don't know if it's officially a horror movie or sci-fi horror movie, but I refuse to go to any horror movies. I don't pay money to get scared."
+      },
+      {
+        "turn_id": 33,
+        "role": "assistant",
+        "content": "What did you dislike the most about it?"
+      },
+      {
+        "turn_id": 34,
+        "role": "user",
+        "content": "Well, jumping out of my seat."
+      },
+      {
+        "turn_id": 35,
+        "role": "user",
+        "content": "being scared"
+      },
+      {
+        "turn_id": 36,
+        "role": "user",
+        "content": "That's not my idea of entertainment."
+      },
+      {
+        "turn_id": 37,
+        "role": "assistant",
+        "content": "Thank you for your input. Have a nice day"
+      },
+      {
+        "turn_id": 38,
+        "role": "user",
+        "content": "Thank you."
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Likes romantic comedies",
+        "source": [
+          {
+            "turn_id": 1,
+            "role": "user",
+            "quote": "I like romantic comedies."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Limited knowledge of The Shape of Water; only might have watched with more information",
+        "source": [
+          {
+            "turn_id": 3,
+            "role": "user",
+            "quote": "You know I know that was a highly rated movie, but for whatever reason at the time I didn't get into it or I didn't see many trailers for it, so I really don't know much about it. I think it won an academy award or two, but just never heard much about it."
+          },
+          {
+            "turn_id": 5,
+            "role": "user",
+            "quote": "Might have."
+          },
+          {
+            "turn_id": 6,
+            "role": "user",
+            "quote": "It's hard to say when you know very little about a movie, except that it had an unusual title."
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "Likes history and World War II material and is open to documentaries",
+        "source": [
+          {
+            "turn_id": 12,
+            "role": "user",
+            "quote": "I like history a lot, and so"
+          },
+          {
+            "turn_id": 13,
+            "role": "user",
+            "quote": "A lot of World War II movies, I find interesting."
+          },
+          {
+            "turn_id": 14,
+            "role": "user",
+            "quote": "but I would even watch documentaries. I'm a huge PBS fan."
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "Not a fan of movie musicals",
+        "source": [
+          {
+            "turn_id": 18,
+            "role": "user",
+            "quote": "I'm not a big fan of musicals as movies."
+          }
+        ]
+      },
+      {
+        "id": "C5",
+        "claim": "Dislikes Aliens and refuses horror because being scared is not enjoyable",
+        "source": [
+          {
+            "turn_id": 32,
+            "role": "user",
+            "quote": "Oh, I dislike it. It's I don't know if it's officially a horror movie or sci-fi horror movie, but I refuse to go to any horror movies. I don't pay money to get scared."
+          },
+          {
+            "turn_id": 34,
+            "role": "user",
+            "quote": "Well, jumping out of my seat."
+          },
+          {
+            "turn_id": 35,
+            "role": "user",
+            "quote": "being scared"
+          },
+          {
+            "turn_id": 36,
+            "role": "user",
+            "quote": "That's not my idea of entertainment."
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "ordinary",
+      "ordinary_review",
+      "provenance"
+    ]
+  },
+  {
+    "id": "CCPE-64f09",
+    "dataset": "ccpe",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "assistant",
+        "content": "hello"
+      },
+      {
+        "turn_id": 1,
+        "role": "user",
+        "content": "Hello."
+      },
+      {
+        "turn_id": 2,
+        "role": "assistant",
+        "content": "What kind of movies do you like?"
+      },
+      {
+        "turn_id": 3,
+        "role": "user",
+        "content": "Dramas, mostly."
+      },
+      {
+        "turn_id": 4,
+        "role": "assistant",
+        "content": "Why do you like those kinds of movies?"
+      },
+      {
+        "turn_id": 5,
+        "role": "user",
+        "content": "If they are written well then the story and the character are usually engaging and I find it to be a good exploration of the human condition."
+      },
+      {
+        "turn_id": 6,
+        "role": "assistant",
+        "content": "Can you name a particular movie you like?"
+      },
+      {
+        "turn_id": 7,
+        "role": "user",
+        "content": "Yeah, Her."
+      },
+      {
+        "turn_id": 8,
+        "role": "assistant",
+        "content": "What did you like about that movie?"
+      },
+      {
+        "turn_id": 9,
+        "role": "user",
+        "content": "I loved that it was I mean, even in a somewhat not too distant future or whatever, with a lot of technological convenience and you know, relative prosperity, that people can still end up alone somehow. I think that's incredibly valuable and worth exploring."
+      },
+      {
+        "turn_id": 10,
+        "role": "assistant",
+        "content": "I see. Can you tell me a movie you did not like?"
+      },
+      {
+        "turn_id": 11,
+        "role": "user",
+        "content": "Sure. Let's say the 50 Shades series. I didn't like any of those."
+      },
+      {
+        "turn_id": 12,
+        "role": "assistant",
+        "content": "How come you did not like those?"
+      },
+      {
+        "turn_id": 13,
+        "role": "user",
+        "content": "I thought that the I think that the material is terrible. I think that it should not have been green lit either as a book or as a movie. And, I am disappointed in at least American audiences that it has made as much money as it has as a series."
+      },
+      {
+        "turn_id": 14,
+        "role": "assistant",
+        "content": "did you like the incredibles?"
+      },
+      {
+        "turn_id": 15,
+        "role": "user",
+        "content": "Yeah, I did."
+      },
+      {
+        "turn_id": 16,
+        "role": "assistant",
+        "content": "nice. How come you like superhero movies?"
+      },
+      {
+        "turn_id": 17,
+        "role": "user",
+        "content": "I Well truthfully, I really enjoy seeing the visual effects and the sound design. I'm always I'm always mesmerized by the things that you know, visual artists and animators are able to come up with. Plus there's sort of an element of I like to put myself in the shoes of a superhero and imagine that I'm them, but I don't get too carried away with stuff like that, usually."
+      },
+      {
+        "turn_id": 18,
+        "role": "assistant",
+        "content": "thanks for your input"
+      },
+      {
+        "turn_id": 19,
+        "role": "user",
+        "content": "You're welcome."
+      },
+      {
+        "turn_id": 20,
+        "role": "assistant",
+        "content": "Until next time"
+      },
+      {
+        "turn_id": 21,
+        "role": "assistant",
+        "content": "Bye"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Mostly likes well-written dramas with engaging stories and characters exploring the human condition",
+        "source": [
+          {
+            "turn_id": 3,
+            "role": "user",
+            "quote": "Dramas, mostly."
+          },
+          {
+            "turn_id": 5,
+            "role": "user",
+            "quote": "If they are written well then the story and the character are usually engaging and I find it to be a good exploration of the human condition."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Likes Her for loneliness despite technology and prosperity",
+        "source": [
+          {
+            "turn_id": 7,
+            "role": "user",
+            "quote": "Yeah, Her."
+          },
+          {
+            "turn_id": 9,
+            "role": "user",
+            "quote": "I loved that it was I mean, even in a somewhat not too distant future or whatever, with a lot of technological convenience and you know, relative prosperity, that people can still end up alone somehow. I think that's incredibly valuable and worth exploring."
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "Dislikes the Fifty Shades series and its material",
+        "source": [
+          {
+            "turn_id": 11,
+            "role": "user",
+            "quote": "Sure. Let's say the 50 Shades series. I didn't like any of those."
+          },
+          {
+            "turn_id": 13,
+            "role": "user",
+            "quote": "I thought that the I think that the material is terrible. I think that it should not have been green lit either as a book or as a movie. And, I am disappointed in at least American audiences that it has made as much money as it has as a series."
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "Likes The Incredibles",
+        "source": [
+          {
+            "turn_id": 14,
+            "role": "assistant",
+            "quote": "did you like the incredibles?"
+          },
+          {
+            "turn_id": 15,
+            "role": "user",
+            "quote": "Yeah, I did."
+          }
+        ]
+      },
+      {
+        "id": "C5",
+        "claim": "Enjoys visual effects, sound design and imagining being a superhero",
+        "source": [
+          {
+            "turn_id": 17,
+            "role": "user",
+            "quote": "I Well truthfully, I really enjoy seeing the visual effects and the sound design. I'm always I'm always mesmerized by the things that you know, visual artists and animators are able to come up with. Plus there's sort of an element of I like to put myself in the shoes of a superhero and imagine that I'm them, but I don't get too carried away with stuff like that, usually."
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "ordinary",
+      "provenance",
+      "ordinary_review"
+    ]
+  },
+  {
+    "id": "CCPE-ebc61",
+    "dataset": "ccpe",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "assistant",
+        "content": "can you tell me what types of movies you like?"
+      },
+      {
+        "turn_id": 1,
+        "role": "user",
+        "content": "Yeah, I like horror movie and action movies."
+      },
+      {
+        "turn_id": 2,
+        "role": "assistant",
+        "content": "ok, what about those genres do you like?"
+      },
+      {
+        "turn_id": 3,
+        "role": "user",
+        "content": "There's incredible There's guns, action, excitement."
+      },
+      {
+        "turn_id": 4,
+        "role": "assistant",
+        "content": "ok, can you name a specific film you liked?"
+      },
+      {
+        "turn_id": 5,
+        "role": "user",
+        "content": "Saving Private Ryan is one of my favorite movies."
+      },
+      {
+        "turn_id": 6,
+        "role": "assistant",
+        "content": "what about that movie specifically did you like?"
+      },
+      {
+        "turn_id": 7,
+        "role": "user",
+        "content": "It It was an epic depiction of world War II."
+      },
+      {
+        "turn_id": 8,
+        "role": "assistant",
+        "content": "ok, can you name genres of movies you don't like?"
+      },
+      {
+        "turn_id": 9,
+        "role": "user",
+        "content": "musicals"
+      },
+      {
+        "turn_id": 10,
+        "role": "assistant",
+        "content": "why don't you like musicals?"
+      },
+      {
+        "turn_id": 11,
+        "role": "user",
+        "content": "They annoy me. I like movies that have a theme that isn't being sang."
+      },
+      {
+        "turn_id": 12,
+        "role": "assistant",
+        "content": "ok, can you name a specific movie you didn't like? it doesn't have to be a musical but it can be"
+      },
+      {
+        "turn_id": 13,
+        "role": "user",
+        "content": "A specific movie I didn't like?"
+      },
+      {
+        "turn_id": 14,
+        "role": "user",
+        "content": "The newest Ghostbusters in 2016."
+      },
+      {
+        "turn_id": 15,
+        "role": "assistant",
+        "content": "ok, why didn't you like that movie?"
+      },
+      {
+        "turn_id": 16,
+        "role": "assistant",
+        "content": "got it, you feel like it didn't live up to the original movie?"
+      },
+      {
+        "turn_id": 17,
+        "role": "user",
+        "content": "Yeah, that's correct."
+      },
+      {
+        "turn_id": 18,
+        "role": "assistant",
+        "content": "ok, can you tell me have you seen star wars: the last jedi?"
+      },
+      {
+        "turn_id": 19,
+        "role": "user",
+        "content": "Yes. It was fantastic. I enjoyed it because I loved the spaceships, and I loved all of the the characters of Star Wars."
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Likes horror and action movies for action and excitement",
+        "source": [
+          {
+            "turn_id": 1,
+            "role": "user",
+            "quote": "Yeah, I like horror movie and action movies."
+          },
+          {
+            "turn_id": 3,
+            "role": "user",
+            "quote": "There's incredible There's guns, action, excitement."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Saving Private Ryan is a favorite for its World War II depiction",
+        "source": [
+          {
+            "turn_id": 5,
+            "role": "user",
+            "quote": "Saving Private Ryan is one of my favorite movies."
+          },
+          {
+            "turn_id": 7,
+            "role": "user",
+            "quote": "It It was an epic depiction of world War II."
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "Dislikes musicals and sung themes",
+        "source": [
+          {
+            "turn_id": 9,
+            "role": "user",
+            "quote": "musicals"
+          },
+          {
+            "turn_id": 11,
+            "role": "user",
+            "quote": "They annoy me. I like movies that have a theme that isn't being sang."
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "Dislikes Ghostbusters (2016); agrees with the interviewer that it did not live up to the original",
+        "source": [
+          {
+            "turn_id": 14,
+            "role": "user",
+            "quote": "The newest Ghostbusters in 2016."
+          },
+          {
+            "turn_id": 16,
+            "role": "assistant",
+            "quote": "got it, you feel like it didn't live up to the original movie?"
+          },
+          {
+            "turn_id": 17,
+            "role": "user",
+            "quote": "Yeah, that's correct."
+          }
+        ]
+      },
+      {
+        "id": "C5",
+        "claim": "Likes The Last Jedi for spaceships and Star Wars characters",
+        "source": [
+          {
+            "turn_id": 18,
+            "role": "assistant",
+            "quote": "ok, can you tell me have you seen star wars: the last jedi?"
+          },
+          {
+            "turn_id": 19,
+            "role": "user",
+            "quote": "Yes. It was fantastic. I enjoyed it because I loved the spaceships, and I loved all of the the characters of Star Wars."
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "provenance",
+      "ordinary_review",
+      "ordinary"
+    ]
+  },
+  {
+    "id": "CCPE-105fd",
+    "dataset": "ccpe",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "assistant",
+        "content": "What kind of movies do you enjoy and why?"
+      },
+      {
+        "turn_id": 1,
+        "role": "user",
+        "content": "I really like teen movies. They're usually They usually combine aspects of comedy and romantic comedy and sort of the best parts of when you were young, so it's usually sort of a light-hearted genre."
+      },
+      {
+        "turn_id": 2,
+        "role": "assistant",
+        "content": "Is there a particular film you enjoy?"
+      },
+      {
+        "turn_id": 3,
+        "role": "user",
+        "content": "Yes. 10 Things I Hate About You is one of my favorite movies."
+      },
+      {
+        "turn_id": 4,
+        "role": "assistant",
+        "content": "What did you like about that film?"
+      },
+      {
+        "turn_id": 5,
+        "role": "user",
+        "content": "It is"
+      },
+      {
+        "turn_id": 6,
+        "role": "user",
+        "content": "really well acted. It has For a teen movie in particular, it has really good acting, really good writing, and also a very interesting story line. It's actually based off of Shakespeare, so it has more to it in the story line than a typical teen movie might. And it's It's fun. It's funny. It definitely has This one definitely centers around romantic relationships. It has a ton of comedy in it, as well. So it flows really well, but in other interesting way"
+      },
+      {
+        "turn_id": 7,
+        "role": "user",
+        "content": "And the casting across the board is really great."
+      },
+      {
+        "turn_id": 8,
+        "role": "assistant",
+        "content": "Is there a particular movie you don't enjoy?"
+      },
+      {
+        "turn_id": 9,
+        "role": "user",
+        "content": "Sure. Like I didn't like A teen movie I didn't enjoy? I didn't like Superbad that much."
+      },
+      {
+        "turn_id": 10,
+        "role": "assistant",
+        "content": "What didn't you like about the film?"
+      },
+      {
+        "turn_id": 11,
+        "role": "user",
+        "content": "So to me, this was a very hyped movie. It was touted as sort of like a a great teen film, and I was let down by it. It's not that it didn't have some funny lines. It did, but for the most part, they were already featured in the commercials. So the movie itself, it came I know it sounds strange to say for a teen movie, but it came across very juvenile. A little too simple. It seemed to be I don't know, going for"
+      },
+      {
+        "turn_id": 12,
+        "role": "user",
+        "content": "what a teen movie what like adults think of what teens are doing. It was very simple and just it's just not that funny it's not something used for a teen movie. I usually love it and I re watch it a million times. I've never re watched Superbad and I have no plans to."
+      },
+      {
+        "turn_id": 13,
+        "role": "assistant",
+        "content": "Have you heard about the movie High School Musical?"
+      },
+      {
+        "turn_id": 14,
+        "role": "user",
+        "content": "Yes."
+      },
+      {
+        "turn_id": 15,
+        "role": "assistant",
+        "content": "What would you like about thid kind of movie?"
+      },
+      {
+        "turn_id": 16,
+        "role": "user",
+        "content": "I love singing and I love dancing, so High School Musical would have a lot of that. It would basically be the main thing that it would have, so that part of it would be great and I would be entertained by that part most likely."
+      },
+      {
+        "turn_id": 17,
+        "role": "assistant",
+        "content": "Talk to you next time"
+      },
+      {
+        "turn_id": 18,
+        "role": "user",
+        "content": "Thank you. Have a great day."
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Likes light-hearted teen films combining comedy and romance",
+        "source": [
+          {
+            "turn_id": 1,
+            "role": "user",
+            "quote": "I really like teen movies. They're usually They usually combine aspects of comedy and romantic comedy and sort of the best parts of when you were young, so it's usually sort of a light-hearted genre."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "10 Things I Hate About You is a favorite for acting, writing, story and casting",
+        "source": [
+          {
+            "turn_id": 3,
+            "role": "user",
+            "quote": "Yes. 10 Things I Hate About You is one of my favorite movies."
+          },
+          {
+            "turn_id": 6,
+            "role": "user",
+            "quote": "really well acted. It has For a teen movie in particular, it has really good acting, really good writing, and also a very interesting story line. It's actually based off of Shakespeare, so it has more to it in the story line than a typical teen movie might. And it's It's fun. It's funny. It definitely has This one definitely centers around romantic relationships. It has a ton of comedy in it, as well. So it flows really well, but in other interesting way"
+          },
+          {
+            "turn_id": 7,
+            "role": "user",
+            "quote": "And the casting across the board is really great."
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "Dislikes Superbad as overhyped, juvenile and not funny enough",
+        "source": [
+          {
+            "turn_id": 9,
+            "role": "user",
+            "quote": "Sure. Like I didn't like A teen movie I didn't enjoy? I didn't like Superbad that much."
+          },
+          {
+            "turn_id": 11,
+            "role": "user",
+            "quote": "So to me, this was a very hyped movie. It was touted as sort of like a a great teen film, and I was let down by it. It's not that it didn't have some funny lines. It did, but for the most part, they were already featured in the commercials. So the movie itself, it came I know it sounds strange to say for a teen movie, but it came across very juvenile. A little too simple. It seemed to be I don't know, going for"
+          },
+          {
+            "turn_id": 12,
+            "role": "user",
+            "quote": "what a teen movie what like adults think of what teens are doing. It was very simple and just it's just not that funny it's not something used for a teen movie. I usually love it and I re watch it a million times. I've never re watched Superbad and I have no plans to."
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "No plans to rewatch Superbad",
+        "source": [
+          {
+            "turn_id": 12,
+            "role": "user",
+            "quote": "what a teen movie what like adults think of what teens are doing. It was very simple and just it's just not that funny it's not something used for a teen movie. I usually love it and I re watch it a million times. I've never re watched Superbad and I have no plans to."
+          }
+        ]
+      },
+      {
+        "id": "C5",
+        "claim": "High School Musical singing and dancing would likely entertain; this is an expectation, not an established viewing review",
+        "source": [
+          {
+            "turn_id": 13,
+            "role": "assistant",
+            "quote": "Have you heard about the movie High School Musical?"
+          },
+          {
+            "turn_id": 14,
+            "role": "user",
+            "quote": "Yes."
+          },
+          {
+            "turn_id": 15,
+            "role": "assistant",
+            "quote": "What would you like about thid kind of movie?"
+          },
+          {
+            "turn_id": 16,
+            "role": "user",
+            "quote": "I love singing and I love dancing, so High School Musical would have a lot of that. It would basically be the main thing that it would have, so that part of it would be great and I would be entertained by that part most likely."
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "provenance",
+      "ordinary",
+      "ordinary_review"
+    ]
+  },
+  {
+    "id": "CCPE-6848d",
+    "dataset": "ccpe",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "assistant",
+        "content": "What kinds of movies do you like?"
+      },
+      {
+        "turn_id": 1,
+        "role": "user",
+        "content": "I like all kinds, but I really particularly like drama you know, like feel good movies. You know, Something like Forest Gump. Something with a good story and you know, it just kind of leaves you with a good feeling at the end."
+      },
+      {
+        "turn_id": 2,
+        "role": "assistant",
+        "content": "Why do you like dramas?"
+      },
+      {
+        "turn_id": 3,
+        "role": "user",
+        "content": "You know, it's just the escape of it all, and a good drama has just enough reality in it to"
+      },
+      {
+        "turn_id": 4,
+        "role": "user",
+        "content": "to, you know, make you think it could happen to you, you know, it's kind of believable. It's not like a lot of the fantasy, we totally like some of those too, but, you know, it's the drama you can almost picture yourself in the movie a lot of times or people you know and stuff like that. Kind of easy to relate to."
+      },
+      {
+        "turn_id": 5,
+        "role": "assistant",
+        "content": "What was it about Forest Gump that you liked?"
+      },
+      {
+        "turn_id": 6,
+        "role": "user",
+        "content": "How he kind of fell into all that stuff that he did, like he didn't really plan it. He just It just kind of happened to him. It's hard not to like that movie."
+      },
+      {
+        "turn_id": 7,
+        "role": "assistant",
+        "content": "Well, would there be a particular movie you did not like?"
+      },
+      {
+        "turn_id": 8,
+        "role": "user",
+        "content": "I don't know about a particular movie. I'm not a big fan of documentaries, usually. I mean, unless it's like Some of these true crime ones are kind of good. Like Making a Murderer, but it's not a movie, but it's you know, a series. Something like that is is I do like those, but just not Some of the other ones. You know, I'm just not a big fan of watching animals or"
+      },
+      {
+        "turn_id": 9,
+        "role": "user",
+        "content": "You know, rain forest and stuff like that."
+      },
+      {
+        "turn_id": 10,
+        "role": "user",
+        "content": "I kind of like you know You know, just regular type movies."
+      },
+      {
+        "turn_id": 11,
+        "role": "assistant",
+        "content": "So, have you then seen die hard?"
+      },
+      {
+        "turn_id": 12,
+        "role": "user",
+        "content": "I've seen all the Die Hards. I think there's a new one coming out. And even though the last one really wasn't very good, although it did have Timothy Olyphant in it, I will definitely see the the next one. I'll keep watching them probably as long as they make them, cuz they're just so fun. It's a Christmas movie, you know, the first one."
+      },
+      {
+        "turn_id": 13,
+        "role": "assistant",
+        "content": "What was it about die hard you liked or dislike?"
+      },
+      {
+        "turn_id": 14,
+        "role": "user",
+        "content": "Well, the first one's Just the story was You know, I mean it was kind out there, but it was Bruce Willis probably the main reason I like them. I'm a fan of his, and the first one was just very clever, and the dialog and you know, the quippy remarks, all the crazy stuff that he did. It was just a fun movie to watch and"
+      },
+      {
+        "turn_id": 15,
+        "role": "user",
+        "content": "You know, mainly coz they are fun they're just fun movies. I mean you know they could nothing like that could ever happen but its just fun to watch it on TV or on the screen."
+      },
+      {
+        "turn_id": 16,
+        "role": "assistant",
+        "content": "Wonderful. thank you for sharing. good bye"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Especially likes feel-good relatable dramas with good stories",
+        "source": [
+          {
+            "turn_id": 1,
+            "role": "user",
+            "quote": "I like all kinds, but I really particularly like drama you know, like feel good movies. You know, Something like Forest Gump. Something with a good story and you know, it just kind of leaves you with a good feeling at the end."
+          },
+          {
+            "turn_id": 3,
+            "role": "user",
+            "quote": "You know, it's just the escape of it all, and a good drama has just enough reality in it to"
+          },
+          {
+            "turn_id": 4,
+            "role": "user",
+            "quote": "to, you know, make you think it could happen to you, you know, it's kind of believable. It's not like a lot of the fantasy, we totally like some of those too, but, you know, it's the drama you can almost picture yourself in the movie a lot of times or people you know and stuff like that. Kind of easy to relate to."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Likes Forrest Gump for the unplanned events in the protagonist's life",
+        "source": [
+          {
+            "turn_id": 5,
+            "role": "assistant",
+            "quote": "What was it about Forest Gump that you liked?"
+          },
+          {
+            "turn_id": 6,
+            "role": "user",
+            "quote": "How he kind of fell into all that stuff that he did, like he didn't really plan it. He just It just kind of happened to him. It's hard not to like that movie."
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "Generally not a documentary fan, with true-crime exceptions such as Making a Murderer",
+        "source": [
+          {
+            "turn_id": 8,
+            "role": "user",
+            "quote": "I don't know about a particular movie. I'm not a big fan of documentaries, usually. I mean, unless it's like Some of these true crime ones are kind of good. Like Making a Murderer, but it's not a movie, but it's you know, a series. Something like that is is I do like those, but just not Some of the other ones. You know, I'm just not a big fan of watching animals or"
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "Not interested in animal/rainforest documentaries",
+        "source": [
+          {
+            "turn_id": 8,
+            "role": "user",
+            "quote": "I don't know about a particular movie. I'm not a big fan of documentaries, usually. I mean, unless it's like Some of these true crime ones are kind of good. Like Making a Murderer, but it's not a movie, but it's you know, a series. Something like that is is I do like those, but just not Some of the other ones. You know, I'm just not a big fan of watching animals or"
+          },
+          {
+            "turn_id": 9,
+            "role": "user",
+            "quote": "You know, rain forest and stuff like that."
+          }
+        ]
+      },
+      {
+        "id": "C5",
+        "claim": "Will keep watching Die Hard despite disliking the latest seen installment; enjoys Bruce Willis, wit and fun",
+        "source": [
+          {
+            "turn_id": 12,
+            "role": "user",
+            "quote": "I've seen all the Die Hards. I think there's a new one coming out. And even though the last one really wasn't very good, although it did have Timothy Olyphant in it, I will definitely see the the next one. I'll keep watching them probably as long as they make them, cuz they're just so fun. It's a Christmas movie, you know, the first one."
+          },
+          {
+            "turn_id": 14,
+            "role": "user",
+            "quote": "Well, the first one's Just the story was You know, I mean it was kind out there, but it was Bruce Willis probably the main reason I like them. I'm a fan of his, and the first one was just very clever, and the dialog and you know, the quippy remarks, all the crazy stuff that he did. It was just a fun movie to watch and"
+          },
+          {
+            "turn_id": 15,
+            "role": "user",
+            "quote": "You know, mainly coz they are fun they're just fun movies. I mean you know they could nothing like that could ever happen but its just fun to watch it on TV or on the screen."
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "provenance",
+      "ordinary_review",
+      "ordinary"
+    ]
+  },
+  {
+    "id": "CCPE-11bb7",
+    "dataset": "ccpe",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "assistant",
+        "content": "What kinds of movies do you like?"
+      },
+      {
+        "turn_id": 1,
+        "role": "user",
+        "content": "Oh you know, I like spy films, and I like Sci-Fi and"
+      },
+      {
+        "turn_id": 2,
+        "role": "user",
+        "content": "I like anything with a lot of action in it."
+      },
+      {
+        "turn_id": 3,
+        "role": "assistant",
+        "content": "Well, tell me why do you like science fiction movies?"
+      },
+      {
+        "turn_id": 4,
+        "role": "user",
+        "content": "I like to think about the what we could have in the future that that we don't have now. Yeah, and at the same how when the future they will have the same problems that we do just with better technology. That is interesting to me. It's kind of the human condition always always continues."
+      },
+      {
+        "turn_id": 5,
+        "role": "assistant",
+        "content": "cool, what is your favorite movie?"
+      },
+      {
+        "turn_id": 6,
+        "role": "user",
+        "content": "Oh man, my favorite movie?"
+      },
+      {
+        "turn_id": 7,
+        "role": "user",
+        "content": "It changes. I don't have a favorite movie."
+      },
+      {
+        "turn_id": 8,
+        "role": "user",
+        "content": "I mean"
+      },
+      {
+        "turn_id": 9,
+        "role": "user",
+        "content": "Dr. Strangelove might be my favorite. Full Metal Jacket might be my favorite."
+      },
+      {
+        "turn_id": 10,
+        "role": "assistant",
+        "content": "alright, Why might full metal jacket be your favorite movie?"
+      },
+      {
+        "turn_id": 11,
+        "role": "user",
+        "content": "Let's see. Well, it's written by Stanley Kubrick. Which is important cuz he's my favorite director. It's got a boot camp scene in the Half the movie's the boot camp and then half the movie's the stuff in Vietnam. And it just It's a It's an anti-war film. It's just really well done. The acting is fantastic. And it's really really intense."
+      },
+      {
+        "turn_id": 12,
+        "role": "assistant",
+        "content": "Interesting, is there a movie you do not like?"
+      },
+      {
+        "turn_id": 13,
+        "role": "user",
+        "content": "man"
+      },
+      {
+        "turn_id": 14,
+        "role": "user",
+        "content": "Bowling for Columbine or anything by that guy. I can't remember the director."
+      },
+      {
+        "turn_id": 15,
+        "role": "assistant",
+        "content": "oh, Why not?"
+      },
+      {
+        "turn_id": 16,
+        "role": "user",
+        "content": "I don't like the director. I I think he's pretentious, and that says something cuz considering I'm pretentious. So, he's just"
+      },
+      {
+        "turn_id": 17,
+        "role": "user",
+        "content": "He's just annoying, so the movie's annoying."
+      },
+      {
+        "turn_id": 18,
+        "role": "assistant",
+        "content": "Ok, then have you seen the movie The Accountant ?"
+      },
+      {
+        "turn_id": 19,
+        "role": "user",
+        "content": "I may have but I I can't remember the plot."
+      },
+      {
+        "turn_id": 20,
+        "role": "assistant",
+        "content": "how about, then have you seen the movie Pulp Fiction"
+      },
+      {
+        "turn_id": 21,
+        "role": "user",
+        "content": "I have seen the movie. Yes."
+      },
+      {
+        "turn_id": 22,
+        "role": "assistant",
+        "content": "What is it about this kinds of movies that you like or dislike?"
+      },
+      {
+        "turn_id": 23,
+        "role": "user",
+        "content": "A Pulp Fiction is great. It just got this it's wonderfully violent, it's humorous, the cast is fantastic. Well if you're you got the same objection and principles as in it I think I might they made the first time they were together were they were also in Die Hard from together they they worked great together. And just add little sub stories in in Pulp Fiction make just a fantastic film."
+      },
+      {
+        "turn_id": 24,
+        "role": "assistant",
+        "content": "Wonderful. thank you for sharing. Good bye."
+      },
+      {
+        "turn_id": 25,
+        "role": "user",
+        "content": "Goodbye."
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Likes spy films, science fiction and action",
+        "source": [
+          {
+            "turn_id": 1,
+            "role": "user",
+            "quote": "Oh you know, I like spy films, and I like Sci-Fi and"
+          },
+          {
+            "turn_id": 2,
+            "role": "user",
+            "quote": "I like anything with a lot of action in it."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Science fiction interest includes future technology alongside enduring human problems",
+        "source": [
+          {
+            "turn_id": 4,
+            "role": "user",
+            "quote": "I like to think about the what we could have in the future that that we don't have now. Yeah, and at the same how when the future they will have the same problems that we do just with better technology. That is interesting to me. It's kind of the human condition always always continues."
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "No fixed favorite; Dr. Strangelove and Full Metal Jacket are possibilities",
+        "source": [
+          {
+            "turn_id": 7,
+            "role": "user",
+            "quote": "It changes. I don't have a favorite movie."
+          },
+          {
+            "turn_id": 9,
+            "role": "user",
+            "quote": "Dr. Strangelove might be my favorite. Full Metal Jacket might be my favorite."
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "Stanley Kubrick is favorite director; Full Metal Jacket admired for acting, intensity and anti-war theme",
+        "source": [
+          {
+            "turn_id": 11,
+            "role": "user",
+            "quote": "Let's see. Well, it's written by Stanley Kubrick. Which is important cuz he's my favorite director. It's got a boot camp scene in the Half the movie's the boot camp and then half the movie's the stuff in Vietnam. And it just It's a It's an anti-war film. It's just really well done. The acting is fantastic. And it's really really intense."
+          }
+        ]
+      },
+      {
+        "id": "C5",
+        "claim": "Dislikes Bowling for Columbine and that director's work; cannot remember if The Accountant was seen",
+        "source": [
+          {
+            "turn_id": 14,
+            "role": "user",
+            "quote": "Bowling for Columbine or anything by that guy. I can't remember the director."
+          },
+          {
+            "turn_id": 16,
+            "role": "user",
+            "quote": "I don't like the director. I I think he's pretentious, and that says something cuz considering I'm pretentious. So, he's just"
+          },
+          {
+            "turn_id": 17,
+            "role": "user",
+            "quote": "He's just annoying, so the movie's annoying."
+          },
+          {
+            "turn_id": 19,
+            "role": "user",
+            "quote": "I may have but I I can't remember the plot."
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "ordinary",
+      "ordinary_review",
+      "provenance"
+    ]
+  },
+  {
+    "id": "CCPE-9143a",
+    "dataset": "ccpe",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "assistant",
+        "content": "What type of movies do you enjoy?"
+      },
+      {
+        "turn_id": 1,
+        "role": "user",
+        "content": "comedy movies"
+      },
+      {
+        "turn_id": 2,
+        "role": "assistant",
+        "content": "What appeals to you with these type of movies?"
+      },
+      {
+        "turn_id": 3,
+        "role": "user",
+        "content": "Well, they don't have to have a sensible plotline usually, and they make me laugh."
+      },
+      {
+        "turn_id": 4,
+        "role": "assistant",
+        "content": "Is there a specific movie you enjoy from this genre?"
+      },
+      {
+        "turn_id": 5,
+        "role": "user",
+        "content": "[inaudible]"
+      },
+      {
+        "turn_id": 6,
+        "role": "assistant",
+        "content": "What did you like about this movie?"
+      },
+      {
+        "turn_id": 7,
+        "role": "user",
+        "content": "I just thought it was funny overall."
+      },
+      {
+        "turn_id": 8,
+        "role": "assistant",
+        "content": "Are there any type of movies that you don't enjoy?"
+      },
+      {
+        "turn_id": 9,
+        "role": "user",
+        "content": "I don't like drama."
+      },
+      {
+        "turn_id": 10,
+        "role": "assistant",
+        "content": "What about these movies is unappealing?"
+      },
+      {
+        "turn_id": 11,
+        "role": "user",
+        "content": "Well, I have enough drama in my life as it is, and I just don't like the thought of thinking about other people's problems. Not superficial, you know, the cliche problems in drama"
+      },
+      {
+        "turn_id": 12,
+        "role": "assistant",
+        "content": "Is there a specific movie that you heavily dislike?"
+      },
+      {
+        "turn_id": 13,
+        "role": "user",
+        "content": "I can't think of any at the moment."
+      },
+      {
+        "turn_id": 14,
+        "role": "assistant",
+        "content": "Have you seen Stepbrothers"
+      },
+      {
+        "turn_id": 15,
+        "role": "user",
+        "content": "Yes."
+      },
+      {
+        "turn_id": 16,
+        "role": "assistant",
+        "content": "What did you enjoy or not enjoy about this movie?"
+      },
+      {
+        "turn_id": 17,
+        "role": "user",
+        "content": "I thought the lead actors, Will Ferrell and I don't know what the other guy's name is I think that they are a good combination. So, I liked just because of that."
+      },
+      {
+        "turn_id": 18,
+        "role": "assistant",
+        "content": "Thank you for your help and have a wonderful day!"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Likes comedy for laughter; a sensible plot is not essential",
+        "source": [
+          {
+            "turn_id": 1,
+            "role": "user",
+            "quote": "comedy movies"
+          },
+          {
+            "turn_id": 3,
+            "role": "user",
+            "quote": "Well, they don't have to have a sensible plotline usually, and they make me laugh."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "The first named favorite film is inaudible and unidentified",
+        "source": [
+          {
+            "turn_id": 4,
+            "role": "assistant",
+            "quote": "Is there a specific movie you enjoy from this genre?"
+          },
+          {
+            "turn_id": 5,
+            "role": "user",
+            "quote": "[inaudible]"
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "Dislikes drama about other people's problems",
+        "source": [
+          {
+            "turn_id": 9,
+            "role": "user",
+            "quote": "I don't like drama."
+          },
+          {
+            "turn_id": 11,
+            "role": "user",
+            "quote": "Well, I have enough drama in my life as it is, and I just don't like the thought of thinking about other people's problems. Not superficial, you know, the cliche problems in drama"
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "Cannot name a specific strongly disliked movie",
+        "source": [
+          {
+            "turn_id": 13,
+            "role": "user",
+            "quote": "I can't think of any at the moment."
+          }
+        ]
+      },
+      {
+        "id": "C5",
+        "claim": "Likes Step Brothers because Will Ferrell and the other lead work well together",
+        "source": [
+          {
+            "turn_id": 14,
+            "role": "assistant",
+            "quote": "Have you seen Stepbrothers"
+          },
+          {
+            "turn_id": 15,
+            "role": "user",
+            "quote": "Yes."
+          },
+          {
+            "turn_id": 17,
+            "role": "user",
+            "quote": "I thought the lead actors, Will Ferrell and I don't know what the other guy's name is I think that they are a good combination. So, I liked just because of that."
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "provenance",
+      "ordinary",
+      "ordinary_review"
+    ]
+  },
+  {
+    "id": "CCPE-caab5",
+    "dataset": "ccpe",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "assistant",
+        "content": "hello"
+      },
+      {
+        "turn_id": 1,
+        "role": "assistant",
+        "content": "What kind of movies do you like?"
+      },
+      {
+        "turn_id": 2,
+        "role": "user",
+        "content": "I like documentaries."
+      },
+      {
+        "turn_id": 3,
+        "role": "assistant",
+        "content": "Why do you like documentaries?"
+      },
+      {
+        "turn_id": 4,
+        "role": "assistant",
+        "content": "What did you like about that documentary?"
+      },
+      {
+        "turn_id": 5,
+        "role": "assistant",
+        "content": "Can you tell me a movie you did not like?"
+      },
+      {
+        "turn_id": 6,
+        "role": "user",
+        "content": "Yeah, I watched about the first 5 minutes of the Ali G movie. I don't remember the title of it, but it was just absolutely terrible, gut wrenching, just absolutely awful, absolutely awful. I'm not I don't want to watch something if it's that bad, you know. I watched the first 10 minutes. I thought, this is not going to be good, so I just sort of left it at that, even though I love the TV show. It was kind of weird, because I thought it would be a lot better than what it was."
+      },
+      {
+        "turn_id": 7,
+        "role": "assistant",
+        "content": "I see"
+      },
+      {
+        "turn_id": 8,
+        "role": "user",
+        "content": "Yeah, I see a lot I see that with a lot of movies, too. Like I haven't seen that Amy Schumer movie, the one with her with the alcohol bottle, but I heard that was really bad, as well."
+      },
+      {
+        "turn_id": 9,
+        "role": "assistant",
+        "content": "How do you feel about the matrix?"
+      },
+      {
+        "turn_id": 10,
+        "role": "user",
+        "content": "I have not seen The Matrix, but I like the I've heard about it so much, but like I've never actually seen it myself. But I hear about like the pills, and like I hear references to it, but I've never actually seen it on TV."
+      },
+      {
+        "turn_id": 11,
+        "role": "assistant",
+        "content": "Oh. What about Wonder woman?"
+      },
+      {
+        "turn_id": 12,
+        "role": "user",
+        "content": "Wonder Woman, I've never seen, either. But I've heard the TV show is pretty good for the Wonder Woman."
+      },
+      {
+        "turn_id": 13,
+        "role": "assistant",
+        "content": "What about The god father?"
+      },
+      {
+        "turn_id": 14,
+        "role": "user",
+        "content": "I have seen The Godfather, and that is a good piece of cinematic work. That is really really good. I really enjoyed it."
+      },
+      {
+        "turn_id": 15,
+        "role": "user",
+        "content": "It was really creative and inventive."
+      },
+      {
+        "turn_id": 16,
+        "role": "assistant",
+        "content": "Gotcha. Thanks for the input today."
+      },
+      {
+        "turn_id": 17,
+        "role": "user",
+        "content": "Take care."
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Likes documentaries, with no recorded explanation of that preference",
+        "source": [
+          {
+            "turn_id": 2,
+            "role": "user",
+            "quote": "I like documentaries."
+          },
+          {
+            "turn_id": 3,
+            "role": "assistant",
+            "quote": "Why do you like documentaries?"
+          },
+          {
+            "turn_id": 4,
+            "role": "assistant",
+            "quote": "What did you like about that documentary?"
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Stopped the Ali G movie early and disliked it despite liking the TV show; exact movie title forgotten",
+        "source": [
+          {
+            "turn_id": 6,
+            "role": "user",
+            "quote": "Yeah, I watched about the first 5 minutes of the Ali G movie. I don't remember the title of it, but it was just absolutely terrible, gut wrenching, just absolutely awful, absolutely awful. I'm not I don't want to watch something if it's that bad, you know. I watched the first 10 minutes. I thought, this is not going to be good, so I just sort of left it at that, even though I love the TV show. It was kind of weird, because I thought it would be a lot better than what it was."
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "Amy Schumer film not seen; negative view is hearsay",
+        "source": [
+          {
+            "turn_id": 8,
+            "role": "user",
+            "quote": "Yeah, I see a lot I see that with a lot of movies, too. Like I haven't seen that Amy Schumer movie, the one with her with the alcohol bottle, but I heard that was really bad, as well."
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "Has not seen The Matrix or Wonder Woman",
+        "source": [
+          {
+            "turn_id": 10,
+            "role": "user",
+            "quote": "I have not seen The Matrix, but I like the I've heard about it so much, but like I've never actually seen it myself. But I hear about like the pills, and like I hear references to it, but I've never actually seen it on TV."
+          },
+          {
+            "turn_id": 12,
+            "role": "user",
+            "quote": "Wonder Woman, I've never seen, either. But I've heard the TV show is pretty good for the Wonder Woman."
+          }
+        ]
+      },
+      {
+        "id": "C5",
+        "claim": "Enjoyed The Godfather as creative and inventive",
+        "source": [
+          {
+            "turn_id": 14,
+            "role": "user",
+            "quote": "I have seen The Godfather, and that is a good piece of cinematic work. That is really really good. I really enjoyed it."
+          },
+          {
+            "turn_id": 15,
+            "role": "user",
+            "quote": "It was really creative and inventive."
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "provenance",
+      "ordinary_review",
+      "ordinary"
+    ]
+  },
+  {
+    "id": "CCPE-8e113",
+    "dataset": "ccpe",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "assistant",
+        "content": "generally speaking what type of movies do you watch"
+      },
+      {
+        "turn_id": 1,
+        "role": "user",
+        "content": "I like thrillers a lot."
+      },
+      {
+        "turn_id": 2,
+        "role": "assistant",
+        "content": "thrillers? for example?"
+      },
+      {
+        "turn_id": 3,
+        "role": "user",
+        "content": "Zodiac's one of my favorite movies."
+      },
+      {
+        "turn_id": 4,
+        "role": "user",
+        "content": "Zodiac the movie about a serial killer from the '60s or '70s, around there."
+      },
+      {
+        "turn_id": 5,
+        "role": "assistant",
+        "content": "Zodiac? oh wow ok, what do you like about that movie"
+      },
+      {
+        "turn_id": 6,
+        "role": "user",
+        "content": "And I just think serial killers, in general, are interesting, so the movie was really good. And it was just neat to see that world. Like it went really in-depth. It was like almost 3 hours long, so you got to really feel like you were a part of that world and time period. And see what the detectives and the police did and the investigators."
+      },
+      {
+        "turn_id": 7,
+        "role": "assistant",
+        "content": "so you feel like you were part of that world ?"
+      },
+      {
+        "turn_id": 8,
+        "role": "user",
+        "content": "Yeah. It was really an immersive movie."
+      },
+      {
+        "turn_id": 9,
+        "role": "assistant",
+        "content": "if you were in the movie what character do you feel most relatable"
+      },
+      {
+        "turn_id": 10,
+        "role": "user",
+        "content": "Probably the main character, Robert Graysmith, just cuz he's awkward and bumbly. So, I guess that's the one I would be the closest to."
+      },
+      {
+        "turn_id": 11,
+        "role": "assistant",
+        "content": "what scene do you like the best"
+      },
+      {
+        "turn_id": 12,
+        "role": "user",
+        "content": "Probably the most memorable one is the murder at the lake. Just cuz it's really vivid and horrific to watch. But it's very memorable."
+      },
+      {
+        "turn_id": 13,
+        "role": "assistant",
+        "content": "ok nice, any other similiar movies you have seen recently?"
+      },
+      {
+        "turn_id": 14,
+        "role": "user",
+        "content": "Not that I can think of."
+      },
+      {
+        "turn_id": 15,
+        "role": "assistant",
+        "content": "how about different type of movies like Once Upon a Deadpool"
+      },
+      {
+        "turn_id": 16,
+        "role": "user",
+        "content": "I haven't seen that."
+      },
+      {
+        "turn_id": 17,
+        "role": "assistant",
+        "content": "have you heard of that movie"
+      },
+      {
+        "turn_id": 18,
+        "role": "user",
+        "content": "I've heard of it, but I haven't seen it."
+      },
+      {
+        "turn_id": 19,
+        "role": "assistant",
+        "content": "would you be interested to watch it"
+      },
+      {
+        "turn_id": 20,
+        "role": "user",
+        "content": "Not particularly. I don't really like comic book movies that much. But I really wanted to see Deadpool, so I'd probably be more willing to watch that than most comic book movies."
+      },
+      {
+        "turn_id": 21,
+        "role": "assistant",
+        "content": "oh what makes deadpool different than the others?"
+      },
+      {
+        "turn_id": 22,
+        "role": "user",
+        "content": "I don't know. It just seems a unique concept and different, not just the standard superhero movie."
+      },
+      {
+        "turn_id": 23,
+        "role": "user",
+        "content": "And it's more of a comedy, so that's unique."
+      },
+      {
+        "turn_id": 24,
+        "role": "assistant",
+        "content": "ok so you enjoy comedy as well, correct?"
+      },
+      {
+        "turn_id": 25,
+        "role": "user",
+        "content": "Yep, I think most people do."
+      },
+      {
+        "turn_id": 26,
+        "role": "assistant",
+        "content": "what type of movie you don't enjoy?"
+      },
+      {
+        "turn_id": 27,
+        "role": "user",
+        "content": "I'm not a big action movie fan like Die Hard or like Rambo movies. I don't hate them, I just think they're boring. Like I can't watch a lot of them, or else I get sick of them."
+      },
+      {
+        "turn_id": 28,
+        "role": "assistant",
+        "content": "what about mission impossible?"
+      },
+      {
+        "turn_id": 29,
+        "role": "user",
+        "content": "Never seen it. I know what it is, but I haven't seen it."
+      },
+      {
+        "turn_id": 30,
+        "role": "assistant",
+        "content": "do you care who acts in the movie?"
+      },
+      {
+        "turn_id": 31,
+        "role": "user",
+        "content": "Just in general? I'm not I'm not picky about actors. Like I won't see a movie just cuz I don't like the actor in it."
+      },
+      {
+        "turn_id": 32,
+        "role": "assistant",
+        "content": "oh ok so you dont have a favorite actor is that right"
+      },
+      {
+        "turn_id": 33,
+        "role": "user",
+        "content": "I mean I like certain actors more than others, but I wouldn't say I have a favorite actor."
+      },
+      {
+        "turn_id": 34,
+        "role": "assistant",
+        "content": "ok who came to your mind when it comes to actors you like to see in the movie"
+      },
+      {
+        "turn_id": 35,
+        "role": "assistant",
+        "content": "what is your favorite Tom Hanks movie?"
+      },
+      {
+        "turn_id": 36,
+        "role": "user",
+        "content": "Catch Me If You Can"
+      },
+      {
+        "turn_id": 37,
+        "role": "assistant",
+        "content": "what so great about that movie"
+      },
+      {
+        "turn_id": 38,
+        "role": "user",
+        "content": "It's just an interesting story and it's based on a true story and it's got Leonardo Dicaprio in it, another good actor."
+      },
+      {
+        "turn_id": 39,
+        "role": "assistant",
+        "content": "do you think that movie is exciting?"
+      },
+      {
+        "turn_id": 40,
+        "role": "user",
+        "content": "Yep."
+      },
+      {
+        "turn_id": 41,
+        "role": "assistant",
+        "content": "which scene you find most memorable?"
+      },
+      {
+        "turn_id": 42,
+        "role": "user",
+        "content": "It's been a long time since I've seen that movie. I can't think of any specific scene."
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Likes thrillers, especially Zodiac for its immersive detailed investigation",
+        "source": [
+          {
+            "turn_id": 1,
+            "role": "user",
+            "quote": "I like thrillers a lot."
+          },
+          {
+            "turn_id": 3,
+            "role": "user",
+            "quote": "Zodiac's one of my favorite movies."
+          },
+          {
+            "turn_id": 6,
+            "role": "user",
+            "quote": "And I just think serial killers, in general, are interesting, so the movie was really good. And it was just neat to see that world. Like it went really in-depth. It was like almost 3 hours long, so you got to really feel like you were a part of that world and time period. And see what the detectives and the police did and the investigators."
+          },
+          {
+            "turn_id": 8,
+            "role": "user",
+            "quote": "Yeah. It was really an immersive movie."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Has not seen Once Upon a Deadpool; little general comic-book interest but more open to Deadpool's distinct comedy",
+        "source": [
+          {
+            "turn_id": 16,
+            "role": "user",
+            "quote": "I haven't seen that."
+          },
+          {
+            "turn_id": 18,
+            "role": "user",
+            "quote": "I've heard of it, but I haven't seen it."
+          },
+          {
+            "turn_id": 20,
+            "role": "user",
+            "quote": "Not particularly. I don't really like comic book movies that much. But I really wanted to see Deadpool, so I'd probably be more willing to watch that than most comic book movies."
+          },
+          {
+            "turn_id": 22,
+            "role": "user",
+            "quote": "I don't know. It just seems a unique concept and different, not just the standard superhero movie."
+          },
+          {
+            "turn_id": 23,
+            "role": "user",
+            "quote": "And it's more of a comedy, so that's unique."
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "Not a big action-film fan; does not hate them, but finds too many boring",
+        "source": [
+          {
+            "turn_id": 27,
+            "role": "user",
+            "quote": "I'm not a big action movie fan like Die Hard or like Rambo movies. I don't hate them, I just think they're boring. Like I can't watch a lot of them, or else I get sick of them."
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "No favorite actor; likes some more than others",
+        "source": [
+          {
+            "turn_id": 33,
+            "role": "user",
+            "quote": "I mean I like certain actors more than others, but I wouldn't say I have a favorite actor."
+          }
+        ]
+      },
+      {
+        "id": "C5",
+        "claim": "Likes Catch Me If You Can for its true-story basis and Leonardo DiCaprio",
+        "source": [
+          {
+            "turn_id": 35,
+            "role": "assistant",
+            "quote": "what is your favorite Tom Hanks movie?"
+          },
+          {
+            "turn_id": 36,
+            "role": "user",
+            "quote": "Catch Me If You Can"
+          },
+          {
+            "turn_id": 38,
+            "role": "user",
+            "quote": "It's just an interesting story and it's based on a true story and it's got Leonardo Dicaprio in it, another good actor."
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "ordinary",
+      "ordinary_review",
+      "provenance"
+    ]
+  },
+  {
+    "id": "CCPE-32062",
+    "dataset": "ccpe",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "assistant",
+        "content": "What movies do you like?"
+      },
+      {
+        "turn_id": 1,
+        "role": "user",
+        "content": "comedies"
+      },
+      {
+        "turn_id": 2,
+        "role": "user",
+        "content": "Also, I like foreign films."
+      },
+      {
+        "turn_id": 3,
+        "role": "assistant",
+        "content": "What do you like about comedy and foreign films?"
+      },
+      {
+        "turn_id": 4,
+        "role": "user",
+        "content": "A comedy just makes me laugh it takes my mind off my troubles, and foreign films are really interesting I like to see what's going on around the rest of the world."
+      },
+      {
+        "turn_id": 5,
+        "role": "assistant",
+        "content": "I understand that you enjoy comedy for the humor and foreign films for insight on the world"
+      },
+      {
+        "turn_id": 6,
+        "role": "user",
+        "content": "Yes, exactly."
+      },
+      {
+        "turn_id": 7,
+        "role": "assistant",
+        "content": "Is there a specific title you enjoy?"
+      },
+      {
+        "turn_id": 8,
+        "role": "user",
+        "content": "I like anything with Melissa McCarthy in it."
+      },
+      {
+        "turn_id": 9,
+        "role": "assistant",
+        "content": "What do you enjoy about her acting?"
+      },
+      {
+        "turn_id": 10,
+        "role": "user",
+        "content": "She's funny. She's a great comedic actress."
+      },
+      {
+        "turn_id": 11,
+        "role": "assistant",
+        "content": "Are there any types of movies you dislike?"
+      },
+      {
+        "turn_id": 12,
+        "role": "user",
+        "content": "No, I like all of them."
+      },
+      {
+        "turn_id": 13,
+        "role": "assistant",
+        "content": "IS there a specific title dislike?"
+      },
+      {
+        "turn_id": 14,
+        "role": "user",
+        "content": "No, I mean I like all movies."
+      },
+      {
+        "turn_id": 15,
+        "role": "assistant",
+        "content": "Thank you"
+      },
+      {
+        "turn_id": 16,
+        "role": "assistant",
+        "content": "Talk to you next time"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Likes comedies for laughter and relief from troubles",
+        "source": [
+          {
+            "turn_id": 1,
+            "role": "user",
+            "quote": "comedies"
+          },
+          {
+            "turn_id": 4,
+            "role": "user",
+            "quote": "A comedy just makes me laugh it takes my mind off my troubles, and foreign films are really interesting I like to see what's going on around the rest of the world."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Likes foreign films for insight into the rest of the world",
+        "source": [
+          {
+            "turn_id": 2,
+            "role": "user",
+            "quote": "Also, I like foreign films."
+          },
+          {
+            "turn_id": 4,
+            "role": "user",
+            "quote": "A comedy just makes me laugh it takes my mind off my troubles, and foreign films are really interesting I like to see what's going on around the rest of the world."
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "Likes anything with Melissa McCarthy because she is funny",
+        "source": [
+          {
+            "turn_id": 8,
+            "role": "user",
+            "quote": "I like anything with Melissa McCarthy in it."
+          },
+          {
+            "turn_id": 10,
+            "role": "user",
+            "quote": "She's funny. She's a great comedic actress."
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "Reports liking all movies and names no disliked type or title",
+        "source": [
+          {
+            "turn_id": 12,
+            "role": "user",
+            "quote": "No, I like all of them."
+          },
+          {
+            "turn_id": 14,
+            "role": "user",
+            "quote": "No, I mean I like all movies."
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "ordinary_review",
+      "ordinary",
+      "provenance"
+    ]
+  },
+  {
+    "id": "CCPE-2b2f6",
+    "dataset": "ccpe",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "assistant",
+        "content": "What kind of movies do you like, and why do you like this type of movie?"
+      },
+      {
+        "turn_id": 1,
+        "role": "user",
+        "content": "I like comedy cuz I like to laugh a lot and have fun."
+      },
+      {
+        "turn_id": 2,
+        "role": "assistant",
+        "content": "Can you name a particular movie that you like?"
+      },
+      {
+        "turn_id": 3,
+        "role": "user",
+        "content": "Oh my gosh."
+      },
+      {
+        "turn_id": 4,
+        "role": "user",
+        "content": "methinks"
+      },
+      {
+        "turn_id": 5,
+        "role": "user",
+        "content": "The Spy Who Dumped Me"
+      },
+      {
+        "turn_id": 6,
+        "role": "user",
+        "content": "Deadpool, Game Night"
+      },
+      {
+        "turn_id": 7,
+        "role": "assistant",
+        "content": "Can you give me a couple of reasons why you like this movie?"
+      },
+      {
+        "turn_id": 8,
+        "role": "user",
+        "content": "Well, Crazy Rich Asians had like a romantic vibe to it and made me laugh."
+      },
+      {
+        "turn_id": 9,
+        "role": "assistant",
+        "content": "Can you name a movie that you do not like?"
+      },
+      {
+        "turn_id": 10,
+        "role": "user",
+        "content": "No."
+      },
+      {
+        "turn_id": 11,
+        "role": "assistant",
+        "content": "Not even one?"
+      },
+      {
+        "turn_id": 12,
+        "role": "user",
+        "content": "I can't think of one."
+      },
+      {
+        "turn_id": 13,
+        "role": "user",
+        "content": "Maybe Juno? It's been that long"
+      },
+      {
+        "turn_id": 14,
+        "role": "assistant",
+        "content": "ok. what 2 things did you dislike about Juno"
+      },
+      {
+        "turn_id": 15,
+        "role": "user",
+        "content": "I guess it's the storyline and I thought it was more dumb than than funny."
+      },
+      {
+        "turn_id": 16,
+        "role": "assistant",
+        "content": "Do you like the movie Jurassic World ?"
+      },
+      {
+        "turn_id": 17,
+        "role": "user",
+        "content": "Yes."
+      },
+      {
+        "turn_id": 18,
+        "role": "assistant",
+        "content": "Can you give me a couple of reasons why you like this movie?"
+      },
+      {
+        "turn_id": 19,
+        "role": "user",
+        "content": "I like the suspense."
+      },
+      {
+        "turn_id": 20,
+        "role": "assistant",
+        "content": "Do you like the movie Mad Max: Fury Road ?"
+      },
+      {
+        "turn_id": 21,
+        "role": "user",
+        "content": "I don't recall seeing that one."
+      },
+      {
+        "turn_id": 22,
+        "role": "assistant",
+        "content": "Have you heard of this movie?"
+      },
+      {
+        "turn_id": 23,
+        "role": "user",
+        "content": "No."
+      },
+      {
+        "turn_id": 24,
+        "role": "assistant",
+        "content": "Do you like the movie Avengers: Infinity War ?"
+      },
+      {
+        "turn_id": 25,
+        "role": "user",
+        "content": "It was all right. I don't think I saw the whole thing."
+      },
+      {
+        "turn_id": 26,
+        "role": "assistant",
+        "content": "What do you like about this movie? 2 reasons please"
+      },
+      {
+        "turn_id": 27,
+        "role": "user",
+        "content": "All the characters"
+      },
+      {
+        "turn_id": 28,
+        "role": "user",
+        "content": "I guess I liked Loki."
+      },
+      {
+        "turn_id": 29,
+        "role": "assistant",
+        "content": "please give me one more reason"
+      },
+      {
+        "turn_id": 30,
+        "role": "user",
+        "content": "Well it was fantasy. I like the fantasy element."
+      },
+      {
+        "turn_id": 31,
+        "role": "assistant",
+        "content": "Do you like the movie Doctor Strange ?"
+      },
+      {
+        "turn_id": 32,
+        "role": "user",
+        "content": "No."
+      },
+      {
+        "turn_id": 33,
+        "role": "assistant",
+        "content": "Why do you dislike this movie? 2 reasons please"
+      },
+      {
+        "turn_id": 34,
+        "role": "user",
+        "content": "I didn't see it, and I don't recall it."
+      },
+      {
+        "turn_id": 35,
+        "role": "assistant",
+        "content": "Have you heard of this movie?"
+      },
+      {
+        "turn_id": 36,
+        "role": "user",
+        "content": "No."
+      },
+      {
+        "turn_id": 37,
+        "role": "assistant",
+        "content": "Do you like the movie Ocean's Eight ?"
+      },
+      {
+        "turn_id": 38,
+        "role": "user",
+        "content": "Yes."
+      },
+      {
+        "turn_id": 39,
+        "role": "user",
+        "content": "It came out last year."
+      },
+      {
+        "turn_id": 40,
+        "role": "assistant",
+        "content": "What do you like about this movie? 2 reasons please"
+      },
+      {
+        "turn_id": 41,
+        "role": "user",
+        "content": "It's a Christian movie, and it's clean."
+      },
+      {
+        "turn_id": 42,
+        "role": "assistant",
+        "content": "Thank you for your feedback. Enjoy your evening."
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Likes comedy and names The Spy Who Dumped Me, Deadpool and Game Night",
+        "source": [
+          {
+            "turn_id": 1,
+            "role": "user",
+            "quote": "I like comedy cuz I like to laugh a lot and have fun."
+          },
+          {
+            "turn_id": 5,
+            "role": "user",
+            "quote": "The Spy Who Dumped Me"
+          },
+          {
+            "turn_id": 6,
+            "role": "user",
+            "quote": "Deadpool, Game Night"
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Tentatively recalls disliking Juno for its storyline and being dumb rather than funny",
+        "source": [
+          {
+            "turn_id": 12,
+            "role": "user",
+            "quote": "I can't think of one."
+          },
+          {
+            "turn_id": 13,
+            "role": "user",
+            "quote": "Maybe Juno? It's been that long"
+          },
+          {
+            "turn_id": 15,
+            "role": "user",
+            "quote": "I guess it's the storyline and I thought it was more dumb than than funny."
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "Likes Jurassic World for suspense",
+        "source": [
+          {
+            "turn_id": 16,
+            "role": "assistant",
+            "quote": "Do you like the movie Jurassic World ?"
+          },
+          {
+            "turn_id": 17,
+            "role": "user",
+            "quote": "Yes."
+          },
+          {
+            "turn_id": 19,
+            "role": "user",
+            "quote": "I like the suspense."
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "Avengers: Infinity War was only all right and perhaps not fully watched; liked characters, Loki and fantasy",
+        "source": [
+          {
+            "turn_id": 24,
+            "role": "assistant",
+            "quote": "Do you like the movie Avengers: Infinity War ?"
+          },
+          {
+            "turn_id": 25,
+            "role": "user",
+            "quote": "It was all right. I don't think I saw the whole thing."
+          },
+          {
+            "turn_id": 27,
+            "role": "user",
+            "quote": "All the characters"
+          },
+          {
+            "turn_id": 28,
+            "role": "user",
+            "quote": "I guess I liked Loki."
+          },
+          {
+            "turn_id": 30,
+            "role": "user",
+            "quote": "Well it was fantasy. I like the fantasy element."
+          }
+        ]
+      },
+      {
+        "id": "C5",
+        "claim": "Doctor Strange was not seen or known; initial 'No' does not establish an informed dislike",
+        "source": [
+          {
+            "turn_id": 31,
+            "role": "assistant",
+            "quote": "Do you like the movie Doctor Strange ?"
+          },
+          {
+            "turn_id": 32,
+            "role": "user",
+            "quote": "No."
+          },
+          {
+            "turn_id": 34,
+            "role": "user",
+            "quote": "I didn't see it, and I don't recall it."
+          },
+          {
+            "turn_id": 36,
+            "role": "user",
+            "quote": "No."
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "ordinary_review",
+      "ordinary",
+      "provenance"
+    ]
+  },
+  {
+    "id": "CCPE-8cdd5",
+    "dataset": "ccpe",
+    "messages": [
+      {
+        "turn_id": 0,
+        "role": "assistant",
+        "content": "What type of movies do you like?"
+      },
+      {
+        "turn_id": 1,
+        "role": "user",
+        "content": "Sci-Fi movies"
+      },
+      {
+        "turn_id": 2,
+        "role": "assistant",
+        "content": "why is that?"
+      },
+      {
+        "turn_id": 3,
+        "role": "user",
+        "content": "Cuz I always like seeing movies about the future and space battles and stuff like that."
+      },
+      {
+        "turn_id": 4,
+        "role": "assistant",
+        "content": "are you a fan of star trek?"
+      },
+      {
+        "turn_id": 5,
+        "role": "user",
+        "content": "Yes, very much. Yes."
+      },
+      {
+        "turn_id": 6,
+        "role": "assistant",
+        "content": "What is one of your favorite movies?"
+      },
+      {
+        "turn_id": 7,
+        "role": "user",
+        "content": "The very first Star Wars in 1977, A New Hope."
+      },
+      {
+        "turn_id": 8,
+        "role": "assistant",
+        "content": "why that movie?"
+      },
+      {
+        "turn_id": 9,
+        "role": "user",
+        "content": "Well I saw it when I was a kid, and it introduced me to the whole idea of fantasy and science fiction."
+      },
+      {
+        "turn_id": 10,
+        "role": "assistant",
+        "content": "What type of movies do you not like?"
+      },
+      {
+        "turn_id": 11,
+        "role": "user",
+        "content": "Romance, family-oriented"
+      },
+      {
+        "turn_id": 12,
+        "role": "user",
+        "content": "Musicals, that's about it."
+      },
+      {
+        "turn_id": 13,
+        "role": "assistant",
+        "content": "is it too boring for you?"
+      },
+      {
+        "turn_id": 14,
+        "role": "user",
+        "content": "Yeah. It just doesn't interest me."
+      },
+      {
+        "turn_id": 15,
+        "role": "assistant",
+        "content": "have you heard of the movie The happytime Murders?"
+      },
+      {
+        "turn_id": 16,
+        "role": "user",
+        "content": "Yes, I have heard of it, but I have not seen it as yet."
+      },
+      {
+        "turn_id": 17,
+        "role": "assistant",
+        "content": "have you watched the movie inception"
+      },
+      {
+        "turn_id": 18,
+        "role": "user",
+        "content": "Yes."
+      },
+      {
+        "turn_id": 19,
+        "role": "user",
+        "content": "I liked it a lot."
+      },
+      {
+        "turn_id": 20,
+        "role": "assistant",
+        "content": "what did you like about the movie?"
+      },
+      {
+        "turn_id": 21,
+        "role": "user",
+        "content": "It was well directed. The acting was great. The story with the shocker at the end, it was just overall well done movie, the pacing, everything about it."
+      },
+      {
+        "turn_id": 22,
+        "role": "assistant",
+        "content": "okay. thank you"
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "C1",
+        "claim": "Likes science fiction about the future and space battles",
+        "source": [
+          {
+            "turn_id": 1,
+            "role": "user",
+            "quote": "Sci-Fi movies"
+          },
+          {
+            "turn_id": 3,
+            "role": "user",
+            "quote": "Cuz I always like seeing movies about the future and space battles and stuff like that."
+          }
+        ]
+      },
+      {
+        "id": "C2",
+        "claim": "Very much a Star Trek fan",
+        "source": [
+          {
+            "turn_id": 4,
+            "role": "assistant",
+            "quote": "are you a fan of star trek?"
+          },
+          {
+            "turn_id": 5,
+            "role": "user",
+            "quote": "Yes, very much. Yes."
+          }
+        ]
+      },
+      {
+        "id": "C3",
+        "claim": "Star Wars (1977), A New Hope is one favorite linked to childhood introduction to science fiction",
+        "source": [
+          {
+            "turn_id": 7,
+            "role": "user",
+            "quote": "The very first Star Wars in 1977, A New Hope."
+          },
+          {
+            "turn_id": 9,
+            "role": "user",
+            "quote": "Well I saw it when I was a kid, and it introduced me to the whole idea of fantasy and science fiction."
+          }
+        ]
+      },
+      {
+        "id": "C4",
+        "claim": "Dislikes romance, family-oriented movies and musicals",
+        "source": [
+          {
+            "turn_id": 11,
+            "role": "user",
+            "quote": "Romance, family-oriented"
+          },
+          {
+            "turn_id": 12,
+            "role": "user",
+            "quote": "Musicals, that's about it."
+          },
+          {
+            "turn_id": 14,
+            "role": "user",
+            "quote": "Yeah. It just doesn't interest me."
+          }
+        ]
+      },
+      {
+        "id": "C5",
+        "claim": "Likes Inception's direction, acting, story, ending and pacing",
+        "source": [
+          {
+            "turn_id": 19,
+            "role": "user",
+            "quote": "I liked it a lot."
+          },
+          {
+            "turn_id": 21,
+            "role": "user",
+            "quote": "It was well directed. The acting was great. The story with the shocker at the end, it was just overall well done movie, the pacing, everything about it."
+          }
+        ]
+      }
+    ],
+    "judge_order": [
+      "ordinary",
+      "provenance",
+      "ordinary_review"
+    ]
+  }
+]

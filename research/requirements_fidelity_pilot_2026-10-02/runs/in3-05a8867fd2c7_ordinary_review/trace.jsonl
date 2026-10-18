@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"01a0fca5-ac74-7c11-be46-fa553420d85e"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"brief\":\"The user wants an estimate of the average cost of living in New York City, including rent for a one-bedroom apartment, utilities, groceries, transportation, and entertainment. They have no neighborhood preference. Household size, lifestyle assumptions, and the estimate’s time period remain unspecified. No cost estimates have been provided yet.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":13110,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":76,"reasoning_output_tokens":0}}

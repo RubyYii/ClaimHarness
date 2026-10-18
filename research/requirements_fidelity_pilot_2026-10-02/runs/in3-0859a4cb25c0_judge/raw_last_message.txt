@@ -1,0 +1,107 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "law school exams in two months",
+        "reason": "Preserves the exam context and timeframe."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "focused on civil law",
+        "reason": "Preserves the specified subject."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They study three hours per day",
+        "reason": "Preserves the stated daily study duration."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "prefer one long session",
+        "reason": "Preserves the session preference."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "do not want to study on weekends",
+        "reason": "Preserves the exclusion of weekend study."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "law school exams in two months",
+        "reason": "Preserves the exam context and timeframe."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "focused on civil law",
+        "reason": "Preserves the specified subject."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They study three hours per day",
+        "reason": "Preserves the stated daily study duration."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "prefer one continuous session",
+        "reason": "Reasonably paraphrases the preference for one long session."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "do not want weekend study",
+        "reason": "Preserves the exclusion of weekend study."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "law school exams in two months",
+        "reason": "Preserves the exam context and timeframe."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "focused on civil law",
+        "reason": "Preserves the specified subject."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They specified three hours per day",
+        "reason": "Preserves the duration while reasonably noting that the compound question left current hours versus future availability unresolved."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "prefer one long study session",
+        "reason": "Preserves the session preference."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "explicitly exclude weekends",
+        "reason": "Preserves the exclusion of weekend study."
+      }
+    ],
+    "issues": []
+  }
+}

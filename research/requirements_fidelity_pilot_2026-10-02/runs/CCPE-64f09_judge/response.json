@@ -1,0 +1,107 @@
+{
+  "A": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user mostly prefers dramas, especially when strong writing makes the story and characters engaging and explores the human condition.",
+        "reason": "Preserves the primary genre preference and the writing, character, story, and thematic qualifications."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They loved Her for exploring how people can still end up alone despite technological convenience and relative prosperity in a not-too-distant future.",
+        "reason": "Preserves the film preference and the contrast between loneliness and technological and material comfort."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They disliked every film in the 50 Shades series, calling the material terrible and saying it should not have been approved as either books or movies.",
+        "reason": "Preserves the series-wide dislike and criticism of its material and approval."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They also liked The Incredibles.",
+        "reason": "Accurately records the user's affirmative response."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "Discussing the appeal of superhero movies, they emphasized visual effects and sound design and their fascination with what visual artists and animators create. They enjoy imagining themselves as a superhero, though they qualified that they usually do not get too carried away with it.",
+        "reason": "Preserves all three attractions and the qualification about limited imaginative involvement."
+      }
+    ],
+    "issues": []
+  },
+  "B": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user mostly likes dramas, especially when strong writing makes the story and characters engaging and explores the human condition.",
+        "reason": "Preserves the primary genre preference and its conditional appeal."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They named Her as a film they love, particularly its exploration of how people can still end up alone in a relatively prosperous, technologically convenient, not-too-distant future.",
+        "reason": "Preserves the liked film and its valued exploration of loneliness despite prosperity and technology."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They disliked every film in the 50 Shades series. They regarded the source material as terrible and felt it should never have been approved as either books or films.",
+        "reason": "Preserves the scope of dislike and the criticism of the material and its approval."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "When the assistant suggested The Incredibles, the user explicitly confirmed liking it.",
+        "reason": "Accurately conveys the user's confirmed preference."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "In response to a broader question about superhero movies, they said they enjoy visual effects and sound design and are mesmerized by what visual artists and animators create. They also enjoy imagining themselves as a superhero, while qualifying that they usually do not get too carried away.",
+        "reason": "Preserves the stated attractions and the user's qualification without generalizing to every superhero film."
+      }
+    ],
+    "issues": []
+  },
+  "C": {
+    "checkpoints": [
+      {
+        "id": "C1",
+        "status": "covered",
+        "response_quote": "The user mostly prefers dramas, valuing strong writing that makes stories and characters engaging and explores the human condition.",
+        "reason": "Preserves the main genre preference and the qualities that make dramas appealing."
+      },
+      {
+        "id": "C2",
+        "status": "covered",
+        "response_quote": "They loved Her for exploring how people can still end up alone despite technological convenience and relative prosperity in a somewhat near future.",
+        "reason": "Preserves the film preference, thematic contrast, and approximate future setting."
+      },
+      {
+        "id": "C3",
+        "status": "covered",
+        "response_quote": "They disliked every film in the 50 Shades series, describing the material as terrible and saying it should not have been greenlit as either a book or a movie.",
+        "reason": "Preserves the series-wide dislike and criticism of the material and its approval."
+      },
+      {
+        "id": "C4",
+        "status": "covered",
+        "response_quote": "They also liked The Incredibles.",
+        "reason": "Accurately records the user's confirmed liking."
+      },
+      {
+        "id": "C5",
+        "status": "covered",
+        "response_quote": "When asked about superhero movies’ appeal, they emphasized visual effects, sound design, and their fascination with what visual artists and animators create. They also enjoy imagining themselves as a superhero, while qualifying that they usually do not get too carried away.",
+        "reason": "Preserves all stated attractions and the qualification about not usually getting carried away."
+      }
+    ],
+    "issues": []
+  }
+}

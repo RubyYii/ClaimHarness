@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"01a0fca5-97b5-7a83-9356-b362cca71d55"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"brief\":\"The user wants the cheapest round-trip flights from New York to London, departing February 1 and returning March 2, with flexible dates. They specified Air China, business class, and direct flights. The travel year, extent of date flexibility, and specific airports remain unspecified. The initial request said “next month,” but the recorded conversation has no date to clarify its relationship to the stated travel dates. No flight options or prices have been provided yet.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":13131,"cached_input_tokens":9984,"cache_write_input_tokens":0,"output_tokens":104,"reasoning_output_tokens":0}}

@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"01a0fca4-b309-7990-97e5-1115dbc5d785"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"brief\":\"The user wants a comparative smartphone review of the iPhone 14 and a Samsung model they called “samsum galaxy 14,” covering performance, camera, battery life, design, and price. They initially requested the latest Android and iOS models, then named these devices. The exact Samsung model is unresolved and should be clarified rather than assumed; pricing region and currency were not specified.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":12909,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":92,"reasoning_output_tokens":0}}

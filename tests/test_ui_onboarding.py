@@ -51,10 +51,18 @@ def test_one_click_example_produces_current_project_result_and_preserves_draft(a
     assert (out / "evidence_contract.yaml").is_file()
 
 
-def test_failed_example_keeps_existing_interview_and_gives_retry_feedback(app):
+def test_failed_example_keeps_existing_interview_and_gives_retry_feedback(app, monkeypatch):
     from problem_bridge.interview import answer_question, start_interview
 
-    Path("examples/problem_bridge/quality_inspection/problem.md").unlink()
+    source = APP_FILE.parents[1] / "examples/problem_bridge/quality_inspection/problem.md"
+    read_text = Path.read_text
+
+    def missing_example(path, *args, **kwargs):
+        if path.resolve() == source.resolve():
+            raise FileNotFoundError("The synthetic example is unavailable.")
+        return read_text(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", missing_example)
     draft = answer_question(start_interview(), "repeated_work", "Keep this work")
     app.session_state["problem_bridge_interview_state"] = draft
     click(app, "home_run_example")

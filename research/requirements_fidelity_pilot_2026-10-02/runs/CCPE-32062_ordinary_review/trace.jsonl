@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"01a0fca5-ed14-7093-9448-9267755783e4"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"brief\":\"The user says they like all movies and named no disliked genres or titles, reiterating their broad enjoyment when asked about dislikes. They particularly enjoy comedies because they make them laugh and take their mind off their troubles. They also like foreign films because they find them interesting and enjoy seeing what is happening elsewhere in the world. They like anything featuring Melissa McCarthy, describing her as funny and a great comedic actress. No specific movie titles, countries, or languages were mentioned.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":13463,"cached_input_tokens":9984,"cache_write_input_tokens":0,"output_tokens":108,"reasoning_output_tokens":0}}

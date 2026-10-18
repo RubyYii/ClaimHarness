@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"01a0fca5-b275-7a83-b31e-28b2861e8a2f"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"brief\":\"The user wants a study plan for law school exams in two months, focused on civil law. They report a regular study schedule and mention a “general overview,” though the intended scope is unclear. They study three hours per day, prefer one long session, and do not want to study on weekends. Specific civil law topics, syllabus, exam format, and exact exam dates have not been provided. No study plan has been drafted yet.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":13212,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":101,"reasoning_output_tokens":0}}

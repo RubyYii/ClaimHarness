@@ -5,3 +5,8 @@ backgroundColor = "#f5f8f6"
 secondaryBackgroundColor = "#eef4f0"
 textColor = "#203632"
 font = "sans serif"
+
+[server]
+# Saved versions use atomic directory renames. Avoid Windows watcher handles
+# holding generated directories open during a save. Restart after source edits.
+fileWatcherType = "none"

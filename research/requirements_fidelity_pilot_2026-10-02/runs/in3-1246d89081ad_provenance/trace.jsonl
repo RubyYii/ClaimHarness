@@ -1,0 +1,5 @@
+{"type":"thread.started","thread_id":"01a0fca5-6e46-7e90-8120-b090e06f4677"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."}}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"brief\":\"The user wants an explanation of what black holes are and how they are detected. They have not specified a desired level of detail, format, or technical depth; their background knowledge is unknown.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":12908,"cached_input_tokens":9984,"cache_write_input_tokens":0,"output_tokens":52,"reasoning_output_tokens":0}}

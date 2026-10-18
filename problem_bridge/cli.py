@@ -204,6 +204,87 @@ def clarify_demo(
     console.print(f"out={out}")
 
 
+@app.command("requirement-sources")
+def requirement_sources_command(
+    workspace: Path = typer.Option(...), run: Path = typer.Option(...),
+    project_id: str = typer.Option(...),
+) -> None:
+    """Print confirmed source fields and their exact wording for selection."""
+    from .requirements import source_catalog
+    from .workbench import load_problem
+    try:
+        record = load_problem(workspace, run, project_id)
+        value = {"problem_revision": record.revision, "sources": source_catalog(record)}
+    except (ValueError, OSError, ProjectLifecycleError) as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    typer.echo(json.dumps(value, ensure_ascii=False, indent=2))
+
+
+@app.command("confirm-requirements")
+def confirm_requirements_command(
+    workspace: Path = typer.Option(...), run: Path = typer.Option(...),
+    project_id: str = typer.Option(...), changes: Path = typer.Option(...),
+    expected_revision: int = typer.Option(...), confirm: bool = typer.Option(False, "--confirm"),
+) -> None:
+    """Confirm exact selected wording into a new immutable problem revision."""
+    from .requirements import confirm_requirements
+    try:
+        out = confirm_requirements(workspace, project_id, run,
+            json.loads(changes.read_text(encoding="utf-8-sig")),
+            confirmed=confirm, expected_revision=expected_revision)
+    except (ValueError, OSError, ProjectLifecycleError) as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    typer.echo(f"out={out}")
+
+
+@app.command("record-requirement-check")
+def record_requirement_check_command(
+    workspace: Path = typer.Option(...), run: Path = typer.Option(...),
+    project_id: str = typer.Option(...), requirement_id: str = typer.Option(...),
+    result: str = typer.Option(..., help="met, not_met or not_checked; user-reported only."),
+    actor: str = typer.Option(...), method: str = typer.Option(...), note: str = typer.Option(...),
+    expected_revision: int = typer.Option(..., help="Check journal revision, initially 0."),
+    artifact: str = typer.Option("", help="Evidence file relative to the workspace."),
+    location: str = typer.Option("", help="User-reported row, page or other evidence location."),
+) -> None:
+    """Append an attributed check without changing original outputs or audit verdicts."""
+    from .requirements import record_check
+    try:
+        value = record_check(workspace, project_id, run, requirement_id=requirement_id,
+            result=result, actor=actor, method=method, note=note, expected_revision=expected_revision,
+            artifact=artifact, location=location)
+    except (ValueError, OSError, ProjectLifecycleError) as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    typer.echo(f"journal_revision={value['revision']} · user_reported_not_verified")
+
+
+@app.command("export-requirements")
+def export_requirements_command(
+    workspace: Path = typer.Option(...), run: Path = typer.Option(...),
+    project_id: str = typer.Option(...), out: Path = typer.Option(...),
+) -> None:
+    """Export source, handoff locations and this version's check history."""
+    from .requirements import export_trace
+    try:
+        value = export_trace(workspace, project_id, run, out)
+    except (ValueError, OSError, ProjectLifecycleError) as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    typer.echo(f"out={out} · journal_revision={value['journal_revision']}")
+
+
+@app.command("requirements-demo")
+def requirements_demo_command(
+    out: Path = typer.Option(Path("outputs/requirements_demo"), help="Fresh synthetic demo directory."),
+) -> None:
+    """Run a selected-requirement, handoff and attributed-check example locally."""
+    from .requirements_demo import run_demo
+    try:
+        value = run_demo(out)
+    except (ValueError, OSError, ProjectLifecycleError) as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    typer.echo(json.dumps(value, ensure_ascii=False, indent=2))
+
+
 @app.command("record-revision")
 def record_revision_command(
     project: Path = typer.Option(..., help="Generated project directory containing project_record.json."),

@@ -1,0 +1,39 @@
+{
+  "fresh_cache_restore": "passed",
+  "source_manifest_unchanged": true,
+  "reproduced_artifacts": {
+    "pilot_inputs.jsonl": "fbac9bd89340c3735da3a8c7217aed70442a27f5920be959ebd2f2cc94c72164",
+    "review_only.jsonl": "664472740ffa96d836aa48abe9166d5426ef35ddf212e6fab1497a84e1476663",
+    "data_check.json": "f5fcd1113e677703e66518251df95299ccc86a40630db699468f716308170a63"
+  },
+  "source_files_verified": 9,
+  "licence_copy_exact": true,
+  "focused_tests": {
+    "passed": 5,
+    "command": ".venv/Scripts/python.exe -X utf8 -m pytest -q tests/test_requirements_data_snapshot.py --basetemp=outputs/requirements_data_git_snapshot_tests_lf"
+  },
+  "gemini_diff_review": {
+    "model": "gemini-3.5-flash",
+    "verdict": "pass",
+    "input_scope": "download script, preparation script, snapshot tests only",
+    "advisory_notes": "Suggested extra malformed/missing-manifest tests and a configurable test import path. No required changes. The final fifth test covers initial manifest creation and LF output; the test import is intentionally relative to the repository root. Invalid JSON propagates as a parse error."
+  },
+  "publication_scope": "this data-check directory and its snapshot regression test",
+  "new_model_comparison": "not_run",
+  "pre_publication_windows_line_ending_hashes": {
+    "pilot_inputs.jsonl": "462a14a0594523dac9b61ab96bc39e7c6986874c8a7165144551c8f7f40a4358",
+    "review_only.jsonl": "a02c359207ba217e79d9ebc5997a8329cdc110a562a0cfffacc5da8eab383e1c",
+    "data_check.json": "88653d522e77945456a2da65c755350dab1616a62db43d4c78c11af4fb9d6893"
+  },
+  "published_line_endings": "LF",
+  "staged_git_snapshot_reproduction": {
+    "passed": true,
+    "source_files_verified": 9,
+    "exact_artifacts": [
+      "pilot_inputs.jsonl",
+      "review_only.jsonl",
+      "data_check.json"
+    ],
+    "licence_copy_exact": true
+  }
+}

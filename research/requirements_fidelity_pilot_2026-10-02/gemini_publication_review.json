@@ -1,0 +1,10 @@
+{
+  "provider": "gemini-agent",
+  "model": "gemini-3.5-flash",
+  "purpose": "Bounded review of verify_results.py publication mode and README.md only",
+  "status": "unavailable",
+  "error": "HTTP 503 UNAVAILABLE: model experiencing high demand",
+  "sent_dialogue_records": false,
+  "automatic_retry": false,
+  "effect": "No advisory judgment used; local fresh-index verification is required before publication."
+}
