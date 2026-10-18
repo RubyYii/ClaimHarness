@@ -8,7 +8,7 @@ Start from one concrete task and confirm your brief. Collaborator B records thei
 
 Local-first · Bilingual interface · No API key needed to start
 
-![Two-way handoff: A confirms a need, B responds, A revises or retains, and B reviews the changes](docs/figures/two-way-handoff-en.svg)
+![Two-way handoff: A confirms a need, B responds, A revises or retains, and B reviews the changes](docs/figures/github-hero-two-way-v3.png)
 
 ## Use it in three steps
 
@@ -32,7 +32,7 @@ After confirming a need, open **Two-way handoff** in the sidebar. Take turns on 
 
 Actual app screenshot with synthetic demonstration content. Bring back a small text or CSV sample afterwards and record human checks against selected requirements. The program does not determine whether both people truly understand each other.
 
-[Full walkthrough](docs/two_way_handoff.md) · [First individual test (Chinese)](docs/first_round_single_participant.md) · [Static showcase source](docs/static_showcase/en.html)
+[Full walkthrough](docs/two_way_handoff.md) · [Flow diagram](docs/figures/two-way-handoff-en.svg) · [First individual test (Chinese)](docs/first_round_single_participant.md) · [Static showcase source](docs/static_showcase/en.html)
 
 ## Run locally
 

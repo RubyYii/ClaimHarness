@@ -144,9 +144,9 @@ def test_github_landing_page_has_one_hero_and_starting_route():
         ("README.md", "en", "Use it in three steps", "docs/reference.md"),
         ("README.zh-CN.md", "zh", "三步开始使用", "docs/reference.zh-CN.md"),
     ]:
-        hero = Path(f"docs/figures/two-way-handoff-{lang}.svg")
+        hero = Path("docs/figures/github-hero-two-way-v3.png")
         screenshot = Path(f"docs/figures/handoff-review-{lang}.png")
-        assert hero.is_file() and "<svg" in hero.read_text(encoding="utf-8")
+        assert hero.read_bytes().startswith(b"\x89PNG")
         assert screenshot.read_bytes().startswith(b"\x89PNG")
         readme = Path(filename).read_text(encoding="utf-8")
         assert re.findall(r"!\[[^\]]*\]\(([^)]+)\)", readme) == [hero.as_posix()]

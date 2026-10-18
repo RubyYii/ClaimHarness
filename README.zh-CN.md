@@ -8,7 +8,7 @@
 
 本地运行 · 中英双语 · 开始时无需 API key
 
-![双向交接流程：A 确认需求，B 接收并回应，A 回应与调整，B 查看调整结果](docs/figures/two-way-handoff-zh.svg)
+![双向交接流程：A 确认需求，B 接收并回应，A 回应与调整，B 查看调整结果](docs/figures/github-hero-two-way-v3.png)
 
 ## 三步开始使用
 
@@ -32,7 +32,7 @@
 
 实际程序截图，内容为合成演示。随后可带回一个小型文字或 CSV 样例，按选定要求保存人工检查；程序不会自动判断双方已经理解一致。
 
-[完整操作说明](docs/two_way_handoff.md) · [单人第一轮测试](docs/first_round_single_participant.md) · [静态展示页源码](docs/static_showcase/zh-CN.html)
+[完整操作说明](docs/two_way_handoff.md) · [交接流程图](docs/figures/two-way-handoff-zh.svg) · [单人第一轮测试](docs/first_round_single_participant.md) · [静态展示页源码](docs/static_showcase/zh-CN.html)
 
 ## 收到反馈或修改材料后继续
 
