@@ -91,7 +91,9 @@ if (Test-Path $outputPath) {
     Remove-Item $outputPath -Force
 }
 
-git archive --format=zip --prefix=$prefix --output=$outputPath HEAD
+# Research archives retain their original evidence bytes and are distributed
+# through the repository, separately from this runnable application package.
+git archive --format=zip --prefix=$prefix --output=$outputPath HEAD -- . ':(exclude)research'
 if ($LASTEXITCODE -ne 0) {
     Remove-Item -LiteralPath $outputPath -Force -ErrorAction SilentlyContinue
     throw "git archive failed while building the release package (exit code $LASTEXITCODE)."

@@ -154,7 +154,7 @@ If PowerShell blocks local scripts on your machine, run:
 powershell -ExecutionPolicy Bypass -File scripts\build_release_zip_powershell.ps1
 ```
 
-The script writes the zip under `dist/` using tracked Git files from `HEAD`. It refuses to build while tracked or untracked working-tree changes are present, preventing an older `HEAD` from being mislabeled as the current candidate. The version is derived from `pyproject.toml`; both package `__version__` values must match it, and an explicitly supplied `-Version` must be the same `vX.Y.Z` value.
+The script writes the zip under `dist/` using tracked Git files from `HEAD`, excluding `research/`. Research archives remain available in the Git repository and GitHub source downloads with their original bytes; the runnable application ZIP does not include them. It refuses to build while tracked or untracked working-tree changes are present, preventing an older `HEAD` from being mislabeled as the current candidate. The version is derived from `pyproject.toml`; both package `__version__` values must match it, and an explicitly supplied `-Version` must be the same `vX.Y.Z` value.
 
 It also writes `<zip>.manifest.json` with the version, Git commit, archive root, entry count, SHA-256, and the project/run identity plus completion-record hash for each committed sample. Before publishing that manifest, the builder opens the ZIP and verifies every sample artifact named by `run_complete.json`. A conventional `<zip>.sha256` file is written beside it. Release-facing text uses LF through `.gitattributes` so hashes remain stable across Windows and Linux checkouts.
 
@@ -203,6 +203,7 @@ Release packages should not include:
 - `.venv`
 - `.git`
 - `.pytest_cache`
+- `research/` archives (available separately in the repository)
 - temporary outputs
 - API keys
 - passwords or tokens

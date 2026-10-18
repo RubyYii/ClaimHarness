@@ -1643,6 +1643,11 @@ def test_release_build_writes_commit_bound_manifest_and_sha256(tmp_path):
     )
     (tmp_path / "README.md").write_text("release fixture\n", encoding="utf-8")
     _write_minimal_release_build_fixture(tmp_path)
+    research = tmp_path / "research"
+    research.mkdir()
+    (research / ".gitattributes").write_bytes(b"* -text\n")
+    archived_evidence = b'{"source": "synthetic archive fixture"}\r\n'
+    (research / "evidence.json").write_bytes(archived_evidence)
     subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
     subprocess.run(
         ["git", "config", "user.email", "release-test@example.test"],
@@ -1683,6 +1688,16 @@ def test_release_build_writes_commit_bound_manifest_and_sha256(tmp_path):
     sha_path = Path(f"{package}.sha256")
     assert result.returncode == 0, output
     assert package.is_file()
+    with zipfile.ZipFile(package) as archive:
+        names = archive.namelist()
+        prefix = "ProblemBridge-ClaimHarness-v0.4.0/"
+        assert f"{prefix}claim_harness/__init__.py" in names
+        assert not any(name.startswith(f"{prefix}research/") for name in names)
+    assert (research / "evidence.json").read_bytes() == archived_evidence
+    assert subprocess.run(
+        ["git", "show", "HEAD:research/evidence.json"],
+        cwd=tmp_path, check=True, capture_output=True,
+    ).stdout == archived_evidence
     assert manifest_path.is_file()
     assert sha_path.is_file()
     manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
